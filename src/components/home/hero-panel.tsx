@@ -8,17 +8,24 @@ interface HeroPanelProps {
   title: string;
   description: string;
   imageUrl: string;
+  serviceId?: string | null;
 }
 
 export default function HeroPanel({
   title,
   description,
   imageUrl,
+  serviceId,
 }: HeroPanelProps) {
   const router = useRouter();
 
+  // Drug Response Prediction Dashboard (serviceId: "6")는 아직 비활성화
+  const isDisabled = serviceId === "6";
+
   const handleNewSimulation = () => {
+    if (!isDisabled) {
     router.push("/simulation");
+    }
   };
 
   return (
@@ -40,6 +47,7 @@ export default function HeroPanel({
           iconPosition="right"
           className="w-[188px]"
           onClick={handleNewSimulation}
+          disabled={isDisabled}
         >
           New Simulation
         </Button>

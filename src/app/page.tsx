@@ -174,6 +174,7 @@ export default function HomePage() {
                 title={rightPanelContent.title}
                 description={rightPanelContent.description}
                 imageUrl={rightPanelContent.imageUrl}
+                serviceId={selectedServiceId}
               />
               <div className="flex flex-col gap-[20px]">
                 <SimulationSearch />

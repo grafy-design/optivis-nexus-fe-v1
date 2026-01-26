@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Image from "next/image";
 import Gauge from "@/components/ui/gauge";
@@ -12,142 +12,547 @@ import FullscreenIcon from "@/components/ui/fullscreen-icon";
 import Button from "@/components/ui/button";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+import { callMLStudyDesign, type StudyParameters, type PrimaryEndpointData, type SecondaryEndpointData } from "@/services/studyService";
+import { useProcessedStudyData } from "@/hooks/useProcessedStudyData";
+import { useSimulationStore } from "@/store/simulationStore";
+import { SmallerSampleChart } from "@/components/charts/SmallerSampleChart";
+import { SmallerNToScreenChart } from "@/components/charts/SmallerNToScreenChart";
+import { LowerCostChart } from "@/components/charts/LowerCostChart";
+import { FormulaTooltip } from "@/components/math/FormulaTooltip";
 import ReactECharts from "echarts-for-react";
+import { Loading } from "@/components/common/Loading";
 
 export default function SimulationPage() {
-  const [activeTab, setActiveTab] = useState<"compare" | "reduction">("compare");
-  const [isApplied, setIsApplied] = useState(false);
-  
-  // Sample Size Control state
-  const [sampleSizeControl, setSampleSizeControl] = useState(0.51);
+  // Zustand store에서 상태 가져오기
+  const {
+    activeTab,
+    isApplied,
+    sampleSizeControl,
+    disease,
+    primaryEndpoint,
+    primaryEffectSize,
+    secondaryEndpoint,
+    secondaryEffectSize,
+    nominalPower,
+    treatmentDuration,
+    hypothesisType,
+    treatmentArms,
+    randomizationRatio,
+    subpopulation,
+    activeData,
+    apiData,
+    isLoading,
+    error,
+    setActiveTab,
+    setIsApplied,
+    setSampleSizeControl,
+    setDisease,
+    setPrimaryEndpoint,
+    setPrimaryEffectSize,
+    setSecondaryEndpoint,
+    setSecondaryEffectSize,
+    setNominalPower,
+    setTreatmentDuration,
+    setHypothesisType,
+    setTreatmentArms,
+    setRandomizationRatio,
+    setSubpopulation,
+    setActiveData,
+    setApiData,
+    setIsLoading,
+    setError,
+    reset,
+  } = useSimulationStore();
 
-  // Simulation Setting states
-  const [disease, setDisease] = useState("Alzheimer's disease");
-  const [primaryEndpoint, setPrimaryEndpoint] = useState("ADAS Cog 11");
-  const [primaryEffectSize, setPrimaryEffectSize] = useState(0.8);
-  const [secondaryEndpoint, setSecondaryEndpoint] = useState("");
-  const [secondaryEffectSize, setSecondaryEffectSize] = useState(0.8);
-  const [nominalPower, setNominalPower] = useState(0.8);
-  const [treatmentDuration, setTreatmentDuration] = useState("12 months");
-  const [hypothesisType, setHypothesisType] = useState("Superiority");
-  const [treatmentArms, setTreatmentArms] = useState("1");
-  const [randomizationRatio, setRandomizationRatio] = useState("1:1");
-  const [subpopulation, setSubpopulation] = useState("All");
-  const [activeData, setActiveData] = useState("Oprimed data");
+  // 페이지 로드 시 상태 초기화
+  useEffect(() => {
+    // 새로고침 시 API 데이터와 적용 상태 초기화
+    // reset 함수를 사용하여 전체 상태 초기화
+    if (typeof window !== 'undefined') {
+      reset();
+    }
+  }, [reset]); // reset 함수를 의존성에 추가
 
-  // Mock data for simulation results
-  const simulationData = {
-    topMetrics: {
-      nToScreen: "1,671",
-      sampleSize: "932",
-      enrollment: "15.57",
-      primaryEndpointPower: "80.0",
-      secondaryEndpointPower: "68.3",
-      estimatedCostReduction: "28",
-      gaugeValue: 0.8,
-      gaugeText: "80.0%"
-    },
-    smallerSample: {
-      percentage: "028%",
-      chartData: {
-        optivis: [
-          [520, 0.6], [550, 0.65], [580, 0.7], [610, 0.75], [640, 0.8], [670, 0.85], [700, 0.88], [730, 0.92]
-        ],
-        traditional: [
-          [650, 0.6], [700, 0.65], [750, 0.7], [800, 0.75], [850, 0.8], [900, 0.85], [941, 0.92]
-        ]
+  // Sample Size Control 값을 x축 값으로 변환하는 함수
+  const getHighlightXValue = (optivisData: number[][]) => {
+    if (!optivisData || optivisData.length === 0) return undefined;
+    
+    const minX = Math.min(...optivisData.map(d => d[0]));
+    const maxX = Math.max(...optivisData.map(d => d[0]));
+    
+    // sampleSizeControl (0~1)을 x축 범위로 매핑
+    return minX + (maxX - minX) * sampleSizeControl;
+  };
+
+  // API 데이터 처리
+  const optivisData = apiData?.OPTIVIS || [];
+  const traditionalData = apiData?.Traditional || [];
+
+  const {
+    filteredData,
+    chartData,
+    defaultPowerIndex,
+  } = useProcessedStudyData(optivisData, traditionalData, nominalPower);
+
+  // 하이라이트된 포인트의 실제 데이터를 찾는 함수
+  const findHighlightedData = useMemo(() => {
+    if (!apiData || optivisData.length === 0) {
+      return null;
+    }
+
+    // Chart 1 데이터 (Sample Size vs N to Screen)를 사용하여 하이라이트 포인트 찾기
+    // 필터링된 데이터가 비어있으면 원본 데이터 사용
+    const chart1Optivis = chartData.chart1Data.optivis.length > 0
+      ? chartData.chart1Data.optivis
+      : optivisData.map(item => [item.total_patient, item.n_to_screen]);
+    if (chart1Optivis.length === 0) return null;
+
+    const highlightX = getHighlightXValue(chart1Optivis);
+    if (highlightX === undefined) return null;
+
+    // OPTIVIS에서 가장 가까운 포인트 찾기
+    let optivisIndex = 0;
+    let minDiff = Math.abs(chart1Optivis[0][0] - highlightX);
+    for (let i = 1; i < chart1Optivis.length; i++) {
+      const diff = Math.abs(chart1Optivis[i][0] - highlightX);
+      if (diff < minDiff) {
+        minDiff = diff;
+        optivisIndex = i;
       }
-    },
-    smallerNToScreen: {
-      percentage: "26.8%",
-      subtitle: "Enrollment Time vs Power",
-      chartData: {
-        optivis: [
-          [10, 0.6], [12, 0.7], [14, 0.75], [15, 0.8], [16, 0.82], [18, 0.85]
-        ],
-        traditional: [
-          [12, 0.6], [15, 0.7], [18, 0.75], [20, 0.8], [21, 0.82], [24, 0.85]
-        ]
+    }
+
+    // Traditional에서 같은 y값(n_to_screen)에 가장 가까운 포인트 찾기
+    const optivisY = chart1Optivis[optivisIndex][1];
+    const chart1Traditional = chartData.chart1Data.traditional;
+    
+    // Traditional 데이터가 없으면 OPTIVIS만 반환
+    if (chart1Traditional.length === 0 || traditionalData.length === 0) {
+      const optivisPoint = filteredData.optivis.length > 0 
+        ? filteredData.optivis[optivisIndex]
+        : optivisData[optivisIndex];
+      if (!optivisPoint) return null;
+      
+      return {
+        optivis: optivisPoint,
+        traditional: null,
+      };
+    }
+
+    let traditionalIndex = 0;
+    let minYDiff = Math.abs(chart1Traditional[0][1] - optivisY);
+    for (let i = 1; i < chart1Traditional.length; i++) {
+      const diff = Math.abs(chart1Traditional[i][1] - optivisY);
+      if (diff < minYDiff) {
+        minYDiff = diff;
+        traditionalIndex = i;
       }
-    },
-    lowerCost: {
-      percentage: "006%",
-      subtitle: "Sample Size vs Cost",
-      chartData: {
-        optivis: [
-          [400, 100], [450, 120], [500, 140], [550, 160], [600, 180], [650, 200]
-        ],
-        traditional: [
-          [500, 100], [550, 120], [600, 140], [650, 160], [700, 180], [750, 200]
-        ]
-      }
-    },
-    comparisonTable: {
-      enrollment: {
-        optivis: "15.57",
-        traditional: "21.27"
-      },
-      primaryEndpointPower: {
-        optivis: "80.0%",
-        traditional: "80.0%"
-      },
-      secondaryEndpointPower: {
-        optivis: "68.3%",
-        traditional: "66.8%"
-      },
-      sampleSize: {
-        optivis: {
-          treatmentGroup1: "233",
-          controlGroup: "233",
-          total: "466"
+    }
+
+    const optivisPoint = filteredData.optivis.length > 0
+      ? filteredData.optivis[optivisIndex]
+      : optivisData[optivisIndex];
+    const traditionalPoint = filteredData.traditional.length > 0
+      ? filteredData.traditional[traditionalIndex]
+      : traditionalData[traditionalIndex];
+
+    if (!optivisPoint) return null;
+
+    return {
+      optivis: optivisPoint,
+      traditional: traditionalPoint,
+    };
+  }, [apiData, sampleSizeControl, chartData, filteredData]);
+
+  // 슬라이더 값에 따라 동적으로 계산된 데이터
+  const dynamicSimulationData = useMemo(() => {
+    if (!findHighlightedData) {
+      return null;
+    }
+
+    const { optivis, traditional } = findHighlightedData;
+
+    // Traditional 데이터가 없으면 OPTIVIS 데이터만 반환
+    if (!traditional) {
+      return {
+        topMetrics: {
+          nToScreen: optivis.n_to_screen.toLocaleString(),
+          sampleSize: optivis.total_patient.toLocaleString(),
+          enrollment: optivis.enrollment.toFixed(2),
+          primaryEndpointPower: (optivis.primary_endpoint_power * 100).toFixed(1),
+          secondaryEndpointPower: optivis.secondary_endpoint_power 
+            ? (optivis.secondary_endpoint_power * 100).toFixed(1)
+            : "0.0",
+          estimatedCostReduction: "-",
+          gaugeValue: optivis.primary_endpoint_power,
+          gaugeText: `${(optivis.primary_endpoint_power * 100).toFixed(1)}%`
         },
-        traditional: {
-          treatmentGroup1: "325",
-          controlGroup: "325",
-          total: "650"
+        smallerSample: {
+          percentage: "-",
+          chartData: {
+            optivis: chartData.chart1Data.optivis,
+            traditional: chartData.chart1Data.traditional,
+          }
+        },
+        smallerNToScreen: {
+          percentage: "-",
+          subtitle: "Enrollment Time vs Power",
+          chartData: {
+            optivis: chartData.chart2Data.optivis,
+            traditional: chartData.chart2Data.traditional,
+          }
+        },
+        lowerCost: {
+          percentage: "-",
+          subtitle: "Sample Size vs Cost",
+          chartData: {
+            optivis: chartData.chart3Data.optivis,
+            traditional: chartData.chart3Data.traditional,
+          }
+        },
+        comparisonTable: {
+          enrollment: {
+            optivis: optivis.enrollment.toFixed(2),
+            traditional: "-"
+          },
+          primaryEndpointPower: {
+            optivis: `${(optivis.primary_endpoint_power * 100).toFixed(1)}%`,
+            traditional: "-"
+          },
+          secondaryEndpointPower: {
+            optivis: optivis.secondary_endpoint_power 
+              ? `${(optivis.secondary_endpoint_power * 100).toFixed(1)}%`
+              : "0.0%",
+            traditional: "-"
+          },
+          sampleSize: {
+            optivis: {
+              treatmentGroup1: optivis.treatment_group_1?.toString() || "0",
+              controlGroup: optivis.control_group?.toString() || "0",
+              total: optivis.total_patient.toString()
+            },
+            traditional: {
+              treatmentGroup1: "-",
+              controlGroup: "-",
+              total: "-"
+            }
+          }
+        },
+        reductionView: {
+          charts: [
+            {
+              label: 'Sample Size',
+              change: "-",
+              optivis: optivis.total_patient,
+              traditional: 0
+            },
+            {
+              label: 'Power',
+              change: "-",
+              optivis: Math.round(optivis.primary_endpoint_power * 100),
+              traditional: 0
+            },
+            {
+              label: 'Enrollment Time',
+              change: "-",
+              optivis: Math.round(optivis.enrollment),
+              traditional: 0
+            },
+            {
+              label: 'Cost',
+              change: "-",
+              optivis: Math.round(optivis.cost / 1000000),
+              traditional: 0
+            }
+          ]
         }
-      }
-    },
-    reductionView: {
-      charts: [
-        {
-          label: 'Sample Size',
-          change: '28%',
-          optivis: 466,
-          traditional: 638
-        },
-        {
-          label: 'Power',
-          change: 'No loss',
-          optivis: 80,
-          traditional: 80
-        },
-        {
-          label: 'Enrollment Time',
-          change: '25%',
-          optivis: 15,
-          traditional: 20
-        },
-        {
-          label: 'Cost',
-          change: '$25.8M',
-          optivis: 55,
-          traditional: 80
+      };
+    }
+
+    // Percentage 계산 (Smaller Sample, Smaller N to Screen, Lower Cost)
+    // Smaller Sample: (Traditional total_patient - OPTIVIS total_patient) / Traditional total_patient * 100
+    const smallerSamplePct = ((traditional.total_patient - optivis.total_patient) / traditional.total_patient * 100).toFixed(0).padStart(3, '0');
+    
+    // Smaller N to Screen: (Traditional n_to_screen - OPTIVIS n_to_screen) / Traditional n_to_screen * 100
+    const smallerNToScreenPct = ((traditional.n_to_screen - optivis.n_to_screen) / traditional.n_to_screen * 100).toFixed(1);
+    
+    // Lower Cost: (Traditional cost - OPTIVIS cost) / Traditional cost * 100
+    const lowerCostPct = ((traditional.cost - optivis.cost) / traditional.cost * 100).toFixed(0).padStart(3, '0');
+
+    // Reduction 계산 (Reduction View용)
+    const sampleSizeReduction = ((traditional.total_patient - optivis.total_patient) / traditional.total_patient * 100).toFixed(0);
+    const enrollmentReduction = ((traditional.enrollment - optivis.enrollment) / traditional.enrollment * 100).toFixed(1);
+    const costReduction = ((traditional.cost - optivis.cost) / traditional.cost * 100).toFixed(0);
+    const costReductionValue = ((traditional.cost - optivis.cost) / 1000000).toFixed(1);
+
+    return {
+      topMetrics: {
+        nToScreen: optivis.n_to_screen.toLocaleString(),
+        sampleSize: optivis.total_patient.toLocaleString(),
+        enrollment: optivis.enrollment.toFixed(2),
+        primaryEndpointPower: (optivis.primary_endpoint_power * 100).toFixed(1),
+        secondaryEndpointPower: optivis.secondary_endpoint_power 
+          ? (optivis.secondary_endpoint_power * 100).toFixed(1)
+          : "0.0",
+        estimatedCostReduction: costReduction,
+        gaugeValue: optivis.primary_endpoint_power,
+        gaugeText: `${(optivis.primary_endpoint_power * 100).toFixed(1)}%`
+      },
+      smallerSample: {
+        percentage: `${smallerSamplePct}%`,
+        chartData: {
+          optivis: chartData.chart1Data.optivis,
+          traditional: chartData.chart1Data.traditional,
         }
-      ]
+      },
+      smallerNToScreen: {
+        percentage: `${smallerNToScreenPct}%`,
+        subtitle: "Enrollment Time vs Power",
+        chartData: {
+          optivis: chartData.chart2Data.optivis,
+          traditional: chartData.chart2Data.traditional,
+        }
+      },
+      lowerCost: {
+        percentage: `${lowerCostPct}%`,
+        subtitle: "Sample Size vs Cost",
+        chartData: {
+          optivis: chartData.chart3Data.optivis,
+          traditional: chartData.chart3Data.traditional,
+        }
+      },
+      comparisonTable: {
+        // OPTIVIS vs Traditional 데이터 직접 사용
+        enrollment: {
+          optivis: optivis.enrollment.toFixed(2),
+          traditional: traditional.enrollment.toFixed(2)
+        },
+        primaryEndpointPower: {
+          optivis: `${(optivis.primary_endpoint_power * 100).toFixed(1)}%`,
+          traditional: `${(traditional.primary_endpoint_power * 100).toFixed(1)}%`
+        },
+        secondaryEndpointPower: {
+          optivis: optivis.secondary_endpoint_power 
+            ? `${(optivis.secondary_endpoint_power * 100).toFixed(1)}%`
+            : "0.0%",
+          traditional: traditional.secondary_endpoint_power
+            ? `${(traditional.secondary_endpoint_power * 100).toFixed(1)}%`
+            : "0.0%"
+        },
+        sampleSize: {
+          optivis: {
+            treatmentGroup1: optivis.treatment_group_1?.toString() || "0",
+            controlGroup: optivis.control_group?.toString() || "0",
+            total: optivis.total_patient.toString()
+          },
+          traditional: {
+            treatmentGroup1: traditional.treatment_group_1?.toString() || "0",
+            controlGroup: traditional.control_group?.toString() || "0",
+            total: traditional.total_patient.toString()
+          }
+        }
+      },
+      reductionView: {
+        // Reduction View Bar Chart 데이터 - OPTIVIS vs Traditional 직접 사용
+        charts: [
+          {
+            label: 'Sample Size',
+            change: `${sampleSizeReduction}%`,
+            optivis: optivis.total_patient,
+            traditional: traditional.total_patient
+          },
+          {
+            label: 'Power',
+            change: optivis.primary_endpoint_power >= traditional.primary_endpoint_power ? 'No loss' : `${((traditional.primary_endpoint_power - optivis.primary_endpoint_power) * 100).toFixed(1)}%`,
+            optivis: Math.round(optivis.primary_endpoint_power * 100),
+            traditional: Math.round(traditional.primary_endpoint_power * 100)
+          },
+          {
+            label: 'Enrollment Time',
+            change: `${enrollmentReduction}%`,
+            optivis: Math.round(optivis.enrollment),
+            traditional: Math.round(traditional.enrollment)
+          },
+          {
+            label: 'Cost',
+            change: `$${costReductionValue}M`,
+            optivis: Math.round(optivis.cost / 1000000),
+            traditional: Math.round(traditional.cost / 1000000)
+          }
+        ]
+      }
+    };
+  }, [findHighlightedData, chartData, filteredData]);
+
+  // 동적 데이터 사용 (슬라이더 값에 따라 업데이트됨)
+  // API 데이터가 있을 때만 실제 데이터 사용
+  const simulationData = (apiData && dynamicSimulationData) ? dynamicSimulationData : null;
+
+
+  // API 데이터를 차트 형식으로 변환 (Traditional 데이터가 없어도 OPTIVIS만으로 그래프 그리기)
+  const apiChartData = useMemo(() => {
+    if (!apiData || optivisData.length === 0) {
+      return null;
+    }
+
+    // 필터링된 데이터가 비어있으면 원본 데이터 사용
+    const chart1Optivis = chartData.chart1Data.optivis.length > 0 
+      ? chartData.chart1Data.optivis 
+      : optivisData.map(item => [item.total_patient, item.n_to_screen]);
+    const chart1Traditional = chartData.chart1Data.traditional.length > 0
+      ? chartData.chart1Data.traditional
+      : traditionalData.map(item => [item.total_patient, item.n_to_screen]);
+
+    const chart2Optivis = chartData.chart2Data.optivis.length > 0
+      ? chartData.chart2Data.optivis
+      : optivisData.map(item => [item.enrollment, item.primary_endpoint_power]);
+    const chart2Traditional = chartData.chart2Data.traditional.length > 0
+      ? chartData.chart2Data.traditional
+      : traditionalData.map(item => [item.enrollment, item.primary_endpoint_power]);
+
+    const chart3Optivis = chartData.chart3Data.optivis.length > 0
+      ? chartData.chart3Data.optivis
+      : optivisData.map(item => [item.total_patient, item.cost / 1000000]);
+    const chart3Traditional = chartData.chart3Data.traditional.length > 0
+      ? chartData.chart3Data.traditional
+      : traditionalData.map(item => [item.total_patient, item.cost / 1000000]);
+
+    return {
+      smallerSample: {
+        optivis: chart1Optivis,
+        traditional: chart1Traditional,
+      },
+      smallerNToScreen: {
+        optivis: chart2Optivis,
+        traditional: chart2Traditional,
+      },
+      lowerCost: {
+        optivis: chart3Optivis,
+        traditional: chart3Traditional,
+      },
+    };
+  }, [apiData, chartData, optivisData, traditionalData]);
+
+  // 차트에 사용할 데이터 (API 데이터가 있을 때만 사용)
+  const chartDataToUse = apiChartData;
+
+  // Primary Endpoint를 API 형식으로 변환
+  const convertPrimaryEndpoint = (endpoint: string): string => {
+    const endpointMap: Record<string, string> = {
+      "ADAS Cog 11": "ADTOT70",
+      "MMSE": "MMTOTSCORE",
+      "CDR": "CDTOTSCORE",
+    };
+    return endpointMap[endpoint] || endpoint;
+  };
+
+  // API 호출 함수
+  const handleApplySettings = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Primary 데이터 구성
+      const primaryData: PrimaryEndpointData = {
+        no: 1,
+        outcome: [convertPrimaryEndpoint(primaryEndpoint)],
+        type: ["Continous"], // 기본값: Continous (UI에서 선택 가능하도록 확장 가능)
+        effect_size: [primaryEffectSize],
+        target_power: [nominalPower],
+        statistical_method: "ANCOVA", // 기본값: ANCOVA
+        multiplicity: "Bonferroni", // 기본값: Bonferroni
+        endpoint_objectives: ["Confirmatory"], // 기본값: ["Confirmatory"]
+        alpha: 0.05, // 기본값: 0.05
+      };
+
+      // Secondary 데이터 구성 (항상 포함)
+      const secondaryData: SecondaryEndpointData = {
+        no: 1,
+        outcome: secondaryEndpoint 
+          ? [convertPrimaryEndpoint(secondaryEndpoint)]
+          : [convertPrimaryEndpoint(primaryEndpoint)], // secondaryEndpoint가 없으면 primary와 동일하게
+        type: ["Continous"],
+        effect_size: [secondaryEffectSize],
+        target_power: [nominalPower],
+        statistical_method: "ANCOVA",
+        multiplicity: "Bonferroni",
+        endpoint_objectives: ["Confirmatory"],
+        alpha: 0.05,
+      };
+
+      // treatment_duration 검증 및 변환 (3의 배수, >0, 정수)
+      const durationValue = parseInt(treatmentDuration.replace(" months", ""), 10);
+      if (isNaN(durationValue) || durationValue <= 0 || durationValue % 3 !== 0) {
+        throw new Error("Treatment Duration은 3의 배수인 양수여야 합니다.");
+      }
+
+      const parameters: StudyParameters = {
+        disease_area:"Alzheimer",
+        treatment_duration: durationValue,
+        treatment_arms: parseInt(treatmentArms, 10),
+        randomization_ratio: randomizationRatio,
+        stratification: false, // 기본값: false
+        hypothesis_type: hypothesisType,
+        subpopulation: subpopulation,
+        primary: [primaryData],
+        secondary: [secondaryData], // 항상 포함
+      };
+
+      const response = await callMLStudyDesign(parameters);
+      
+      // API 응답에서 데이터 추출
+      console.log("전체 API 응답:", JSON.stringify(response, null, 2));
+      
+      const manageResult = response.data?.table_results?.manage_result as any;
+      console.log("manageResult:", JSON.stringify(manageResult, null, 2));
+      console.log("manageResult 키들:", manageResult ? Object.keys(manageResult) : "null");
+      
+      if (manageResult) {
+        // API 응답 키는 모두 대문자: TRADITIONAL, OPTIVIS
+        const optivisData = manageResult.OPTIVIS || [];
+        const traditionalData = manageResult.TRADITIONAL || [];
+        const resultFormula = response.data?.table_results?.result_formula;
+        
+        console.log("API 응답 데이터:", {
+          manageResultKeys: Object.keys(manageResult),
+          optivisCount: optivisData.length,
+          traditionalCount: traditionalData.length,
+          optivisSample: optivisData[0],
+          traditionalSample: traditionalData[0],
+          rawTraditional: manageResult.Traditional,
+          rawTraditionalLower: manageResult.traditional,
+          allKeys: Object.keys(manageResult),
+          resultFormula,
+        });
+        
+        setApiData({
+          OPTIVIS: Array.isArray(optivisData) ? optivisData : [],
+          Traditional: Array.isArray(traditionalData) ? traditionalData : [],
+          result_formula: resultFormula,
+        });
+        setIsApplied(true);
+      } else {
+        throw new Error("API 응답에 데이터가 없습니다.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "API 호출에 실패했습니다.");
+      console.error("API 호출 오류:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <AppLayout headerType="simulation">
-      <div className="w-full flex flex-col items-center">
+    <>
+      <Loading isLoading={isLoading} />
+      <AppLayout headerType="simulation">
+        <div className="w-full flex flex-col items-center">
         {/* Top Section - Title and Metrics */}
         <div className="w-full flex justify-center mb-2 max-w-full">
           <div className="w-[1772px] flex-shrink-0 mx-auto">
             {/* Title Section */}
-            <div className="flex items-start justify-between mb-4 min-w-full">
+            <div className="flex items-start justify-between mb-2 min-w-full">
             <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-[#111111] text-left">
+              <div className="text-title text-[#111111] text-left mb-2">
                 Adaptive Trial Simulation
               </div>
             
@@ -162,7 +567,7 @@ export default function SimulationPage() {
               <div className="grid grid-cols-3 gap-4 flex-shrink-0 mt-4">
                 <div className="flex flex-col">
                   <span className="text-h2 text-[#1b1b1b]">
-                    {isApplied ? simulationData.topMetrics.nToScreen : "--"}
+                    {isApplied && simulationData ? simulationData.topMetrics.nToScreen : "--"}
                   </span>
                   <span className="text-body5m text-[#666b73]">
                     N to Screen
@@ -170,7 +575,7 @@ export default function SimulationPage() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-h2 text-[#1b1b1b]">
-                    {isApplied ? simulationData.topMetrics.sampleSize : "--"}
+                    {isApplied && simulationData ? simulationData.topMetrics.sampleSize : "--"}
                   </span>
                   <span className="text-body5m text-[#666b73]">
                     Sample Size
@@ -179,7 +584,7 @@ export default function SimulationPage() {
                 <div className="flex flex-col">
                   <div className="flex items-baseline gap-1">
                     <span className="text-h2 text-[#1b1b1b]">
-                      {isApplied ? simulationData.topMetrics.enrollment : "--"}
+                      {isApplied && simulationData ? simulationData.topMetrics.enrollment : "--"}
                     </span>
                     <span className="text-body5 text-[#1b1b1b]">
                       {isApplied ? "months" : ""}
@@ -191,7 +596,7 @@ export default function SimulationPage() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-h2 text-[#1b1b1b]">
-                    {isApplied ? `${simulationData.topMetrics.primaryEndpointPower}%` : "--"}
+                    {isApplied && simulationData ? `${simulationData.topMetrics.primaryEndpointPower}%` : "--"}
                   </span>
                   <span className="text-body5m text-[#666b73]">
                     Primary Endpoint Power
@@ -199,7 +604,7 @@ export default function SimulationPage() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-h2 text-[#1b1b1b]">
-                    {isApplied ? `${simulationData.topMetrics.secondaryEndpointPower}%` : "--"}
+                    {isApplied && simulationData ? `${simulationData.topMetrics.secondaryEndpointPower}%` : "--"}
                   </span>
                   <span className="text-body5m text-[#666b73]">
                     Secondary Endpoint Power
@@ -207,7 +612,7 @@ export default function SimulationPage() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-h2 text-[#1b1b1b]">
-                    {isApplied ? `${simulationData.topMetrics.estimatedCostReduction}%` : "--"}
+                    {isApplied && simulationData ? `${simulationData.topMetrics.estimatedCostReduction}%` : "--"}
                   </span>
                   <span className="text-body5m text-[#666b73]">
                     Estimated Cost Reduction
@@ -216,8 +621,8 @@ export default function SimulationPage() {
               </div>
 
               <Gauge 
-                value={isApplied ? simulationData.topMetrics.gaugeValue : 0.6} 
-                text={isApplied ? simulationData.topMetrics.gaugeText : "--"}
+                value={isApplied && simulationData ? simulationData.topMetrics.gaugeValue : 0.6} 
+                text={isApplied && simulationData ? simulationData.topMetrics.gaugeText : "--"}
                 showIndicator={true}
               />
             </div>
@@ -259,7 +664,7 @@ export default function SimulationPage() {
                     </span>
                   </div>
                   {/* Slider */}
-                  <div className="relative">
+                  <div className="relative select-none" style={{ userSelect: "none" }}>
                     <div className="h-[12px] rounded-full bg-[#787878]" style={{ opacity: 0.2 }} />
                     <div
                       className="h-[12px] rounded-full absolute top-0 left-0"
@@ -269,23 +674,72 @@ export default function SimulationPage() {
                       className="absolute top-1/2 -translate-y-1/2 w-[38px] h-[24px] rounded-full bg-white cursor-grab active:cursor-grabbing"
                       style={{ left: `calc(${sampleSizeControl * 100}% - 19px)` }}
                       onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         const slider = e.currentTarget.parentElement;
                         if (!slider) return;
                         
+                        // 텍스트 선택 방지 함수들
+                        const preventSelect = (event: Event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          return false;
+                        };
+                        
+                        const preventDrag = (event: DragEvent) => {
+                          event.preventDefault();
+                          return false;
+                        };
+                        
                         const handleMouseMove = (moveEvent: MouseEvent) => {
+                          moveEvent.preventDefault();
                           const rect = slider.getBoundingClientRect();
                           const x = moveEvent.clientX - rect.left;
                           const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
                           setSampleSizeControl(percentage / 100);
                         };
                         
-                        const handleMouseUp = () => {
+                        const handleMouseUp = (upEvent: MouseEvent) => {
+                          upEvent.preventDefault();
+                          upEvent.stopPropagation();
                           document.removeEventListener("mousemove", handleMouseMove);
                           document.removeEventListener("mouseup", handleMouseUp);
+                          document.removeEventListener("selectstart", preventSelect);
+                          document.removeEventListener("select", preventSelect);
+                          document.removeEventListener("dragstart", preventDrag);
+                          
+                          // 원래 스타일 복원
+                          const bodyStyle = document.body.style as any;
+                          const originalUserSelect = bodyStyle.userSelect;
+                          const originalWebkitUserSelect = bodyStyle.webkitUserSelect;
+                          const originalMozUserSelect = bodyStyle.mozUserSelect;
+                          const originalMsUserSelect = bodyStyle.msUserSelect;
+                          
+                          bodyStyle.userSelect = originalUserSelect;
+                          bodyStyle.webkitUserSelect = originalWebkitUserSelect;
+                          bodyStyle.mozUserSelect = originalMozUserSelect;
+                          bodyStyle.msUserSelect = originalMsUserSelect;
+                          document.body.classList.remove("no-select");
                         };
                         
-                        document.addEventListener("mousemove", handleMouseMove);
-                        document.addEventListener("mouseup", handleMouseUp);
+                        // 전역 텍스트 선택 차단
+                        const bodyStyle = document.body.style as any;
+                        const originalUserSelect = bodyStyle.userSelect;
+                        const originalWebkitUserSelect = bodyStyle.webkitUserSelect;
+                        const originalMozUserSelect = bodyStyle.mozUserSelect;
+                        const originalMsUserSelect = bodyStyle.msUserSelect;
+                        
+                        bodyStyle.userSelect = "none";
+                        bodyStyle.webkitUserSelect = "none";
+                        bodyStyle.mozUserSelect = "none";
+                        bodyStyle.msUserSelect = "none";
+                        document.body.classList.add("no-select");
+                        
+                        document.addEventListener("mousemove", handleMouseMove, { passive: false });
+                        document.addEventListener("mouseup", handleMouseUp, { passive: false });
+                        document.addEventListener("selectstart", preventSelect);
+                        document.addEventListener("select", preventSelect);
+                        document.addEventListener("dragstart", preventDrag);
                       }}
                     />
                   </div>
@@ -348,7 +802,7 @@ export default function SimulationPage() {
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <span className="text-body4 text-[#111111]">Endpoints Design</span>
-                        <button className="w-6 h-6 rounded-[8px] bg-[#231f52] flex items-center justify-center">
+                        <button className="w-6 h-6 rounded-[8px] bg-[#231f52] flex items-center justify-center cursor-pointer">
                           <span className="text-body4 text-white">+</span>
                         </button>
                       </div>
@@ -371,9 +825,9 @@ export default function SimulationPage() {
                           </div>
                           <Slider
                             value={primaryEffectSize}
-                            min={0}
-                            max={1}
-                            step={0.01}
+                            min={0.1}
+                            max={10}
+                            step={0.1}
                             onChange={setPrimaryEffectSize}
                             className="w-full"
                           />
@@ -401,9 +855,9 @@ export default function SimulationPage() {
                           </div>
                           <Slider
                             value={secondaryEffectSize}
-                            min={0}
-                            max={1}
-                            step={0.01}
+                            min={0.1}
+                            max={10}
+                            step={0.1}
                             onChange={setSecondaryEffectSize}
                             className="w-full"
                           />
@@ -439,7 +893,7 @@ export default function SimulationPage() {
                         </div>
                         <Select
                           value={treatmentDuration}
-                          options={["6 months", "12 months", "18 months", "24 months"]}
+                          options={["3 months", "6 months", "9 months", "12 months", "15 months", "18 months", "21 months", "24 months"]}
                           onChange={setTreatmentDuration}
                           className="[&>button]:h-[30px]"
                         />
@@ -477,7 +931,7 @@ export default function SimulationPage() {
                         </div>
                         <Select
                           value={treatmentArms}
-                          options={["1", "2", "3", "4"]}
+                          options={["1", "2", "3"]}
                           onChange={setTreatmentArms}
                           className="w-[154px]"
                         />
@@ -506,7 +960,7 @@ export default function SimulationPage() {
                         <span className="text-body5 text-[#5f5e5e]">Subpopulation</span>
                         <Select
                           value={subpopulation}
-                          options={["All", "Subgroup A", "Subgroup B"]}
+                          options={["ALL", "Mild AD", "Moderate AD"]}
                           onChange={setSubpopulation}
                           className="w-[154px]"
                         />
@@ -549,10 +1003,11 @@ export default function SimulationPage() {
                         size="md"
                         icon="play"
                         iconPosition="right"
-                        onClick={() => setIsApplied(true)}
+                        onClick={handleApplySettings}
+                        disabled={isLoading}
                         className="self-end h-[30px] text-body4"
                       >
-                        Apply
+                        {isLoading ? "Loading..." : "Apply"}
                       </Button>
                       </div>
                     </SimpleBar>
@@ -581,7 +1036,7 @@ export default function SimulationPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setActiveTab("compare")}
-                        className={`px-[18px] py-[10px] rounded-full transition-all ${
+                        className={`px-[18px] py-[10px] rounded-full transition-all cursor-pointer ${
                           activeTab === "compare"
                             ? "bg-[#231f52] text-white text-body4m"
                             : "text-[#484646] text-body4"
@@ -591,7 +1046,12 @@ export default function SimulationPage() {
                       </button>
                       <button
                         onClick={() => setActiveTab("reduction")}
+                        disabled={!isApplied}
                         className={`px-[18px] py-[10px] rounded-full transition-all ${
+                          !isApplied
+                            ? "cursor-not-allowed"
+                            : "cursor-pointer"
+                        } ${
                           activeTab === "reduction"
                             ? "bg-[#231f52] text-white text-body4m"
                             : "text-[#484646] text-body4"
@@ -623,88 +1083,197 @@ export default function SimulationPage() {
                 <div className="flex-1 flex gap-4 min-h-0">
                   {/* Left Area - Smaller Sample, Smaller N to screen, Lower cost */}
                   <div className="w-[889px] flex-shrink-0 flex flex-col gap-4">
-                    {/* Smaller Sample Card */}
-                    <div
-                      className="rounded-[18px] overflow-hidden flex-1 min-h-0"
-                      style={{
-                        background: "#262255",
-                      }}
-                    >
-                      <div className="flex flex-col w-full h-full p-4">
-                        {/* Card Header */}
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex flex-col gap-1">
-                            <h3 className="text-body1m text-[#fafafa]">
-                              Smaller Sample
-                            </h3>
-                            <p className="text-body4 text-[#fafafa]">
-                              Sample Size vs CI Width
-                            </p>
-                            {isApplied && (
-                              <p className="text-h0 text-[#fafafa] mt-1">
-                                {simulationData.smallerSample.percentage}
+                    {activeTab === "compare" ? (
+                      /* Smaller Sample Card - Compare View */
+                      <div
+                        className="rounded-[18px] overflow-hidden flex-1 min-h-0"
+                        style={{
+                          background: "#262255",
+                        }}
+                      >
+                        <div className="flex flex-col w-full h-full p-4">
+                          {/* Card Header */}
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex flex-col gap-1">
+                              <h3 className="text-body1m text-[#fafafa]">
+                                Smaller Sample
+                              </h3>
+                              <p className="text-body4 text-[#fafafa]">
+                                Sample Size vs CI Width
                               </p>
-                            )}
+                              {isApplied && (
+                                <p className="text-h0 text-[#fafafa] mt-1">
+                                  {simulationData?.smallerSample?.percentage || "--"}
+                                </p>
+                              )}
+                            </div>
+                            {isApplied && <FullscreenIcon backgroundColor="#1c1942" />}
                           </div>
-                          {isApplied && <FullscreenIcon backgroundColor="#1c1942" />}
-                        </div>
-                        {/* Chart Area */}
-                        <div className="mt-auto bg-[#f8f8f8] rounded-[12px] border border-white" style={{ height: 'auto', minHeight: '280px' }}>
-                          {isApplied ? (
-                            <ReactECharts
-                              option={{
-                                grid: { left: 60, right: 20, top: 20, bottom: 50 },
-                                xAxis: {
-                                  type: 'value',
-                                  name: 'Sample Size',
-                                  nameLocation: 'middle',
-                                  nameGap: 30,
-                                  nameTextStyle: { fontSize: 12, color: '#666' },
-                                  axisLine: { lineStyle: { color: '#999' } },
-                                  splitLine: { show: false }
-                                },
-                                yAxis: {
-                                  type: 'value',
-                                  name: 'CI Width',
-                                  nameLocation: 'middle',
-                                  nameGap: 40,
-                                  nameTextStyle: { fontSize: 12, color: '#666' },
-                                  axisLine: { lineStyle: { color: '#999' } },
-                                  splitLine: { show: true, lineStyle: { color: '#e0e0e0', type: 'dashed' } }
-                                },
-                                series: [
-                                  {
-                                    name: 'OPTIVIS',
-                                    type: 'line',
-                                    data: simulationData.smallerSample.chartData.optivis,
-                                    lineStyle: { color: '#f06600', width: 2 },
-                                    symbol: 'circle',
-                                    symbolSize: 6,
-                                    itemStyle: { color: '#f06600' },
-                                    smooth: true
-                                  },
-                                  {
-                                    name: 'Traditional',
-                                    type: 'line',
-                                    data: simulationData.smallerSample.chartData.traditional,
-                                    lineStyle: { color: '#231f52', width: 2 },
-                                    symbol: 'circle',
-                                    symbolSize: 6,
-                                    itemStyle: { color: '#231f52' },
-                                    smooth: true
-                                  }
-                                ],
-                                tooltip: {
-                                  trigger: 'axis',
-                                  axisPointer: { type: 'cross' }
-                                }
-                              }}
-                              style={{ height: '100%', width: '100%' }}
-                            />
-                          ) : null}
+                          {/* Chart Area */}
+                          <div className="mt-auto bg-[#f8f8f8] rounded-[12px] border border-white" style={{ height: 'auto', minHeight: '280px' }}>
+                            {chartDataToUse && chartDataToUse.smallerSample.optivis.length > 0 ? (
+                              <SmallerSampleChart
+                                optivisData={chartDataToUse.smallerSample.optivis}
+                                traditionalData={chartDataToUse.smallerSample.traditional}
+                                highlightXValue={getHighlightXValue(chartDataToUse.smallerSample.optivis)}
+                              />
+                            ) : null}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      /* Sample Size & Power Card - Reduction View */
+                      isApplied && simulationData?.reductionView?.charts ? (
+                        <div
+                          className="rounded-[18px] overflow-hidden flex-1 min-h-0"
+                          style={{
+                            background: "#262255",
+                          }}
+                        >
+                          <div className="flex flex-col w-full h-full p-4">
+                            {/* Card Header */}
+                            <div className="flex flex-col gap-1 mb-4">
+                              <h3 className="text-body1m text-[#fafafa]">
+                                Smaller Sample
+                              </h3>
+                              <p className="text-body4 text-[#fafafa]">
+                                Sample Size vs Power
+                              </p>
+                              {isApplied && simulationData?.smallerSample?.percentage && (
+                                <p className="text-h0 text-[#fafafa] mt-1">
+                                  {simulationData.smallerSample.percentage}
+                                </p>
+                              )}
+                            </div>
+                            {/* Chart Area */}
+                            <div className="mt-auto bg-[#f8f8f8] rounded-[12px] border border-white" style={{ height: 'auto', maxHeight: '280px' }}>
+                              <div className="grid grid-cols-2 gap-4 h-full p-4">
+                                {/* Sample Size Section */}
+                                {simulationData.reductionView.charts.find(c => c.label === 'Sample Size') && (() => {
+                                  const chart = simulationData.reductionView.charts.find(c => c.label === 'Sample Size')!;
+                                  return (
+                                    <div className="flex flex-col gap-2">
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex flex-col gap-1">
+                                          <h4 className="text-body2 text-[#262255]">
+                                            {chart.label}
+                                          </h4>
+                                          <div className="flex items-center gap-1 mt-1">
+                                            <ArrowIcon direction="down" color="#231F52" />
+                                            <span className="text-h4 text-[#262625]">
+                                              {chart.change}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <FullscreenIcon />
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        {/* Sample Size - OPTIVIS */}
+                                        <div className="flex flex-col gap-1">
+                                          <div style={{ height: '180px', width: '100%' }}>
+                                            <ReactECharts
+                                              option={{
+                                                grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                                xAxis: { show: false, type: 'category', data: [''] },
+                                                yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                                series: [
+                                                  { type: 'bar', data: [chart.optivis], itemStyle: { color: '#f06600', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.optivis}`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                                ],
+                                                tooltip: { show: false },
+                                                legend: { show: false }
+                                              }}
+                                              style={{ height: '100%', width: '100%' }}
+                                            />
+                                          </div>
+                                        </div>
+                                        {/* Sample Size - Traditional */}
+                                        <div className="flex flex-col gap-1">
+                                          <div style={{ height: '180px', width: '100%' }}>
+                                            <ReactECharts
+                                              option={{
+                                                grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                                xAxis: { show: false, type: 'category', data: [''] },
+                                                yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                                series: [
+                                                  { type: 'bar', data: [chart.traditional], itemStyle: { color: '#231f52', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.traditional}`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                                ],
+                                                tooltip: { show: false },
+                                                legend: { show: false }
+                                              }}
+                                              style={{ height: '100%', width: '100%' }}
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                                {/* Power Section */}
+                                {simulationData.reductionView.charts.find(c => c.label === 'Power') && (() => {
+                                  const chart = simulationData.reductionView.charts.find(c => c.label === 'Power')!;
+                                  return (
+                                    <div className="flex flex-col gap-2">
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex flex-col gap-1">
+                                          <h4 className="text-body2 text-[#262255]">
+                                            {chart.label}
+                                          </h4>
+                                          <div className="flex items-center gap-1 mt-1">
+                                            <ArrowIcon direction="down" color="#231F52" />
+                                            <span className="text-h4 text-[#262625]">
+                                              {chart.change}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        <FullscreenIcon />
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        {/* Power - OPTIVIS */}
+                                        <div className="flex flex-col gap-1">
+                                          <div style={{ height: '180px', width: '100%' }}>
+                                            <ReactECharts
+                                              option={{
+                                                grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                                xAxis: { show: false, type: 'category', data: [''] },
+                                                yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                                series: [
+                                                  { type: 'bar', data: [chart.optivis], itemStyle: { color: '#f06600', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.optivis}`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                                ],
+                                                tooltip: { show: false },
+                                                legend: { show: false }
+                                              }}
+                                              style={{ height: '100%', width: '100%' }}
+                                            />
+                                          </div>
+                                        </div>
+                                        {/* Power - Traditional */}
+                                        <div className="flex flex-col gap-1">
+                                          <div style={{ height: '180px', width: '100%' }}>
+                                            <ReactECharts
+                                              option={{
+                                                grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                                xAxis: { show: false, type: 'category', data: [''] },
+                                                yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                                series: [
+                                                  { type: 'bar', data: [chart.traditional], itemStyle: { color: '#231f52', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.traditional}`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                                ],
+                                                tooltip: { show: false },
+                                                legend: { show: false }
+                                              }}
+                                              style={{ height: '100%', width: '100%' }}
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : null
+                    )}
 
                     {/* Bottom Two Cards */}
                     <div className="flex gap-4 h-[276px]">
@@ -718,78 +1287,103 @@ export default function SimulationPage() {
                         <div className="flex flex-col w-full h-full p-4">
                           {/* Card Header */}
                           <div className="flex items-start justify-between mb-4">
-                            <div className="flex flex-col gap-1">
-                              <h3 className="text-body4 text-[#262625]">
-                                Smaller N to screen
-                              </h3>
-                              <p className="text-small1 text-[#262625]">
-                                {isApplied ? simulationData.smallerNToScreen.subtitle : "at the same Power"}
-                              </p>
-                              {isApplied && (
-                                <div className="flex items-center gap-1 mt-1">
-                                  <ArrowIcon direction="down" color="#231F52" />
-                                  <p className="text-h4 text-[#262625]">
-                                    {simulationData.smallerNToScreen.percentage}
+                            {activeTab === "compare" ? (
+                              <>
+                                <div className="flex flex-col gap-1">
+                                  <h3 className="text-body4 text-[#262625]">
+                                    Smaller N to screen
+                                  </h3>
+                                  <p className="text-small1 text-[#262625]">
+                                    {isApplied && simulationData ? simulationData.smallerNToScreen.subtitle : "at the same Power"}
                                   </p>
+                                  {isApplied && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <ArrowIcon direction="down" color="#231F52" />
+                                      <p className="text-h4 text-[#262625]">
+                                        {simulationData?.smallerNToScreen?.percentage || "--"}
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                            {isApplied && <FullscreenIcon />}
+                                {isApplied && <FullscreenIcon />}
+                              </>
+                            ) : (
+                              isApplied && simulationData?.reductionView?.charts ? (() => {
+                                const chart = simulationData.reductionView.charts.find(c => c.label === 'Enrollment Time');
+                                return chart ? (
+                                  <>
+                                    <div className="flex flex-col gap-1">
+                                      <h3 className="text-body4 text-[#262625]">
+                                        {chart.label}
+                                      </h3>
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <ArrowIcon direction="down" color="#231F52" />
+                                        <p className="text-h4 text-[#262625]">
+                                          {chart.change}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {isApplied && <FullscreenIcon />}
+                                  </>
+                                ) : null;
+                              })() : null
+                            )}
                           </div>
                           {/* Chart Area */}
                           <div className="mt-auto bg-white/60 rounded-[12px]" style={{ height: '148px' }}>
-                            {isApplied ? (
-                              <ReactECharts
-                                option={{
-                                  grid: { left: 50, right: 20, top: 20, bottom: 40 },
-                                  xAxis: {
-                                    type: 'value',
-                                    name: 'Enrollment Time',
-                                    nameLocation: 'middle',
-                                    nameGap: 25,
-                                    nameTextStyle: { fontSize: 10, color: '#666' },
-                                    axisLine: { lineStyle: { color: '#999' } },
-                                    splitLine: { show: false }
-                                  },
-                                  yAxis: {
-                                    type: 'value',
-                                    name: 'Power',
-                                    nameLocation: 'middle',
-                                    nameGap: 30,
-                                    nameTextStyle: { fontSize: 10, color: '#666' },
-                                    axisLine: { lineStyle: { color: '#999' } },
-                                    splitLine: { show: true, lineStyle: { color: '#e0e0e0', type: 'dashed' } }
-                                  },
-                                  series: [
-                                    {
-                                      name: 'OPTIVIS',
-                                      type: 'line',
-                                      data: simulationData.smallerNToScreen.chartData.optivis,
-                                      lineStyle: { color: '#f06600', width: 2 },
-                                      symbol: 'circle',
-                                      symbolSize: 4,
-                                      itemStyle: { color: '#f06600' },
-                                      smooth: true
-                                    },
-                                    {
-                                      name: 'Traditional',
-                                      type: 'line',
-                                      data: simulationData.smallerNToScreen.chartData.traditional,
-                                      lineStyle: { color: '#231f52', width: 2 },
-                                      symbol: 'circle',
-                                      symbolSize: 4,
-                                      itemStyle: { color: '#231f52' },
-                                      smooth: true
-                                    }
-                                  ],
-                                  tooltip: {
-                                    trigger: 'axis',
-                                    axisPointer: { type: 'cross' }
-                                  }
-                                }}
-                                style={{ height: '100%', width: '100%' }}
-                              />
-                            ) : null}
+                            {activeTab === "compare" ? (
+                              chartDataToUse && chartDataToUse.smallerNToScreen.optivis.length > 0 ? (
+                                <SmallerNToScreenChart
+                                  optivisData={chartDataToUse.smallerNToScreen.optivis}
+                                  traditionalData={chartDataToUse.smallerNToScreen.traditional}
+                                  highlightXValue={getHighlightXValue(chartDataToUse.smallerNToScreen.optivis)}
+                                />
+                              ) : null
+                            ) : (
+                              isApplied && simulationData?.reductionView?.charts ? (() => {
+                                const chart = simulationData.reductionView.charts.find(c => c.label === 'Enrollment Time');
+                                return chart ? (
+                                  <div className="grid grid-cols-2 gap-2 h-full p-2">
+                                    {/* Enrollment Time - OPTIVIS */}
+                                    <div className="flex flex-col gap-1">
+                                      <div style={{ height: '140px', width: '100%' }}>
+                                        <ReactECharts
+                                          option={{
+                                            grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                            xAxis: { show: false, type: 'category', data: [''] },
+                                            yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                            series: [
+                                              { type: 'bar', data: [chart.optivis], itemStyle: { color: '#f06600', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.optivis}`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                            ],
+                                            tooltip: { show: false },
+                                            legend: { show: false }
+                                          }}
+                                          style={{ height: '100%', width: '100%' }}
+                                        />
+                                      </div>
+                                    </div>
+                                    {/* Enrollment Time - Traditional */}
+                                    <div className="flex flex-col gap-1">
+                                      <div style={{ height: '140px', width: '100%' }}>
+                                        <ReactECharts
+                                          option={{
+                                            grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                            xAxis: { show: false, type: 'category', data: [''] },
+                                            yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                            series: [
+                                              { type: 'bar', data: [chart.traditional], itemStyle: { color: '#231f52', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.traditional}`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                            ],
+                                            tooltip: { show: false },
+                                            legend: { show: false }
+                                          }}
+                                          style={{ height: '100%', width: '100%' }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })() : null
+                            )}
                           </div>
                         </div>
                       </div>
@@ -804,78 +1398,103 @@ export default function SimulationPage() {
                         <div className="flex flex-col w-full h-full p-4">
                           {/* Card Header */}
                           <div className="flex items-start justify-between mb-4">
-                            <div className="flex flex-col gap-1">
-                              <h3 className="text-body4 text-[#262625]">
-                                Lower cost
-                              </h3>
-                              <p className="text-small1 text-[#262625]">
-                                {isApplied ? simulationData.lowerCost.subtitle : "at the same sample size"}
-                              </p>
-                              {isApplied && (
-                                <div className="flex items-center gap-1  mt-1">
-                                  <ArrowIcon direction="down" color="#231F52" />
-                                  <p className="text-h4 text-[#262625]">
-                                    {simulationData.lowerCost.percentage}
+                            {activeTab === "compare" ? (
+                              <>
+                                <div className="flex flex-col gap-1">
+                                  <h3 className="text-body4 text-[#262625]">
+                                    Lower cost
+                                  </h3>
+                                  <p className="text-small1 text-[#262625]">
+                                    {isApplied && simulationData ? simulationData.lowerCost.subtitle : "at the same sample size"}
                                   </p>
+                                  {isApplied && (
+                                    <div className="flex items-center gap-1  mt-1">
+                                      <ArrowIcon direction="down" color="#231F52" />
+                                      <p className="text-h4 text-[#262625]">
+                                        {simulationData?.lowerCost?.percentage || "--"}
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                            {isApplied && <FullscreenIcon />}
+                                {isApplied && <FullscreenIcon />}
+                              </>
+                            ) : (
+                              isApplied && simulationData?.reductionView?.charts ? (() => {
+                                const chart = simulationData.reductionView.charts.find(c => c.label === 'Cost');
+                                return chart ? (
+                                  <>
+                                    <div className="flex flex-col gap-1">
+                                      <h3 className="text-body4 text-[#262625]">
+                                        {chart.label}
+                                      </h3>
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <ArrowIcon direction="down" color="#231F52" />
+                                        <p className="text-h4 text-[#262625]">
+                                          {chart.change}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {isApplied && <FullscreenIcon />}
+                                  </>
+                                ) : null;
+                              })() : null
+                            )}
                           </div>
                           {/* Chart Area */}
                           <div className="mt-auto bg-white/60 rounded-[12px]" style={{ height: '148px' }}>
-                            {isApplied ? (
-                              <ReactECharts
-                                option={{
-                                  grid: { left: 40, right: 15, top: 15, bottom: 30 },
-                                  xAxis: {
-                                    type: 'value',
-                                    name: 'Sample Size',
-                                    nameLocation: 'middle',
-                                    nameGap: 25,
-                                    nameTextStyle: { fontSize: 10, color: '#666' },
-                                    axisLine: { lineStyle: { color: '#999' } },
-                                    splitLine: { show: false }
-                                  },
-                                  yAxis: {
-                                    type: 'value',
-                                    name: 'Cost',
-                                    nameLocation: 'middle',
-                                    nameGap: 30,
-                                    nameTextStyle: { fontSize: 10, color: '#666' },
-                                    axisLine: { lineStyle: { color: '#999' } },
-                                    splitLine: { show: true, lineStyle: { color: '#e0e0e0', type: 'dashed' } }
-                                  },
-                                  series: [
-                                    {
-                                      name: 'OPTIVIS',
-                                      type: 'line',
-                                      data: simulationData.lowerCost.chartData.optivis,
-                                      lineStyle: { color: '#f06600', width: 2 },
-                                      symbol: 'circle',
-                                      symbolSize: 4,
-                                      itemStyle: { color: '#f06600' },
-                                      smooth: true
-                                    },
-                                    {
-                                      name: 'Traditional',
-                                      type: 'line',
-                                      data: simulationData.lowerCost.chartData.traditional,
-                                      lineStyle: { color: '#231f52', width: 2 },
-                                      symbol: 'circle',
-                                      symbolSize: 4,
-                                      itemStyle: { color: '#231f52' },
-                                      smooth: true
-                                    }
-                                  ],
-                                  tooltip: {
-                                    trigger: 'axis',
-                                    axisPointer: { type: 'cross' }
-                                  }
-                                }}
-                                style={{ height: '100%', width: '100%' }}
-                              />
-                            ) : null}
+                            {activeTab === "compare" ? (
+                              chartDataToUse && chartDataToUse.lowerCost.optivis.length > 0 ? (
+                                <LowerCostChart
+                                  optivisData={chartDataToUse.lowerCost.optivis}
+                                  traditionalData={chartDataToUse.lowerCost.traditional}
+                                  highlightXValue={getHighlightXValue(chartDataToUse.lowerCost.optivis)}
+                                />
+                              ) : null
+                            ) : (
+                              isApplied && simulationData?.reductionView?.charts ? (() => {
+                                const chart = simulationData.reductionView.charts.find(c => c.label === 'Cost');
+                                return chart ? (
+                                  <div className="grid grid-cols-2 gap-2 h-full p-2">
+                                    {/* Cost - OPTIVIS */}
+                                    <div className="flex flex-col gap-1">
+                                      <div style={{ height: '140px', width: '100%' }}>
+                                        <ReactECharts
+                                          option={{
+                                            grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                            xAxis: { show: false, type: 'category', data: [''] },
+                                            yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                            series: [
+                                              { type: 'bar', data: [chart.optivis], itemStyle: { color: '#f06600', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.optivis}M`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                            ],
+                                            tooltip: { show: false },
+                                            legend: { show: false }
+                                          }}
+                                          style={{ height: '100%', width: '100%' }}
+                                        />
+                                      </div>
+                                    </div>
+                                    {/* Cost - Traditional */}
+                                    <div className="flex flex-col gap-1">
+                                      <div style={{ height: '140px', width: '100%' }}>
+                                        <ReactECharts
+                                          option={{
+                                            grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                            xAxis: { show: false, type: 'category', data: [''] },
+                                            yAxis: { show: false, type: 'value', max: Math.max(chart.optivis, chart.traditional) * 1.2 },
+                                            series: [
+                                              { type: 'bar', data: [chart.traditional], itemStyle: { color: '#231f52', borderRadius: [8, 8, 8, 8] }, barWidth: '100%', label: { show: true, position: 'insideTop', formatter: `${chart.traditional}M`, color: '#ffffff', fontSize: 19.5, fontWeight: 590, letterSpacing: -0.585 } }
+                                            ],
+                                            tooltip: { show: false },
+                                            legend: { show: false }
+                                          }}
+                                          style={{ height: '100%', width: '100%' }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : null;
+                              })() : null
+                            )}
                           </div>
                         </div>
                       </div>
@@ -885,7 +1504,7 @@ export default function SimulationPage() {
                   {/* Right Area - OPTIVIS NEXUS vs Traditional Design, Reduction View */}
                   <div className="w-[446px] flex-shrink-0 flex flex-col gap-4">
                     {/* OPTIVIS NEXUS vs Traditional Design Card */}
-                    <div className="bg-white rounded-[24px] flex flex-col" style={{ height: '396px' }}>
+                    <div className="bg-white rounded-[24px] flex flex-col flex-1">
                       {/* Title */}
                       <div className="px-4 pt-4 pb-3 flex-shrink-0">
                         <h3 className="text-body2 text-[#1c1b1c]">
@@ -933,12 +1552,12 @@ export default function SimulationPage() {
                             <div className="flex gap-4 items-end">
                               <div className="w-[98px]">
                                 <span className="text-body1m text-[#f06600]">
-                                  {isApplied ? simulationData.comparisonTable.enrollment.optivis : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.enrollment.optivis : "-"}
                                 </span>
                               </div>
                               <div className="w-[98px]">
                                 <span className="text-body1m text-[#231f52]">
-                                  {isApplied ? simulationData.comparisonTable.enrollment.traditional : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.enrollment.traditional : "-"}
                                 </span>
                               </div>
                             </div>
@@ -959,12 +1578,12 @@ export default function SimulationPage() {
                             <div className="flex gap-4 items-end">
                               <div className="w-[98px]">
                                 <span className="text-body1m text-[#f06600]">
-                                  {isApplied ? simulationData.comparisonTable.primaryEndpointPower.optivis : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.primaryEndpointPower.optivis : "-"}
                                 </span>
                               </div>
                               <div className="w-[98px]">
                                 <span className="text-body1m text-[#231f52]">
-                                  {isApplied ? simulationData.comparisonTable.primaryEndpointPower.traditional : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.primaryEndpointPower.traditional : "-"}
                                 </span>
                               </div>
                             </div>
@@ -985,12 +1604,12 @@ export default function SimulationPage() {
                             <div className="flex gap-4 items-end">
                               <div className="w-[98px]">
                                 <span className="text-body1m text-[#f06600]">
-                                  {isApplied ? simulationData.comparisonTable.secondaryEndpointPower.optivis : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.secondaryEndpointPower.optivis : "-"}
                                 </span>
                               </div>
                               <div className="w-[98px]">
                                 <span className="text-body1m text-[#231f52]">
-                                  {isApplied ? simulationData.comparisonTable.secondaryEndpointPower.traditional : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.secondaryEndpointPower.traditional : "-"}
                                 </span>
                               </div>
                             </div>
@@ -1004,7 +1623,59 @@ export default function SimulationPage() {
                                   <span className="text-body5 text-[#464747]">
                                     Sample Size
                                   </span>
-                                  <InfoIcon className="flex-shrink-0" />
+                                  <FormulaTooltip
+                                    formula={String.raw`\beta=\Phi\left(\Phi^{-1}\left(\alpha/2\right)+\sqrt{n}\frac{\tau}{\sigma}\right)+\Phi\left(\Phi^{-1}\left(\alpha/2\right)-\sqrt{n}\frac{\tau}{\sigma}\right)`}
+                                    usedValues={
+                                      isApplied && apiData?.result_formula?.OPTIVIS?.[0]
+                                        ? [
+                                            { label: String.raw`\Phi`, value: String(apiData.result_formula.OPTIVIS[0].beta) },
+                                            { label: String.raw`\Phi^{-1}`, value: String(apiData.result_formula.OPTIVIS[0].inverse_phi) },
+                                            { label: String.raw`\alpha`, value: String(apiData.result_formula.OPTIVIS[0].alpha) },
+                                            { label: String.raw`\beta`, value: String(apiData.result_formula.OPTIVIS[0].beta) },
+                                            { label: String.raw`\tau`, value: String(apiData.result_formula.OPTIVIS[0].tau) },
+                                            { label: String.raw`\sigma`, value: String(apiData.result_formula.OPTIVIS[0].sigma) },
+                                          ]
+                                        : [
+                                            { label: String.raw`\Phi`, value: "" },
+                                            { label: String.raw`\Phi^{-1}`, value: "" },
+                                            { label: String.raw`\alpha`, value: "" },
+                                            { label: String.raw`\beta`, value: "" },
+                                            { label: String.raw`\tau`, value: "" },
+                                            { label: String.raw`\sigma`, value: "" },
+                                          ]
+                                    }
+                                    definitions={[
+                                      {
+                                        symbol: String.raw`\Phi`,
+                                        description: "Represents the variance scale parameter (Φ), characterizing the dispersion of the outcome distribution beyond what is explained by the mean structure",
+                                      },
+                                      {
+                                        symbol: String.raw`\Phi^{-1}`,
+                                        description: "Represents the inverse of the variance scale parameter (1/Φ), commonly interpreted as statistical precision.",
+                                      },
+                                      {
+                                        symbol: String.raw`\alpha`,
+                                        description: "Denotes the significance level (α), defined as the probability of rejecting the null hypothesis when it is true",
+                                      },
+                                      {
+                                        symbol: String.raw`\beta`,
+                                        description: "Represents the effect size or regression coefficient (β), quantifying the linear influence of covariates (e.g., prognostic scores) on the outcome",
+                                      },
+                                      {
+                                        symbol: String.raw`\tau`,
+                                        description: "The expected treatment effect",
+                                      },
+                                      {
+                                        symbol: String.raw`\sigma`,
+                                        description: "The reduced standard deviation achieved by incorporating the prognostic score is applied",
+                                      },
+                                    ]}
+                                    trigger={
+                                      <button className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
+                                        <InfoIcon />
+                                      </button>
+                                    }
+                                  />
                                 </div>
                                 <div className="flex flex-col gap-0.5">
                                   <span className="text-small1 text-[#929090]">
@@ -1022,24 +1693,24 @@ export default function SimulationPage() {
                             <div className="flex gap-4 items-end">
                               <div className="w-[98px] flex flex-col gap-1">
                                 <span className="text-body5 text-[#f06600]">
-                                  {isApplied ? simulationData.comparisonTable.sampleSize.optivis.treatmentGroup1 : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.sampleSize.optivis.treatmentGroup1 : "-"}
                                 </span>
                                 <span className="text-body5 text-[#f06600]">
-                                  {isApplied ? simulationData.comparisonTable.sampleSize.optivis.controlGroup : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.sampleSize.optivis.controlGroup : "-"}
                                 </span>
                                 <span className="text-body5 text-[#f06600]">
-                                  {isApplied ? simulationData.comparisonTable.sampleSize.optivis.total : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.sampleSize.optivis.total : "-"}
                                 </span>
                               </div>
                               <div className="w-[98px] flex flex-col gap-1">
                                 <span className="text-body5 text-[#231f52]">
-                                  {isApplied ? simulationData.comparisonTable.sampleSize.traditional.treatmentGroup1 : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.sampleSize.traditional.treatmentGroup1 : "-"}
                                 </span>
                                 <span className="text-body5 text-[#231f52]">
-                                  {isApplied ? simulationData.comparisonTable.sampleSize.traditional.controlGroup : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.sampleSize.traditional.controlGroup : "-"}
                                 </span>
                                 <span className="text-body5 text-[#231f52]">
-                                  {isApplied ? simulationData.comparisonTable.sampleSize.traditional.total : "-"}
+                                  {isApplied && simulationData ? simulationData.comparisonTable.sampleSize.traditional.total : "-"}
                                 </span>
                               </div>
                             </div>
@@ -1048,89 +1719,187 @@ export default function SimulationPage() {
                       </div>
                     </div>
 
-                    {/* Reduction View Card */}
-                    <div className="bg-white rounded-[24px] flex flex-col" style={{ height: '394px' }}>
+                    {/* Reduction View Card / Compare View Card */}
+                    <div className="bg-white rounded-[24px] flex flex-col flex-1">
                       {/* Title */}
                       <div className="px-4 pt-4 pb-3 flex-shrink-0">
                         <h3 className="text-body2 text-[#1c1b1c]">
-                          Reduction View
+                          {activeTab === "compare" ? "Reduction View" : "Compare View"}
                         </h3>
                       </div>
 
-                      {/* Reduction View Content */}
-                      <div className="flex-1 flex flex-col px-4 pb-4 min-h-0">
-                        {isApplied ? (
-                          <div className="grid grid-cols-2 gap-2 h-full">
-                            {simulationData.reductionView.charts.map((chart, index) => (
-                              <div key={index} className="flex flex-col gap-2">
-                                <span className="text-body5 text-[#464747]">{chart.label}</span>
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-1">
-                                    <div className="mt-1">
-                                      <ArrowIcon direction="down" color="#231F52" />
+                      {/* Content */}
+                      <div className="flex-1 flex flex-col px-4 pb-4 min-h-0 overflow-hidden">
+                        {activeTab === "compare" ? (
+                          isApplied ? (
+                            <div className="grid grid-cols-2 gap-2 h-full">
+                              {simulationData?.reductionView?.charts?.map((chart, index) => (
+                                <div key={index} className="flex flex-col gap-2 ">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex flex-col gap-2">
+                                      <span className="text-body5 text-[black]">{chart.label}</span>
+                                      <div className="flex items-center gap-1 mt-1">
+                                        <ArrowIcon direction="down" color="#231F52" />
+                                        <span className="text-body1m text-[#464747]">{chart.change}</span>
+                                      </div>
                                     </div>
-                                    <span className="text-body1m text-[#464747]">{chart.change}</span>
+                                    <FullscreenIcon />
                                   </div>
-                                  <FullscreenIcon />
-                                </div>
-                                <div style={{ height: '80px', width: '100%' }}>
-                                  <ReactECharts
-                                    option={{
-                                      grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
-                                      xAxis: { 
-                                        show: false,
-                                        type: 'category',
-                                        data: ['']
-                                      },
-                                      yAxis: { 
-                                        show: false,
-                                        type: 'value',
-                                        max: Math.max(chart.optivis, chart.traditional) * 1.2
-                                      },
-                                      series: [
-                                        {
-                                          type: 'bar',
-                                          data: [chart.optivis],
-                                          itemStyle: { color: '#f06600', borderRadius: [4, 4, 0, 0] },
-                                          barWidth: '45%',
-                                          barGap: '10%',
-                                          label: {
-                                            show: true,
-                                            position: 'insideTop',
-                                            formatter: `${chart.optivis}${chart.label === 'Cost' ? 'M' : ''}`,
-                                            color: '#ffffff',
-                                            fontSize: 12,
-                                            fontWeight: 'bold'
-                                          }
+                                  <div style={{ height: '80px', width: '100%' }}>
+                                    <ReactECharts
+                                      option={{
+                                        grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+                                        xAxis: { 
+                                          show: false,
+                                          type: 'category',
+                                          data: ['']
                                         },
-                                        {
-                                          type: 'bar',
-                                          data: [chart.traditional],
-                                          itemStyle: { color: '#231f52', borderRadius: [4, 4, 0, 0] },
-                                          barWidth: '45%',
-                                          label: {
-                                            show: true,
-                                            position: 'insideTop',
-                                            formatter: `${chart.traditional}${chart.label === 'Cost' ? 'M' : ''}`,
-                                            color: '#ffffff',
-                                            fontSize: 12,
-                                            fontWeight: 'bold'
+                                        yAxis: { 
+                                          show: false,
+                                          type: 'value',
+                                          max: Math.max(chart.optivis, chart.traditional) * 1.2
+                                        },
+                                        series: [
+                                          {
+                                            type: 'bar',
+                                            data: [chart.optivis],
+                                            itemStyle: { color: '#f06600', borderRadius: [8, 8, 8, 8] },
+                                            barWidth: '45%',
+                                            barGap: '10%',
+                                            label: {
+                                              show: true,
+                                              position: 'insideTop',
+                                              formatter: `${chart.optivis}${chart.label === 'Cost' ? 'M' : ''}`,
+                                              color: '#ffffff',
+                                              fontSize: 19.5,
+                                              fontWeight: 590,
+                                              letterSpacing: -0.585
+                                            }
+                                          },
+                                          {
+                                            type: 'bar',
+                                            data: [chart.traditional],
+                                            itemStyle: { color: '#231f52', borderRadius: [8, 8, 8, 8] },
+                                            barWidth: '45%',
+                                            label: {
+                                              show: true,
+                                              position: 'insideTop',
+                                              formatter: `${chart.traditional}${chart.label === 'Cost' ? 'M' : ''}`,
+                                              color: '#ffffff',
+                                              fontSize: 19.5,
+                                              fontWeight: 590,
+                                              letterSpacing: -0.585
+                                            }
                                           }
-                                        }
-                                      ],
-                                      tooltip: { show: false },
-                                      legend: { show: false }
-                                    }}
-                                    style={{ height: '100%', width: '100%' }}
-                                  />
+                                        ],
+                                        tooltip: { show: false },
+                                        legend: { show: false }
+                                      }}
+                                      style={{ height: '100%', width: '100%' }}
+                                    />
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex-1 bg-[#f8f8f8] rounded-[12px] border border-[#e5e5e5]">
+                              {/* Empty state */}
+                            </div>
+                          )
                         ) : (
-                          <div className="flex-1 bg-[#f8f8f8] rounded-[12px] border border-[#e5e5e5]">
-                            {/* Empty state */}
-                          </div>
+                          /* Compare View Charts - when activeTab is "reduction" */
+                          isApplied && chartDataToUse ? (
+                            <div className="flex flex-col gap-2 h-full overflow-hidden">
+                              {/* Smaller Sample Chart - Single */}
+                              {chartDataToUse.smallerSample.optivis.length > 0 && (
+                                <div className="flex flex-col gap-2 flex-shrink-0">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex flex-col gap-2">
+                                      <h4 className="text-body5 text-[#1c1b1c]">Smaller Sample</h4>
+                                      {simulationData && (
+                                        <div className="flex items-center gap-1 mt-1">
+                                          <ArrowIcon direction="down" color="#231F52" />
+                                          <span className="text-body1m text-[#464747]">
+                                            {simulationData.smallerSample.percentage || "--"}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <FullscreenIcon />
+                                  </div>
+                                  <div className="bg-white rounded-[12px]" style={{ height: '94px' }}>
+                                    <SmallerSampleChart
+                                      optivisData={chartDataToUse.smallerSample.optivis}
+                                      traditionalData={chartDataToUse.smallerSample.traditional}
+                                      highlightXValue={getHighlightXValue(chartDataToUse.smallerSample.optivis)}
+                                      compactMode={true}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                              {/* Smaller N to screen & Lower cost - Side by side */}
+                              <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+                                {/* Smaller N to screen Chart */}
+                                {chartDataToUse.smallerNToScreen.optivis.length > 0 && (
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex flex-col gap-2">
+                                        <h4 className="text-body5 text-[#1c1b1c]">Smaller N to screen</h4>
+                                        {simulationData && (
+                                          <div className="flex items-center gap-1 mt-1">
+                                            <ArrowIcon direction="down" color="#231F52" />
+                                            <span className="text-body1m text-[#464747]">
+                                              {simulationData.smallerNToScreen.percentage || "--"}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <FullscreenIcon />
+                                    </div>
+                                    <div className="bg-white rounded-[12px]" style={{ height: '94px' }}>
+                                      <SmallerNToScreenChart
+                                        optivisData={chartDataToUse.smallerNToScreen.optivis}
+                                        traditionalData={chartDataToUse.smallerNToScreen.traditional}
+                                        highlightXValue={getHighlightXValue(chartDataToUse.smallerNToScreen.optivis)}
+                                        compactMode={true}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                                {/* Lower cost Chart */}
+                                {chartDataToUse.lowerCost.optivis.length > 0 && (
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex flex-col gap-2">
+                                        <h4 className="text-body5 text-[#1c1b1c]">Lower cost</h4>
+                                        {simulationData && (
+                                          <div className="flex items-center gap-1 mt-1">
+                                            <ArrowIcon direction="down" color="#231F52" />
+                                            <span className="text-body1m text-[#464747]">
+                                              {simulationData.lowerCost.percentage || "--"}
+                                            </span>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <FullscreenIcon />
+                                    </div>
+                                    <div className="bg-white rounded-[12px]" style={{ height: '94px' }}>
+                                      <LowerCostChart
+                                        optivisData={chartDataToUse.lowerCost.optivis}
+                                        traditionalData={chartDataToUse.lowerCost.traditional}
+                                        highlightXValue={getHighlightXValue(chartDataToUse.lowerCost.optivis)}
+                                        compactMode={true}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex-1 bg-[#f8f8f8] rounded-[12px] border border-[#e5e5e5]">
+                              {/* Empty state */}
+                            </div>
+                          )
                         )}
                       </div>
                     </div>
@@ -1142,5 +1911,6 @@ export default function SimulationPage() {
         </div>
       </div>
     </AppLayout>
+    </>
   );
 }

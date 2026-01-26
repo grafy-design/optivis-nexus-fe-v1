@@ -1,5 +1,59 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "katex/dist/katex.min.css";
+
+/* KaTeX 폰트 커스터마이징 - 프로젝트 기본 폰트에 맞춤 */
+.katex {
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 1em !important;
+}
+
+.katex .mathnormal {
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-style: normal !important;
+}
+
+/* 수식 내 이탤릭 폰트 (변수용) - Inter Medium Italic */
+.katex .mathit {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+}
+
+/* 수식 내 작은 이탤릭 폰트 (아래첨자용) - Inter Semi Bold Italic */
+.katex .mathdefault {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+}
+
+/* Used Values와 Definitions의 기호 부분 폰트 */
+.katex-display-inline {
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.katex-display-inline .katex {
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.katex-display-inline .katex .mathnormal,
+.katex-display-inline .katex .mathit,
+.katex-display-inline .katex .mathdefault {
+  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-style: normal !important;
+  font-weight: 510 !important; /* SF Pro Medium */
+}
+
+/* 슬라이더 드래그 중 텍스트 선택 완전 차단 */
+.no-select,
+.no-select * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
 
 :root {
   /* Primary Colors (Purple) */

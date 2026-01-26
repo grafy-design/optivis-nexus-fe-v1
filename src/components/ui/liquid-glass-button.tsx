@@ -25,7 +25,7 @@ export default function LiquidGlassButton({
         "relative inline-flex items-center justify-center",
         "h-12 rounded-[999px] overflow-hidden",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        "disabled:pointer-events-none disabled:opacity-50",
+        "cursor-pointer disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed",
         className
       )}
       style={{

@@ -31,16 +31,23 @@ export default function Slider({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (disabled) return;
+    e.preventDefault(); // 텍스트 선택 방지
+    e.stopPropagation(); // 이벤트 전파 방지
     setIsDragging(true);
     updateValue(e);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || disabled) return;
+    e.preventDefault(); // 드래그 중 텍스트 선택 방지
     updateValue(e);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e?: MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setIsDragging(false);
   };
 
@@ -59,24 +66,76 @@ export default function Slider({
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      // 드래그 중 모든 텍스트 선택 방지
+      const preventSelect = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      };
+      
+      const preventDrag = (e: DragEvent) => {
+        e.preventDefault();
+        return false;
+      };
+
+      const handleMouseMoveWrapper = (e: MouseEvent) => {
+        e.preventDefault();
+        handleMouseMove(e);
+      };
+
+      const handleMouseUpWrapper = (e: MouseEvent) => {
+        e.preventDefault();
+        handleMouseUp(e);
+      };
+
+      // 모든 선택 관련 이벤트 차단
+      document.addEventListener("mousemove", handleMouseMoveWrapper, { passive: false });
+      document.addEventListener("mouseup", handleMouseUpWrapper, { passive: false });
+      document.addEventListener("selectstart", preventSelect);
+      document.addEventListener("select", preventSelect);
+      document.addEventListener("dragstart", preventDrag);
+      
+      // 전역 스타일로 텍스트 선택 완전히 차단
+      const originalUserSelect = document.body.style.userSelect;
+      const originalWebkitUserSelect = document.body.style.webkitUserSelect;
+      const originalMozUserSelect = document.body.style.mozUserSelect;
+      const originalMsUserSelect = document.body.style.msUserSelect;
+      
+      document.body.style.userSelect = "none";
+      document.body.style.webkitUserSelect = "none";
+      document.body.style.mozUserSelect = "none";
+      document.body.style.msUserSelect = "none";
+      
+      // CSS 클래스로도 차단
+      document.body.classList.add("no-select");
+      
       return () => {
-        document.removeEventListener("mousemove", handleMouseMove);
-        document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("mousemove", handleMouseMoveWrapper);
+        document.removeEventListener("mouseup", handleMouseUpWrapper);
+        document.removeEventListener("selectstart", preventSelect);
+        document.removeEventListener("select", preventSelect);
+        document.removeEventListener("dragstart", preventDrag);
+        
+        // 원래 스타일 복원
+        document.body.style.userSelect = originalUserSelect;
+        document.body.style.webkitUserSelect = originalWebkitUserSelect;
+        document.body.style.mozUserSelect = originalMozUserSelect;
+        document.body.style.msUserSelect = originalMsUserSelect;
+        document.body.classList.remove("no-select");
       };
     }
-  }, [isDragging]);
+  }, [isDragging, disabled]);
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2 mb-1 select-none">
         <span className="text-body5m text-[#c9c6c5] w-[21px]">Min</span>
         <div className="flex-1 relative">
           <div
             ref={trackRef}
-            className="relative h-[24px] flex items-center cursor-pointer"
+            className="relative h-[24px] flex items-center cursor-pointer select-none"
             onMouseDown={handleMouseDown}
+            style={{ userSelect: "none" }}
           >
             {/* Track */}
             <div className="absolute w-full h-[6px] rounded-[3px] bg-[#e2e1e5]" />

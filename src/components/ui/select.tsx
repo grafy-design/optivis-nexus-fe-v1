@@ -57,8 +57,8 @@ export default function Select({
         className={cn(
           "w-full rounded-[8px] bg-[#ebebf0] h-[26px] px-3 flex items-center justify-between",
           "text-body5 text-[#787776]",
-          disabled && "opacity-50 cursor-not-allowed",
-          "hover:opacity-80 transition-opacity"
+          "cursor-pointer hover:opacity-80 transition-opacity",
+          disabled && "opacity-50 cursor-not-allowed"
         )}
       >
         <span className="flex-1 text-left truncate text-body5">
@@ -88,7 +88,7 @@ export default function Select({
               <button
                 type="button"
                 onClick={() => handleSelect(option)}
-                className="w-full text-left text-body5 text-[#787776] relative flex items-center flex-shrink-0 self-stretch group"
+                className="w-full text-left text-body5 text-[#787776] relative flex items-center flex-shrink-0 self-stretch group cursor-pointer"
                 style={{ 
                   fontFamily: "SF Pro", 
                   fontSize: "12px", 
