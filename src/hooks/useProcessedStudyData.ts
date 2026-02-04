@@ -3,7 +3,7 @@ import type { StudyResult } from "@/services/studyService";
 
 const MIN_POWER = 0.6; // 최소 power 60%
 const DEFAULT_POWER = 0.8; // 디폴트 power 80%
-const MAX_POWER = 1.0; // 최대 power 100%
+const MAX_POWER = 0.95; // 최대 power 95% (sample size control 범위와 동일)
 
 /**
  * API 원본 데이터를 UI에서 사용하기 쉬운 형태로 가공하는 훅
@@ -11,15 +11,15 @@ const MAX_POWER = 1.0; // 최대 power 100%
 export const useProcessedStudyData = (
   optivisData: StudyResult[],
   traditionalData: StudyResult[],
-  userNominalPower?: number
+  userNominalPower?: number,
 ) => {
-  // 1. 필터링 및 정렬된 데이터 (0.6 ~ 1.0 범위)
+  // 1. 필터링 및 정렬된 데이터 (0.6 ~ 0.95 범위)
   const filteredData = useMemo(() => {
     const filteredOptivis = optivisData
       .filter(
         (item) =>
           item.primary_endpoint_power >= MIN_POWER &&
-          item.primary_endpoint_power <= MAX_POWER
+          item.primary_endpoint_power <= MAX_POWER,
       )
       .sort((a, b) => a.primary_endpoint_power - b.primary_endpoint_power);
 
@@ -27,7 +27,7 @@ export const useProcessedStudyData = (
       .filter(
         (item) =>
           item.primary_endpoint_power >= MIN_POWER &&
-          item.primary_endpoint_power <= MAX_POWER
+          item.primary_endpoint_power <= MAX_POWER,
       )
       .sort((a, b) => a.primary_endpoint_power - b.primary_endpoint_power);
 
@@ -130,4 +130,3 @@ export const useProcessedStudyData = (
     defaultPower: userNominalPower ?? DEFAULT_POWER,
   };
 };
-

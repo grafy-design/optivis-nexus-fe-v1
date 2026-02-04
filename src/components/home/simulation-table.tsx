@@ -7,7 +7,7 @@ interface SimulationTableProps {
 export default function SimulationTable({ serviceId }: SimulationTableProps) {
   // 서비스 ID에 따라 헤더 내용 결정
   const getHeaderColumns = () => {
-    if (serviceId === "4") {
+    if (serviceId === "4" || serviceId === "5") {
       // Adaptive Trial Simulation
       return (
         <>
@@ -43,11 +43,8 @@ export default function SimulationTable({ serviceId }: SimulationTableProps) {
 
       {/* Table Body */}
       <div className="rounded-[18px] px-5 py-20 flex items-center justify-center bg-white min-h-[394px]">
-        <p className="text-body4 text-[#828993]">
-          No saved simulations.
-        </p>
+        <p className="text-body4 text-[#828993]">No saved simulations.</p>
       </div>
     </div>
   );
 }
-

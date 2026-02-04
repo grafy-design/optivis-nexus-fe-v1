@@ -22,9 +22,16 @@ export default function HeroPanel({
   // Drug Response Prediction Dashboard (serviceId: "6")는 아직 비활성화
   const isDisabled = serviceId === "6";
 
+  // 서비스별 시뮬레이션 라우트: Adaptive Trial Simulation -> ats, Target Subgroup Identification -> tsi
+  const getSimulationPath = () => {
+    if (serviceId === "4") return "/ats/simulation";
+    if (serviceId === "5") return "/tsi/simulation";
+    return "/simulation";
+  };
+
   const handleNewSimulation = () => {
     if (!isDisabled) {
-    router.push("/simulation");
+      router.push(getSimulationPath());
     }
   };
 
@@ -33,17 +40,13 @@ export default function HeroPanel({
       {/* Left - Text */}
       <div className="flex flex-col gap-4 flex-1 justify-between">
         <div className="flex flex-col gap-4">
-        <h2 className="text-title text-[#1b1b1b]">
-          {title}
-        </h2>
-        <p className="text-body4 text-[#3c3f44]">
-          {description}
-        </p>
+          <h2 className="text-title text-[#1b1b1b]">{title}</h2>
+          <p className="text-body4 text-[#3c3f44]">{description}</p>
         </div>
-        <Button 
-          variant="orange" 
-          size="md" 
-          icon="play" 
+        <Button
+          variant="orange"
+          size="md"
+          icon="play"
           iconPosition="right"
           className="w-[188px]"
           onClick={handleNewSimulation}
@@ -66,4 +69,3 @@ export default function HeroPanel({
     </div>
   );
 }
-

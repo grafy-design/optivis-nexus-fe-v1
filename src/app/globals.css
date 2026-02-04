@@ -4,44 +4,44 @@
 
 /* KaTeX 폰트 커스터마이징 - 프로젝트 기본 폰트에 맞춤 */
 .katex {
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
   font-size: 1em !important;
 }
 
 .katex .mathnormal {
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
   font-style: normal !important;
 }
 
 /* 수식 내 이탤릭 폰트 (변수용) - Inter Medium Italic */
 .katex .mathit {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
   font-style: italic !important;
   font-weight: 500 !important;
 }
 
 /* 수식 내 작은 이탤릭 폰트 (아래첨자용) - Inter Semi Bold Italic */
 .katex .mathdefault {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
   font-style: italic !important;
   font-weight: 600 !important;
 }
 
 /* Used Values와 Definitions의 기호 부분 폰트 */
 .katex-display-inline {
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
 }
 
 .katex-display-inline .katex {
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
 }
 
 .katex-display-inline .katex .mathnormal,
 .katex-display-inline .katex .mathit,
 .katex-display-inline .katex .mathdefault {
-  font-family: "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-family: "Inter" !important;
   font-style: normal !important;
-  font-weight: 510 !important; /* SF Pro Medium */
+  font-weight: 500 !important; /* Inter Medium */
 }
 
 /* 슬라이더 드래그 중 텍스트 선택 완전 차단 */
@@ -164,6 +164,116 @@
   --background: #e7e5e7;
 }
 
+/* Tailwind Theme - CSS 변수를 Tailwind 클래스로 사용 가능하게 함 */
+@theme {
+  /* Primary Colors */
+  --color-primary-100: var(--primary-100);
+  --color-primary-99: var(--primary-99);
+  --color-primary-98: var(--primary-98);
+  --color-primary-95: var(--primary-95);
+  --color-primary-90: var(--primary-90);
+  --color-primary-80: var(--primary-80);
+  --color-primary-70: var(--primary-70);
+  --color-primary-60: var(--primary-60);
+  --color-primary-50: var(--primary-50);
+  --color-primary-40: var(--primary-40);
+  --color-primary-35: var(--primary-35);
+  --color-primary-30: var(--primary-30);
+  --color-primary-25: var(--primary-25);
+  --color-primary-20: var(--primary-20);
+  --color-primary-15: var(--primary-15);
+  --color-primary-10: var(--primary-10);
+  --color-primary-5: var(--primary-5);
+  --color-primary-0: var(--primary-0);
+
+  /* Secondary Colors */
+  --color-secondary-100: var(--secondary-100);
+  --color-secondary-99: var(--secondary-99);
+  --color-secondary-98: var(--secondary-98);
+  --color-secondary-95: var(--secondary-95);
+  --color-secondary-90: var(--secondary-90);
+  --color-secondary-80: var(--secondary-80);
+  --color-secondary-70: var(--secondary-70);
+  --color-secondary-60: var(--secondary-60);
+  --color-secondary-50: var(--secondary-50);
+  --color-secondary-40: var(--secondary-40);
+  --color-secondary-35: var(--secondary-35);
+  --color-secondary-30: var(--secondary-30);
+  --color-secondary-25: var(--secondary-25);
+  --color-secondary-20: var(--secondary-20);
+  --color-secondary-15: var(--secondary-15);
+  --color-secondary-10: var(--secondary-10);
+  --color-secondary-5: var(--secondary-5);
+  --color-secondary-0: var(--secondary-0);
+
+  /* Tertiary Colors */
+  --color-tertiary-100: var(--tertiary-100);
+  --color-tertiary-99: var(--tertiary-99);
+  --color-tertiary-98: var(--tertiary-98);
+  --color-tertiary-95: var(--tertiary-95);
+  --color-tertiary-90: var(--tertiary-90);
+  --color-tertiary-80: var(--tertiary-80);
+  --color-tertiary-70: var(--tertiary-70);
+  --color-tertiary-60: var(--tertiary-60);
+  --color-tertiary-50: var(--tertiary-50);
+  --color-tertiary-40: var(--tertiary-40);
+  --color-tertiary-35: var(--tertiary-35);
+  --color-tertiary-30: var(--tertiary-30);
+  --color-tertiary-25: var(--tertiary-25);
+  --color-tertiary-20: var(--tertiary-20);
+  --color-tertiary-15: var(--tertiary-15);
+  --color-tertiary-10: var(--tertiary-10);
+  --color-tertiary-5: var(--tertiary-5);
+  --color-tertiary-0: var(--tertiary-0);
+
+  /* Neutral Colors */
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-99: var(--neutral-99);
+  --color-neutral-98: var(--neutral-98);
+  --color-neutral-95: var(--neutral-95);
+  --color-neutral-90: var(--neutral-90);
+  --color-neutral-80: var(--neutral-80);
+  --color-neutral-70: var(--neutral-70);
+  --color-neutral-60: var(--neutral-60);
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-40: var(--neutral-40);
+  --color-neutral-35: var(--neutral-35);
+  --color-neutral-30: var(--neutral-30);
+  --color-neutral-25: var(--neutral-25);
+  --color-neutral-20: var(--neutral-20);
+  --color-neutral-15: var(--neutral-15);
+  --color-neutral-10: var(--neutral-10);
+  --color-neutral-5: var(--neutral-5);
+  --color-neutral-0: var(--neutral-0);
+
+  /* Error Colors */
+  --color-error-100: var(--error-100);
+  --color-error-99: var(--error-99);
+  --color-error-98: var(--error-98);
+  --color-error-95: var(--error-95);
+  --color-error-90: var(--error-90);
+  --color-error-80: var(--error-80);
+  --color-error-70: var(--error-70);
+  --color-error-60: var(--error-60);
+  --color-error-50: var(--error-50);
+  --color-error-40: var(--error-40);
+  --color-error-35: var(--error-35);
+  --color-error-30: var(--error-30);
+  --color-error-25: var(--error-25);
+  --color-error-20: var(--error-20);
+  --color-error-15: var(--error-15);
+  --color-error-10: var(--error-10);
+  --color-error-5: var(--error-5);
+  --color-error-0: var(--error-0);
+
+  /* Key Colors */
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-background: var(--background);
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -180,21 +290,20 @@
 
   html {
     width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: auto;
     height: 100%;
     background-color: var(--background);
     outline: none;
   }
 
   body {
-    font-family: "SF Pro";
+    font-family: "Inter";
     background-color: var(--background);
     width: 100%;
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow-x: hidden;
+    overflow-x: auto;
     min-width: 100%;
     outline: none;
   }
@@ -202,7 +311,6 @@
   main {
     outline: none;
   }
-
 
   /* SimpleBar Custom Styles */
   .simplebar-scrollbar::before {
@@ -228,10 +336,66 @@
     background: transparent !important;
   }
 
+  /* Horizontal Scrollbar Styles - Match SimpleBar vertical scrollbar */
+  .simplebar-track.simplebar-horizontal {
+    height: 12px !important;
+    background: transparent !important;
+    padding: 0 8px !important;
+  }
+
+  .simplebar-scrollbar.simplebar-horizontal::before {
+    background: #787776 !important;
+    border-radius: 3px !important;
+    opacity: 1 !important;
+    left: 8px !important;
+    right: 16px !important;
+    height: 12px !important;
+  }
+
+  /* Global Scrollbar - 앱 전체 동일 스타일 (thin, 화살표 없음) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #787776 transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #787776;
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #787776;
+  }
+  *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Select dropdown scrollbar - 배경을 셀렉트바와 맞춤 (neutral-90) */
+  .select-dropdown-options {
+    scrollbar-width: thin;
+    scrollbar-color: var(--neutral-70) var(--neutral-90);
+  }
+  .select-dropdown-options::-webkit-scrollbar {
+    width: 6px;
+  }
+  .select-dropdown-options::-webkit-scrollbar-track {
+    background: var(--neutral-90);
+  }
+  .select-dropdown-options::-webkit-scrollbar-thumb {
+    background: var(--neutral-70);
+    border-radius: 3px;
+  }
 }
 
 @layer utilities {
-  /* Typography - H0 (SF Pro Medium 60px) */
+  /* Typography - H0 (Inter Medium 60px) */
   .text-h0 {
     font-size: 60px;
     font-weight: 510;
@@ -239,7 +403,7 @@
     letter-spacing: -1.8px;
   }
 
-  /* Typography - Title (SF Pro SemiBold 48px) */
+  /* Typography - Title (Inter SemiBold 48px) */
   .text-title {
     font-size: 48px;
     font-weight: 600;
@@ -247,7 +411,7 @@
     letter-spacing: -2.4px;
   }
 
-  /* Typography - Logo (SF Pro SemiBold 34.81px) */
+  /* Typography - Logo (Inter SemiBold 34.81px) */
   .text-logo {
     font-size: 34.81px;
     font-weight: 600;
@@ -255,7 +419,7 @@
     letter-spacing: -1.044px;
   }
 
-  /* Typography - H1 (SF Pro Semibold 48px) */
+  /* Typography - H1 (Inter Semibold 48px) */
   .text-h1 {
     font-size: 48px;
     font-weight: 590;
@@ -263,7 +427,7 @@
     letter-spacing: -0.96px;
   }
 
-  /* Typography - H2 (SF Pro Medium 40px) */
+  /* Typography - H2 (Inter Medium 40px) */
   .text-h2 {
     font-size: 40px;
     font-weight: 510;
@@ -271,7 +435,7 @@
     letter-spacing: -1.2px;
   }
 
-  /* Typography - H3 (SF Pro Semibold 36px) */
+  /* Typography - H3 (Inter Semibold 36px) */
   .text-h3 {
     font-size: 36px;
     font-weight: 590;
@@ -279,7 +443,7 @@
     letter-spacing: -0.72px;
   }
 
-  /* Typography - H4 (SF Pro Medium 28px) */
+  /* Typography - H4 (Inter Medium 28px) */
   .text-h4 {
     font-size: 28px;
     font-weight: 510;
@@ -287,7 +451,7 @@
     letter-spacing: -0.64px;
   }
 
-  /* Typography - Body1 (SF Pro Medium 24px) */
+  /* Typography - Body1 (Inter Medium 24px) */
   .text-body1 {
     font-size: 24px;
     font-weight: 510;
@@ -295,7 +459,7 @@
     letter-spacing: -0.23px;
   }
 
-  /* Typography - Body1m (SF Pro Medium 24px, different letter-spacing) */
+  /* Typography - Body1m (Inter Medium 24px, different letter-spacing) */
   .text-body1m {
     font-size: 24px;
     font-weight: 510;
@@ -303,7 +467,7 @@
     letter-spacing: -0.64px;
   }
 
-  /* Typography - Body2 (SF Pro Semibold 19.5px) */
+  /* Typography - Body2 (Inter Semibold 19.5px) */
   .text-body2 {
     font-size: 19.5px;
     font-weight: 590;
@@ -311,7 +475,7 @@
     letter-spacing: -0.585px;
   }
 
-  /* Typography - Body2m (SF Pro Medium 19.5px) */
+  /* Typography - Body2m (Inter Medium 19.5px) */
   .text-body2m {
     font-size: 19.5px;
     font-weight: 510;
@@ -319,7 +483,7 @@
     letter-spacing: -0.585px;
   }
 
-  /* Typography - Body3 (SF Pro Semibold 17px) */
+  /* Typography - Body3 (Inter Semibold 17px) */
   .text-body3 {
     font-size: 17px;
     font-weight: 590;
@@ -327,7 +491,7 @@
     letter-spacing: -0.51px;
   }
 
-  /* Typography - Body3m (SF Pro Medium 17px) */
+  /* Typography - Body3m (Inter Medium 17px) */
   .text-body3m {
     font-size: 17px;
     font-weight: 510;
@@ -335,7 +499,7 @@
     letter-spacing: 0;
   }
 
-  /* Typography - Body4 (SF Pro Semibold 15px) */
+  /* Typography - Body4 (Inter Semibold 15px) */
   .text-body4 {
     font-size: 15px;
     font-weight: 590;
@@ -343,7 +507,7 @@
     letter-spacing: -0.6px;
   }
 
-  /* Typography - Body4m (SF Pro Medium 15px) */
+  /* Typography - Body4m (Inter Medium 15px) */
   .text-body4m {
     font-size: 15px;
     font-weight: 510;
@@ -351,7 +515,7 @@
     letter-spacing: -0.45px;
   }
 
-  /* Typography - Body5 (SF Pro Semibold 12px) */
+  /* Typography - Body5 (Inter Semibold 12px) */
   .text-body5 {
     font-size: 12px;
     font-weight: 590;
@@ -359,7 +523,7 @@
     letter-spacing: -0.36px;
   }
 
-  /* Typography - Body5m (SF Pro Medium 12px) */
+  /* Typography - Body5m (Inter Medium 12px) */
   .text-body5m {
     font-size: 12px;
     font-weight: 510;
@@ -367,7 +531,7 @@
     letter-spacing: -0.48px;
   }
 
-  /* Typography - Small1 (SF Pro Medium 10.5px) */
+  /* Typography - Small1 (Inter Medium 10.5px) */
   .text-small1 {
     font-size: 10.5px;
     font-weight: 510;
@@ -375,7 +539,7 @@
     letter-spacing: -0.525px;
   }
 
-  /* Typography - Small2 (SF Pro Semibold 9px) */
+  /* Typography - Small2 (Inter Semibold 9px) */
   .text-small2 {
     font-size: 9px;
     font-weight: 590;
@@ -418,5 +582,3 @@
     }
   }
 }
-
-

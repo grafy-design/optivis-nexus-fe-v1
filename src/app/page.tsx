@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import FeatureSection from "@/components/home/feature-section";
 import HeroPanel from "@/components/home/hero-panel";
 import SimulationSearch from "@/components/home/simulation-search";
 import SimulationTable from "@/components/home/simulation-table";
+import { useHomeStore } from "@/store/homeStore";
 
 // Service 인터페이스
 interface Service {
@@ -39,7 +39,8 @@ const packages: Package[] = [
   {
     id: "1",
     title: "Twin Predict",
-    description: "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+    description:
+      "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
     icon: "/assets/icons/twin-predict.svg",
     selectedIcon: "/assets/icons/twin-predict-selected.svg",
     services: [
@@ -49,14 +50,16 @@ const packages: Package[] = [
   {
     id: "2",
     title: "Trial Optimizer",
-    description: "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
+    description:
+      "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
     icon: "/assets/icons/trial-optimizer.svg",
     selectedIcon: "/assets/icons/trial-optimizer-selected.svg",
     services: [
       {
         id: "4",
         title: "Adaptive Trial Simulation",
-        description: "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
+        description:
+          "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
         icon: "/assets/icons/adaptive-trial.svg",
         selectedIcon: "/assets/icons/adaptive-trial-selected.svg",
         variant: "glass" as const,
@@ -64,14 +67,16 @@ const packages: Package[] = [
       {
         id: "5",
         title: "Target Subgroup Identification",
-        description: "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+        description:
+          "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
         icon: "/assets/icons/target-subgroup.svg",
         variant: "glass" as const,
       },
       {
         id: "6",
         title: "Drug Response Prediction Dashboard",
-        description: "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
+        description:
+          "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
         icon: "/assets/icons/drug-response.svg",
         selectedIcon: "/assets/icons/drug-response-selected.svg",
         variant: "purple" as const,
@@ -81,7 +86,8 @@ const packages: Package[] = [
   {
     id: "3",
     title: "Virtual Control",
-    description: "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
+    description:
+      "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
     icon: "/assets/icons/virtual-control.svg",
     selectedIcon: "/assets/icons/virtual-control-selected.svg",
     services: [
@@ -90,41 +96,56 @@ const packages: Package[] = [
   },
 ];
 
-// Service ID와 오른쪽 패널 콘텐츠 매핑
+// Service ID와 오른쪽 패널 콘텐츠 매핑 (구조 동일, 문구·히어로 이미지만 서비스별로 다름)
 const serviceContentMap: Record<string, RightPanelContent> = {
   "4": {
     title: "Adaptive Trial Simulation",
-    description: "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
+    description:
+      "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
     imageUrl: "/assets/main/adaptive-trial.png",
+  },
+  "5": {
+    title: "Target Subgroup Identification",
+    description:
+      "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+    // 히어로 패널 이미지: 추후 전달 예정. 같은 구조로 교체만 하면 됨.
+    imageUrl: "/assets/main/target-subgroup-identification.png",
   },
   "6": {
     title: "Conditional Drug Response Prediction",
-    description: "Drug level simulation based on patient baseline information and Simulation Settings, with support for multiple conditions per scenario",
+    description:
+      "Drug level simulation based on patient baseline information and Simulation Settings, with support for multiple conditions per scenario",
     imageUrl: "/assets/main/conditional-drug.png",
   },
-  // 다른 서비스들의 콘텐츠는 추후 추가
 };
 
 export default function HomePage() {
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const {
+    selectedPackageId,
+    selectedServiceId,
+    setSelectedPackageId,
+    setSelectedServiceId,
+  } = useHomeStore();
 
   // 선택된 Package에 해당하는 Service 목록 가져오기
-  const selectedPackage = packages.find(p => p.id === selectedPackageId);
+  const selectedPackage = packages.find((p) => p.id === selectedPackageId);
   const availableServices = selectedPackage?.services || [];
 
   // 선택된 Service의 콘텐츠 가져오기
-  const rightPanelContent = selectedServiceId && serviceContentMap[selectedServiceId]
-    ? serviceContentMap[selectedServiceId]
-    : null;
+  const rightPanelContent =
+    selectedServiceId && serviceContentMap[selectedServiceId]
+      ? serviceContentMap[selectedServiceId]
+      : null;
 
   const handlePackageSelect = (packageId: string) => {
-    setSelectedPackageId(packageId === selectedPackageId ? null : packageId);
+    const newPackageId = packageId === selectedPackageId ? null : packageId;
+    setSelectedPackageId(newPackageId);
     setSelectedServiceId(null); // Package 변경 시 Service 선택 초기화
   };
 
   const handleServiceSelect = (serviceId: string) => {
-    setSelectedServiceId(serviceId === selectedServiceId ? null : serviceId);
+    const newServiceId = serviceId === selectedServiceId ? null : serviceId;
+    setSelectedServiceId(newServiceId);
   };
 
   return (
@@ -134,7 +155,7 @@ export default function HomePage() {
         <div className="w-full min-w-0 overflow-hidden">
           <FeatureSection
             title="01 Package"
-            features={packages.map(pkg => ({
+            features={packages.map((pkg) => ({
               id: pkg.id,
               title: pkg.title,
               description: pkg.description,
@@ -157,15 +178,15 @@ export default function HomePage() {
         </div>
 
         {/* Right Column - Hero + Table */}
-        <div 
+        <div
           className="w-full min-w-0 overflow-hidden relative"
           style={{
-            backgroundImage: 'url(/assets/main/detail.png)',
-            backgroundSize: '930px 936px',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            width: '930px',
-            height: '936px',
+            backgroundImage: "url(/assets/main/detail.png)",
+            backgroundSize: "930px 936px",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            width: "930px",
+            height: "936px",
           }}
         >
           {rightPanelContent ? (
@@ -184,7 +205,9 @@ export default function HomePage() {
           ) : (
             <div className="flex items-center justify-center w-full h-full min-h-[936px] p-[20px]">
               <p className="text-body4 text-[#828993]">
-                {selectedPackageId ? "Service를 선택해주세요." : "Package를 선택해주세요."}
+                {selectedPackageId
+                  ? "Service를 선택해주세요."
+                  : "Package를 선택해주세요."}
               </p>
             </div>
           )}
@@ -193,6 +216,3 @@ export default function HomePage() {
     </AppLayout>
   );
 }
-
-
-

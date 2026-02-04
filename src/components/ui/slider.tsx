@@ -10,6 +10,7 @@ interface SliderProps {
   step?: number;
   onChange?: (value: number) => void;
   showValue?: boolean;
+  valuePrecision?: number; // 표시할 소수점 자릿수
   className?: string;
   disabled?: boolean;
 }
@@ -21,6 +22,7 @@ export default function Slider({
   step = 0.01,
   onChange,
   showValue = true,
+  valuePrecision,
   className,
   disabled = false,
 }: SliderProps) {
@@ -96,15 +98,16 @@ export default function Slider({
       document.addEventListener("dragstart", preventDrag);
       
       // 전역 스타일로 텍스트 선택 완전히 차단
-      const originalUserSelect = document.body.style.userSelect;
-      const originalWebkitUserSelect = document.body.style.webkitUserSelect;
-      const originalMozUserSelect = document.body.style.mozUserSelect;
-      const originalMsUserSelect = document.body.style.msUserSelect;
+      const bodyStyle = document.body.style as any;
+      const originalUserSelect = bodyStyle.userSelect;
+      const originalWebkitUserSelect = bodyStyle.webkitUserSelect;
+      const originalMozUserSelect = bodyStyle.mozUserSelect;
+      const originalMsUserSelect = bodyStyle.msUserSelect;
       
-      document.body.style.userSelect = "none";
-      document.body.style.webkitUserSelect = "none";
-      document.body.style.mozUserSelect = "none";
-      document.body.style.msUserSelect = "none";
+      bodyStyle.userSelect = "none";
+      bodyStyle.webkitUserSelect = "none";
+      bodyStyle.mozUserSelect = "none";
+      bodyStyle.msUserSelect = "none";
       
       // CSS 클래스로도 차단
       document.body.classList.add("no-select");
@@ -117,10 +120,11 @@ export default function Slider({
         document.removeEventListener("dragstart", preventDrag);
         
         // 원래 스타일 복원
-        document.body.style.userSelect = originalUserSelect;
-        document.body.style.webkitUserSelect = originalWebkitUserSelect;
-        document.body.style.mozUserSelect = originalMozUserSelect;
-        document.body.style.msUserSelect = originalMsUserSelect;
+        const bodyStyle = document.body.style as any;
+        bodyStyle.userSelect = originalUserSelect;
+        bodyStyle.webkitUserSelect = originalWebkitUserSelect;
+        bodyStyle.mozUserSelect = originalMozUserSelect;
+        bodyStyle.msUserSelect = originalMsUserSelect;
         document.body.classList.remove("no-select");
       };
     }
@@ -170,7 +174,11 @@ export default function Slider({
         <span className="text-body5m text-[#c9c6c5] w-[23px] text-right">Max</span>
         {showValue && (
           <div className="bg-[#ebebf0] rounded-[8px] h-[24px] px-2 flex items-center justify-center min-w-[36px]">
-            <span className="text-body5 text-[#787776]">{value.toFixed(1)}</span>
+            <span className="text-body5 text-[#787776]">
+              {valuePrecision !== undefined 
+                ? value.toFixed(valuePrecision) 
+                : value.toFixed(1)}
+            </span>
           </div>
         )}
       </div>
