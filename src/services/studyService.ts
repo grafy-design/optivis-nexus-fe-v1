@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://210.181.94.200:8002";
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://nexus.oprimed.com";
 
 // API 응답 타입 정의
 export interface StudyResult {
@@ -155,6 +155,50 @@ export interface DecisionStabilityResult {
   updated_at: string;
 }
 
+/** Step 2-1 Variance Decline: model_performance (R²) vs variance */
+export interface VarianceDeclineResult {
+  id: number;
+  task_id: string;
+  model_performance: number;
+  variance: string; // JSON array string of variance values
+  created_at: string;
+  updated_at: string;
+}
+
+/** Step 3-1 Absolute Performance Comparison: category × degradation_level, estimated_treatment_effect ± margin_of_error */
+export interface AbsolutePerformanceItem {
+  id: number;
+  task_id: string;
+  category: string;
+  degradation_level: string;
+  estimated_treatment_effect: number;
+  margin_of_error: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Step 3-2 Robustness Proof: difference_in_estimate ± margin_of_error */
+export interface RobustnessProofResult {
+  id: number;
+  task_id: string;
+  category: string;
+  degradation_level: string;
+  difference_in_estimate: number;
+  margin_of_error: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Step 2-2 Estimated treatment effect: model_performance (R²) vs estimated_treatment_effect (JSON array) */
+export interface EstimatedTreatmentEffectResult {
+  id: number;
+  task_id: string;
+  model_performance: number;
+  estimated_treatment_effect: string; // JSON array string
+  created_at: string;
+  updated_at: string;
+}
+
 export interface GraphAccModel {
   id: number;
   task_id: string;
@@ -215,6 +259,10 @@ export interface PlayAPIResponse {
       result_trialdesignconditionsummary?: TrialDesignConditionsSummary;
       sample_size_evaluation?: SampleSizeEvaluation;
       result_type_safety?: TypeSafetyResult[];
+      result_variancedecline?: VarianceDeclineResult[];
+      result_estimatedtreatmenteffect?: EstimatedTreatmentEffectResult[];
+      result_absoluteperformancecomparison?: AbsolutePerformanceItem[];
+      result_robustnessproof?: RobustnessProofResult[];
       result_decisionstability?: DecisionStabilityResult[];
       graph_acc_model?: GraphAccModel[];
       result_prec_model?: ResultPrecModel;
@@ -225,7 +273,7 @@ export interface PlayAPIResponse {
 
 // Play API 호출
 export const callMLStudyDesign = async (
-  parameters: StudyParameters,
+  parameters: StudyParameters
 ): Promise<PlayAPIResponse> => {
   // 타임아웃 설정 (10분 = 600초, 큰 응답 처리용)
   const timeout = 600000; // 10분
@@ -246,7 +294,7 @@ export const callMLStudyDesign = async (
         // CORS 문제 해결을 위한 옵션
         mode: "cors",
         credentials: "omit",
-      },
+      }
     );
 
     clearTimeout(timeoutId);
@@ -255,7 +303,7 @@ export const callMLStudyDesign = async (
       const errorText = await response.text();
       // API 응답 오류
       throw new Error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`,
+        `HTTP error! status: ${response.status}, message: ${errorText}`
       );
     }
 
@@ -269,7 +317,7 @@ export const callMLStudyDesign = async (
       if (error.name === "AbortError") {
         // API 호출 타임아웃
         throw new Error(
-          "요청 시간이 초과되었습니다. 응답이 너무 큽니다. 잠시 후 다시 시도해주세요.",
+          "요청 시간이 초과되었습니다. 응답이 너무 큽니다. 잠시 후 다시 시도해주세요."
         );
       }
 
@@ -281,7 +329,7 @@ export const callMLStudyDesign = async (
         // 네트워크 에러 상세
         throw new Error(
           `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
-            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`,
+            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
         );
       }
 
@@ -307,14 +355,14 @@ export const downloadReportFile = async (taskId: string): Promise<Blob> => {
         // CORS 문제 해결을 위한 옵션
         mode: "cors",
         credentials: "omit",
-      },
+      }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
       // 파일 다운로드 API 응답 오류
       throw new Error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`,
+        `HTTP error! status: ${response.status}, message: ${errorText}`
       );
     }
 
@@ -330,7 +378,7 @@ export const downloadReportFile = async (taskId: string): Promise<Blob> => {
         // 네트워크 에러 상세
         throw new Error(
           `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
-            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`,
+            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
         );
       }
 

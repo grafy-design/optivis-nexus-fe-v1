@@ -94,7 +94,7 @@ export default function SimulationPage() {
   // chartType: 'sampleSize' | 'enrollment' | 'cost' - 차트 타입에 따라 다른 x축 값 반환
   const getHighlightXValue = (
     optivisData: number[][],
-    chartType: "sampleSize" | "enrollment" | "cost" = "sampleSize",
+    chartType: "sampleSize" | "enrollment" | "cost" = "sampleSize"
   ) => {
     if (!findHighlightedData || !findHighlightedData.optivis) {
       return undefined;
@@ -125,7 +125,7 @@ export default function SimulationPage() {
   const { filteredData, chartData, defaultPowerIndex } = useProcessedStudyData(
     optivisData,
     traditionalData,
-    nominalPower,
+    nominalPower
   );
 
   // 하이라이트된 포인트의 실제 데이터를 찾는 함수
@@ -147,12 +147,12 @@ export default function SimulationPage() {
     // OPTIVIS에서 power 값이 가장 가까운 포인트 찾기
     let optivisIndex = 0;
     let minPowerDiff = Math.abs(
-      optivisToSearch[0].primary_endpoint_power - targetPower,
+      optivisToSearch[0].primary_endpoint_power - targetPower
     );
 
     for (let i = 1; i < optivisToSearch.length; i++) {
       const powerDiff = Math.abs(
-        optivisToSearch[i].primary_endpoint_power - targetPower,
+        optivisToSearch[i].primary_endpoint_power - targetPower
       );
       if (powerDiff < minPowerDiff) {
         minPowerDiff = powerDiff;
@@ -179,12 +179,12 @@ export default function SimulationPage() {
     // Traditional에서도 같은 power 값에 가장 가까운 포인트 찾기
     let traditionalIndex = 0;
     let minTraditionalPowerDiff = Math.abs(
-      traditionalToSearch[0].primary_endpoint_power - targetPower,
+      traditionalToSearch[0].primary_endpoint_power - targetPower
     );
 
     for (let i = 1; i < traditionalToSearch.length; i++) {
       const powerDiff = Math.abs(
-        traditionalToSearch[i].primary_endpoint_power - targetPower,
+        traditionalToSearch[i].primary_endpoint_power - targetPower
       );
       if (powerDiff < minTraditionalPowerDiff) {
         minTraditionalPowerDiff = powerDiff;
@@ -216,7 +216,7 @@ export default function SimulationPage() {
           sampleSize: optivis.total_patient.toLocaleString(),
           enrollment: optivis.enrollment.toFixed(2),
           primaryEndpointPower: (optivis.primary_endpoint_power * 100).toFixed(
-            1,
+            1
           ),
           secondaryEndpointPower: optivis.secondary_endpoint_power
             ? (optivis.secondary_endpoint_power * 100).toFixed(1)
@@ -354,7 +354,7 @@ export default function SimulationPage() {
       ((traditional.cost - optivis.cost) / traditional.cost) * 100;
     const costReduction = Math.abs(costReductionRaw).toFixed(0);
     const costReductionValue = Math.abs(
-      (traditional.cost - optivis.cost) / 1000000,
+      (traditional.cost - optivis.cost) / 1000000
     ).toFixed(1);
     const costIsNegative = costReductionRaw < 0;
 
@@ -405,7 +405,9 @@ export default function SimulationPage() {
         },
         primaryEndpointPower: {
           optivis: `${(optivis.primary_endpoint_power * 100).toFixed(1)}%`,
-          traditional: `${(traditional.primary_endpoint_power * 100).toFixed(1)}%`,
+          traditional: `${(traditional.primary_endpoint_power * 100).toFixed(
+            1
+          )}%`,
         },
         secondaryEndpointPower: {
           optivis: optivis.secondary_endpoint_power
@@ -448,7 +450,11 @@ export default function SimulationPage() {
               optivis.primary_endpoint_power >=
               traditional.primary_endpoint_power
                 ? "No loss"
-                : `${((traditional.primary_endpoint_power - optivis.primary_endpoint_power) * 100).toFixed(1)}%`,
+                : `${(
+                    (traditional.primary_endpoint_power -
+                      optivis.primary_endpoint_power) *
+                    100
+                  ).toFixed(1)}%`,
             optivis: Math.round(optivis.primary_endpoint_power * 100),
             traditional: Math.round(traditional.primary_endpoint_power * 100),
             isNegative:
@@ -559,7 +565,7 @@ export default function SimulationPage() {
 
       // 값들을 정확히 반올림 (부동소수점 오차 방지)
       const roundedNominalPower = parseFloat(
-        (Math.round(nominalPower / 0.05) * 0.05).toFixed(2),
+        (Math.round(nominalPower / 0.05) * 0.05).toFixed(2)
       );
 
       // UI type(Continuous/Binary) -> API type(Continous/Binary). 넘겨준 값 또는 기본값 사용
@@ -577,7 +583,7 @@ export default function SimulationPage() {
         (ep, index) => {
           const outcome = convertPrimaryEndpoint(ep.name);
           const effectSize = parseFloat(
-            (Math.round(ep.effectSize * 10) / 10).toFixed(1),
+            (Math.round(ep.effectSize * 10) / 10).toFixed(1)
           );
           return {
             no: index + 1,
@@ -591,7 +597,7 @@ export default function SimulationPage() {
             endpoint_objectives: ["Confirmatory"],
             alpha: alpha,
           };
-        },
+        }
       );
 
       // Secondary 데이터 구성: multiplicity·type은 넘겨준 값(또는 기본값) 사용
@@ -600,7 +606,7 @@ export default function SimulationPage() {
           ? secondaryEndpoints.map((ep, index) => {
               const outcome = convertPrimaryEndpoint(ep.name);
               const effectSize = parseFloat(
-                (Math.round(ep.effectSize * 10) / 10).toFixed(1),
+                (Math.round(ep.effectSize * 10) / 10).toFixed(1)
               );
               return {
                 no: index + 1,
@@ -620,7 +626,7 @@ export default function SimulationPage() {
       // treatment_duration 검증 및 변환 (3의 배수, >0, 정수)
       const durationValue = parseInt(
         treatmentDuration.replace(" months", ""),
-        10,
+        10
       );
       if (
         isNaN(durationValue) ||
@@ -660,6 +666,14 @@ export default function SimulationPage() {
       const trialDesignConditionsSummary =
         response.data?.table_results?.result_trialdesignconditionsummary;
       const resultTypeSafety = response.data?.table_results?.result_type_safety;
+      const resultVarianceDecline =
+        response.data?.table_results?.result_variancedecline;
+      const resultEstimatedTreatmentEffect =
+        response.data?.table_results?.result_estimatedtreatmenteffect;
+      const resultAbsolutePerformance =
+        response.data?.table_results?.result_absoluteperformancecomparison;
+      const resultRobustnessProof =
+        response.data?.table_results?.result_robustnessproof;
       const resultDecisionStability =
         response.data?.table_results?.result_decisionstability;
       const graphAccModel = response.data?.table_results?.graph_acc_model;
@@ -683,6 +697,10 @@ export default function SimulationPage() {
           result_trialdesignconditionsummary: trialDesignConditionsSummary,
           sample_size_evaluation: sampleSizeEvaluation,
           result_type_safety: resultTypeSafety,
+          result_variancedecline: resultVarianceDecline,
+          result_estimatedtreatmenteffect: resultEstimatedTreatmentEffect,
+          result_absoluteperformancecomparison: resultAbsolutePerformance,
+          result_robustnessproof: resultRobustnessProof,
           result_decisionstability: resultDecisionStability,
           graph_acc_model: graphAccModel,
           result_prec_model: resultPrecModel,
@@ -692,7 +710,7 @@ export default function SimulationPage() {
         // Nominal Power 값으로 Sample Size Control 초기 위치 설정 (Apply 시)
         // sampleSizeControl 범위: 0.6~0.95 (차트 하이라이트용)
         const roundedPower = parseFloat(
-          (Math.round(nominalPower / 0.05) * 0.05).toFixed(2),
+          (Math.round(nominalPower / 0.05) * 0.05).toFixed(2)
         );
         setSampleSizeControl(Math.max(0.6, Math.min(0.95, roundedPower)));
 

@@ -7,6 +7,10 @@ import type {
   SampleSizeEvaluation,
   TrialDesignConditionsSummary,
   TypeSafetyResult,
+  VarianceDeclineResult,
+  EstimatedTreatmentEffectResult,
+  AbsolutePerformanceItem,
+  RobustnessProofResult,
   DecisionStabilityResult,
   GraphAccModel,
   ResultPrecModel,
@@ -63,6 +67,10 @@ export interface SimulationState {
     result_trialdesignconditionsummary?: TrialDesignConditionsSummary;
     sample_size_evaluation?: SampleSizeEvaluation;
     result_type_safety?: TypeSafetyResult[];
+    result_variancedecline?: VarianceDeclineResult[];
+    result_estimatedtreatmenteffect?: EstimatedTreatmentEffectResult[];
+    result_absoluteperformancecomparison?: AbsolutePerformanceItem[];
+    result_robustnessproof?: RobustnessProofResult[];
     result_decisionstability?: DecisionStabilityResult[];
     graph_acc_model?: GraphAccModel[];
     result_prec_model?: ResultPrecModel;
@@ -78,10 +86,10 @@ export interface SimulationState {
   setSampleSizeControl: (value: number) => void;
   setDisease: (disease: string) => void;
   setPrimaryEndpoints: (
-    endpoints: EndpointItem[] | ((prev: EndpointItem[]) => EndpointItem[]),
+    endpoints: EndpointItem[] | ((prev: EndpointItem[]) => EndpointItem[])
   ) => void;
   setSecondaryEndpoints: (
-    endpoints: EndpointItem[] | ((prev: EndpointItem[]) => EndpointItem[]),
+    endpoints: EndpointItem[] | ((prev: EndpointItem[]) => EndpointItem[])
   ) => void;
   setPrimaryEndpoint: (endpoint: string) => void;
   setPrimaryEffectSize: (size: number) => void;
@@ -108,11 +116,15 @@ export interface SimulationState {
       result_trialdesignconditionsummary?: TrialDesignConditionsSummary;
       sample_size_evaluation?: SampleSizeEvaluation;
       result_type_safety?: TypeSafetyResult[];
+      result_variancedecline?: VarianceDeclineResult[];
+      result_estimatedtreatmenteffect?: EstimatedTreatmentEffectResult[];
+      result_absoluteperformancecomparison?: AbsolutePerformanceItem[];
+      result_robustnessproof?: RobustnessProofResult[];
       result_decisionstability?: DecisionStabilityResult[];
       graph_acc_model?: GraphAccModel[];
       result_prec_model?: ResultPrecModel;
       appendix?: Appendix;
-    } | null,
+    } | null
   ) => void;
   setTaskId: (taskId: string | null) => void;
   setIsLoading: (loading: boolean) => void;
@@ -146,7 +158,7 @@ const initialState = {
   error: null,
 };
 
-export const useSimulationStore = create<SimulationState>((set) => ({
+export const useSimulationStore = create<SimulationState>()((set) => ({
   ...initialState,
 
   setActiveTab: (tab) => set({ activeTab: tab }),

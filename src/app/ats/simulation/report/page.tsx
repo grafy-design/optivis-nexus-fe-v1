@@ -10,7 +10,14 @@ import { SingleBarChart } from "@/components/charts/SingleBarChart";
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Button from "@/components/ui/button";
-import ReactECharts from "echarts-for-react";
+import {
+  Step1TypeISafetyChart,
+  Step2VarianceDeclineChart,
+  Step2BoxplotChart,
+  Step3AbsolutePerformanceChart,
+  Step3PerformanceGainChart,
+  Step4DecisionStabilityChart,
+} from "./charts";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { downloadReportFile } from "@/services/studyService";
@@ -62,7 +69,7 @@ export default function ReportPage() {
   const simulationBasePath = pathname.startsWith("/ats/")
     ? "/ats/simulation"
     : pathname.startsWith("/tsi/")
-      ? "/tsi/simulation"
+      ? "/tsi"
       : "/simulation";
   const {
     isApplied,
@@ -88,88 +95,9 @@ export default function ReportPage() {
   } = useSimulationStore();
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
-  // 리포트 페이지 데이터를 localStorage에 저장 및 복원
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // apiData가 있으면 localStorage에 저장
-    if (apiData) {
-      try {
-        localStorage.setItem("report_apiData", JSON.stringify(apiData));
-        localStorage.setItem("report_isApplied", JSON.stringify(isApplied));
-      } catch (error) {
-        // Failed to save report data to localStorage
-      }
-    }
-
-    // taskId가 있으면 localStorage에 저장
-    if (taskId) {
-      try {
-        localStorage.setItem("report_taskId", taskId);
-      } catch (error) {
-        // Failed to save taskId to localStorage
-      }
-    }
-  }, [apiData, isApplied, taskId]);
-
-  // 페이지 로드 시 localStorage에서 데이터 복원
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    // apiData가 없고 localStorage에 데이터가 있으면 복원
-    if (!apiData) {
-      try {
-        const savedApiData = localStorage.getItem("report_apiData");
-        const savedIsApplied = localStorage.getItem("report_isApplied");
-
-        if (savedApiData) {
-          const parsedData = JSON.parse(savedApiData);
-          const parsedIsApplied = savedIsApplied
-            ? JSON.parse(savedIsApplied)
-            : false;
-
-          // store에 데이터 복원
-          setApiData(parsedData);
-          setIsApplied(parsedIsApplied);
-        }
-      } catch (error) {
-        // Failed to restore report data from localStorage
-      }
-    }
-
-    // taskId가 없고 localStorage에 taskId가 있으면 복원
-    if (!taskId) {
-      try {
-        const savedTaskId = localStorage.getItem("report_taskId");
-        if (savedTaskId) {
-          setTaskId(savedTaskId);
-        }
-      } catch (error) {
-        // Failed to restore taskId from localStorage
-      }
-    }
-  }, [setApiData, setTaskId, setIsApplied, apiData, taskId]); // 마운트 시 한 번만 실행
-
   // Apply를 안 눌렀을 때는 시뮬레이션 페이지로 리다이렉트
-  // 단, 새로고침 시에는 리다이렉트하지 않음 (데이터가 있을 수 있음)
   useEffect(() => {
-    // 클라이언트 사이드에서만 실행
-    if (typeof window === "undefined") return;
-
-    // localStorage에 데이터가 있으면 리다이렉트하지 않음
-    const savedApiData = localStorage.getItem("report_apiData");
-    if (savedApiData) {
-      return; // localStorage에 데이터가 있으면 리다이렉트하지 않음
-    }
-
-    // 새로고침이 아닌 경우에만 리다이렉트
-    // performance.navigation.type이 0이면 직접 방문, 1이면 리로드
-    const navigation = performance.getEntriesByType(
-      "navigation",
-    )[0] as PerformanceNavigationTiming;
-    const isReload = navigation?.type === "reload";
-
-    if (!isReload && (!isApplied || !apiData)) {
+    if (!isApplied || !apiData) {
       router.push(simulationBasePath);
     }
   }, [isApplied, apiData, router, simulationBasePath]);
@@ -249,7 +177,10 @@ export default function ReportPage() {
             change:
               optivisItem.power >= traditionalItem.power
                 ? "No loss"
-                : `${((traditionalItem.power - optivisItem.power) * 100).toFixed(1)}%`,
+                : `${(
+                    (traditionalItem.power - optivisItem.power) *
+                    100
+                  ).toFixed(1)}%`,
             optivis: Math.round(optivisItem.power * 100),
             traditional: Math.round(traditionalItem.power * 100),
             isNegative: optivisItem.power < traditionalItem.power,
@@ -475,7 +406,7 @@ export default function ReportPage() {
               >
                 <div className="w-full">
                   {/* Trial Design Conditions Summary */}
-                  <div id="trial-design-summary" className="mb-[116px]">
+                  <div id="trial-design-summary" className="mb-[100px]">
                     <h2 className="text-h2 text-[#2d1067] mb-[44px]">
                       Trial Design Conditions Summary
                     </h2>
@@ -586,7 +517,9 @@ export default function ReportPage() {
                                         </td>
                                         <td className="py-3 px-4 text-[17px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
                                           {index === 0
-                                            ? `${Math.round(nominalPower * 100)}%`
+                                            ? `${Math.round(
+                                                nominalPower * 100,
+                                              )}%`
                                             : "-"}
                                         </td>
                                         <td className="py-3 px-4 text-[17px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
@@ -774,7 +707,7 @@ export default function ReportPage() {
                   </div>
 
                   {/* Results Overview */}
-                  <div id="results-overview" className="mb-[116px]">
+                  <div id="results-overview" className="mb-[100px]">
                     <h2 className="text-h2 text-[#2d1067] mb-[44px]">
                       Results Overview
                     </h2>
@@ -971,7 +904,7 @@ export default function ReportPage() {
                   </div>
 
                   {/* Prediction Accuracy by Model Section */}
-                  <div id="prediction-accuracy" className="mb-[116px]">
+                  <div id="prediction-accuracy" className="mb-[100px]">
                     <h2 className="text-h2 text-[#2d1067] mb-[44px]">
                       Prediction Accuracy by Model
                     </h2>
@@ -1108,7 +1041,9 @@ export default function ReportPage() {
                                           return (
                                             <td
                                               key={key}
-                                              className={`py-3 px-4 text-body2m text-neutral-30 ${showBorder ? "relative" : ""}`}
+                                              className={`py-3 px-4 text-body2m text-neutral-30 ${
+                                                showBorder ? "relative" : ""
+                                              }`}
                                             >
                                               {displayValue}
                                               {showBorder && (
@@ -1173,7 +1108,7 @@ export default function ReportPage() {
                   </div>
 
                   {/* Demonstration of Robustness Section */}
-                  <div id="demonstration-robustness" className="mb-[116px]">
+                  <div id="demonstration-robustness" className="mb-[100px]">
                     <h2 className="text-h2 text-[#2d1067] mb-[44px]">
                       Demonstration of Robustness
                     </h2>
@@ -1185,132 +1120,7 @@ export default function ReportPage() {
                         title="Type I safety"
                         description="Demonstrate appropriate control of the Type I error under the null treatment effect."
                         chartContent={
-                          <div className="w-full h-full">
-                            <div className="h-full w-full bg-white rounded-[8px] overflow-hidden">
-                              <ReactECharts
-                                option={(() => {
-                                  const typeSafetyData =
-                                    apiData?.result_type_safety || [];
-
-                                  const allXAxisData = typeSafetyData.map(
-                                    (item) => item.p_value.toFixed(2),
-                                  );
-                                  const barData = typeSafetyData.map(
-                                    (item) => item.count,
-                                  );
-                                  const maxCount = Math.max(...barData, 1);
-                                  const expectedValue =
-                                    typeSafetyData.length > 0
-                                      ? typeSafetyData[0].expected_under_uniform
-                                      : 0.5;
-
-                                  return {
-                                    grid: {
-                                      left: 20,
-                                      right: 20,
-                                      top: 30,
-                                      bottom: 10,
-                                      containLabel: true,
-                                    },
-                                    xAxis: {
-                                      type: "category",
-                                      data: allXAxisData,
-                                      axisLabel: {
-                                        fontSize: 10,
-                                        color: "#484646",
-                                        fontWeight: 510,
-                                        formatter: (
-                                          value: string,
-                                          index: number,
-                                        ) => {
-                                          // 데이터와 무관하게 0.2 단위로 고정 표시 (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
-                                          // 총 20개 데이터이므로 index를 0.05 단위로 계산
-                                          const pValue = index * 0.05;
-                                          // 0.2 단위만 표시
-                                          if (
-                                            Math.abs(pValue % 0.2) < 0.01 ||
-                                            Math.abs(pValue - 1.0) < 0.01
-                                          ) {
-                                            return pValue.toFixed(1);
-                                          }
-                                          return "";
-                                        },
-                                      },
-                                      axisLine: { show: false },
-                                      axisTick: { show: false },
-                                    },
-                                    yAxis: {
-                                      type: "value",
-                                      axisLabel: {
-                                        fontSize: 10,
-                                        color: "#484646",
-                                        fontWeight: 510,
-                                      },
-                                      axisLine: { show: false },
-                                      axisTick: { show: false },
-                                      splitLine: { show: false },
-                                    },
-                                    series: [
-                                      {
-                                        type: "bar",
-                                        data: barData,
-                                        itemStyle: {
-                                          color: "#aaa5e1",
-                                          borderRadius: [6, 6, 6, 6],
-                                        },
-                                        barWidth: "90%",
-                                        barGap: "10%",
-                                        markLine: {
-                                          silent: true,
-                                          symbol: "none",
-                                          label: {
-                                            show: false,
-                                          },
-                                          lineStyle: {
-                                            color: "#704ef3",
-                                            type: "dashed",
-                                            width: 1,
-                                          },
-                                          data: [
-                                            {
-                                              yAxis: expectedValue,
-                                            },
-                                          ],
-                                        },
-                                        markArea: {
-                                          silent: true,
-                                          itemStyle: {
-                                            color: {
-                                              type: "linear",
-                                              x: 0,
-                                              y: 0,
-                                              x2: 0,
-                                              y2: 1,
-                                              colorStops: [
-                                                { offset: 0, color: "#E9DDFF" }, // 위 (expectedValue): 진한 색상
-                                                {
-                                                  offset: 1,
-                                                  color:
-                                                    "rgba(255, 255, 255, 0.0)",
-                                                }, // 아래 (y축 0): 완전히 투명한 흰색
-                                              ],
-                                            },
-                                          },
-                                          data: [
-                                            [
-                                              { yAxis: 0 },
-                                              { yAxis: expectedValue },
-                                            ],
-                                          ],
-                                        },
-                                      },
-                                    ],
-                                  };
-                                })()}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            </div>
-                          </div>
+                          <Step1TypeISafetyChart apiData={apiData} />
                         }
                       />
 
@@ -1321,170 +1131,8 @@ export default function ReportPage() {
                         description="Demonstrate that efficiency gains from prognostic adjustment scale smoothly with model performance and remain stable under degradation of predictive accuracy."
                         chartContent={
                           <div className="w-full h-full flex gap-4">
-                            <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden">
-                              <ReactECharts
-                                option={{
-                                  grid: {
-                                    left: 20,
-                                    right: 20,
-                                    top: 30,
-                                    bottom: 10,
-                                    containLabel: true,
-                                  },
-                                  xAxis: {
-                                    type: "category",
-                                    data: [
-                                      "0.1",
-                                      "0.2",
-                                      "0.3",
-                                      "0.4",
-                                      "0.5",
-                                      "0.6",
-                                      "0.7",
-                                      "0.8",
-                                      "0.9",
-                                    ],
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                  },
-                                  yAxis: {
-                                    type: "value",
-                                    max: 1.0,
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                    splitLine: { show: false },
-                                  },
-                                  series: [
-                                    {
-                                      type: "line",
-                                      data: [
-                                        0.95, 0.85, 0.75, 0.65, 0.55, 0.45,
-                                        0.35, 0.25, 0.15,
-                                      ],
-                                      itemStyle: { color: "#231f52" },
-                                      symbol: "circle",
-                                      symbolSize: 8,
-                                      lineStyle: { width: 2 },
-                                    },
-                                  ],
-                                }}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            </div>
-                            <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden">
-                              <ReactECharts
-                                option={{
-                                  grid: {
-                                    left: 20,
-                                    right: 20,
-                                    top: 30,
-                                    bottom: 10,
-                                    containLabel: true,
-                                  },
-                                  xAxis: {
-                                    type: "category",
-                                    data: [
-                                      "0.1",
-                                      "0.2",
-                                      "0.3",
-                                      "0.4",
-                                      "0.5",
-                                      "0.6",
-                                      "0.7",
-                                      "0.8",
-                                      "0.9",
-                                    ],
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                  },
-                                  yAxis: {
-                                    type: "value",
-                                    min: -0.1,
-                                    max: 0.9,
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                    splitLine: { show: false },
-                                  },
-                                  series: [
-                                    {
-                                      type: "boxplot",
-                                      data: [
-                                        [0.1, 0.12, 0.14, 0.16, 0.18],
-                                        [0.2, 0.14, 0.15, 0.16, 0.17],
-                                        [0.3, 0.13, 0.14, 0.15, 0.16],
-                                        [0.4, 0.12, 0.13, 0.14, 0.15],
-                                        [0.5, 0.11, 0.12, 0.13, 0.14],
-                                        [0.6, 0.1, 0.11, 0.12, 0.13],
-                                        [0.7, 0.09, 0.1, 0.11, 0.12],
-                                        [0.8, 0.08, 0.09, 0.1, 0.11],
-                                        [0.9, 0.07, 0.08, 0.09, 0.1],
-                                      ],
-                                      itemStyle: {
-                                        color: "#231f52",
-                                        borderColor: "#231f52",
-                                        borderWidth: 1,
-                                      },
-                                      boxWidth: [7, 50],
-                                    },
-                                    {
-                                      type: "scatter",
-                                      data: [
-                                        [0.1, 0.15],
-                                        [0.1, 0.12],
-                                        [0.1, 0.18],
-                                        [0.2, 0.16],
-                                        [0.2, 0.14],
-                                        [0.2, 0.17],
-                                        [0.3, 0.15],
-                                        [0.3, 0.13],
-                                        [0.3, 0.16],
-                                        [0.4, 0.14],
-                                        [0.4, 0.12],
-                                        [0.4, 0.15],
-                                        [0.5, 0.13],
-                                        [0.5, 0.11],
-                                        [0.5, 0.14],
-                                        [0.6, 0.12],
-                                        [0.6, 0.1],
-                                        [0.6, 0.13],
-                                        [0.7, 0.11],
-                                        [0.7, 0.09],
-                                        [0.7, 0.12],
-                                        [0.8, 0.1],
-                                        [0.8, 0.08],
-                                        [0.8, 0.11],
-                                        [0.9, 0.09],
-                                        [0.9, 0.07],
-                                        [0.9, 0.1],
-                                      ],
-                                      itemStyle: { color: "#231f52" },
-                                      symbolSize: 4,
-                                    },
-                                  ],
-                                }}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            </div>
+                            <Step2VarianceDeclineChart apiData={apiData} />
+                            <Step2BoxplotChart apiData={apiData} />
                           </div>
                         }
                       />
@@ -1496,128 +1144,8 @@ export default function ReportPage() {
                         description="Demonstrate the robustness of statistical conclusions under realistic data complexities, including missingness and outcome non linearity."
                         chartContent={
                           <div className="w-full h-full flex gap-4">
-                            <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden">
-                              <ReactECharts
-                                option={{
-                                  grid: {
-                                    left: 20,
-                                    right: 20,
-                                    top: 30,
-                                    bottom: 10,
-                                    containLabel: true,
-                                  },
-                                  xAxis: {
-                                    type: "category",
-                                    data: [
-                                      "ideal (0%)",
-                                      "Mild (10%)",
-                                      "Moderate (20%)",
-                                      "Severe (30%)",
-                                    ],
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                      interval: 0,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                  },
-                                  yAxis: {
-                                    type: "value",
-                                    max: 5,
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                    splitLine: { show: false },
-                                  },
-                                  series: [
-                                    {
-                                      type: "line",
-                                      data: [4.5, 4.0, 3.5, 3.0],
-                                      itemStyle: { color: "#231f52" },
-                                      symbol: "circle",
-                                      symbolSize: 8,
-                                      lineStyle: { width: 2 },
-                                    },
-                                    {
-                                      type: "line",
-                                      data: [3.8, 3.3, 2.8, 2.3],
-                                      itemStyle: { color: "#7571a9" },
-                                      symbol: "circle",
-                                      symbolSize: 8,
-                                      lineStyle: { width: 2 },
-                                    },
-                                    {
-                                      type: "line",
-                                      data: [3.2, 2.7, 2.2, 1.7],
-                                      itemStyle: { color: "#aaa5e1" },
-                                      symbol: "circle",
-                                      symbolSize: 8,
-                                      lineStyle: { width: 2 },
-                                    },
-                                  ],
-                                }}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            </div>
-                            <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden">
-                              <ReactECharts
-                                option={{
-                                  grid: {
-                                    left: 20,
-                                    right: 20,
-                                    top: 30,
-                                    bottom: 10,
-                                    containLabel: true,
-                                  },
-                                  xAxis: {
-                                    type: "category",
-                                    data: [
-                                      "ideal (0%)",
-                                      "Mild (10%)",
-                                      "Moderate (20%)",
-                                      "Severe (30%)",
-                                    ],
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                      interval: 0,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                  },
-                                  yAxis: {
-                                    type: "value",
-                                    max: 3,
-                                    axisLabel: {
-                                      fontSize: 10,
-                                      color: "#484646",
-                                      fontWeight: 510,
-                                    },
-                                    axisLine: { show: false },
-                                    axisTick: { show: false },
-                                    splitLine: { show: false },
-                                  },
-                                  series: [
-                                    {
-                                      type: "line",
-                                      data: [1.0, 1.5, 2.0, 2.5],
-                                      itemStyle: { color: "#231f52" },
-                                      symbol: "circle",
-                                      symbolSize: 8,
-                                      lineStyle: { width: 2 },
-                                    },
-                                  ],
-                                }}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            </div>
+                            <Step3AbsolutePerformanceChart apiData={apiData} />
+                            <Step3PerformanceGainChart apiData={apiData} />
                           </div>
                         }
                       />
@@ -1628,195 +1156,7 @@ export default function ReportPage() {
                         title="Decision stability size reduction"
                         description="Demonstrate the stability of key trial decisions (e.g., go/no go conclusions) across plausible perturbations in design assumptions and data generating processes."
                         chartContent={
-                          <div className="w-full h-full">
-                            <div className="h-full w-full bg-white rounded-[8px] overflow-hidden">
-                              <ReactECharts
-                                option={(() => {
-                                  const decisionStabilityData =
-                                    apiData?.result_decisionstability || [];
-
-                                  const xAxisData = decisionStabilityData.map(
-                                    (item) => {
-                                      // scenario를 표시 형식으로 변환
-                                      if (item.scenario === "Base")
-                                        return "0.0";
-                                      if (item.scenario === "Var +10%")
-                                        return "+10%";
-                                      if (item.scenario === "Var +20%")
-                                        return "+20%";
-                                      if (item.scenario === "Rho -10%")
-                                        return "-10%";
-                                      if (item.scenario === "Rho -20%")
-                                        return "-20%";
-                                      return item.scenario;
-                                    },
-                                  );
-
-                                  // probability_of_go_decision은 JSON string 배열이므로 파싱
-                                  const series1Data = decisionStabilityData.map(
-                                    (item) => {
-                                      try {
-                                        const probArray = JSON.parse(
-                                          item.probability_of_go_decision,
-                                        );
-                                        return probArray[0] || 0;
-                                      } catch {
-                                        return 0;
-                                      }
-                                    },
-                                  );
-
-                                  const series2Data = decisionStabilityData.map(
-                                    (item) => {
-                                      try {
-                                        const probArray = JSON.parse(
-                                          item.probability_of_go_decision,
-                                        );
-                                        return probArray[1] || 0;
-                                      } catch {
-                                        return 0;
-                                      }
-                                    },
-                                  );
-
-                                  // estimated_treatment_effect 값 가져오기 (첫 번째 항목의 값 사용)
-                                  const estimatedTreatmentEffect =
-                                    decisionStabilityData.length > 0
-                                      ? decisionStabilityData[0]
-                                          .estimated_treatment_effect
-                                      : 0;
-
-                                  return {
-                                    grid: {
-                                      left: 20,
-                                      right: 20,
-                                      top: 30,
-                                      bottom: 10,
-                                      containLabel: true,
-                                    },
-                                    xAxis: {
-                                      type: "category",
-                                      data: xAxisData,
-                                      axisLabel: {
-                                        fontSize: 10,
-                                        color: "#484646",
-                                        fontWeight: 510,
-                                      },
-                                      axisLine: { show: false },
-                                      axisTick: { show: false },
-                                    },
-                                    yAxis: {
-                                      type: "value",
-                                      max: 1.0,
-                                      axisLabel: {
-                                        fontSize: 10,
-                                        color: "#484646",
-                                        fontWeight: 510,
-                                      },
-                                      axisLine: { show: false },
-                                      axisTick: { show: false },
-                                      splitLine: { show: false },
-                                    },
-                                    series: [
-                                      {
-                                        type: "bar",
-                                        data: series1Data,
-                                        itemStyle: {
-                                          color: "#231f52",
-                                          borderRadius: [6, 6, 6, 6],
-                                        },
-                                        barWidth: "45%",
-                                        barGap: "10%",
-                                        markLine: {
-                                          silent: true,
-                                          symbol: "none",
-                                          label: {
-                                            show: false,
-                                          },
-                                          lineStyle: {
-                                            color: "#2d1067",
-                                            type: "dashed",
-                                            width: 1,
-                                          },
-                                          data: [
-                                            {
-                                              yAxis: estimatedTreatmentEffect,
-                                            },
-                                          ],
-                                        },
-                                        markArea: {
-                                          silent: true,
-                                          itemStyle: {
-                                            color: {
-                                              type: "linear",
-                                              x: 0,
-                                              y: 0,
-                                              x2: 0,
-                                              y2: 1,
-                                              colorStops: [
-                                                { offset: 0, color: "#E9DDFF" }, // 위 (estimated_treatment_effect): 진한 색상
-                                                {
-                                                  offset: 1,
-                                                  color:
-                                                    "rgba(255, 255, 255, 0.0)",
-                                                }, // 아래 (y축 0): 완전히 투명한 흰색
-                                              ],
-                                            },
-                                          },
-                                          data: [
-                                            [
-                                              { yAxis: 0 },
-                                              {
-                                                yAxis: estimatedTreatmentEffect,
-                                              },
-                                            ],
-                                          ],
-                                        },
-                                      },
-                                      {
-                                        type: "bar",
-                                        data: series2Data,
-                                        itemStyle: {
-                                          color: "#aaa5e1",
-                                          borderRadius: [6, 6, 6, 6],
-                                        },
-                                        barWidth: "45%",
-                                        markArea: {
-                                          silent: true,
-                                          itemStyle: {
-                                            color: {
-                                              type: "linear",
-                                              x: 0,
-                                              y: 0,
-                                              x2: 0,
-                                              y2: 1,
-                                              colorStops: [
-                                                { offset: 0, color: "#E9DDFF" }, // 위 (estimated_treatment_effect): 진한 색상
-                                                {
-                                                  offset: 1,
-                                                  color:
-                                                    "rgba(255, 255, 255, 0.0)",
-                                                }, // 아래 (y축 0): 완전히 투명한 흰색
-                                              ],
-                                            },
-                                          },
-                                          data: [
-                                            [
-                                              { yAxis: 0 },
-                                              {
-                                                yAxis: estimatedTreatmentEffect,
-                                              },
-                                            ],
-                                          ],
-                                        },
-                                      },
-                                    ],
-                                  };
-                                })()}
-                                style={{ height: "100%", width: "100%" }}
-                              />
-                            </div>
-                          </div>
+                          <Step4DecisionStabilityChart apiData={apiData} />
                         }
                       />
                     </div>
