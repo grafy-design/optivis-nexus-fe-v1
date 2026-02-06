@@ -5,44 +5,58 @@ import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import IconButton from "@/components/ui/icon-button";
 
-/** TSI 브레드크럼 스텝 (기존 ATS 헤더와 동일한 원형·화살표 스타일, 숫자 1~5) */
+/** TSI 브레드크럼 스텝 (기존 ATS 헤더와 동일한 원형·화살표 스타일, 숫자 1~6) */
 const TSI_BREADCRUMB_STEPS = [
-  { key: "filter", label: "Filter", path: "/tsi/simulation/filter" },
+  {
+    key: "default-settings",
+    label: "Default Settings",
+    path: "/tsi",
+  },
   {
     key: "patients-summary",
     label: "Patients Summary",
-    path: "/tsi/simulation/patients-summary",
+    path: "/tsi/patients-summary",
   },
   {
-    key: "subgroups-set",
-    label: "Subgroups Set Selection",
-    path: "/tsi/simulation/subgroups-set",
+    key: "basis-selection",
+    label: "Basis selection",
+    path: "/tsi/basis-selection",
+  },
+  {
+    key: "subgroup-selection",
+    label: "Subgroup selection",
+    path: "/tsi/subgroup-selection",
   },
   {
     key: "subgroup-explain",
     label: "Subgroup Explain",
-    path: "/tsi/simulation/subgroup-explain",
+    path: "/tsi/subgroup-explain",
   },
-  { key: "report", label: "Report", path: "/tsi/simulation/report" },
+  { key: "report", label: "Report", path: "/tsi/report" },
 ] as const;
 
-/** pathname → 활성 스텝 인덱스 */
+/** pathname → 활성 스텝 인덱스 (Default Settings = /tsi, /tsi/filter 둘 다 step 0) */
 function getTSIActiveStepIndex(pathname: string): number {
-  if (pathname === "/tsi/simulation/report") return 4;
-  if (pathname === "/tsi/simulation/subgroup-explain") return 3;
-  if (pathname === "/tsi/simulation/subgroups-set") return 2;
-  if (pathname === "/tsi/simulation/patients-summary") return 1;
-  if (pathname === "/tsi/simulation/filter") return 0;
-  return 0; // /tsi/simulation (리다이렉트됨)
+  if (pathname === "/tsi/report") return 5;
+  if (pathname === "/tsi/subgroup-explain") return 4;
+  if (pathname === "/tsi/subgroup-selection") return 3;
+  if (pathname === "/tsi/basis-selection") return 2;
+  if (pathname === "/tsi/patients-summary") return 1;
+  if (pathname === "/tsi" || pathname === "/tsi/filter") return 0;
+  return 0;
 }
 
-/** TSI 헤더: ATS 헤더와 동일한 디자인(원형 16x16, 회색 화살표), 브레드크럼만 1~5 스텝으로 다름 */
+/** TSI 현재 경로의 이전 단계 path (뒤로가기용) */
+function getTSIPreviousStepPath(pathname: string): string | null {
+  const index = getTSIActiveStepIndex(pathname);
+  if (index <= 0) return null; // 첫 단계면 이전 없음 → 메인으로
+  return TSI_BREADCRUMB_STEPS[index - 1].path;
+}
+
+/** TSI 헤더: ATS 헤더와 동일한 디자인(원형 16x16, 회색 화살표), 브레드크럼만 1~6 스텝으로 다름 */
 export const TSIHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const simulationBasePath = "/tsi/simulation/filter";
-  const reportPath = "/tsi/simulation/report";
-  const isReportPage = pathname === reportPath;
   const activeStepIndex = getTSIActiveStepIndex(pathname);
 
   return (
@@ -115,12 +129,13 @@ export const TSIHeader = () => {
           })}
         </div>
 
-        {/* Right - ATS와 동일: 뒤로가기, 앞으로가기, 도움말 */}
+        {/* Right - 뒤로가기(전단계), 도움말 */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => {
-              if (isReportPage) {
-                router.push(simulationBasePath);
+              const prevPath = getTSIPreviousStepPath(pathname);
+              if (prevPath) {
+                router.push(prevPath);
               } else {
                 router.push("/");
               }
@@ -130,18 +145,6 @@ export const TSIHeader = () => {
             <Image
               src="/assets/simulation/back.png"
               alt="Back"
-              width={48}
-              height={48}
-              className="flex-shrink-0 w-full h-full object-contain"
-            />
-          </button>
-          <button
-            onClick={() => router.push(reportPath)}
-            className="w-12 h-12 flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer rounded-full overflow-hidden"
-          >
-            <Image
-              src="/assets/simulation/front.png"
-              alt="Forward"
               width={48}
               height={48}
               className="flex-shrink-0 w-full h-full object-contain"

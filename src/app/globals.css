@@ -547,6 +547,30 @@
     letter-spacing: -0.27px;
   }
 
+  /* Typography - Feature List Title (Inter Semi Bold 600, 19.5px) */
+  .text-feature-title {
+    font-size: 19.5px;
+    font-weight: 600;
+    line-height: 23.4px;
+    letter-spacing: -0.78px;
+  }
+
+  /* Typography - Feature Search Placeholder (Inter Semi Bold 600, 17px) */
+  .text-feature-search {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+
+  /* Typography - Feature Item Text (Inter Medium 500, 17px) */
+  .text-feature-item {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+
   /* Liquid Glass Effect - Based on Figma Design */
   .liquid-glass {
     position: relative;

@@ -107,7 +107,7 @@ interface RightPanelProps {
   chartDataToUse: ChartDataToUse | null;
   getHighlightXValue: (
     optivisData: number[][],
-    chartType?: "sampleSize" | "enrollment" | "cost",
+    chartType?: "sampleSize" | "enrollment" | "cost"
   ) => number | undefined;
   apiData: ApiData | null;
 }
@@ -147,7 +147,7 @@ export function RightPanel({
   } | null>(null);
 
   const handleFullscreenClick = (
-    chartType: "smallerSample" | "smallerNToScreen" | "lowerCost",
+    chartType: "smallerSample" | "smallerNToScreen" | "lowerCost"
   ) => {
     setFullscreenChartType(chartType);
     setFullscreenModalOpen(true);
@@ -160,7 +160,7 @@ export function RightPanel({
     optivisValue: number,
     traditionalValue: number,
     isNegative?: boolean,
-    formatter?: (value: number, label?: string) => string,
+    formatter?: (value: number, label?: string) => string
   ) => {
     setFullscreenBarChartProps({
       title,
@@ -246,7 +246,7 @@ export function RightPanel({
         },
       ],
     }),
-    [apiData, isApplied],
+    [apiData, isApplied]
   );
 
   return (
@@ -402,7 +402,7 @@ export function RightPanel({
                           }
                           highlightXValue={getHighlightXValue(
                             chartDataToUse.smallerSample.optivis,
-                            "sampleSize",
+                            "sampleSize"
                           )}
                         />
                       ) : null}
@@ -483,12 +483,12 @@ export function RightPanel({
                       <div className="grid grid-cols-2 gap-4 h-full p-4">
                         {/* Sample Size Section */}
                         {simulationData.reductionView.charts.find(
-                          (c) => c.label === "Sample Size",
+                          (c) => c.label === "Sample Size"
                         ) &&
                           (() => {
                             const chart =
                               simulationData.reductionView.charts.find(
-                                (c) => c.label === "Sample Size",
+                                (c) => c.label === "Sample Size"
                               )!;
                             return (
                               <div className="flex flex-col gap-2">
@@ -517,7 +517,7 @@ export function RightPanel({
                                         chart.change,
                                         chart.optivis,
                                         chart.traditional,
-                                        chart.isNegative,
+                                        chart.isNegative
                                       )
                                     }
                                   >
@@ -534,7 +534,7 @@ export function RightPanel({
                                         value={chart.optivis}
                                         maxValue={Math.max(
                                           chart.optivis,
-                                          chart.traditional,
+                                          chart.traditional
                                         )}
                                         color="#f06600"
                                         height="100%"
@@ -550,7 +550,7 @@ export function RightPanel({
                                         value={chart.traditional}
                                         maxValue={Math.max(
                                           chart.optivis,
-                                          chart.traditional,
+                                          chart.traditional
                                         )}
                                         color="#231f52"
                                         height="100%"
@@ -563,12 +563,12 @@ export function RightPanel({
                           })()}
                         {/* Power Section */}
                         {simulationData.reductionView.charts.find(
-                          (c) => c.label === "Power",
+                          (c) => c.label === "Power"
                         ) &&
                           (() => {
                             const chart =
                               simulationData.reductionView.charts.find(
-                                (c) => c.label === "Power",
+                                (c) => c.label === "Power"
                               )!;
                             return (
                               <div className="flex flex-col gap-2">
@@ -597,7 +597,7 @@ export function RightPanel({
                                         chart.change,
                                         chart.optivis,
                                         chart.traditional,
-                                        chart.isNegative,
+                                        chart.isNegative
                                       )
                                     }
                                   >
@@ -614,7 +614,7 @@ export function RightPanel({
                                         value={chart.optivis}
                                         maxValue={Math.max(
                                           chart.optivis,
-                                          chart.traditional,
+                                          chart.traditional
                                         )}
                                         color="#f06600"
                                         height="100%"
@@ -630,7 +630,7 @@ export function RightPanel({
                                         value={chart.traditional}
                                         maxValue={Math.max(
                                           chart.optivis,
-                                          chart.traditional,
+                                          chart.traditional
                                         )}
                                         color="#231f52"
                                         height="100%"
@@ -701,7 +701,7 @@ export function RightPanel({
                         (() => {
                           const chart =
                             simulationData.reductionView.charts.find(
-                              (c) => c.label === "Enrollment Time",
+                              (c) => c.label === "Enrollment Time"
                             );
                           return chart ? (
                             <>
@@ -724,7 +724,7 @@ export function RightPanel({
                                   onClick={() => {
                                     const chart =
                                       simulationData?.reductionView?.charts?.find(
-                                        (c) => c.label === "Enrollment Time",
+                                        (c) => c.label === "Enrollment Time"
                                       );
                                     if (chart) {
                                       handleBarChartFullscreenClick(
@@ -733,7 +733,7 @@ export function RightPanel({
                                         chart.change,
                                         chart.optivis,
                                         chart.traditional,
-                                        chart.isNegative,
+                                        chart.isNegative
                                       );
                                     }
                                   }}
@@ -763,7 +763,7 @@ export function RightPanel({
                             }
                             highlightXValue={getHighlightXValue(
                               chartDataToUse.smallerNToScreen.optivis,
-                              "enrollment",
+                              "enrollment"
                             )}
                           />
                         ) : null
@@ -771,7 +771,7 @@ export function RightPanel({
                         (() => {
                           const chart =
                             simulationData.reductionView.charts.find(
-                              (c) => c.label === "Enrollment Time",
+                              (c) => c.label === "Enrollment Time"
                             );
                           return chart ? (
                             <div className="grid grid-cols-2 gap-2 h-full p-2">
@@ -782,7 +782,7 @@ export function RightPanel({
                                     value={chart.optivis}
                                     maxValue={Math.max(
                                       chart.optivis,
-                                      chart.traditional,
+                                      chart.traditional
                                     )}
                                     color="#f06600"
                                     height="100%"
@@ -796,7 +796,7 @@ export function RightPanel({
                                     value={chart.traditional}
                                     maxValue={Math.max(
                                       chart.optivis,
-                                      chart.traditional,
+                                      chart.traditional
                                     )}
                                     color="#231f52"
                                     height="100%"
@@ -861,7 +861,7 @@ export function RightPanel({
                         (() => {
                           const chart =
                             simulationData.reductionView.charts.find(
-                              (c) => c.label === "Cost",
+                              (c) => c.label === "Cost"
                             );
                           return chart ? (
                             <>
@@ -884,7 +884,7 @@ export function RightPanel({
                                   onClick={() => {
                                     const chart =
                                       simulationData?.reductionView?.charts?.find(
-                                        (c) => c.label === "Cost",
+                                        (c) => c.label === "Cost"
                                       );
                                     if (chart) {
                                       handleBarChartFullscreenClick(
@@ -894,7 +894,7 @@ export function RightPanel({
                                         chart.optivis,
                                         chart.traditional,
                                         chart.isNegative,
-                                        (val: number) => `${val}M`,
+                                        (val: number) => `${val}M`
                                       );
                                     }
                                   }}
@@ -922,7 +922,7 @@ export function RightPanel({
                             }
                             highlightXValue={getHighlightXValue(
                               chartDataToUse.lowerCost.optivis,
-                              "cost",
+                              "cost"
                             )}
                           />
                         ) : null
@@ -930,7 +930,7 @@ export function RightPanel({
                         (() => {
                           const chart =
                             simulationData.reductionView.charts.find(
-                              (c) => c.label === "Cost",
+                              (c) => c.label === "Cost"
                             );
                           return chart ? (
                             <div className="grid grid-cols-2 gap-2 h-full p-2">
@@ -941,7 +941,7 @@ export function RightPanel({
                                     value={chart.optivis}
                                     maxValue={Math.max(
                                       chart.optivis,
-                                      chart.traditional,
+                                      chart.traditional
                                     )}
                                     color="#f06600"
                                     height="100%"
@@ -956,7 +956,7 @@ export function RightPanel({
                                     value={chart.traditional}
                                     maxValue={Math.max(
                                       chart.optivis,
-                                      chart.traditional,
+                                      chart.traditional
                                     )}
                                     color="#231f52"
                                     height="100%"
@@ -1076,7 +1076,7 @@ export function RightPanel({
                               ?.primary_endpoint
                               ? convertEndpointToDisplayText(
                                   apiData.result_trialdesignconditionsummary
-                                    .primary_endpoint,
+                                    .primary_endpoint
                                 )
                               : "ADAS-Cog Total Score"}
                           </span>
@@ -1114,7 +1114,7 @@ export function RightPanel({
                             <span className="text-small1 text-neutral-60">
                               {convertEndpointToDisplayText(
                                 apiData.result_trialdesignconditionsummary
-                                  .secondary_endpoint,
+                                  .secondary_endpoint
                               )}
                             </span>
                           </div>
@@ -1160,14 +1160,14 @@ export function RightPanel({
                               <div className="flex items-center gap-4">
                                 <span className="text-body5 text-secondary-60 w-[98px] text-right">
                                   {isApplied && simulationData
-                                    ? (simulationData.comparisonTable.sampleSize
-                                        .optivis.treatmentGroup1 ?? "-")
+                                    ? simulationData.comparisonTable.sampleSize
+                                        .optivis.treatmentGroup1 ?? "-"
                                     : "-"}
                                 </span>
                                 <span className="text-body5 text-primary-20 w-[98px] text-right">
                                   {isApplied && simulationData
-                                    ? (simulationData.comparisonTable.sampleSize
-                                        .traditional.treatmentGroup1 ?? "-")
+                                    ? simulationData.comparisonTable.sampleSize
+                                        .traditional.treatmentGroup1 ?? "-"
                                     : "-"}
                                 </span>
                               </div>
@@ -1323,7 +1323,7 @@ export function RightPanel({
                                       chart.optivis,
                                       chart.traditional,
                                       chart.isNegative,
-                                      formatter,
+                                      formatter
                                     );
                                   }}
                                 >
@@ -1339,7 +1339,7 @@ export function RightPanel({
                                 />
                               </div>
                             </div>
-                          ),
+                          )
                         )}
                       </div>
                     ) : (
@@ -1394,7 +1394,7 @@ export function RightPanel({
                               }
                               highlightXValue={getHighlightXValue(
                                 chartDataToUse.smallerSample.optivis,
-                                "sampleSize",
+                                "sampleSize"
                               )}
                               compactMode={true}
                             />
@@ -1450,7 +1450,7 @@ export function RightPanel({
                                 }
                                 highlightXValue={getHighlightXValue(
                                   chartDataToUse.smallerNToScreen.optivis,
-                                  "enrollment",
+                                  "enrollment"
                                 )}
                                 compactMode={true}
                               />
@@ -1501,7 +1501,7 @@ export function RightPanel({
                                 }
                                 highlightXValue={getHighlightXValue(
                                   chartDataToUse.lowerCost.optivis,
-                                  "cost",
+                                  "cost"
                                 )}
                                 compactMode={true}
                               />
@@ -1534,7 +1534,7 @@ export function RightPanel({
           traditionalData={chartDataToUse.smallerSample.traditional}
           highlightXValue={getHighlightXValue(
             chartDataToUse.smallerSample.optivis,
-            "sampleSize",
+            "sampleSize"
           )}
           xAxisName="Sample Size"
           yAxisName="CI Width"
@@ -1555,7 +1555,7 @@ export function RightPanel({
           traditionalData={chartDataToUse.smallerNToScreen.traditional}
           highlightXValue={getHighlightXValue(
             chartDataToUse.smallerNToScreen.optivis,
-            "enrollment",
+            "enrollment"
           )}
           xAxisName="Enrollment Time"
           yAxisName="Power"
@@ -1575,7 +1575,7 @@ export function RightPanel({
           traditionalData={chartDataToUse.lowerCost.traditional}
           highlightXValue={getHighlightXValue(
             chartDataToUse.lowerCost.optivis,
-            "cost",
+            "cost"
           )}
           xAxisName="Sample Size"
           yAxisName="Cost"

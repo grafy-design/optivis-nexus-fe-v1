@@ -22,7 +22,7 @@ export default function Input({
       )}
       <input
         className={cn(
-          "w-full rounded-[100px] bg-white py-[12px] text-[#5f5e5e] placeholder:text-[#5f5e5e] focus:outline-none focus:ring-2 focus:ring-offset-2",
+          "w-full rounded-[100px] bg-white py-[12px] text-[#5f5e5e] placeholder:text-feature-search placeholder:text-[#5f5e5e] focus:outline-none focus:ring-2 focus:ring-offset-2",
           icon ? "pl-[42px] pr-[18px]" : "px-[18px]",
           rightIcon && "pr-10",
           className
@@ -47,4 +47,3 @@ export default function Input({
     </div>
   );
 }
-
