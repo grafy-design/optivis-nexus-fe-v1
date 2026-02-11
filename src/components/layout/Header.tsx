@@ -8,7 +8,7 @@ import IconButton from "@/components/ui/icon-button";
 
 export const Header = () => {
   return (
-    <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#e7e5e7]">
+    <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#ededee]">
       <div className="w-full h-[84px] px-10 flex justify-between items-center">
    
         <h1 className="text-logo text-black">

@@ -110,7 +110,7 @@ export default function TSISubgroupSelectionPage() {
       <div className="w-full flex flex-col items-center">
         {/* 타이틀: 카드 밖 */}
         <div className="w-full flex justify-center mb-2 max-w-full">
-          <div className="w-[1772px] flex-shrink-0 mx-auto">
+          <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
             <div className="flex flex-col gap-1 flex-shrink-0 items-start">
               <div className="text-title text-neutral-5 text-left mb-2">
                 Subgroup Selection
@@ -579,6 +579,7 @@ export default function TSISubgroupSelectionPage() {
                                         type="button"
                                         className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
                                         title="Refine Cutoffs"
+                                        onClick={() => router.push("/tsi/refine-cutoffs")}
                                       >
                                         <svg
                                           width="24"

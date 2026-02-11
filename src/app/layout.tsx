@@ -19,10 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="bg-[#e7e5e7]">
+    <html lang="ko">
       <head></head>
       <body
-        className={`${inter.variable} antialiased bg-[#e7e5e7] min-w-full`}
+        className={`${inter.variable} antialiased min-w-full`}
         style={{ fontFamily: "var(--font-inter), Inter" }}
       >
         {children}

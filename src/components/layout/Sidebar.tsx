@@ -5,7 +5,7 @@ import IconButton from "@/components/ui/icon-button";
 
 export const Sidebar = () => {
   return (
-    <div className="fixed left-0 top-0 bottom-0 w-[68px] px-5 pt-4 bg-[#e7e5e7] z-[100] pb-4">
+    <div className="fixed left-0 top-0 bottom-0 w-[68px] px-5 pt-4 z-[100] pb-4">
       <div className="flex flex-col items-start h-full w-12">
         {/* Logo - Top (Home 링크) */}
         <Link

@@ -39,7 +39,7 @@ const TSI_BREADCRUMB_STEPS = [
 function getTSIActiveStepIndex(pathname: string): number {
   if (pathname === "/tsi/report") return 5;
   if (pathname === "/tsi/subgroup-explain") return 4;
-  if (pathname === "/tsi/subgroup-selection") return 3;
+  if (pathname === "/tsi/subgroup-selection" || pathname === "/tsi/refine-cutoffs") return 3;
   if (pathname === "/tsi/basis-selection") return 2;
   if (pathname === "/tsi/patients-summary") return 1;
   if (pathname === "/tsi" || pathname === "/tsi/filter") return 0;
@@ -48,6 +48,10 @@ function getTSIActiveStepIndex(pathname: string): number {
 
 /** TSI 현재 경로의 이전 단계 path (뒤로가기용) */
 function getTSIPreviousStepPath(pathname: string): string | null {
+  // refine-cutoffs는 subgroup-selection으로 돌아가야 함
+  if (pathname === "/tsi/refine-cutoffs") {
+    return "/tsi/subgroup-selection";
+  }
   const index = getTSIActiveStepIndex(pathname);
   if (index <= 0) return null; // 첫 단계면 이전 없음 → 메인으로
   return TSI_BREADCRUMB_STEPS[index - 1].path;
@@ -60,7 +64,7 @@ export const TSIHeader = () => {
   const activeStepIndex = getTSIActiveStepIndex(pathname);
 
   return (
-    <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#e7e5e7]">
+    <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#ededee]">
       <div className="w-full h-[76px] px-10 flex justify-between items-center">
         {/* Left - Breadcrumb (ATS와 동일한 gap-9, 구조) */}
         <div className="flex items-center gap-9">

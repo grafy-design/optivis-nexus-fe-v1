@@ -19,29 +19,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   headerType = "default",
 }) => {
   return (
-    <div className="h-screen w-full relative">
+    <div className="h-screen w-full relative overflow-hidden">
       <Sidebar />
-      <div
-        className="h-screen overflow-x-auto overflow-y-auto"
-        style={{
-          width: "calc(100% - 68px)",
-          marginLeft: "68px",
-        }}
-      >
-        <div className="bg-[#e7e5e7] w-full min-w-0">
-          <div
-            className="flex flex-col min-w-0"
-            style={{ minWidth: "calc(100% - 200px)" }}
-          >
-            {headerType === "ats" ? (
-              <ATSHeader />
-            ) : headerType === "tsi" ? (
-              <TSIHeader />
-            ) : (
-              <Header />
-            )}
-            <MainContainer>{children}</MainContainer>
-          </div>
+      <div className="flex flex-col h-screen overflow-hidden min-w-0" style={{ width: "calc(100% - 68px)", marginLeft: "68px" }}>
+        {headerType === "ats" ? (
+          <ATSHeader />
+        ) : headerType === "tsi" ? (
+          <TSIHeader />
+        ) : (
+          <Header />
+        )}
+        <div
+          className="flex-1 overflow-auto min-w-0"
+        >
+          <MainContainer>{children}</MainContainer>
         </div>
       </div>
     </div>

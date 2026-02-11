@@ -8,9 +8,9 @@ interface MainContainerProps {
 
 export const MainContainer: React.FC<MainContainerProps> = ({ children }) => {
   return (
-    <main className="bg-[#e7e5e7] w-full flex flex-col items-center min-w-max overflow-x-auto">
-      <div className="flex justify-center pb-0 bg-[#e7e5e7]">
-        <div className="w-[1772px] flex-shrink-0 mx-auto flex flex-col pt-3 pb-3 bg-[#e7e5e7]">
+    <main className="w-full flex flex-col items-center min-w-0">
+      <div className="flex justify-center pb-0 w-full min-w-0">
+        <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto flex flex-col pt-3 pb-3 min-w-0">
           {children}
         </div>
       </div>

@@ -162,6 +162,7 @@
   --primary: #262255;
   --secondary: #f46904;
   --background: #e7e5e7;
+  --BG: linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%);
 }
 
 /* Tailwind Theme - CSS 변수를 Tailwind 클래스로 사용 가능하게 함 */
@@ -290,21 +291,20 @@
 
   html {
     width: 100%;
-    overflow-x: auto;
     height: 100%;
-    background-color: var(--background);
+    overflow: hidden;
+    background: var(--BG, linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%));
     outline: none;
   }
 
   body {
     font-family: "Inter";
-    background-color: var(--background);
+    background: var(--BG, linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%));
     width: 100%;
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow-x: auto;
-    min-width: 100%;
+    overflow: hidden;
     outline: none;
   }
 
@@ -398,16 +398,16 @@
   /* Typography - H0 (Inter Medium 60px) */
   .text-h0 {
     font-size: 60px;
-    font-weight: 510;
+    font-weight: 500;
     line-height: 60px;
-    letter-spacing: -1.8px;
+    letter-spacing: -3.6px;
   }
 
   /* Typography - Title (Inter SemiBold 48px) */
   .text-title {
     font-size: 48px;
     font-weight: 600;
-    line-height: 47.52px;
+    line-height: 48px;
     letter-spacing: -2.4px;
   }
 
@@ -422,47 +422,53 @@
   /* Typography - H1 (Inter Semibold 48px) */
   .text-h1 {
     font-size: 48px;
-    font-weight: 590;
+    font-weight: 600;
     line-height: 46.08px;
     letter-spacing: -0.96px;
   }
 
   /* Typography - H2 (Inter Medium 40px) */
   .text-h2 {
+    font-family: Inter;
     font-size: 40px;
-    font-weight: 510;
-    line-height: 40px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 100%; /* 40px */
     letter-spacing: -1.2px;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: 'liga' off, 'clig' off;
   }
 
   /* Typography - H3 (Inter Semibold 36px) */
   .text-h3 {
     font-size: 36px;
-    font-weight: 590;
+    font-weight: 600;
     line-height: 36px;
     letter-spacing: -0.72px;
   }
 
-  /* Typography - H4 (Inter Medium 28px) */
+  /* Typography - H4 (Inter Semibold 28px) */
   .text-h4 {
+    font-family: Inter;
     font-size: 28px;
-    font-weight: 510;
-    line-height: 28px;
-    letter-spacing: -0.64px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 28px */
+    letter-spacing: -0.84px;
   }
 
-  /* Typography - Body1 (Inter Medium 24px) */
+  /* Typography - Body1 (Inter Semibold 24px) */
   .text-body1 {
     font-size: 24px;
-    font-weight: 510;
+    font-weight: 600;
     line-height: 28.8px;
-    letter-spacing: -0.23px;
+    letter-spacing: -0.72px;
   }
 
   /* Typography - Body1m (Inter Medium 24px, different letter-spacing) */
   .text-body1m {
     font-size: 24px;
-    font-weight: 510;
+    font-weight: 500;
     line-height: 28.8px;
     letter-spacing: -0.64px;
   }
@@ -470,15 +476,15 @@
   /* Typography - Body2 (Inter Semibold 19.5px) */
   .text-body2 {
     font-size: 19.5px;
-    font-weight: 590;
+    font-weight: 600;
     line-height: 23.4px;
-    letter-spacing: -0.585px;
+    letter-spacing: -0.78px;
   }
 
   /* Typography - Body2m (Inter Medium 19.5px) */
   .text-body2m {
     font-size: 19.5px;
-    font-weight: 510;
+    font-weight: 500;
     line-height: 23.4px;
     letter-spacing: -0.585px;
   }
@@ -486,31 +492,31 @@
   /* Typography - Body3 (Inter Semibold 17px) */
   .text-body3 {
     font-size: 17px;
-    font-weight: 590;
-    line-height: 20.29px;
+    font-weight: 600;
+    line-height: 17.85px;
     letter-spacing: -0.51px;
   }
 
   /* Typography - Body3m (Inter Medium 17px) */
   .text-body3m {
     font-size: 17px;
-    font-weight: 510;
-    line-height: 17px;
-    letter-spacing: 0;
+    font-weight: 500;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
   }
 
   /* Typography - Body4 (Inter Semibold 15px) */
   .text-body4 {
     font-size: 15px;
-    font-weight: 590;
+    font-weight: 600;
     line-height: 16.5px;
-    letter-spacing: -0.6px;
+    letter-spacing: -0.75px;
   }
 
   /* Typography - Body4m (Inter Medium 15px) */
   .text-body4m {
     font-size: 15px;
-    font-weight: 510;
+    font-weight: 500;
     line-height: 16.5px;
     letter-spacing: -0.45px;
   }
@@ -518,7 +524,7 @@
   /* Typography - Body5 (Inter Semibold 12px) */
   .text-body5 {
     font-size: 12px;
-    font-weight: 590;
+    font-weight: 600;
     line-height: 13.2px;
     letter-spacing: -0.36px;
   }
@@ -526,7 +532,7 @@
   /* Typography - Body5m (Inter Medium 12px) */
   .text-body5m {
     font-size: 12px;
-    font-weight: 510;
+    font-weight: 500;
     line-height: 13.2px;
     letter-spacing: -0.48px;
   }
@@ -534,8 +540,8 @@
   /* Typography - Small1 (Inter Medium 10.5px) */
   .text-small1 {
     font-size: 10.5px;
-    font-weight: 510;
-    line-height: 11.02px;
+    font-weight: 500;
+    line-height: 11.025px;
     letter-spacing: -0.525px;
   }
 
