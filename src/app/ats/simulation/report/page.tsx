@@ -367,7 +367,7 @@ export default function ReportPage() {
         <div className="w-full flex flex-col items-center">
           {/* Top Section - Title */}
           <div className="w-full flex justify-center mb-2 max-w-full">
-            <div className="w-[1772px] flex-shrink-0 mx-auto">
+            <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
               {/* Title Section */}
               <div className="flex items-start justify-between mb-10 min-w-full">
                 <div

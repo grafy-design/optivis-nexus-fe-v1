@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Button from "@/components/ui/button";
 import Image from "next/image";
+import { getPatientSummary, type PatientSummaryData } from "@/services/subgroupService";
 
 /**
  * TSI Step 2: Patients Summary
@@ -12,99 +13,54 @@ import Image from "next/image";
  */
 export default function TSIPatientsSummaryPage() {
   const router = useRouter();
+  const [patientSummaryData, setPatientSummaryData] = useState<PatientSummaryData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 페이지 마운트 시 API 호출
+  useEffect(() => {
+    const fetchPatientSummary = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        // task_id는 일단 임시로 하드코딩 (나중에 스토어나 쿼리 파라미터로 받을 수 있음)
+        const response = await getPatientSummary("test-task-id");
+        setPatientSummaryData(response.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Patient Summary 조회에 실패했습니다.");
+        console.error("Patient Summary API 호출 실패:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPatientSummary();
+  }, []);
 
   const handleGoToBasisSelection = () => {
     router.push("/tsi/basis-selection");
   };
 
-  // 피그마에서 확인한 데이터 구조
-  const baselineData = [
-    {
-      category: "Age",
-      items: [
-        {
-          label: "0-55",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
+  // API 데이터를 UI 데이터 구조로 변환 (Gender 제외)
+  const baselineData = patientSummaryData?.baseline_characteristics
+    .filter((category) => category.category.toLowerCase() !== "gender")
+    .map((category) => ({
+      category: category.category_display || category.category,
+      items: category.items.map((item) => ({
+        label: item.group_name,
+        fullCohort: {
+          value: item.full_cohort_n.toLocaleString(),
+          percent: `${item.full_cohort_pct.toFixed(1)}%`,
         },
-        {
-          label: "55-",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
+        filteredCohort: {
+          value: item.filtered_cohort_n.toLocaleString(),
+          percent: `${item.filtered_cohort_pct.toFixed(1)}%`,
         },
-        {
-          label: "Unknown or Not Reported",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-      ],
-    },
-    {
-      category: "Ethno-raciall identification",
-      items: [
-        {
-          label: "American Indian or Alaska Native",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Asian/Asian American",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Black/African American/African",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Hispanic/Latinx/Spanish",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Middle Eastern/North African",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Native Hawaiian/Pacific Islander",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "White/European American",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Other",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "No response",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-      ],
-    },
-    {
-      category: "Education",
-      items: [
-        {
-          label: "High school or equivalent or less",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-        {
-          label: "Some college/associate's degree",
-          fullCohort: { value: "Value", percent: "Value%" },
-          filteredCohort: { value: "Value", percent: "Value%" },
-        },
-      ],
-    },
-  ];
+      })),
+    })) || [];
+
+  const displayNumberAnalyzed = patientSummaryData?.number_analyzed || 0;
+  const displayConversionRate = patientSummaryData?.conversion_label || "";
 
   return (
     <AppLayout headerType="tsi">
@@ -130,7 +86,7 @@ export default function TSIPatientsSummaryPage() {
                     Patient Summary
                   </div>
                   <div className="text-body2m text-neutral-50">
-                    Number Analyzed 480 participants
+                    Number Analyzed {displayNumberAnalyzed} participants
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -178,7 +134,7 @@ export default function TSIPatientsSummaryPage() {
                     {/* Conversion Rate */}
                     <div className="w-[405px] h-[34px] flex items-center">
                       <div className="text-body2m text-neutral-60">
-                        48% converted (480/1000)
+                        {displayConversionRate}
                       </div>
                     </div>
                     {/* Full Cohort */}
@@ -210,8 +166,21 @@ export default function TSIPatientsSummaryPage() {
 
                 {/* Table Body */}
                 <div className="flex-1 overflow-y-auto">
-                  <div className="flex flex-col gap-3 mt-2">
-                    {baselineData.map((category, categoryIndex) => (
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-body2 text-neutral-50">Loading...</div>
+                    </div>
+                  ) : error ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-body2 text-red-500">Error: {error}</div>
+                    </div>
+                  ) : baselineData.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-body2 text-neutral-50">No data available</div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3 mt-2">
+                      {baselineData.map((category, categoryIndex) => (
                       <div
                         key={categoryIndex}
                         className="bg-white rounded-[16px] overflow-hidden"
@@ -296,8 +265,9 @@ export default function TSIPatientsSummaryPage() {
                           })}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { AppLayout } from "@/components/layout/AppLayout";
+import {
+  getSubgroupSummaryList,
+  type SubgroupSetSummary,
+  type ResultTableItem,
+} from "@/services/subgroupService";
+import ReactECharts from "echarts-for-react";
 
 /**
  * TSI Step 4: Subgroup Selection
@@ -13,52 +19,18 @@ import { AppLayout } from "@/components/layout/AppLayout";
  * - 오른쪽 상위: selection-bg.png → 안에 흰색 테이블 카드
  */
 
-const SAMPLE_SETS = [
-  {
-    no: "01",
-    setName: "Set 1",
-    groups: ["Group 1", "Group 2"],
-    outcome: "ADAS",
-    cutoff: "≤ 80%",
-    month: "12",
-    numGroups: "2",
-    varianceBenefit: "35.5% (Highest)",
-    groupBalance: "OK (n min=150)",
-  },
-  {
-    no: "02",
-    setName: "Set 2",
-    groups: ["Group 1", "Group 2", "Group 3"],
-    outcome: "CDR",
-    cutoff: "≤ 15%  ≤ 50%",
-    month: "15",
-    numGroups: "3",
-    varianceBenefit: "32.2%",
-    groupBalance: "OK (n min=150)",
-  },
-  {
-    no: "03",
-    setName: "Set 3",
-    groups: ["Group 1", "Group 2"],
-    outcome: "CDR",
-    cutoff: "≤ 70%",
-    month: "15",
-    numGroups: "2",
-    varianceBenefit: "32.1%",
-    groupBalance: "OK (n min=210)",
-  },
-  {
-    no: "04",
-    setName: "Set 4",
-    groups: ["Group 1", "Group 2"],
-    outcome: "MMSE",
-    cutoff: "≤ 70%",
-    month: "12",
-    numGroups: "2",
-    varianceBenefit: "28.7%",
-    groupBalance: "OK (n min=190)",
-  },
-];
+// UI에서 사용하는 Set 데이터 구조
+interface SetData {
+  no: string;
+  setName: string;
+  groups: string[];
+  outcome: string;
+  cutoff: string;
+  month: string;
+  numGroups: string;
+  varianceBenefit: string;
+  groupBalance: string;
+}
 
 /** 그룹별 에러바 색상 (Group 1, 2, 3 각각 구분) */
 const GROUP_BAR_COLORS = ["#AAA5E1", "#7571A9", "#231F52"];
@@ -78,26 +50,60 @@ const TABLE_BODY_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-80 text-bod
 /** 내부 div: 셀과 같은 너비, 더 작은 높이(36px), 세로선 포함 */
 const TABLE_INNER_DIV_CENTER =
   "w-full h-[28px] flex items-center justify-center border-l border-neutral-80 pl-2";
-const TABLE_INNER_DIV_LEFT =
-  "w-full h-[28px] flex items-center border-l border-neutral-80 pl-2";
-const TABLE_INNER_DIV_CENTER_NO_BORDER =
-  "w-full h-[28px] flex items-center justify-center";
+const TABLE_INNER_DIV_LEFT = "w-full h-[28px] flex items-center border-l border-neutral-80 pl-2";
+const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full h-[28px] flex items-center justify-center";
 const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-[28px] flex items-center";
 
 export default function TSISubgroupSelectionPage() {
   const router = useRouter();
-  const [selectedSetNo, setSelectedSetNo] = useState<string>("01");
+  const [selectedSetNo, setSelectedSetNo] = useState<string>("");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  // 왼쪽 그래프용: subgroup_sets_summary 데이터
+  const [summaryData, setSummaryData] = useState<SubgroupSetSummary[]>([]);
+  // 오른쪽 테이블용: result_table 데이터
+  const [tableData, setTableData] = useState<ResultTableItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 페이지 마운트 시 API 호출
+  useEffect(() => {
+    const fetchSubgroupSummary = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        // task_id는 일단 임시로 하드코딩 (나중에 스토어나 쿼리 파라미터로 받을 수 있음)
+        const response = await getSubgroupSummaryList("test-task-id");
+
+        // 왼쪽 그래프용: subgroup_sets_summary 저장
+        setSummaryData(response.data.subgroup_sets_summary);
+
+        // 오른쪽 테이블용: result_table 저장
+        setTableData(response.data.result_table);
+
+        // 첫 번째 Set을 기본 선택 (result_table의 no 사용)
+        if (response.data.result_table.length > 0) {
+          setSelectedSetNo(String(response.data.result_table[0].no).padStart(2, "0"));
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Subgroup Summary 조회에 실패했습니다.");
+        console.error("Subgroup Summary API 호출 실패:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSubgroupSummary();
+  }, []);
 
   const toggleRowExpansion = (rowNo: string) => {
     setExpandedRows((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(rowNo)) {
-        newSet.delete(rowNo);
+      // 이미 펼쳐진 행이면 닫기
+      if (prev.has(rowNo)) {
+        return new Set();
       } else {
-        newSet.add(rowNo);
+        // 새로운 행을 펼치고, 기존에 펼쳐진 행은 모두 닫기 (하나만 펼치기)
+        return new Set([rowNo]);
       }
-      return newSet;
     });
   };
 
@@ -112,12 +118,8 @@ export default function TSISubgroupSelectionPage() {
         <div className="w-full flex justify-center mb-2 max-w-full">
           <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
             <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">
-                Subgroup Selection
-              </div>
-              <p className="text-body2m text-neutral-50 text-left">
-                Prognostic
-              </p>
+              <div className="text-title text-neutral-5 text-left mb-2">Subgroup Selection</div>
+              <p className="text-body2m text-neutral-50 text-left">Prognostic</p>
             </div>
           </div>
         </div>
@@ -151,143 +153,179 @@ export default function TSISubgroupSelectionPage() {
                 <div className="flex-1 min-h-0 rounded-[16px] bg-white overflow-hidden flex flex-col border border-neutral-80 py-2 px-4">
                   {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
                   <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-                    {SAMPLE_SETS.map((set) => {
-                      const isSelected = selectedSetNo === set.no;
-                      return (
-                        <div
-                          key={set.no}
-                          className="flex border-b border-neutral-80 last:border-b-0 min-h-0"
-                        >
-                          {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
-                          <div className="w-[112px] flex-shrink-0 flex flex-col border-r border-neutral-80 py-2 px-0">
-                            <div className="px-1 flex items-center gap-2 mb-1 h-[22px] flex-shrink-0">
-                              <span
-                                className="flex items-center justify-center gap-1 rounded-full bg-primary-10 text-body5m text-white shrink-0 box-border"
-                                style={{
-                                  width: 72,
-                                  height: 18,
-                                  padding: "0 6px",
-                                }}
-                              >
-                                {set.setName}
-                              </span>
-                              {isSelected && (
-                                <Image
-                                  src="/assets/tsi/set-check.svg"
-                                  alt=""
-                                  width={18}
-                                  height={18}
-                                  className="flex-shrink-0"
-                                />
-                              )}
-                            </div>
-                            {set.groups.map((g) => (
-                              <div
-                                key={g}
-                                className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0"
-                              >
-                                {g}
-                              </div>
-                            ))}
-                          </div>
-                          {/* 오른쪽 셀: 왼쪽 기준 맞춤 (스페이서=Set행, 행높이=그룹 h-7) */}
-                          <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
-                            {/* 왼쪽 Set 행과 동일: h-[22px] + mb-1 */}
-                            <div
-                              className="h-[22px] flex-shrink-0 mb-1"
-                              aria-hidden
-                            />
-                            {/* 눈금선: 엄청 연하게 (패딩=셀과 동일) */}
-                            <div
-                              className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                              aria-hidden
-                            >
-                              {Array.from({ length: 9 }).map((_, i) => (
+                    {isLoading ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-body2 text-white">Loading...</div>
+                      </div>
+                    ) : error ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-body2 text-red-300">Error: {error}</div>
+                      </div>
+                    ) : summaryData.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-body2 text-white">No data available</div>
+                      </div>
+                    ) : (
+                      summaryData.map((set, index) => {
+                        // result_table에서 해당 set_name과 일치하는 항목 찾아서 no 가져오기
+                        const tableItem = tableData.find((t) => t.set_name === set.set_name);
+                        const setNo = tableItem
+                          ? String(tableItem.no).padStart(2, "0")
+                          : String(index + 1).padStart(2, "0");
+                        const isSelected = selectedSetNo === setNo;
+
+                        return (
+                          <div
+                            key={set.set_name}
+                            className="flex border-b border-neutral-80 last:border-b-0 min-h-0"
+                          >
+                            {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
+                            <div className="w-[112px] flex-shrink-0 flex flex-col border-r border-neutral-80 py-2 px-0">
+                              <div className="px-1 flex items-center gap-2 mb-1 h-[22px] flex-shrink-0">
                                 <span
-                                  key={i}
-                                  className="w-px h-full flex-shrink-0 bg-neutral-90/20"
-                                />
-                              ))}
-                            </div>
-                            {set.groups.map((_, i) => {
-                              const barColor =
-                                GROUP_BAR_COLORS[i % GROUP_BAR_COLORS.length];
-                              const leftPct = 20 + (i % 3) * 15;
-                              const centerPct = 45 + (i % 3) * 10;
-                              const rightPct = 70 + (i % 2) * 15;
-                              return (
-                                <div
-                                  key={i}
-                                  className="flex items-center h-7 flex-shrink-0 relative z-[1]"
+                                  className="flex items-center justify-center gap-1 rounded-full bg-primary-10 text-body5m text-white shrink-0 box-border"
+                                  style={{
+                                    width: 72,
+                                    height: 18,
+                                    padding: "0 6px",
+                                  }}
                                 >
+                                  {set.set_name}
+                                </span>
+                                {isSelected && (
+                                  <Image
+                                    src="/assets/tsi/set-check.svg"
+                                    alt=""
+                                    width={18}
+                                    height={18}
+                                    className="flex-shrink-0"
+                                  />
+                                )}
+                              </div>
+                              {set.groups.map((g, groupIndex) => {
+                                // group1 -> Group 1 형식으로 변환
+                                const groupNum = g.group.replace("group", "");
+                                const groupName = `Group ${groupNum}`;
+                                return (
                                   <div
-                                    className="relative w-full h-2 flex items-center"
-                                    style={{ minHeight: 8 }}
+                                    key={`${set.set_name}-group-${groupIndex}`}
+                                    className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0"
                                   >
-                                    {/* 가로선: 심볼 구간 포함해 연속으로 (갭 없음) */}
-                                    <div
-                                      className="absolute h-px rounded-none"
-                                      style={{
-                                        left: `${leftPct}%`,
-                                        right: `${100 - rightPct}%`,
-                                        top: "50%",
-                                        transform: "translateY(-50%)",
-                                        backgroundColor: barColor,
-                                      }}
-                                    />
-                                    {/* 심볼: 선 위에 겹침 */}
-                                    <span
-                                      className="absolute w-3 h-3 rounded-full shrink-0"
-                                      style={{
-                                        left: `${centerPct}%`,
-                                        top: "50%",
-                                        transform: "translate(-50%, -50%)",
-                                        backgroundColor: barColor,
-                                      }}
-                                    />
-                                    {/* 왼쪽 꼬리: 선과 동일 1px, 길이 10px */}
-                                    <span
-                                      className="absolute shrink-0 w-px"
-                                      style={{
-                                        left: `${leftPct}%`,
-                                        top: "50%",
-                                        transform: "translateY(-50%)",
-                                        height: 10,
-                                        backgroundColor: barColor,
-                                      }}
-                                    />
-                                    {/* 오른쪽 꼬리 */}
-                                    <span
-                                      className="absolute shrink-0 w-px"
-                                      style={{
-                                        left: `${rightPct}%`,
-                                        top: "50%",
-                                        transform: "translateY(-50%)",
-                                        height: 10,
-                                        backgroundColor: barColor,
-                                      }}
-                                    />
+                                    {groupName}
                                   </div>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+                            </div>
+                            {/* 오른쪽 셀: 왼쪽 기준 맞춤 (스페이서=Set행, 행높이=그룹 h-7) */}
+                            <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
+                              {/* 왼쪽 Set 행과 동일: h-[22px] + mb-1 */}
+                              <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
+                              {/* 눈금선: 엄청 연하게 (패딩=셀과 동일) */}
+                              <div
+                                className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
+                                aria-hidden
+                              >
+                                {Array.from({ length: 9 }).map((_, i) => (
+                                  <span
+                                    key={i}
+                                    className="w-px h-full flex-shrink-0 bg-neutral-90/20"
+                                  />
+                                ))}
+                              </div>
+                              {(() => {
+                                // 현재 Set의 개별 min/max 계산 (각 Set마다 독립적인 스케일)
+                                const setValues = set.groups.flatMap((g) => [
+                                  g.ci_low,
+                                  g.ci_high,
+                                  g.mean,
+                                ]);
+                                const setMinValue = Math.min(...setValues);
+                                const setMaxValue = Math.max(...setValues);
+                                const setRange = setMaxValue - setMinValue;
+
+                                // 현재 Set의 개별 min/max 범위로 정규화하는 함수
+                                const normalize = (value: number) => {
+                                  if (setRange === 0) return 50; // 범위가 0이면 중앙에 배치
+                                  return ((value - setMinValue) / setRange) * 100;
+                                };
+
+                                return set.groups.map((g, i) => {
+                                  const barColor = GROUP_BAR_COLORS[i % GROUP_BAR_COLORS.length];
+
+                                  // 각 Set의 개별 min/max 범위로 정규화 (독립적인 스케일)
+                                  const meanPct = normalize(g.mean);
+                                  const ciLowPct = normalize(g.ci_low);
+                                  const ciHighPct = normalize(g.ci_high);
+
+                                  return (
+                                    <div
+                                      key={`${set.set_name}-chart-${i}`}
+                                      className="flex items-center h-7 flex-shrink-0 relative z-[1]"
+                                    >
+                                      <div
+                                        className="relative w-full h-2 flex items-center"
+                                        style={{ minHeight: 8 }}
+                                      >
+                                        {/* 가로선: ci_low ~ ci_high 범위 */}
+                                        <div
+                                          className="absolute h-px rounded-none"
+                                          style={{
+                                            left: `${ciLowPct}%`,
+                                            right: `${100 - ciHighPct}%`,
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            backgroundColor: barColor,
+                                          }}
+                                        />
+                                        {/* 심볼: mean 위치 */}
+                                        <span
+                                          className="absolute w-3 h-3 rounded-full shrink-0"
+                                          style={{
+                                            left: `${meanPct}%`,
+                                            top: "50%",
+                                            transform: "translate(-50%, -50%)",
+                                            backgroundColor: barColor,
+                                          }}
+                                        />
+                                        {/* 왼쪽 꼬리: ci_low 위치 */}
+                                        <span
+                                          className="absolute shrink-0 w-px"
+                                          style={{
+                                            left: `${ciLowPct}%`,
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            height: 10,
+                                            backgroundColor: barColor,
+                                          }}
+                                        />
+                                        {/* 오른쪽 꼬리: ci_high 위치 */}
+                                        <span
+                                          className="absolute shrink-0 w-px"
+                                          style={{
+                                            left: `${ciHighPct}%`,
+                                            top: "50%",
+                                            transform: "translateY(-50%)",
+                                            height: 10,
+                                            backgroundColor: barColor,
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                });
+                              })()}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                     {/* X축 행: 왼쪽 빈 칸 + 오른쪽에만 Slow/Rapid (위쪽 선은 마지막 Set 행 border-b로만 표시) */}
                     <div className="flex flex-shrink-0">
-                      <div
-                        className="w-[112px] flex-shrink-0  border-neutral-80"
-                        aria-hidden
-                      />
+                      <div className="w-[112px] flex-shrink-0  border-neutral-80" aria-hidden />
                       <div className="flex-1 min-w-0 pt-0 pb-1 pl-2 flex flex-col">
                         {/* 1) 축선 + 짧은 눈금(아래로) */}
                         <div className="w-full flex flex-col px-2 min-w-0">
-                          <div
-                            className="w-full border-b border-neutral-50"
-                            aria-hidden
-                          />
+                          <div className="w-full border-b border-neutral-50" aria-hidden />
                           <div className="w-full flex justify-between px-0 mt-0">
                             {Array.from({ length: 9 }).map((_, i) => (
                               <span
@@ -344,458 +382,1107 @@ export default function TSISubgroupSelectionPage() {
                       <table className="w-full border-collapse">
                         <thead>
                           <tr className="border-b border-neutral-30">
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_NO_BORDER} text-center`}
-                            >
-                              <div className={TABLE_INNER_DIV_CENTER_NO_BORDER}>
-                                Detail
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_NO_BORDER} text-center`}>
+                              <div className={TABLE_INNER_DIV_CENTER_NO_BORDER}>Detail</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-center`}
-                            >
-                              <div className={TABLE_INNER_DIV_CENTER}>
-                                Select
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-center`}>
+                              <div className={TABLE_INNER_DIV_CENTER}>Select</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
                               <div className={TABLE_INNER_DIV_LEFT}>No</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
-                              <div className={TABLE_INNER_DIV_LEFT}>
-                                Set Name
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
+                              <div className={TABLE_INNER_DIV_LEFT}>Set Name</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
-                              <div className={TABLE_INNER_DIV_LEFT}>
-                                Outcome
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
+                              <div className={TABLE_INNER_DIV_LEFT}>Outcome</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
                               <div className={TABLE_INNER_DIV_LEFT}>Cutoff</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
                               <div className={TABLE_INNER_DIV_LEFT}>Month</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
-                              <div className={TABLE_INNER_DIV_LEFT}>
-                                #Of Groups
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
+                              <div className={TABLE_INNER_DIV_LEFT}>#Of Groups</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
-                              <div className={TABLE_INNER_DIV_LEFT}>
-                                Variance Benefit
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
+                              <div className={TABLE_INNER_DIV_LEFT}>Variance Benefit</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
-                              <div className={TABLE_INNER_DIV_LEFT}>
-                                Group balance
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
+                              <div className={TABLE_INNER_DIV_LEFT}>Group balance</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}
-                            >
-                              <div className={TABLE_INNER_DIV_LEFT}>
-                                Refine Cutoffs
-                              </div>
+                            <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
+                              <div className={TABLE_INNER_DIV_LEFT}>Refine Cutoffs</div>
                             </th>
-                            <th
-                              className={`${TABLE_HEADER_CELL_BASE_LAST} text-right`}
-                            >
+                            <th className={`${TABLE_HEADER_CELL_BASE_LAST} text-right`}>
                               <div className={TABLE_INNER_DIV_LEFT}>Delete</div>
                             </th>
                           </tr>
                         </thead>
                         <tbody>
-                          {SAMPLE_SETS.map((row) => {
-                            const isSelected = selectedSetNo === row.no;
-                            const isExpanded = expandedRows.has(row.no);
-                            return (
-                              <Fragment key={row.no}>
-                                <tr
-                                  className={isExpanded ? "bg-[#efeff4]" : ""}
-                                >
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_NO_BORDER} text-center`}
-                                  >
-                                    <div
-                                      className={
-                                        TABLE_INNER_DIV_CENTER_NO_BORDER
-                                      }
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          toggleRowExpansion(row.no)
-                                        }
-                                        className="cursor-pointer text-neutral-40 p-0 border-0 bg-transparent inline-flex items-center justify-center shrink-0 transition-transform duration-200"
-                                        title={isExpanded ? "접기" : "펼치기"}
-                                      >
-                                        <svg
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          className={`text-neutral-40 transition-transform duration-200 ${
-                                            isExpanded ? "rotate-180" : ""
-                                          }`}
+                          {isLoading ? (
+                            <tr>
+                              <td colSpan={12} className="h-[200px] text-center">
+                                <div className="text-body2 text-neutral-50">Loading...</div>
+                              </td>
+                            </tr>
+                          ) : error ? (
+                            <tr>
+                              <td colSpan={12} className="h-[200px] text-center">
+                                <div className="text-body2 text-red-500">Error: {error}</div>
+                              </td>
+                            </tr>
+                          ) : tableData.length === 0 ? (
+                            <tr>
+                              <td colSpan={12} className="h-[200px] text-center">
+                                <div className="text-body2 text-neutral-50">No data available</div>
+                              </td>
+                            </tr>
+                          ) : (
+                            tableData.map((row) => {
+                              const rowNo = String(row.no).padStart(2, "0");
+                              const isSelected = selectedSetNo === rowNo;
+                              const isExpanded = expandedRows.has(rowNo);
+                              return (
+                                <Fragment key={row.subgroup_id}>
+                                  <tr className={isExpanded ? "bg-[#efeff4]" : ""}>
+                                    <td className={`${TABLE_BODY_CELL_BASE_NO_BORDER} text-center`}>
+                                      <div className={TABLE_INNER_DIV_CENTER_NO_BORDER}>
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleRowExpansion(rowNo)}
+                                          className="cursor-pointer text-neutral-40 p-0 border-0 bg-transparent inline-flex items-center justify-center shrink-0 transition-transform duration-200"
+                                          title={isExpanded ? "접기" : "펼치기"}
                                         >
-                                          <path
-                                            d="M12.0078 16C11.6866 16 11.394 15.8735 11.1299 15.6205L5.31077 9.79886C5.20718 9.6926 5.12949 9.57875 5.07769 9.45731C5.0259 9.33586 5 9.2043 5 9.06262C5 8.86528 5.04661 8.68564 5.13984 8.52372C5.23825 8.3618 5.36774 8.23529 5.5283 8.14421C5.69404 8.04807 5.87532 8 6.07214 8C6.37255 8 6.6367 8.10879 6.86459 8.32638L12.3496 13.8368L11.6659 13.8368L17.1354 8.32638C17.3633 8.10879 17.6274 8 17.9279 8C18.1247 8 18.3034 8.04807 18.4639 8.14421C18.6297 8.2353 18.7592 8.3618 18.8524 8.52372C18.9508 8.68564 19 8.86528 19 9.06262C19 9.34599 18.8964 9.58887 18.6892 9.79127L12.8701 15.6205C12.7458 15.747 12.6112 15.8406 12.4661 15.9013C12.3263 15.9621 12.1735 15.9949 12.0078 16Z"
-                                            fill="currentColor"
-                                          />
-                                        </svg>
-                                      </button>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_CENTER}>
-                                      <RadioGroup.Item
-                                        value={row.no}
-                                        id={`radio-${row.no}`}
-                                        className="flex items-center justify-center cursor-pointer w-8 h-8 shrink-0 border-0 bg-transparent p-0 outline-none focus:outline-none focus:ring-0"
-                                      >
-                                        <span
-                                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                                            isSelected
-                                              ? "border-neutral-60 bg-primary-15"
-                                              : "border-neutral-60"
-                                          }`}
-                                        >
-                                          <RadioGroup.Indicator className="flex items-center justify-center w-full h-full">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                                          </RadioGroup.Indicator>
-                                        </span>
-                                      </RadioGroup.Item>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.no}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="inline-flex items-center gap-1 truncate min-w-0">
-                                        <span className="truncate">
-                                          {row.setName}
-                                        </span>
-                                        {isSelected && (
-                                          <Image
-                                            src="/assets/tsi/set-check.svg"
-                                            alt=""
-                                            width={18}
-                                            height={18}
-                                            className="flex-shrink-0"
-                                          />
-                                        )}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.outcome}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.cutoff}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.month}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.numGroups}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left ${row.varianceBenefit.includes("Highest") ? "text-[#3A11D8]" : ""}`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.varianceBenefit}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_LEFT}>
-                                      <span className="truncate block">
-                                        {row.groupBalance}
-                                      </span>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_CENTER}>
-                                      <button
-                                        type="button"
-                                        className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
-                                        title="Refine Cutoffs"
-                                        onClick={() => router.push("/tsi/refine-cutoffs")}
-                                      >
-                                        <svg
-                                          width="24"
-                                          height="24"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                          <g
-                                            style={{
-                                              mixBlendMode: "plus-darker",
-                                            }}
+                                          <svg
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className={`text-neutral-40 transition-transform duration-200 ${
+                                              isExpanded ? "rotate-180" : ""
+                                            }`}
                                           >
                                             <path
-                                              d="M3.57812 20.4219V15.6094L15.6094 3.57812L20.4219 8.39062L8.39062 20.4219H3.57812Z"
-                                              stroke="#787776"
-                                              strokeWidth="2"
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
+                                              d="M12.0078 16C11.6866 16 11.394 15.8735 11.1299 15.6205L5.31077 9.79886C5.20718 9.6926 5.12949 9.57875 5.07769 9.45731C5.0259 9.33586 5 9.2043 5 9.06262C5 8.86528 5.04661 8.68564 5.13984 8.52372C5.23825 8.3618 5.36774 8.23529 5.5283 8.14421C5.69404 8.04807 5.87532 8 6.07214 8C6.37255 8 6.6367 8.10879 6.86459 8.32638L12.3496 13.8368L11.6659 13.8368L17.1354 8.32638C17.3633 8.10879 17.6274 8 17.9279 8C18.1247 8 18.3034 8.04807 18.4639 8.14421C18.6297 8.2353 18.7592 8.3618 18.8524 8.52372C18.9508 8.68564 19 8.86528 19 9.06262C19 9.34599 18.8964 9.58887 18.6892 9.79127L12.8701 15.6205C12.7458 15.747 12.6112 15.8406 12.4661 15.9013C12.3263 15.9621 12.1735 15.9949 12.0078 16Z"
+                                              fill="currentColor"
                                             />
-                                            <path
-                                              d="M12.0156 7.1875L16.8281 12"
-                                              stroke="#787776"
-                                              strokeWidth="2"
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                            />
-                                          </g>
-                                        </svg>
-                                      </button>
-                                    </div>
-                                  </td>
-                                  <td
-                                    className={`${TABLE_BODY_CELL_BASE_LAST} text-center`}
-                                  >
-                                    <div className={TABLE_INNER_DIV_CENTER}>
-                                      <button
-                                        type="button"
-                                        className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
-                                        title="Delete"
-                                      >
-                                        <Image
-                                          src="/assets/icons/trash.svg"
-                                          alt="Delete"
-                                          width={24}
-                                          height={24}
-                                        />
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-                                {isExpanded && (
-                                  <tr className="bg-[#efeff4]">
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    </td>
                                     <td
-                                      colSpan={12}
-                                      className="p-0 border-b border-neutral-80"
+                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
                                     >
-                                      <div className="bg-[#efeff4] px-4 py-6">
-                                        <div className="flex gap-3">
-                                          {/* Left Column */}
-                                          <div className="w-[372px] flex flex-col gap-3">
-                                            {/* Disease Progression by Subgroup */}
-                                            <div className="h-[252px] bg-white/60 rounded-[18px] p-4 flex flex-col">
-                                              <h3 className="text-[#1c1b1b] text-body3 font-semibold mb-4 flex-shrink-0">
-                                                Disease Progression by Subgroup
-                                              </h3>
-                                              <div className="flex-1 bg-white rounded-[8px] flex items-center justify-center min-h-0">
-                                                <span className="text-[#484646] text-sm">
-                                                  Chart placeholder
-                                                </span>
-                                              </div>
-                                            </div>
-                                            {/* Number of patients */}
-                                            <div className="h-[196px] bg-white/60 rounded-[18px] p-4 flex flex-col">
-                                              <h3 className="text-[#1c1b1b] text-body3 font-semibold mb-0 flex-shrink-0">
-                                                Number of patients
-                                              </h3>
-                                              <p className="text-[#605e5e] text-sm mb-0 flex-shrink-0">
-                                                At least 00 patients per group
-                                                are recommended.
-                                              </p>
-                                              <div className="mt-auto">
-                                                <div className="h-[110px] bg-white rounded-[8px] p-3 space-y-0 overflow-auto">
-                                                  <div className="flex items-center gap-2 text-[#231f52] text-sm font-semibold pb-0 border-b border-[#adaaaa]">
-                                                    <span>Group</span>
-                                                    <span className="ml-auto">
-                                                      Number of patients
-                                                    </span>
-                                                  </div>
-                                                  <div className="flex items-center gap-2 text-[#1c1b1b] text-sm">
-                                                    <div className="w-3 h-3 rounded-full bg-[#231f52]"></div>
-                                                    <span>High Risk</span>
-                                                    <span className="ml-auto">
-                                                      120
-                                                    </span>
-                                                  </div>
-                                                  <div className="flex items-center gap-2 text-[#1c1b1b] text-sm border-t border-[#adaaaa] pt-0">
-                                                    <div className="w-3 h-3 rounded-full bg-[#7571a9]"></div>
-                                                    <span>Middle Risk</span>
-                                                    <span className="ml-auto">
-                                                      250
-                                                    </span>
-                                                  </div>
-                                                  <div className="flex items-center gap-2 text-[#1c1b1b] text-sm border-t border-[#adaaaa] pt-0">
-                                                    <div className="w-3 h-3 rounded-full bg-[#aaa5e1]"></div>
-                                                    <span>Low</span>
-                                                    <span className="ml-auto">
-                                                      150
-                                                    </span>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          {/* Right Column */}
-                                          <div className="w-[746px] h-[468px] bg-primary-15 rounded-[18px] px-4 py-6 flex flex-col gap-3">
-                                            {/* Variance Reduction Explained */}
-                                            <div>
-                                              <h3 className="text-white text-feature-title mb-4">
-                                                Variance Reduction Explained
-                                              </h3>
-                                              <p className="text-white text-body5 font-semibold leading-relaxed">
-                                                Subgroup stratification reduced
-                                                the overall variance by 35.5%.
-                                                The observed variance reduction
-                                                was primarily driven by the Low
-                                                Risk patient group. Therefore,
-                                                if cutoff adjustment is
-                                                required, maintaining the Low
-                                                Risk group and adjusting the
-                                                cutoff for the High Risk group
-                                                is a reasonable strategy.
-                                              </p>
-                                            </div>
-                                            {/* Two cards in one row */}
-                                            <div className="grid grid-cols-2 gap-3 mt-auto">
-                                              {/* Variance decomposition */}
-                                              <div className="w-[350px] h-[306px] bg-white rounded-[12px] p-4 flex flex-col">
-                                                <h3 className="text-[#1c1b1b] text-body4 mb-4 tracking-[-0.75px]">
-                                                  Variance decomposition
-                                                </h3>
-                                                <div className="mb-4 flex gap-5">
-                                                  <div>
-                                                    <div className="text-[#f06600] text-body5 font-semibold mb-1">
-                                                      Variance
-                                                    </div>
-                                                    <div className="text-[#f06600] text-[28px] font-semibold leading-[28px] tracking-[-0.84px]">
-                                                      30.10
-                                                    </div>
-                                                  </div>
-                                                  <div>
-                                                    <div className="text-[#f06600] text-body5 font-semibold mb-1">
-                                                      VR
-                                                    </div>
-                                                    <div className="text-[#f06600] text-[28px] font-semibold leading-[28px] tracking-[-0.84px]">
-                                                      0.348
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <div className="flex-1 bg-white rounded flex items-center justify-center border border-[#484646] min-h-0">
-                                                  <span className="text-[#484646] text-sm">
-                                                    Chart placeholder
-                                                  </span>
-                                                </div>
-                                              </div>
-                                              {/* Within-group variance by subgroup */}
-                                              <div className="w-[350px] h-[306px] bg-white rounded-[12px] p-4">
-                                                <h3 className="text-[#262625] text-[15px] font-semibold mb-4">
-                                                  Within-group variance by
-                                                  subgroup
-                                                </h3>
-                                                <div className="mb-4 flex gap-5">
-                                                  <div>
-                                                    <div className="text-[#f06600] text-xs font-semibold mb-1">
-                                                      High
-                                                    </div>
-                                                    <div className="text-[#f06600] text-[28px] font-semibold">
-                                                      50
-                                                    </div>
-                                                  </div>
-                                                  <div>
-                                                    <div className="text-[#f06600] text-xs font-semibold mb-1">
-                                                      Middle
-                                                    </div>
-                                                    <div className="text-[#f06600] text-[28px] font-semibold">
-                                                      30
-                                                    </div>
-                                                  </div>
-                                                  <div>
-                                                    <div className="text-[#f06600] text-xs font-semibold mb-1">
-                                                      Low
-                                                    </div>
-                                                    <div className="text-[#f06600] text-[28px] font-semibold">
-                                                      12
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                                <div className="h-40 bg-white rounded mb-4 flex items-center justify-center border border-[#484646]">
-                                                  <span className="text-[#484646] text-sm">
-                                                    Chart placeholder
-                                                  </span>
-                                                </div>
-                                                <div className="text-[#484646] text-xs text-center">
-                                                  Total var=30.10
-                                                </div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
+                                      <div className={TABLE_INNER_DIV_CENTER}>
+                                        <RadioGroup.Item
+                                          value={rowNo}
+                                          id={`radio-${rowNo}`}
+                                          className="flex items-center justify-center cursor-pointer w-8 h-8 shrink-0 border-0 bg-transparent p-0 outline-none focus:outline-none focus:ring-0"
+                                        >
+                                          <span
+                                            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                              isSelected
+                                                ? "border-neutral-60 bg-primary-15"
+                                                : "border-neutral-60"
+                                            }`}
+                                          >
+                                            <RadioGroup.Indicator className="flex items-center justify-center w-full h-full">
+                                              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                                            </RadioGroup.Indicator>
+                                          </span>
+                                        </RadioGroup.Item>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">{rowNo}</span>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="inline-flex items-center gap-1 truncate min-w-0">
+                                          <span className="truncate">{row.set_name}</span>
+                                          {isSelected && (
+                                            <Image
+                                              src="/assets/tsi/set-check.svg"
+                                              alt=""
+                                              width={18}
+                                              height={18}
+                                              className="flex-shrink-0"
+                                            />
+                                          )}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">{row.outcome}</span>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">
+                                          {row.cut_off.join("  ")}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">{row.month}</span>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">{row.of_group}</span>
+                                      </div>
+                                    </td>
+                                    <td
+                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left ${row.variance_benefit_label.includes("Highest") ? "text-[#3A11D8]" : ""}`}
+                                    >
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">
+                                          {(row.variance_benefit * 100).toFixed(1)}%
+                                          {row.variance_benefit_label
+                                            ? ` ${row.variance_benefit_label}`
+                                            : ""}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
+                                      <div className={TABLE_INNER_DIV_LEFT}>
+                                        <span className="truncate block">{row.group_balance}</span>
+                                      </div>
+                                    </td>
+                                    <td
+                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
+                                    >
+                                      <div className={TABLE_INNER_DIV_CENTER}>
+                                        <button
+                                          type="button"
+                                          className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
+                                          title="Refine Cutoffs"
+                                          onClick={() => router.push("/tsi/refine-cutoffs")}
+                                        >
+                                          <svg
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                          >
+                                            <g
+                                              style={{
+                                                mixBlendMode: "plus-darker",
+                                              }}
+                                            >
+                                              <path
+                                                d="M3.57812 20.4219V15.6094L15.6094 3.57812L20.4219 8.39062L8.39062 20.4219H3.57812Z"
+                                                stroke="#787776"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                              />
+                                              <path
+                                                d="M12.0156 7.1875L16.8281 12"
+                                                stroke="#787776"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                              />
+                                            </g>
+                                          </svg>
+                                        </button>
+                                      </div>
+                                    </td>
+                                    <td className={`${TABLE_BODY_CELL_BASE_LAST} text-center`}>
+                                      <div className={TABLE_INNER_DIV_CENTER}>
+                                        <button
+                                          type="button"
+                                          className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
+                                          title="Delete"
+                                        >
+                                          <Image
+                                            src="/assets/icons/trash.svg"
+                                            alt="Delete"
+                                            width={24}
+                                            height={24}
+                                          />
+                                        </button>
                                       </div>
                                     </td>
                                   </tr>
-                                )}
-                              </Fragment>
-                            );
-                          })}
+                                  {isExpanded &&
+                                    (() => {
+                                      // result_table에서 해당 row 데이터 가져오기
+                                      const detailData = row;
+
+                                      // 그룹 이름 매핑 (classification 기반)
+                                      const getGroupDisplayName = (classification: string) => {
+                                        if (classification === "high") return "High Risk";
+                                        if (classification === "middle") return "Middle Risk";
+                                        if (classification === "low") return "Low";
+                                        return classification;
+                                      };
+
+                                      // 그룹 색상 매핑
+                                      const getGroupColor = (classification: string) => {
+                                        if (classification === "high") return "#231F52";
+                                        if (classification === "middle") return "#7571A9";
+                                        if (classification === "low") return "#AAA5E1";
+                                        return "#231F52";
+                                      };
+
+                                      // number_or_patient 데이터 정렬 (high -> middle -> low 순서)
+                                      const sortedPatients = detailData.number_or_patient
+                                        ? [...detailData.number_or_patient].sort((a, b) => {
+                                            const order = {
+                                              high: 0,
+                                              middle: 1,
+                                              low: 2,
+                                            };
+                                            const aClass =
+                                              detailData.within_group_variance_by_subgroup?.find(
+                                                (v) => v.group === a.group
+                                              )?.classification || "";
+                                            const bClass =
+                                              detailData.within_group_variance_by_subgroup?.find(
+                                                (v) => v.group === b.group
+                                              )?.classification || "";
+                                            return (
+                                              (order[aClass as keyof typeof order] ?? 99) -
+                                              (order[bClass as keyof typeof order] ?? 99)
+                                            );
+                                          })
+                                        : [];
+
+                                      // 최소 환자 수 계산 (low 그룹 기준)
+                                      const lowGroupPatient = sortedPatients.find((p) => {
+                                        const varianceData =
+                                          detailData.within_group_variance_by_subgroup?.find(
+                                            (v) => v.group === p.group
+                                          );
+                                        return varianceData?.classification === "low";
+                                      });
+                                      const minPatients = lowGroupPatient?.number || 0;
+
+                                      // Variance decomposition에서 총 variance 계산
+                                      const totalVariance =
+                                        detailData.variance_decomposition?.[0]?.variance || 0;
+                                      const totalVR =
+                                        detailData.variance_decomposition?.[0]?.vr || 0;
+
+                                      // Within-group variance 데이터 정렬
+                                      const sortedVariance =
+                                        detailData.within_group_variance_by_subgroup
+                                          ? [...detailData.within_group_variance_by_subgroup].sort(
+                                              (a, b) => {
+                                                const order = {
+                                                  high: 0,
+                                                  middle: 1,
+                                                  low: 2,
+                                                };
+                                                return (
+                                                  (order[a.classification as keyof typeof order] ??
+                                                    99) -
+                                                  (order[b.classification as keyof typeof order] ??
+                                                    99)
+                                                );
+                                              }
+                                            )
+                                          : [];
+
+                                      const totalVarValue =
+                                        sortedVariance.length > 0 ? sortedVariance[0].total_var : 0;
+
+                                      // Variance Reduction Explained 텍스트 생성
+                                      const variancePercent = (
+                                        detailData.variance_benefit * 100
+                                      ).toFixed(1);
+                                      const primaryGroup = sortedVariance.find(
+                                        (v) => v.classification === "low"
+                                      )
+                                        ? "Low Risk"
+                                        : sortedVariance.find((v) => v.classification === "high")
+                                          ? "High Risk"
+                                          : "patient group";
+
+                                      return (
+                                        <tr className="bg-[#efeff4]">
+                                          <td
+                                            colSpan={12}
+                                            className="p-0 border-b border-neutral-80"
+                                          >
+                                            <div className="bg-[#efeff4] px-4 py-6">
+                                              <div className="flex gap-3">
+                                                {/* Left Column */}
+                                                <div className="w-[372px] flex flex-col gap-3">
+                                                  {/* Disease Progression by Subgroup */}
+                                                  <div className="h-[252px] bg-white/60 rounded-[18px] p-4 flex flex-col">
+                                                    <h3 className="text-[#1c1b1b] text-body3 font-semibold mb-4 flex-shrink-0">
+                                                      Disease Progression by Subgroup
+                                                    </h3>
+                                                    <div className="flex-1 bg-white rounded-[8px] overflow-hidden min-h-0">
+                                                      {detailData.disease_progression_by_subgroup &&
+                                                      detailData.disease_progression_by_subgroup
+                                                        .length > 0 ? (
+                                                        (() => {
+                                                          // 그룹별로 데이터 분리
+                                                          const groups = Array.from(
+                                                            new Set(
+                                                              detailData.disease_progression_by_subgroup.map(
+                                                                (d) => d.group
+                                                              )
+                                                            )
+                                                          ).sort();
+                                                          const months = Array.from(
+                                                            new Set(
+                                                              detailData.disease_progression_by_subgroup.map(
+                                                                (d) => d.month
+                                                              )
+                                                            )
+                                                          ).sort((a, b) => a - b);
+
+                                                          // 각 그룹별 데이터 시리즈 생성
+                                                          const series = groups.map(
+                                                            (group, groupIdx) => {
+                                                              const groupData =
+                                                                detailData.disease_progression_by_subgroup!.filter(
+                                                                  (d) => d.group === group
+                                                                );
+                                                              const varianceData =
+                                                                detailData.within_group_variance_by_subgroup?.find(
+                                                                  (v) => v.group === group
+                                                                );
+                                                              const classification =
+                                                                varianceData?.classification || "";
+                                                              const color =
+                                                                getGroupColor(classification);
+                                                              const groupName =
+                                                                getGroupDisplayName(classification);
+
+                                                              return {
+                                                                name: groupName,
+                                                                type: "line" as const,
+                                                                data: months
+                                                                  .map((month) => {
+                                                                    const dataPoint =
+                                                                      groupData.find(
+                                                                        (d) => d.month === month
+                                                                      );
+                                                                    return dataPoint
+                                                                      ? [month, dataPoint.mean]
+                                                                      : null;
+                                                                  })
+                                                                  .filter((d) => d !== null),
+                                                                itemStyle: {
+                                                                  color,
+                                                                },
+                                                                lineStyle: {
+                                                                  color,
+                                                                  width: 2,
+                                                                },
+                                                                symbol: "circle",
+                                                                symbolSize: 6,
+                                                              };
+                                                            }
+                                                          );
+
+                                                          // 에러바 시리즈 생성 (custom renderItem 사용)
+                                                          const errorBarSeries = groups.map(
+                                                            (group, groupIdx) => {
+                                                              const groupData =
+                                                                detailData.disease_progression_by_subgroup!.filter(
+                                                                  (d) => d.group === group
+                                                                );
+                                                              const varianceData =
+                                                                detailData.within_group_variance_by_subgroup?.find(
+                                                                  (v) => v.group === group
+                                                                );
+                                                              const classification =
+                                                                varianceData?.classification || "";
+                                                              const color =
+                                                                getGroupColor(classification);
+                                                              const CAP_LEN_PX = 4;
+
+                                                              return {
+                                                                name: `${group} error`,
+                                                                type: "custom" as const,
+                                                                data: months
+                                                                  .map((month) => {
+                                                                    const dataPoint =
+                                                                      groupData.find(
+                                                                        (d) => d.month === month
+                                                                      );
+                                                                    if (!dataPoint) return null;
+                                                                    return [
+                                                                      month,
+                                                                      dataPoint.mean,
+                                                                      dataPoint.mean -
+                                                                        dataPoint.ci_low,
+                                                                      dataPoint.ci_high -
+                                                                        dataPoint.mean,
+                                                                    ];
+                                                                  })
+                                                                  .filter((d) => d !== null),
+                                                                renderItem: (
+                                                                  params: unknown,
+                                                                  api: {
+                                                                    value: (i: number) => number;
+                                                                    coord: (
+                                                                      p: number[]
+                                                                    ) => number[];
+                                                                    style: (o: object) => object;
+                                                                  }
+                                                                ) => {
+                                                                  const xVal = api.value(0);
+                                                                  const mean = api.value(1);
+                                                                  const marginLow = api.value(2);
+                                                                  const marginHigh = api.value(3);
+                                                                  const low = api.coord([
+                                                                    xVal,
+                                                                    mean - marginLow,
+                                                                  ]);
+                                                                  const high = api.coord([
+                                                                    xVal,
+                                                                    mean + marginHigh,
+                                                                  ]);
+                                                                  return {
+                                                                    type: "group",
+                                                                    children: [
+                                                                      {
+                                                                        type: "line",
+                                                                        shape: {
+                                                                          x1: low[0],
+                                                                          y1: low[1],
+                                                                          x2: high[0],
+                                                                          y2: high[1],
+                                                                        },
+                                                                        style: api.style({
+                                                                          stroke: color,
+                                                                          lineWidth: 1.5,
+                                                                        }),
+                                                                      },
+                                                                      {
+                                                                        type: "line",
+                                                                        shape: {
+                                                                          x1:
+                                                                            low[0] - CAP_LEN_PX / 2,
+                                                                          y1: low[1],
+                                                                          x2:
+                                                                            low[0] + CAP_LEN_PX / 2,
+                                                                          y2: low[1],
+                                                                        },
+                                                                        style: api.style({
+                                                                          stroke: color,
+                                                                          lineWidth: 1.5,
+                                                                        }),
+                                                                      },
+                                                                      {
+                                                                        type: "line",
+                                                                        shape: {
+                                                                          x1:
+                                                                            high[0] -
+                                                                            CAP_LEN_PX / 2,
+                                                                          y1: high[1],
+                                                                          x2:
+                                                                            high[0] +
+                                                                            CAP_LEN_PX / 2,
+                                                                          y2: high[1],
+                                                                        },
+                                                                        style: api.style({
+                                                                          stroke: color,
+                                                                          lineWidth: 1.5,
+                                                                        }),
+                                                                      },
+                                                                    ],
+                                                                  };
+                                                                },
+                                                                z: 1,
+                                                                showInLegend: false,
+                                                              };
+                                                            }
+                                                          );
+
+                                                          // Y축 범위 계산 (에러바가 잘리지 않도록 더 넓은 padding)
+                                                          const allMeans =
+                                                            detailData.disease_progression_by_subgroup.map(
+                                                              (d) => d.mean
+                                                            );
+                                                          const allCis =
+                                                            detailData.disease_progression_by_subgroup.flatMap(
+                                                              (d) => [d.ci_low, d.ci_high]
+                                                            );
+                                                          const yMin = Math.min(
+                                                            ...allMeans,
+                                                            ...allCis
+                                                          );
+                                                          const yMax = Math.max(
+                                                            ...allMeans,
+                                                            ...allCis
+                                                          );
+                                                          const yRange = yMax - yMin;
+                                                          const yPadding = yRange * 0.15; // 10% -> 15%로 증가하여 에러바가 잘리지 않도록
+
+                                                          const chartOption = {
+                                                            animation: false,
+                                                            grid: {
+                                                              left: "12%",
+                                                              right: "8%",
+                                                              top: "5%",
+                                                              bottom: "15%",
+                                                              containLabel: false,
+                                                            },
+                                                            xAxis: {
+                                                              type: "value" as const,
+                                                              name: "Month",
+                                                              nameLocation: "middle",
+                                                              nameGap: 15,
+                                                              min: Math.max(0, months[0] - 1),
+                                                              max: months[months.length - 1], // 마지막 month까지만 표시
+                                                              nameTextStyle: {
+                                                                fontSize: 10,
+                                                                color: "#484646",
+                                                              },
+                                                              axisLabel: {
+                                                                fontSize: 9,
+                                                                color: "#484646",
+                                                              },
+                                                              axisLine: {
+                                                                show: true,
+                                                                onZero: false, // X축이 항상 하단에 표시되도록
+                                                                lineStyle: {
+                                                                  color: "#999", // X축 색상 (회색)
+                                                                  width: 1,
+                                                                },
+                                                              },
+                                                              axisTick: {
+                                                                show: false,
+                                                              },
+                                                              splitLine: {
+                                                                show: true,
+                                                                lineStyle: {
+                                                                  type: "solid",
+                                                                  color: "#E8E8E8",
+                                                                  width: 1,
+                                                                },
+                                                              },
+                                                            },
+                                                            yAxis: {
+                                                              type: "value" as const,
+                                                              name: `Δ ${detailData.outcome}`,
+                                                              nameLocation: "middle",
+                                                              nameGap: 22,
+                                                              min: yMin - yPadding,
+                                                              max: yMax + yPadding,
+                                                              nameTextStyle: {
+                                                                fontSize: 10,
+                                                                color: "#484646",
+                                                              },
+                                                              axisLabel: {
+                                                                fontSize: 9,
+                                                                color: "#484646",
+                                                                showMinLabel: false, // min 값 틱 레이블 숨김
+                                                                showMaxLabel: false, // max 값 틱 레이블 숨김
+                                                                formatter: (value: number) => {
+                                                                  // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
+                                                                  return value % 1 === 0
+                                                                    ? value.toString()
+                                                                    : value.toFixed(1);
+                                                                },
+                                                              },
+                                                              axisLine: {
+                                                                show: true,
+                                                                onZero: false, // Y축이 항상 왼쪽에 표시되도록
+                                                                lineStyle: {
+                                                                  color: "#666", // Y축 색상 (다른 회색)
+                                                                  width: 1,
+                                                                },
+                                                              },
+                                                              axisTick: {
+                                                                show: false,
+                                                              },
+                                                              splitLine: {
+                                                                show: true,
+                                                                lineStyle: {
+                                                                  type: "solid",
+                                                                  color: "#E8E8E8",
+                                                                  width: 1,
+                                                                },
+                                                              },
+                                                            },
+                                                            tooltip: {
+                                                              show: false, // 툴팁 완전히 비활성화
+                                                              trigger: "none" as const,
+                                                              axisPointer: {
+                                                                show: false, // 마우스 오버시 수직선 제거
+                                                              },
+                                                            },
+                                                            legend: {
+                                                              show: false,
+                                                            },
+                                                            series: [...series, ...errorBarSeries],
+                                                          };
+
+                                                          return (
+                                                            <ReactECharts
+                                                              option={chartOption}
+                                                              style={{
+                                                                height: "100%",
+                                                                width: "100%",
+                                                              }}
+                                                            />
+                                                          );
+                                                        })()
+                                                      ) : (
+                                                        <div className="flex items-center justify-center h-full">
+                                                          <span className="text-[#484646] text-sm">
+                                                            No data available
+                                                          </span>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                  {/* Number of patients */}
+                                                  <div className="h-[196px] bg-white/60 rounded-[18px] p-4 flex flex-col">
+                                                    <h3 className="text-[#1c1b1b] text-body3 font-semibold mb-0 flex-shrink-0">
+                                                      Number of patients
+                                                    </h3>
+                                                    <p className="text-[#605e5e] text-sm mb-0 flex-shrink-0">
+                                                      At least {minPatients} patients per group are
+                                                      recommended.
+                                                    </p>
+                                                    <div className="mt-auto">
+                                                      <div className="h-[110px] bg-white rounded-[8px] p-3 space-y-0 overflow-auto">
+                                                        <div className="flex items-center gap-2 text-[#231f52] text-sm font-semibold pb-0 border-b border-[#adaaaa]">
+                                                          <span>Group</span>
+                                                          <span className="ml-auto">
+                                                            Number of patients
+                                                          </span>
+                                                        </div>
+                                                        {sortedPatients.map((patient, idx) => {
+                                                          const varianceData =
+                                                            detailData.within_group_variance_by_subgroup?.find(
+                                                              (v) => v.group === patient.group
+                                                            );
+                                                          const classification =
+                                                            varianceData?.classification || "";
+                                                          const groupName =
+                                                            getGroupDisplayName(classification);
+                                                          const groupColor =
+                                                            getGroupColor(classification);
+
+                                                          return (
+                                                            <div
+                                                              key={patient.group}
+                                                              className={`flex items-center gap-2 text-[#1c1b1b] text-sm ${
+                                                                idx > 0
+                                                                  ? "border-t border-[#adaaaa] pt-0"
+                                                                  : ""
+                                                              }`}
+                                                            >
+                                                              <div
+                                                                className="w-3 h-3 rounded-full"
+                                                                style={{
+                                                                  backgroundColor: groupColor,
+                                                                }}
+                                                              ></div>
+                                                              <span>{groupName}</span>
+                                                              <span className="ml-auto">
+                                                                {patient.number.toLocaleString()}
+                                                              </span>
+                                                            </div>
+                                                          );
+                                                        })}
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                {/* Right Column */}
+                                                <div className="w-[746px] h-[468px] bg-primary-15 rounded-[18px] px-4 py-6 flex flex-col gap-3">
+                                                  {/* Variance Reduction Explained */}
+                                                  <div>
+                                                    <h3 className="text-white text-feature-title mb-4">
+                                                      Variance Reduction Explained
+                                                    </h3>
+                                                    <p className="text-white text-body5 font-semibold leading-relaxed">
+                                                      Subgroup stratification reduced the overall
+                                                      variance by {variancePercent}%. The observed
+                                                      variance reduction was primarily driven by the{" "}
+                                                      {primaryGroup}
+                                                      patient group. Therefore, if cutoff adjustment
+                                                      is required, maintaining the {primaryGroup}
+                                                      group and adjusting the cutoff for the{" "}
+                                                      {primaryGroup === "Low Risk"
+                                                        ? "High Risk"
+                                                        : "Low Risk"}{" "}
+                                                      group is a reasonable strategy.
+                                                    </p>
+                                                  </div>
+                                                  {/* Two cards in one row */}
+                                                  <div className="grid grid-cols-2 gap-3 mt-auto">
+                                                    {/* Variance decomposition */}
+                                                    <div className="w-[350px] h-[306px] bg-white rounded-[12px] flex flex-col overflow-hidden">
+                                                      {/* 텍스트 영역 (패딩 있음) */}
+                                                      <div className="p-4 flex-shrink-0">
+                                                        <h3 className="text-[#1c1b1b] text-body4 mb-4 tracking-[-0.75px]">
+                                                          Variance decomposition
+                                                        </h3>
+                                                        <div className="mb-4 flex gap-5">
+                                                          <div>
+                                                            <div className="text-[#f06600] text-body5 font-semibold mb-1">
+                                                              Variance
+                                                            </div>
+                                                            <div className="text-[#f06600] text-[28px] font-semibold leading-[28px] tracking-[-0.84px]">
+                                                              {totalVariance.toFixed(2)}
+                                                            </div>
+                                                          </div>
+                                                          <div>
+                                                            <div className="text-[#f06600] text-body5 font-semibold mb-1">
+                                                              VR
+                                                            </div>
+                                                            <div className="text-[#f06600] text-[28px] font-semibold leading-[28px] tracking-[-0.84px]">
+                                                              {totalVR.toFixed(3)}
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      {/* 그래프 영역 (패딩 없음) */}
+                                                      <div className="flex-1 bg-white min-h-0 overflow-hidden">
+                                                        {detailData.variance_decomposition &&
+                                                        detailData.variance_decomposition.length >
+                                                          0 ? (
+                                                          (() => {
+                                                            // Variance decomposition 차트 데이터 준비
+                                                            const decompositionData =
+                                                              detailData.variance_decomposition;
+                                                            // 총 variance는 첫 번째 항목의 variance 사용 (모든 그룹이 같은 total_var를 가짐)
+                                                            const totalVarianceValue =
+                                                              decompositionData[0]?.variance || 0;
+                                                            // Within pooled는 첫 번째 그룹의 variance
+                                                            const withinPooled =
+                                                              decompositionData[0]?.variance || 0;
+                                                            // Explained Total Within은 나머지 그룹들의 variance 합
+                                                            const explainedTotal =
+                                                              decompositionData.length > 1
+                                                                ? decompositionData
+                                                                    .slice(1)
+                                                                    .reduce(
+                                                                      (sum, d) => sum + d.variance,
+                                                                      0
+                                                                    )
+                                                                : 0;
+
+                                                            const chartOption = {
+                                                              animation: false,
+                                                              grid: {
+                                                                left: "10%",
+                                                                right: "5%",
+                                                                top: "5%",
+                                                                bottom: "15%",
+                                                              },
+                                                              xAxis: {
+                                                                type: "category" as const,
+                                                                data: ["Explained"],
+
+                                                                axisLabel: {
+                                                                  show: true,
+                                                                  fontSize: 9,
+                                                                  color: "#484646",
+                                                                },
+                                                                axisLine: {
+                                                                  show: true,
+                                                                  onZero: false,
+                                                                  lineStyle: {
+                                                                    color: "#999",
+                                                                    width: 1,
+                                                                  },
+                                                                },
+                                                                axisTick: {
+                                                                  show: false,
+                                                                },
+                                                              },
+                                                              yAxis: {
+                                                                type: "value" as const,
+                                                                name: "Variance",
+                                                                nameLocation: "middle",
+                                                                nameGap: 20,
+                                                                max: totalVarianceValue * 1.2,
+                                                                splitNumber: 5,
+                                                                nameTextStyle: {
+                                                                  fontSize: 9,
+                                                                  color: "#484646",
+                                                                },
+                                                                axisLabel: {
+                                                                  fontSize: 9,
+                                                                  color: "#484646",
+                                                                  formatter: (value: number) => {
+                                                                    // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
+                                                                    return value % 1 === 0
+                                                                      ? value.toString()
+                                                                      : value.toFixed(1);
+                                                                  },
+                                                                },
+                                                                axisLine: {
+                                                                  show: true,
+                                                                  onZero: false,
+                                                                  lineStyle: {
+                                                                    color: "#666",
+                                                                    width: 1,
+                                                                  },
+                                                                },
+                                                                axisTick: {
+                                                                  show: false,
+                                                                },
+                                                                splitLine: {
+                                                                  show: false,
+                                                                },
+                                                              },
+                                                              tooltip: {
+                                                                show: false,
+                                                              },
+                                                              legend: {
+                                                                show: false,
+                                                              },
+                                                              series: [
+                                                                {
+                                                                  name: "Within pooled",
+                                                                  type: "bar" as const,
+                                                                  stack: "variance",
+                                                                  data: [withinPooled],
+                                                                  itemStyle: {
+                                                                    color: "#231F52",
+                                                                    borderRadius: [8, 8, 8, 8],
+                                                                  },
+                                                                  barWidth: "60%",
+                                                                },
+                                                                {
+                                                                  name: "Explained Total Within",
+                                                                  type: "bar" as const,
+                                                                  stack: "variance",
+                                                                  data: [explainedTotal],
+                                                                  itemStyle: {
+                                                                    color: "#AAA5E1",
+                                                                    borderRadius: [8, 8, 8, 8],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            };
+
+                                                            return (
+                                                              <ReactECharts
+                                                                option={chartOption}
+                                                                style={{
+                                                                  height: "100%",
+                                                                  width: "100%",
+                                                                }}
+                                                              />
+                                                            );
+                                                          })()
+                                                        ) : (
+                                                          <div className="flex items-center justify-center h-full">
+                                                            <span className="text-[#484646] text-sm">
+                                                              No data available
+                                                            </span>
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                    {/* Within-group variance by subgroup */}
+                                                    <div className="w-[350px] h-[306px] bg-white rounded-[12px] flex flex-col overflow-hidden">
+                                                      {/* 텍스트 영역 (패딩 있음) */}
+                                                      <div className="p-4 flex-shrink-0">
+                                                        <h3 className="text-[#262625] text-[15px] font-semibold mb-4">
+                                                          Within-group variance by subgroup
+                                                        </h3>
+                                                        <div className="mb-4 flex gap-5">
+                                                          {sortedVariance.map((v) => {
+                                                            const displayName =
+                                                              v.classification === "high"
+                                                                ? "High"
+                                                                : v.classification === "middle"
+                                                                  ? "Middle"
+                                                                  : "Low";
+                                                            return (
+                                                              <div key={v.group}>
+                                                                <div className="text-[#f06600] text-xs font-semibold mb-1">
+                                                                  {displayName}
+                                                                </div>
+                                                                <div className="text-[#f06600] text-[28px] font-semibold">
+                                                                  {v.variance.toFixed(2)}
+                                                                </div>
+                                                              </div>
+                                                            );
+                                                          })}
+                                                        </div>
+                                                      </div>
+                                                      {/* 그래프 영역 (패딩 없음) */}
+                                                      <div className="flex-1 bg-white min-h-0 overflow-hidden">
+                                                        {sortedVariance.length > 0 ? (
+                                                          (() => {
+                                                            const maxVar = Math.max(
+                                                              ...sortedVariance.map(
+                                                                (v) => v.variance
+                                                              )
+                                                            );
+                                                            // total_var 값 가져오기 (모든 그룹이 같은 total_var를 가짐)
+                                                            const totalVarValue =
+                                                              sortedVariance.length > 0
+                                                                ? sortedVariance[0].total_var
+                                                                : 0;
+                                                            const chartOption = {
+                                                              animation: false,
+                                                              grid: {
+                                                                left: "10%",
+                                                                right: "5%",
+                                                                top: "5%",
+                                                                bottom: "15%",
+                                                              },
+                                                              xAxis: {
+                                                                type: "category" as const,
+                                                                data: sortedVariance.map((v) => {
+                                                                  const displayName =
+                                                                    v.classification === "high"
+                                                                      ? "High"
+                                                                      : v.classification ===
+                                                                          "middle"
+                                                                        ? "Middle"
+                                                                        : "Low";
+                                                                  return displayName;
+                                                                }),
+                                                                axisLabel: {
+                                                                  fontSize: 9,
+                                                                  color: "#484646",
+                                                                },
+                                                                axisLine: {
+                                                                  show: true,
+                                                                  onZero: false,
+                                                                  lineStyle: {
+                                                                    color: "#999",
+                                                                    width: 1,
+                                                                  },
+                                                                },
+                                                                axisTick: {
+                                                                  show: false,
+                                                                },
+                                                              },
+                                                              yAxis: {
+                                                                type: "value" as const,
+                                                                name: "Variance",
+                                                                nameLocation: "middle",
+                                                                nameGap: 20,
+                                                                max: maxVar * 1.2,
+                                                                splitNumber: 5,
+                                                                nameTextStyle: {
+                                                                  fontSize: 9,
+                                                                  color: "#484646",
+                                                                },
+                                                                axisLabel: {
+                                                                  fontSize: 9,
+                                                                  color: "#484646",
+                                                                  formatter: (value: number) => {
+                                                                    // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
+                                                                    return value % 1 === 0
+                                                                      ? value.toString()
+                                                                      : value.toFixed(1);
+                                                                  },
+                                                                },
+                                                                axisLine: {
+                                                                  show: true,
+                                                                  onZero: false,
+                                                                  lineStyle: {
+                                                                    color: "#666",
+                                                                    width: 1,
+                                                                  },
+                                                                },
+                                                                axisTick: {
+                                                                  show: false,
+                                                                },
+                                                                splitLine: {
+                                                                  show: false,
+                                                                },
+                                                              },
+                                                              tooltip: {
+                                                                show: false,
+                                                              },
+                                                              legend: {
+                                                                show: false,
+                                                              },
+                                                              series: [
+                                                                {
+                                                                  type: "bar" as const,
+                                                                  data: sortedVariance.map((v) => ({
+                                                                    value: v.variance,
+                                                                    itemStyle: {
+                                                                      color: getGroupColor(
+                                                                        v.classification
+                                                                      ),
+                                                                      borderRadius: [8, 8, 8, 8],
+                                                                    },
+                                                                  })),
+                                                                  barWidth: "50%",
+                                                                  label: {
+                                                                    show: false,
+                                                                  },
+                                                                  markLine: {
+                                                                    silent: true,
+                                                                    symbol: "none",
+                                                                    label: {
+                                                                      show: true,
+                                                                      position: "end",
+                                                                      formatter: `Total var=${totalVarValue.toFixed(2)}`,
+                                                                      fontSize: 10,
+                                                                      color: "#484646",
+                                                                      offset: [-75, -10],
+                                                                    },
+                                                                    lineStyle: {
+                                                                      type: "dashed",
+                                                                      color: "#999",
+                                                                      width: 1,
+                                                                    },
+                                                                    data: [
+                                                                      {
+                                                                        yAxis: totalVarValue,
+                                                                      },
+                                                                    ],
+                                                                  },
+                                                                },
+                                                              ],
+                                                            };
+
+                                                            return (
+                                                              <ReactECharts
+                                                                option={chartOption}
+                                                                style={{
+                                                                  height: "100%",
+                                                                  width: "100%",
+                                                                }}
+                                                              />
+                                                            );
+                                                          })()
+                                                        ) : (
+                                                          <div className="flex items-center justify-center h-full">
+                                                            <span className="text-[#484646] text-sm">
+                                                              No data available
+                                                            </span>
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      );
+                                    })()}
+                                </Fragment>
+                              );
+                            })
+                          )}
                         </tbody>
                       </table>
                     </RadioGroup.Root>

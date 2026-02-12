@@ -65,7 +65,8 @@ export const TSIHeader = () => {
 
   return (
     <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#ededee]">
-      <div className="w-full h-[76px] px-10 flex justify-between items-center">
+      <div className="w-full flex justify-center min-w-0">
+        <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto h-[76px] px-10 flex justify-between items-center">
         {/* Left - Breadcrumb (ATS와 동일한 gap-9, 구조) */}
         <div className="flex items-center gap-9">
           {/* 재생 아이콘 (ATS와 동일 - dark purple, 클릭 시 첫 스텝으로) */}
@@ -155,6 +156,7 @@ export const TSIHeader = () => {
             />
           </button>
           <IconButton icon="/assets/header/help.png" alt="Help" />
+        </div>
         </div>
       </div>
     </header>

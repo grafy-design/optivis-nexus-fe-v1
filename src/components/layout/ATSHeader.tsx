@@ -23,7 +23,8 @@ export const ATSHeader = () => {
 
   return (
     <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#ededee]">
-      <div className="w-full h-[76px] px-10 flex justify-between items-center">
+      <div className="w-full flex justify-center min-w-0">
+        <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto h-[76px] px-10 flex justify-between items-center">
         {/* Left - Breadcrumb */}
         <div className="flex items-center gap-9">
           {/* Breadcrumb Item 1 */}
@@ -170,6 +171,7 @@ export const ATSHeader = () => {
           </div>
 
           <IconButton icon="/assets/header/help.png" alt="Help" />
+        </div>
         </div>
       </div>
     </header>
