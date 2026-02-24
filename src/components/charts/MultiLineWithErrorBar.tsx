@@ -12,21 +12,13 @@ interface MultiLineWithErrorBarProps {
   dataGroup: GroupType[];
 }
 
-const MultiLineWithErrorBar = ({ dataGroup }: MultiLineWithErrorBarProps) => {
+export const MultiLineWithErrorBar = ({ dataGroup }: MultiLineWithErrorBarProps) => {
   const groups = dataGroup ?? [];
   const allPoints = groups.flat();
   const maxYWithError = allPoints.reduce((acc, [, y, error]) => Math.max(acc, y + error), 0);
   const yAxisMax = maxYWithError > 0 ? Math.ceil(maxYWithError * 1.1) : 5;
   const yInterval = Math.max(1, Math.ceil(yAxisMax / 4));
-  const groupColors = [
-    "#F07A22",
-    "#4B3DF2",
-    "#14A38B",
-    "#E04A7A",
-    "#8C62FF",
-    "#2F89FC",
-    "#F1B316",
-  ];
+  const groupColors = ["#F07A22", "#4B3DF2", "#14A38B", "#E04A7A", "#8C62FF", "#2F89FC", "#F1B316"];
 
   const dynamicSeries: NonNullable<EChartsOption["series"]> = groups.flatMap((group, index) => {
     const color = groupColors[index % groupColors.length];
@@ -148,5 +140,3 @@ const MultiLineWithErrorBar = ({ dataGroup }: MultiLineWithErrorBarProps) => {
 
   return <ReactECharts option={option} style={{ width: "100%", height: 220 }} />;
 };
-
-export default MultiLineWithErrorBar;

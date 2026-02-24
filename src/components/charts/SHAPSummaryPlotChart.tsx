@@ -23,7 +23,7 @@ const jitterFromIndex = (i: number): number => {
   return (fractional - 0.5) * 0.48;
 };
 
-const SHAPSummaryPlotChart = ({
+export const SHAPSummaryPlotChart = ({
   data = [],
   height = 360,
   title = "Baseline driver Top 10",
@@ -50,7 +50,8 @@ const SHAPSummaryPlotChart = ({
       .map((feature) => {
         const featurePoints = points.filter((d) => d.feature === feature);
         const avgAbs =
-          featurePoints.reduce((acc, p) => acc + Math.abs(p.shap), 0) / Math.max(featurePoints.length, 1);
+          featurePoints.reduce((acc, p) => acc + Math.abs(p.shap), 0) /
+          Math.max(featurePoints.length, 1);
         return { feature, avgAbs };
       })
       .sort((a, b) => b.avgAbs - a.avgAbs)
@@ -162,5 +163,3 @@ const SHAPSummaryPlotChart = ({
 
   return <ReactECharts option={option} style={{ width: "100%", height }} />;
 };
-
-export default SHAPSummaryPlotChart;

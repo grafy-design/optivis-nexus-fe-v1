@@ -18,7 +18,7 @@ interface DensityChartProps {
   };
 }
 
-const DensityChart = ({ data }: DensityChartProps) => {
+export const DensityChart = ({ data }: DensityChartProps) => {
   const xValues: number[] = [];
   for (let i = 0; i <= 2.8; i += 0.02) {
     xValues.push(i);
@@ -124,5 +124,3 @@ const DensityChart = ({ data }: DensityChartProps) => {
 
   return <ReactECharts option={option} style={{ width: "100%", height: 220 }} />;
 };
-
-export default DensityChart;
