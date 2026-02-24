@@ -3,13 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { MultiRankingBarChart } from "@/components/charts/MultiRankingBarChart";
+import { SHAPSummaryPlotChart } from "@/components/charts/SHAPSummaryPlotChart";
 
-/**
- * TSI Step 5: Subgroup Explain
- * 구조: 상위 배경 카드 2개 나란히
- * - 왼쪽 상위: explain-left.png → 안에 파란색 그래프 카드 + 흰색 테이블 카드
- * - 오른쪽 상위: explain-right.png → 안에 파란색 그래프 카드 + 설명 / 흰색 카드 + 파란색 카드(흰색 그래프 3개) + 설명
- */
+import { BASE_LINE_DRIVER_MOCK, EXPORTED_THERAPEUTIC_GAIN_MOCK } from "./mock";
 
 const FEATURE_TABLE_DATA = [
   {
@@ -55,8 +52,75 @@ const FEATURE_LIST = [
   "BPSYSTPO",
 ];
 
+const DEFAULT_SELECTED_FEATURE = "ADRECALL";
+
+type TherapeuticGainMetric = "variance_reduction" | "relative_contribution";
+type TherapeuticGainRiskType = "Slow" | "Rapid";
+
+type TherapeuticGainItem = {
+  rank: number;
+  variance_reduction: number;
+  relative_contribution: number;
+  cutoff: number[];
+  risk_type: TherapeuticGainRiskType;
+  feature_name: string;
+};
+
+type MultiRankingBarItem = {
+  id: string;
+  rank: number;
+  label: string;
+  value: number;
+};
+
+const convertTherapeuticGainToMultiRankingData = (
+  rows: TherapeuticGainItem[],
+  options: {
+    metric: TherapeuticGainMetric;
+    riskType?: TherapeuticGainRiskType;
+    topN?: number;
+  }
+): MultiRankingBarItem[] => {
+  const { metric, riskType, topN = 10 } = options;
+  const filteredRows = riskType ? rows.filter((row) => row.risk_type === riskType) : rows;
+
+  const byRank = new Map<number, TherapeuticGainItem>();
+  filteredRows
+    .slice()
+    .sort((a, b) => a.rank - b.rank)
+    .forEach((row) => {
+      if (!byRank.has(row.rank)) {
+        byRank.set(row.rank, row);
+      }
+    });
+
+  return Array.from(byRank.values())
+    .sort((a, b) => a.rank - b.rank)
+    .slice(0, topN)
+    .map((row) => ({
+      id: `${riskType ?? "all"}-${row.rank}-${row.feature_name}`,
+      rank: row.rank,
+      label: `#${row.rank}`,
+      value: Number(row[metric]) || 0,
+    }));
+};
+
+const EXPECTED_THERAPEUTIC_GAIN_CHART_DATA = convertTherapeuticGainToMultiRankingData(
+  EXPORTED_THERAPEUTIC_GAIN_MOCK as TherapeuticGainItem[],
+  {
+    metric: "variance_reduction",
+    riskType: "Slow",
+  }
+);
+
+/**
+ * TSI Step 5: Subgroup Explain
+ * 구조: 상위 배경 카드 2개 나란히
+ * - 왼쪽 상위: explain-left.png → 안에 파란색 그래프 카드 + 흰색 테이블 카드
+ * - 오른쪽 상위: explain-right.png → 안에 파란색 그래프 카드 + 설명 / 흰색 카드 + 파란색 카드(흰색 그래프 3개) + 설명
+ */
 export default function TSISubgroupExplainPage() {
-  const [selectedFeature, setSelectedFeature] = useState("ADRECALL");
+  const [selectedFeature, setSelectedFeature] = useState(DEFAULT_SELECTED_FEATURE);
 
   return (
     <AppLayout headerType="tsi">
@@ -65,12 +129,8 @@ export default function TSISubgroupExplainPage() {
         <div className="w-full flex justify-center mb-2 max-w-full">
           <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
             <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">
-                Subgroup Explain
-              </div>
-              <p className="text-body2m text-neutral-50 text-left">
-                Drug Responsiveness
-              </p>
+              <div className="text-title text-neutral-5 text-left mb-2">Subgroup Explain</div>
+              <p className="text-body2m text-neutral-50 text-left">Drug Responsiveness</p>
             </div>
           </div>
         </div>
@@ -100,9 +160,7 @@ export default function TSISubgroupExplainPage() {
               </h2>
               {/* 그래프 영역 */}
               <div className="h-[452px] flex-shrink-0 mt-auto bg-white rounded-[16px] flex items-center justify-center">
-                <span className="text-neutral-50 text-sm">
-                  Chart placeholder
-                </span>
+                <MultiRankingBarChart data={EXPECTED_THERAPEUTIC_GAIN_CHART_DATA} />
               </div>
             </div>
 
@@ -117,20 +175,14 @@ export default function TSISubgroupExplainPage() {
               <div className="flex-1 min-h-0 flex flex-col px-4">
                 {/* 테이블 헤더 */}
                 <div className="flex-shrink-0 h-[64px] border-b border-neutral-80 flex items-center gap-4">
-                  <div className="w-[60px] text-body4 text-neutral-30">
-                    Rank
-                  </div>
-                  <div className="w-[140px] text-body4 text-neutral-30">
-                    Feature name
-                  </div>
+                  <div className="w-[60px] text-body4 text-neutral-30">Rank</div>
+                  <div className="w-[140px] text-body4 text-neutral-30">Feature name</div>
                   <div className="w-[140px] text-body4 text-neutral-30 leading-tight">
                     Max Variance
                     <br />
                     Reduction(△▽)
                   </div>
-                  <div className="w-[100px] text-body4 text-neutral-30">
-                    Contribution
-                  </div>
+                  <div className="w-[100px] text-body4 text-neutral-30">Contribution</div>
                   <div className="w-[140px] text-body4 text-neutral-30 leading-tight">
                     Cutoff
                     <br />
@@ -140,26 +192,22 @@ export default function TSISubgroupExplainPage() {
 
                 {/* 테이블 바디 */}
                 <div className="flex-1 min-h-0 overflow-y-auto">
-                  {FEATURE_TABLE_DATA.map((row) => (
+                  {EXPORTED_THERAPEUTIC_GAIN_MOCK.filter(
+                    ({ risk_type }) => risk_type === "Rapid"
+                  ).map((row, index) => (
                     <div
-                      key={row.rank}
+                      key={`${row.rank}_${index}`}
                       className="flex h-[52px] border-b border-neutral-80 items-center gap-4"
                     >
-                      <div className="w-[60px] text-body4 text-neutral-40">
-                        {row.rank}
-                      </div>
+                      <div className="w-[60px] text-body4 text-neutral-40">{row.rank}</div>
+                      <div className="w-[140px] text-body4 text-neutral-40">{row.feature_name}</div>
                       <div className="w-[140px] text-body4 text-neutral-40">
-                        {row.featureName}
-                      </div>
-                      <div className="w-[140px] text-body4 text-neutral-40">
-                        {row.varianceReduction}
+                        {row.variance_reduction}
                       </div>
                       <div className="w-[100px] text-body4 text-neutral-40">
-                        {row.relativeContribution.toFixed(2)}%
+                        {row.relative_contribution.toFixed(2)}%
                       </div>
-                      <div className="w-[140px] text-body4 text-neutral-40">
-                        {row.cutoff}
-                      </div>
+                      <div className="w-[140px] text-body4 text-neutral-40">{row.cutoff}</div>
                     </div>
                   ))}
                 </div>
@@ -193,9 +241,7 @@ export default function TSISubgroupExplainPage() {
                     Baseline driver Top 10
                   </h2>
                   <div className="w-full h-[322px] flex-shrink-0 mt-auto bg-white rounded-[16px] flex items-center justify-center">
-                    <span className="text-neutral-50 text-sm">
-                      Chart placeholder
-                    </span>
+                    <SHAPSummaryPlotChart data={BASE_LINE_DRIVER_MOCK} />
                   </div>
                 </div>
 
@@ -206,28 +252,25 @@ export default function TSISubgroupExplainPage() {
                       <span className="text-body1m">X-axis (SHAP value):</span>
                       <br />
                       <span className="text-body4m">
-                        Represents the impact on the model's predicted value. A
-                        value further to the right of 0 indicates a factor that
-                        increases the output (in this case, ΔADAS-Cog).
+                        Represents the impact on the model's predicted value. A value further to the
+                        right of 0 indicates a factor that increases the output (in this case,
+                        ΔADAS-Cog).
                       </span>
                     </li>
                     <li className="break-words">
-                      <span className="text-body1m">
-                        Color (Feature Value):
-                      </span>
+                      <span className="text-body1m">Color (Feature Value):</span>
                       <br />
                       <span className="text-body4m">
-                        Represents the magnitude (size) of the value for that
-                        specific variable. High value, Light Blue. Low value.
+                        Represents the magnitude (size) of the value for that specific variable.
+                        High value, Light Blue. Low value.
                       </span>
                     </li>
                     <li className="break-words">
                       <span className="text-body1m">Dot:</span>
                       <br />
                       <span className="text-body4m">
-                        Each dot represents one patient. A thicker (denser)
-                        vertical accumulation of dots indicates a higher
-                        concentration of data points, representing higher
+                        Each dot represents one patient. A thicker (denser) vertical accumulation of
+                        dots indicates a higher concentration of data points, representing higher
                         frequency and reliability in that specific range.
                       </span>
                     </li>
@@ -251,9 +294,7 @@ export default function TSISubgroupExplainPage() {
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
                       className={`w-full flex items-center gap-[10px] self-stretch h-[59px] px-[12px] py-[18px] text-body4 transition-colors ${
-                        index < FEATURE_LIST.length - 1
-                          ? "border-b border-neutral-90"
-                          : ""
+                        index < FEATURE_LIST.length - 1 ? "border-b border-neutral-90" : ""
                       } ${
                         selectedFeature === feature
                           ? "bg-primary-15 text-white"
@@ -281,9 +322,7 @@ export default function TSISubgroupExplainPage() {
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
                     <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
-                      <span className="text-neutral-50 text-xs">
-                        Chart placeholder
-                      </span>
+                      <span className="text-neutral-50 text-xs">Chart placeholder3</span>
                     </div>
                   </div>
 
@@ -293,9 +332,7 @@ export default function TSISubgroupExplainPage() {
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
                     <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
-                      <span className="text-neutral-50 text-xs">
-                        Chart placeholder
-                      </span>
+                      <span className="text-neutral-50 text-xs">Chart placeholder4</span>
                     </div>
                   </div>
 
@@ -305,9 +342,7 @@ export default function TSISubgroupExplainPage() {
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
                     <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
-                      <span className="text-neutral-50 text-xs">
-                        Chart placeholder
-                      </span>
+                      <span className="text-neutral-50 text-xs">Chart placeholder5</span>
                     </div>
                   </div>
                 </div>
@@ -316,35 +351,29 @@ export default function TSISubgroupExplainPage() {
                 <div className="flex-1 min-w-0 flex flex-col justify-start pt-4">
                   <ul className="flex flex-col gap-3 text-white list-disc pl-4">
                     <li className="break-words">
-                      <span className="text-body1m">
-                        ADAS Word Delay Recall:
-                      </span>
+                      <span className="text-body1m">ADAS Word Delay Recall:</span>
                       <br />
                       <span className="text-body4m">
-                        Higher scores indicate worse cognitive performance
-                        (greater disease severity).
+                        Higher scores indicate worse cognitive performance (greater disease
+                        severity).
                       </span>
                     </li>
                     <li className="break-words">
-                      <span className="text-body1m">
-                        Early Detection Indicator:
-                      </span>
+                      <span className="text-body1m">Early Detection Indicator:</span>
                       <br />
                       <span className="text-body4m">
-                        Delayed word recall is used as a highly sensitive
-                        indicator for the early detection of the disease, as it
-                        is one of the first symptoms to appear in patients with
-                        Alzheimer's disease or Mild Cognitive Impairment (MCI).
+                        Delayed word recall is used as a highly sensitive indicator for the early
+                        detection of the disease, as it is one of the first symptoms to appear in
+                        patients with Alzheimer's disease or Mild Cognitive Impairment (MCI).
                       </span>
                     </li>
                     <li className="break-words">
                       <span className="text-body1m">Core Assessment Goal:</span>
                       <br />
                       <span className="text-body4m">
-                        It is a key assessment item that captures memory
-                        decline, particularly in the early stages of dementia,
-                        by measuring how well one can remember 10 recently
-                        learned words after a short period of time.
+                        It is a key assessment item that captures memory decline, particularly in
+                        the early stages of dementia, by measuring how well one can remember 10
+                        recently learned words after a short period of time.
                       </span>
                     </li>
                   </ul>

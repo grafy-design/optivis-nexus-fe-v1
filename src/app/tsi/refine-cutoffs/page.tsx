@@ -2,13 +2,44 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Select from "@/components/ui/select";
 import ReactECharts from "echarts-for-react";
+import { MultiLineWithErrorBar } from "@/components/charts/MultiLineWithErrorBar";
+import { DensityChart } from "@/components/charts/DensityChart";
+
+const MOCK_UP_DISEASE_CHART_DATA: [x: number, y: number, error: number][][] = [
+  [
+    [0, 10, 2],
+    [3, 12, 2],
+    [6, 14, 3],
+    [9, 15, 2],
+    [12, 17, 3],
+    [15, 20, 3],
+    [18, 22, 4],
+    [21, 25, 3],
+    [24, 28, 4],
+  ],
+  [
+    [0, 8, 1],
+    [3, 9, 2],
+    [6, 10, 2],
+    [9, 11, 1],
+    [12, 12, 2],
+    [15, 13, 2],
+    [18, 14, 2],
+    [21, 15, 2],
+    [24, 16, 3],
+  ],
+];
+
+const MOCK_DENSITY_DATA = {
+  orangeGroup: [0.55, 0.72, 0.84, 0.95, 1.05, 1.15],
+  blueGroup: [1.65, 1.78, 1.9, 2.02, 2.1, 2.2],
+};
 
 /**
- * TSI: Refine Cutoffs
+ * TSI: Refine CutoffsO
  * 구조: 타이틀은 카드 밖, 왼쪽/오른쪽 카드
  * - 왼쪽 카드: 남색 카드에 슬라이더 (ATS LeftPanel 참고)
  * - 오른쪽 카드: 차트와 테이블
@@ -25,10 +56,10 @@ export default function TSIRefineCutoffsPage() {
   const [isEditingY, setIsEditingY] = useState(false);
   const [yInputValue, setYInputValue] = useState("");
   const yInputRef = useRef<HTMLInputElement>(null);
-  const [editingAdditionalSliderIndex, setEditingAdditionalSliderIndex] =
-    useState<number | null>(null);
-  const [additionalSliderInputValue, setAdditionalSliderInputValue] =
-    useState("");
+  const [editingAdditionalSliderIndex, setEditingAdditionalSliderIndex] = useState<number | null>(
+    null
+  );
+  const [additionalSliderInputValue, setAdditionalSliderInputValue] = useState("");
   const additionalSliderInputRef = useRef<HTMLInputElement>(null);
   const [additionalSliders, setAdditionalSliders] = useState<number[]>([]);
   const [showAddButton, setShowAddButton] = useState(false);
@@ -146,10 +177,7 @@ export default function TSIRefineCutoffsPage() {
   // 추가 슬라이더가 1개를 초과하면 자동으로 제한
   useEffect(() => {
     if (additionalSliders.length > 1) {
-      console.warn(
-        "[슬라이더 제한] 1개 초과 감지, 자동 제한:",
-        additionalSliders.length,
-      );
+      console.warn("[슬라이더 제한] 1개 초과 감지, 자동 제한:", additionalSliders.length);
       setAdditionalSliders(additionalSliders.slice(0, 1));
     }
   }, [additionalSliders]);
@@ -332,7 +360,7 @@ export default function TSIRefineCutoffsPage() {
                 color: segmentColors[1].line,
               },
               z: 10,
-            },
+            }
           );
         } else if (sortedSliders.length === 2) {
           // 2개 슬라이더: 3개 구간
@@ -367,9 +395,7 @@ export default function TSIRefineCutoffsPage() {
             {
               name: "CDF Segment 2",
               type: "line",
-              data: cdfData.filter(
-                (point) => point[0] > score1 && point[0] <= score2,
-              ),
+              data: cdfData.filter((point) => point[0] > score1 && point[0] <= score2),
               smooth: true,
               lineStyle: {
                 width: 2,
@@ -417,16 +443,13 @@ export default function TSIRefineCutoffsPage() {
             {
               name: "Cutoff Points",
               type: "scatter",
-              data: sortedSliders.map((prop) => [
-                findSafetyScoreForProportion(prop),
-                prop,
-              ]),
+              data: sortedSliders.map((prop) => [findSafetyScoreForProportion(prop), prop]),
               symbolSize: 10,
               itemStyle: {
                 color: segmentColors[1].line,
               },
               z: 10,
-            },
+            }
           );
         }
 
@@ -480,7 +503,7 @@ export default function TSIRefineCutoffsPage() {
               },
               symbol: "none",
               z: 5,
-            },
+            }
           );
         });
 
@@ -490,7 +513,7 @@ export default function TSIRefineCutoffsPage() {
         trigger: "none",
       },
     }),
-    [cdfData, sortedSliders],
+    [cdfData, sortedSliders]
   );
 
   return (
@@ -513,9 +536,7 @@ export default function TSIRefineCutoffsPage() {
               <div className="text-title text-neutral-5 text-left mb-2">
                 Target Subgroup Identification
               </div>
-              <p className="text-body2m text-neutral-50 text-left">
-                Optimize study design
-              </p>
+              <p className="text-body2m text-neutral-50 text-left">Optimize study design</p>
             </div>
           </div>
         </div>
@@ -553,23 +574,16 @@ export default function TSIRefineCutoffsPage() {
                 {/* Outcome */}
                 <div className="flex flex-col gap-0">
                   <span className="text-body3m text-white">Outcome</span>
-                  <span className="text-body2 text-white font-semibold">
-                    Safety Score
-                  </span>
+                  <span className="text-body2 text-white font-semibold">Safety Score</span>
                 </div>
 
                 {/* Stratification month 슬라이더 */}
                 <div className="flex flex-col gap-2 w-full">
-                  <span className="text-body3m text-white">
-                    Stratification month
-                  </span>
+                  <span className="text-body3m text-white">Stratification month</span>
                   {/* 슬라이더와 드롭다운 - 같은 선상에 배치, 우측 정렬 */}
                   <div className="flex items-start justify-between w-full">
                     {/* 슬라이더 영역 - 고정 너비로 24까지만 */}
-                    <div
-                      className="flex flex-col gap-1 flex-shrink-0"
-                      style={{ width: "400px" }}
-                    >
+                    <div className="flex flex-col gap-1 flex-shrink-0" style={{ width: "400px" }}>
                       {/* 슬라이더 */}
                       <div
                         className="relative select-none h-[24px] flex items-center"
@@ -597,8 +611,7 @@ export default function TSIRefineCutoffsPage() {
                             onMouseDown={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              const slider =
-                                e.currentTarget.parentElement?.parentElement;
+                              const slider = e.currentTarget.parentElement?.parentElement;
                               if (!slider) return;
                               const preventSelect = (event: Event) => {
                                 event.preventDefault();
@@ -609,49 +622,30 @@ export default function TSIRefineCutoffsPage() {
                                 event.preventDefault();
                                 return false;
                               };
-                              const handleMouseMove = (
-                                moveEvent: MouseEvent,
-                              ) => {
+                              const handleMouseMove = (moveEvent: MouseEvent) => {
                                 moveEvent.preventDefault();
                                 const rect = slider.getBoundingClientRect();
                                 const x = moveEvent.clientX - rect.left;
                                 const percentage = Math.max(
                                   0,
-                                  Math.min(100, (x / rect.width) * 100),
+                                  Math.min(100, (x / rect.width) * 100)
                                 );
-                                const rawMonth =
-                                  minMonth + (percentage / 100) * monthRange;
-                                const steppedMonth =
-                                  Math.round(rawMonth / 3) * 3;
+                                const rawMonth = minMonth + (percentage / 100) * monthRange;
+                                const steppedMonth = Math.round(rawMonth / 3) * 3;
                                 const clampedMonth = Math.max(
                                   minMonth,
-                                  Math.min(maxMonth, steppedMonth),
+                                  Math.min(maxMonth, steppedMonth)
                                 );
                                 setStratificationMonth(clampedMonth);
                               };
                               const handleMouseUp = (upEvent: MouseEvent) => {
                                 upEvent.preventDefault();
                                 upEvent.stopPropagation();
-                                document.removeEventListener(
-                                  "mousemove",
-                                  handleMouseMove,
-                                );
-                                document.removeEventListener(
-                                  "mouseup",
-                                  handleMouseUp,
-                                );
-                                document.removeEventListener(
-                                  "selectstart",
-                                  preventSelect,
-                                );
-                                document.removeEventListener(
-                                  "select",
-                                  preventSelect,
-                                );
-                                document.removeEventListener(
-                                  "dragstart",
-                                  preventDrag,
-                                );
+                                document.removeEventListener("mousemove", handleMouseMove);
+                                document.removeEventListener("mouseup", handleMouseUp);
+                                document.removeEventListener("selectstart", preventSelect);
+                                document.removeEventListener("select", preventSelect);
+                                document.removeEventListener("dragstart", preventDrag);
                                 const bodyStyle = document.body.style as any;
                                 bodyStyle.userSelect = "";
                                 bodyStyle.webkitUserSelect = "";
@@ -665,30 +659,15 @@ export default function TSIRefineCutoffsPage() {
                               bodyStyle.mozUserSelect = "none";
                               bodyStyle.msUserSelect = "none";
                               document.body.classList.add("no-select");
-                              document.addEventListener(
-                                "mousemove",
-                                handleMouseMove,
-                                { passive: false },
-                              );
-                              document.addEventListener(
-                                "mouseup",
-                                handleMouseUp,
-                                {
-                                  passive: false,
-                                },
-                              );
-                              document.addEventListener(
-                                "selectstart",
-                                preventSelect,
-                              );
-                              document.addEventListener(
-                                "select",
-                                preventSelect,
-                              );
-                              document.addEventListener(
-                                "dragstart",
-                                preventDrag,
-                              );
+                              document.addEventListener("mousemove", handleMouseMove, {
+                                passive: false,
+                              });
+                              document.addEventListener("mouseup", handleMouseUp, {
+                                passive: false,
+                              });
+                              document.addEventListener("selectstart", preventSelect);
+                              document.addEventListener("select", preventSelect);
+                              document.addEventListener("dragstart", preventDrag);
                             }}
                           />
                         </div>
@@ -700,11 +679,9 @@ export default function TSIRefineCutoffsPage() {
                       >
                         {[3, 6, 9, 12, 15, 18, 21, 24].map((month, index) => {
                           // 각 라벨의 위치를 정확히 계산 (슬라이더 핸들과 정렬)
-                          const labelPercentage =
-                            ((month - minMonth) / monthRange) * 100;
+                          const labelPercentage = ((month - minMonth) / monthRange) * 100;
                           const isFirst = index === 0;
-                          const isLast =
-                            index === [3, 6, 9, 12, 15, 18, 21, 24].length - 1;
+                          const isLast = index === [3, 6, 9, 12, 15, 18, 21, 24].length - 1;
 
                           // 첫 번째는 왼쪽 정렬, 마지막은 오른쪽 정렬, 나머지는 가운데 정렬
                           let transformValue = "translateX(-50%)";
@@ -734,9 +711,7 @@ export default function TSIRefineCutoffsPage() {
                       <Select
                         value={stratificationMonth.toString()}
                         options={["3", "6", "9", "12", "15", "18", "21", "24"]}
-                        onChange={(value) =>
-                          setStratificationMonth(parseInt(value, 10))
-                        }
+                        onChange={(value) => setStratificationMonth(parseInt(value, 10))}
                         className="w-[52px] [&>button]:bg-neutral-95 [&>button]:h-[24px] [&>button]:py-[6px] [&>button]:px-2 [&>button]:justify-between [&>button]:items-center [&>button]:rounded-[8px] [&>button]:border-0 [&>button>span]:text-body5 [&>button>span]:text-neutral-5 [&>button>span]:font-semibold [&>button>span]:text-left [&>button>svg]:flex-shrink-0"
                       />
                     </div>
@@ -770,8 +745,7 @@ export default function TSIRefineCutoffsPage() {
                       return;
                     }
 
-                    const rect =
-                      chartContainerRef.current?.getBoundingClientRect();
+                    const rect = chartContainerRef.current?.getBoundingClientRect();
                     if (!rect) return;
 
                     const mouseX = e.clientX - rect.left;
@@ -811,23 +785,19 @@ export default function TSIRefineCutoffsPage() {
 
                       // Y 좌표를 cumulative proportion으로 변환 (0-100)
                       const relativeY = mouseY - gridStartY;
-                      const clickProportion =
-                        100 - (relativeY / gridHeight) * 100;
+                      const clickProportion = 100 - (relativeY / gridHeight) * 100;
 
                       // 그래프 라인 근처인지 확인 (5% 이내)
                       if (Math.abs(clickProportion - closestCdfValue) <= 5) {
                         const clampedProportion = Math.max(
                           0,
-                          Math.min(100, Math.round(clickProportion)),
+                          Math.min(100, Math.round(clickProportion))
                         );
 
                         // 기존 슬라이더와 겹치지 않는지 확인 (최소 5% 간격)
-                        const allProportions = [
-                          cumulativeProportion,
-                          ...additionalSliders,
-                        ];
+                        const allProportions = [cumulativeProportion, ...additionalSliders];
                         const isOverlapping = allProportions.some(
-                          (p) => Math.abs(p - clampedProportion) < 5,
+                          (p) => Math.abs(p - clampedProportion) < 5
                         );
 
                         if (!isOverlapping) {
@@ -865,10 +835,7 @@ export default function TSIRefineCutoffsPage() {
 
                     // 추가 슬라이더는 최대 1개까지만 추가 가능 (기본 1개 포함 총 2개)
                     if (additionalSliders.length >= 1) {
-                      console.log(
-                        "[차트 클릭] 최대 개수 초과:",
-                        additionalSliders.length,
-                      );
+                      console.log("[차트 클릭] 최대 개수 초과:", additionalSliders.length);
                       return;
                     }
 
@@ -878,7 +845,7 @@ export default function TSIRefineCutoffsPage() {
                       if (additionalSliders.length >= 1) {
                         console.log(
                           "[차트 클릭] + 버튼 클릭 시 최대 개수 초과:",
-                          additionalSliders.length,
+                          additionalSliders.length
                         );
                         setShowAddButton(false);
                         setAddButtonPosition(null);
@@ -886,27 +853,18 @@ export default function TSIRefineCutoffsPage() {
                       }
 
                       // 기존 슬라이더와 겹치지 않는지 확인
-                      const allProportions = [
-                        cumulativeProportion,
-                        ...additionalSliders,
-                      ];
+                      const allProportions = [cumulativeProportion, ...additionalSliders];
                       const isOverlapping = allProportions.some(
-                        (p) => Math.abs(p - addButtonPosition.proportion) < 5,
+                        (p) => Math.abs(p - addButtonPosition.proportion) < 5
                       );
 
                       if (!isOverlapping) {
                         console.log("[차트 클릭] 슬라이더 추가:", {
                           현재개수: additionalSliders.length,
                           추가할값: addButtonPosition.proportion,
-                          전체슬라이더: [
-                            ...additionalSliders,
-                            addButtonPosition.proportion,
-                          ],
+                          전체슬라이더: [...additionalSliders, addButtonPosition.proportion],
                         });
-                        setAdditionalSliders([
-                          ...additionalSliders,
-                          addButtonPosition.proportion,
-                        ]);
+                        setAdditionalSliders([...additionalSliders, addButtonPosition.proportion]);
                         setShowAddButton(false);
                         setAddButtonPosition(null);
                       } else {
@@ -942,16 +900,11 @@ export default function TSIRefineCutoffsPage() {
                           const y = moveEvent.clientY - rect.top;
                           let percentage = Math.max(
                             0,
-                            Math.min(
-                              100,
-                              ((rect.height - y) / rect.height) * 100,
-                            ),
+                            Math.min(100, ((rect.height - y) / rect.height) * 100)
                           );
 
                           // 교차 방지: 추가 슬라이더들과 겹치지 않도록
-                          const sorted = [...additionalSliders].sort(
-                            (a, b) => a - b,
-                          );
+                          const sorted = [...additionalSliders].sort((a, b) => a - b);
                           const currentPosition = cumulativeProportion;
 
                           console.log("[기본 슬라이더 드래그]", {
@@ -968,7 +921,7 @@ export default function TSIRefineCutoffsPage() {
                                 percentage = Math.max(0, sorted[0] - 1);
                                 console.log(
                                   "[기본 슬라이더] 제한됨 - 위로 올라갈 수 없음:",
-                                  percentage,
+                                  percentage
                                 );
                               }
                             } else {
@@ -977,7 +930,7 @@ export default function TSIRefineCutoffsPage() {
                                 percentage = Math.min(100, sorted[0] + 1);
                                 console.log(
                                   "[기본 슬라이더] 제한됨 - 아래로 내려갈 수 없음:",
-                                  percentage,
+                                  percentage
                                 );
                               }
                             }
@@ -989,7 +942,7 @@ export default function TSIRefineCutoffsPage() {
                                 percentage = Math.max(0, sorted[0] - 1);
                                 console.log(
                                   "[기본 슬라이더] 제한됨 - 가장 아래, 위로 올라갈 수 없음:",
-                                  percentage,
+                                  percentage
                                 );
                               }
                             } else if (currentPosition > sorted[1]) {
@@ -998,7 +951,7 @@ export default function TSIRefineCutoffsPage() {
                                 percentage = Math.min(100, sorted[1] + 1);
                                 console.log(
                                   "[기본 슬라이더] 제한됨 - 가장 위, 아래로 내려갈 수 없음:",
-                                  percentage,
+                                  percentage
                                 );
                               }
                             } else {
@@ -1007,38 +960,26 @@ export default function TSIRefineCutoffsPage() {
                                 percentage = Math.max(0, sorted[0] + 1);
                                 console.log(
                                   "[기본 슬라이더] 제한됨 - 중간, 첫번째 아래로:",
-                                  percentage,
+                                  percentage
                                 );
                               } else if (percentage >= sorted[1]) {
                                 percentage = Math.min(100, sorted[1] - 1);
                                 console.log(
                                   "[기본 슬라이더] 제한됨 - 중간, 두번째 위로:",
-                                  percentage,
+                                  percentage
                                 );
                               }
                             }
                           }
 
-                          console.log(
-                            "[기본 슬라이더] 최종값:",
-                            Math.round(percentage),
-                          );
+                          console.log("[기본 슬라이더] 최종값:", Math.round(percentage));
                           setCumulativeProportion(Math.round(percentage));
                         };
 
                         const handleMouseUp = () => {
-                          document.removeEventListener(
-                            "mousemove",
-                            handleMouseMove,
-                          );
-                          document.removeEventListener(
-                            "mouseup",
-                            handleMouseUp,
-                          );
-                          document.removeEventListener(
-                            "selectstart",
-                            preventSelect,
-                          );
+                          document.removeEventListener("mousemove", handleMouseMove);
+                          document.removeEventListener("mouseup", handleMouseUp);
+                          document.removeEventListener("selectstart", preventSelect);
                           const bodyStyle = document.body.style as any;
                           bodyStyle.userSelect = "";
                           bodyStyle.webkitUserSelect = "";
@@ -1056,16 +997,11 @@ export default function TSIRefineCutoffsPage() {
                         const y = e.clientY - rect.top;
                         let percentage = Math.max(
                           0,
-                          Math.min(
-                            100,
-                            ((rect.height - y) / rect.height) * 100,
-                          ),
+                          Math.min(100, ((rect.height - y) / rect.height) * 100)
                         );
 
                         // 교차 방지: 추가 슬라이더들과 겹치지 않도록
-                        const sorted = [...additionalSliders].sort(
-                          (a, b) => a - b,
-                        );
+                        const sorted = [...additionalSliders].sort((a, b) => a - b);
                         const currentPosition = cumulativeProportion;
 
                         if (sorted.length === 1) {
@@ -1111,10 +1047,7 @@ export default function TSIRefineCutoffsPage() {
                         console.log("[기본 슬라이더 렌더링]", {
                           cumulativeProportion,
                           additionalSliders,
-                          전체슬라이더: [
-                            cumulativeProportion,
-                            ...additionalSliders,
-                          ],
+                          전체슬라이더: [cumulativeProportion, ...additionalSliders],
                         });
                         return (
                           <div
@@ -1124,8 +1057,7 @@ export default function TSIRefineCutoffsPage() {
                               transform: "translateY(50%)",
                               border: `1px solid ${cumulativeProportion !== initialCumulativeProportion || additionalSliders.length > 0 ? "#BFB0F8" : "#E2E1E5"}`,
                               backgroundColor:
-                                cumulativeProportion !==
-                                  initialCumulativeProportion ||
+                                cumulativeProportion !== initialCumulativeProportion ||
                                 additionalSliders.length > 0
                                   ? "#EBE6FD"
                                   : "#FFFFFF",
@@ -1135,209 +1067,155 @@ export default function TSIRefineCutoffsPage() {
                         );
                       })()}
                       {/* 추가 슬라이더 핸들들 - 같은 컨테이너 안에 (최대 1개) */}
-                      {additionalSliders
-                        .slice(0, 1)
-                        .map((proportion, index) => {
-                          console.log(
-                            `[추가 슬라이더 렌더링] 인덱스: ${index}, 값: ${proportion}, 전체배열:`,
-                            additionalSliders,
-                          );
-                          return (
-                            <div
-                              key={`additional-slider-${proportion}-${index}`}
-                              className="absolute w-[38px] h-[24px] rounded-full cursor-grab active:cursor-grabbing z-100 slider-handle"
-                              style={{
-                                bottom: `${proportion}%`,
-                                transform: "translateY(50%)",
-                                border: "1px solid #BFB0F8",
-                                backgroundColor: "#EBE6FD", // 추가 슬라이더는 항상 수정된 상태로 표시
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                const sliderContainer = sliderRef.current;
-                                if (!sliderContainer) return;
+                      {additionalSliders.slice(0, 1).map((proportion, index) => {
+                        console.log(
+                          `[추가 슬라이더 렌더링] 인덱스: ${index}, 값: ${proportion}, 전체배열:`,
+                          additionalSliders
+                        );
+                        return (
+                          <div
+                            key={`additional-slider-${proportion}-${index}`}
+                            className="absolute w-[38px] h-[24px] rounded-full cursor-grab active:cursor-grabbing z-100 slider-handle"
+                            style={{
+                              bottom: `${proportion}%`,
+                              transform: "translateY(50%)",
+                              border: "1px solid #BFB0F8",
+                              backgroundColor: "#EBE6FD", // 추가 슬라이더는 항상 수정된 상태로 표시
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const sliderContainer = sliderRef.current;
+                              if (!sliderContainer) return;
 
-                                // 현재 슬라이더의 원래 인덱스 저장
-                                const currentIndex = index;
+                              // 현재 슬라이더의 원래 인덱스 저장
+                              const currentIndex = index;
 
-                                const preventSelect = (event: Event) => {
-                                  event.preventDefault();
-                                  return false;
-                                };
+                              const preventSelect = (event: Event) => {
+                                event.preventDefault();
+                                return false;
+                              };
 
-                                const handleMouseMove = (
-                                  moveEvent: MouseEvent,
-                                ) => {
-                                  moveEvent.preventDefault();
-                                  const rect =
-                                    sliderContainer.getBoundingClientRect();
-                                  const y = moveEvent.clientY - rect.top;
-                                  let newProportion = Math.max(
-                                    0,
-                                    Math.min(
-                                      100,
-                                      Math.round(
-                                        ((rect.height - y) / rect.height) * 100,
-                                      ),
-                                    ),
-                                  );
+                              const handleMouseMove = (moveEvent: MouseEvent) => {
+                                moveEvent.preventDefault();
+                                const rect = sliderContainer.getBoundingClientRect();
+                                const y = moveEvent.clientY - rect.top;
+                                let newProportion = Math.max(
+                                  0,
+                                  Math.min(100, Math.round(((rect.height - y) / rect.height) * 100))
+                                );
 
-                                  // 모든 슬라이더 값 가져오기 (현재 슬라이더 제외)
-                                  const otherProportions = [
-                                    cumulativeProportion,
-                                    ...additionalSliders.filter(
-                                      (_, i) => i !== currentIndex,
-                                    ),
-                                  ];
-                                  const sorted = [...otherProportions].sort(
-                                    (a, b) => a - b,
-                                  );
+                                // 모든 슬라이더 값 가져오기 (현재 슬라이더 제외)
+                                const otherProportions = [
+                                  cumulativeProportion,
+                                  ...additionalSliders.filter((_, i) => i !== currentIndex),
+                                ];
+                                const sorted = [...otherProportions].sort((a, b) => a - b);
 
-                                  // 현재 슬라이더의 원래 위치
-                                  const currentProportion =
-                                    additionalSliders[currentIndex];
+                                // 현재 슬라이더의 원래 위치
+                                const currentProportion = additionalSliders[currentIndex];
 
-                                  console.log(
-                                    `[추가 슬라이더 ${currentIndex} 드래그]`,
-                                    {
-                                      인덱스: currentIndex,
-                                      원래값: newProportion,
-                                      현재위치: currentProportion,
-                                      다른슬라이더들: sorted,
-                                      전체추가슬라이더: additionalSliders,
-                                    },
-                                  );
+                                console.log(`[추가 슬라이더 ${currentIndex} 드래그]`, {
+                                  인덱스: currentIndex,
+                                  원래값: newProportion,
+                                  현재위치: currentProportion,
+                                  다른슬라이더들: sorted,
+                                  전체추가슬라이더: additionalSliders,
+                                });
 
-                                  // 교차 방지: 다른 슬라이더들 사이에만 이동 가능
-                                  if (sorted.length === 1) {
-                                    // 기본 슬라이더 1개만 있는 경우
-                                    if (currentProportion < sorted[0]) {
-                                      // 현재가 아래에 있으면 위로 올라갈 수 없음
-                                      if (newProportion >= sorted[0]) {
-                                        newProportion = Math.max(
-                                          0,
-                                          sorted[0] - 1,
-                                        );
-                                        console.log(
-                                          `[추가 슬라이더 ${currentIndex}] 제한됨 - 위로 올라갈 수 없음:`,
-                                          newProportion,
-                                        );
-                                      }
-                                    } else {
-                                      // 현재가 위에 있으면 아래로 내려갈 수 없음
-                                      if (newProportion <= sorted[0]) {
-                                        newProportion = Math.min(
-                                          100,
-                                          sorted[0] + 1,
-                                        );
-                                        console.log(
-                                          `[추가 슬라이더 ${currentIndex}] 제한됨 - 아래로 내려갈 수 없음:`,
-                                          newProportion,
-                                        );
-                                      }
+                                // 교차 방지: 다른 슬라이더들 사이에만 이동 가능
+                                if (sorted.length === 1) {
+                                  // 기본 슬라이더 1개만 있는 경우
+                                  if (currentProportion < sorted[0]) {
+                                    // 현재가 아래에 있으면 위로 올라갈 수 없음
+                                    if (newProportion >= sorted[0]) {
+                                      newProportion = Math.max(0, sorted[0] - 1);
+                                      console.log(
+                                        `[추가 슬라이더 ${currentIndex}] 제한됨 - 위로 올라갈 수 없음:`,
+                                        newProportion
+                                      );
                                     }
-                                  } else if (sorted.length === 2) {
-                                    // 기본 슬라이더 + 다른 추가 슬라이더 1개
-                                    if (currentProportion < sorted[0]) {
-                                      // 현재가 가장 아래: 위로 올라갈 수 없음
-                                      if (newProportion >= sorted[0]) {
-                                        newProportion = Math.max(
-                                          0,
-                                          sorted[0] - 1,
-                                        );
-                                        console.log(
-                                          `[추가 슬라이더 ${currentIndex}] 제한됨 - 가장 아래, 위로 올라갈 수 없음:`,
-                                          newProportion,
-                                        );
-                                      }
-                                    } else if (currentProportion > sorted[1]) {
-                                      // 현재가 가장 위: 아래로 내려갈 수 없음
-                                      if (newProportion <= sorted[1]) {
-                                        newProportion = Math.min(
-                                          100,
-                                          sorted[1] + 1,
-                                        );
-                                        console.log(
-                                          `[추가 슬라이더 ${currentIndex}] 제한됨 - 가장 위, 아래로 내려갈 수 없음:`,
-                                          newProportion,
-                                        );
-                                      }
-                                    } else {
-                                      // 현재가 중간: 양쪽 모두 제한
-                                      if (newProportion <= sorted[0]) {
-                                        newProportion = Math.max(
-                                          0,
-                                          sorted[0] + 1,
-                                        );
-                                        console.log(
-                                          `[추가 슬라이더 ${currentIndex}] 제한됨 - 중간, 첫번째 아래로:`,
-                                          newProportion,
-                                        );
-                                      } else if (newProportion >= sorted[1]) {
-                                        newProportion = Math.min(
-                                          100,
-                                          sorted[1] - 1,
-                                        );
-                                        console.log(
-                                          `[추가 슬라이더 ${currentIndex}] 제한됨 - 중간, 두번째 위로:`,
-                                          newProportion,
-                                        );
-                                      }
+                                  } else {
+                                    // 현재가 위에 있으면 아래로 내려갈 수 없음
+                                    if (newProportion <= sorted[0]) {
+                                      newProportion = Math.min(100, sorted[0] + 1);
+                                      console.log(
+                                        `[추가 슬라이더 ${currentIndex}] 제한됨 - 아래로 내려갈 수 없음:`,
+                                        newProportion
+                                      );
                                     }
                                   }
+                                } else if (sorted.length === 2) {
+                                  // 기본 슬라이더 + 다른 추가 슬라이더 1개
+                                  if (currentProportion < sorted[0]) {
+                                    // 현재가 가장 아래: 위로 올라갈 수 없음
+                                    if (newProportion >= sorted[0]) {
+                                      newProportion = Math.max(0, sorted[0] - 1);
+                                      console.log(
+                                        `[추가 슬라이더 ${currentIndex}] 제한됨 - 가장 아래, 위로 올라갈 수 없음:`,
+                                        newProportion
+                                      );
+                                    }
+                                  } else if (currentProportion > sorted[1]) {
+                                    // 현재가 가장 위: 아래로 내려갈 수 없음
+                                    if (newProportion <= sorted[1]) {
+                                      newProportion = Math.min(100, sorted[1] + 1);
+                                      console.log(
+                                        `[추가 슬라이더 ${currentIndex}] 제한됨 - 가장 위, 아래로 내려갈 수 없음:`,
+                                        newProportion
+                                      );
+                                    }
+                                  } else {
+                                    // 현재가 중간: 양쪽 모두 제한
+                                    if (newProportion <= sorted[0]) {
+                                      newProportion = Math.max(0, sorted[0] + 1);
+                                      console.log(
+                                        `[추가 슬라이더 ${currentIndex}] 제한됨 - 중간, 첫번째 아래로:`,
+                                        newProportion
+                                      );
+                                    } else if (newProportion >= sorted[1]) {
+                                      newProportion = Math.min(100, sorted[1] - 1);
+                                      console.log(
+                                        `[추가 슬라이더 ${currentIndex}] 제한됨 - 중간, 두번째 위로:`,
+                                        newProportion
+                                      );
+                                    }
+                                  }
+                                }
 
-                                  console.log(
-                                    `[추가 슬라이더 ${currentIndex}] 최종값:`,
-                                    newProportion,
-                                  );
-                                  const updatedSliders = [...additionalSliders];
-                                  updatedSliders[currentIndex] = newProportion;
-                                  console.log(
-                                    `[추가 슬라이더 ${currentIndex}] 업데이트된 배열:`,
-                                    updatedSliders,
-                                  );
-                                  setAdditionalSliders(updatedSliders);
-                                };
+                                console.log(
+                                  `[추가 슬라이더 ${currentIndex}] 최종값:`,
+                                  newProportion
+                                );
+                                const updatedSliders = [...additionalSliders];
+                                updatedSliders[currentIndex] = newProportion;
+                                console.log(
+                                  `[추가 슬라이더 ${currentIndex}] 업데이트된 배열:`,
+                                  updatedSliders
+                                );
+                                setAdditionalSliders(updatedSliders);
+                              };
 
-                                const handleMouseUp = () => {
-                                  document.removeEventListener(
-                                    "mousemove",
-                                    handleMouseMove,
-                                  );
-                                  document.removeEventListener(
-                                    "mouseup",
-                                    handleMouseUp,
-                                  );
-                                  document.removeEventListener(
-                                    "selectstart",
-                                    preventSelect,
-                                  );
-                                  const bodyStyle = document.body.style as any;
-                                  bodyStyle.userSelect = "";
-                                  bodyStyle.webkitUserSelect = "";
-                                };
-
-                                document.addEventListener(
-                                  "mousemove",
-                                  handleMouseMove,
-                                );
-                                document.addEventListener(
-                                  "mouseup",
-                                  handleMouseUp,
-                                );
-                                document.addEventListener(
-                                  "selectstart",
-                                  preventSelect,
-                                );
+                              const handleMouseUp = () => {
+                                document.removeEventListener("mousemove", handleMouseMove);
+                                document.removeEventListener("mouseup", handleMouseUp);
+                                document.removeEventListener("selectstart", preventSelect);
                                 const bodyStyle = document.body.style as any;
-                                bodyStyle.userSelect = "none";
-                                bodyStyle.webkitUserSelect = "none";
-                              }}
-                            ></div>
-                          );
-                        })}
+                                bodyStyle.userSelect = "";
+                                bodyStyle.webkitUserSelect = "";
+                              };
+
+                              document.addEventListener("mousemove", handleMouseMove);
+                              document.addEventListener("mouseup", handleMouseUp);
+                              document.addEventListener("selectstart", preventSelect);
+                              const bodyStyle = document.body.style as any;
+                              bodyStyle.userSelect = "none";
+                              bodyStyle.webkitUserSelect = "none";
+                            }}
+                          ></div>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1417,22 +1295,17 @@ export default function TSIRefineCutoffsPage() {
                     const gridBottom = 30;
                     const gridHeight = 350; // 400px - 20px - 30px
                     const gridWidth = chartWidth > 0 ? chartWidth - 55 : 400; // chartWidth - gridLeft(30) - gridRight(25)
-                    const chartContainerWidth =
-                      chartWidth > 0 ? chartWidth : 400;
+                    const chartContainerWidth = chartWidth > 0 ? chartWidth : 400;
 
                     // 점의 X 좌표
-                    const pointX =
-                      gridLeft + ((safetyScoreCutoff + 5) / 10) * gridWidth;
+                    const pointX = gridLeft + ((safetyScoreCutoff + 5) / 10) * gridWidth;
                     // 점의 Y 좌표
-                    const pointY =
-                      gridTop +
-                      ((100 - cumulativeProportion) / 100) * gridHeight;
+                    const pointY = gridTop + ((100 - cumulativeProportion) / 100) * gridHeight;
 
                     // 라벨이 잘릴지 확인 (라벨 너비 약 60px 가정)
                     const labelWidth = 60;
                     const labelX = pointX + 18;
-                    const willOverflow =
-                      labelX + labelWidth > chartContainerWidth - gridRight;
+                    const willOverflow = labelX + labelWidth > chartContainerWidth - gridRight;
 
                     return (
                       <div
@@ -1469,32 +1342,23 @@ export default function TSIRefineCutoffsPage() {
                         e.stopPropagation();
                         // 추가 슬라이더는 최대 1개까지만 추가 가능 (기본 1개 포함 총 2개)
                         if (additionalSliders.length >= 1) {
-                          console.log(
-                            "[+ 버튼 클릭] 최대 개수 초과:",
-                            additionalSliders.length,
-                          );
+                          console.log("[+ 버튼 클릭] 최대 개수 초과:", additionalSliders.length);
                           setShowAddButton(false);
                           setAddButtonPosition(null);
                           return;
                         }
 
                         // 기존 슬라이더와 겹치지 않는지 확인
-                        const allProportions = [
-                          cumulativeProportion,
-                          ...additionalSliders,
-                        ];
+                        const allProportions = [cumulativeProportion, ...additionalSliders];
                         const isOverlapping = allProportions.some(
-                          (p) => Math.abs(p - addButtonPosition.proportion) < 5,
+                          (p) => Math.abs(p - addButtonPosition.proportion) < 5
                         );
 
                         if (!isOverlapping) {
                           console.log("[+ 버튼 클릭] 슬라이더 추가:", {
                             현재개수: additionalSliders.length,
                             추가할값: addButtonPosition.proportion,
-                            전체슬라이더: [
-                              ...additionalSliders,
-                              addButtonPosition.proportion,
-                            ],
+                            전체슬라이더: [...additionalSliders, addButtonPosition.proportion],
                           });
                           setAdditionalSliders([
                             ...additionalSliders,
@@ -1525,13 +1389,10 @@ export default function TSIRefineCutoffsPage() {
                         closestIndex = i;
                       }
                     }
-                    const additionalSliderSafetyScore =
-                      cdfData[closestIndex][0];
+                    const additionalSliderSafetyScore = cdfData[closestIndex][0];
 
                     return (
-                      <div
-                        key={`additional-slider-labels-${proportion}-${index}`}
-                      >
+                      <div key={`additional-slider-labels-${proportion}-${index}`}>
                         {editingAdditionalSliderIndex === index ? (
                           <div
                             key={`additional-label-input-${proportion}-${index}`}
@@ -1547,35 +1408,22 @@ export default function TSIRefineCutoffsPage() {
                               min="0"
                               max="100"
                               value={additionalSliderInputValue}
-                              onChange={(e) =>
-                                setAdditionalSliderInputValue(e.target.value)
-                              }
+                              onChange={(e) => setAdditionalSliderInputValue(e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                  const value = parseInt(
-                                    additionalSliderInputValue,
-                                    10,
-                                  );
-                                  if (
-                                    !isNaN(value) &&
-                                    value >= 0 &&
-                                    value <= 100
-                                  ) {
+                                  const value = parseInt(additionalSliderInputValue, 10);
+                                  if (!isNaN(value) && value >= 0 && value <= 100) {
                                     // 교차 방지: 기본 슬라이더와 겹치지 않는지 확인
                                     const allProportions = [
                                       cumulativeProportion,
-                                      ...additionalSliders.filter(
-                                        (_, i) => i !== index,
-                                      ),
+                                      ...additionalSliders.filter((_, i) => i !== index),
                                     ];
                                     const isOverlapping = allProportions.some(
-                                      (p) => Math.abs(p - value) < 5,
+                                      (p) => Math.abs(p - value) < 5
                                     );
 
                                     if (!isOverlapping) {
-                                      const updatedSliders = [
-                                        ...additionalSliders,
-                                      ];
+                                      const updatedSliders = [...additionalSliders];
                                       updatedSliders[index] = value;
                                       setAdditionalSliders(updatedSliders);
                                       setEditingAdditionalSliderIndex(null);
@@ -1587,30 +1435,19 @@ export default function TSIRefineCutoffsPage() {
                                 }
                               }}
                               onBlur={() => {
-                                const value = parseInt(
-                                  additionalSliderInputValue,
-                                  10,
-                                );
-                                if (
-                                  !isNaN(value) &&
-                                  value >= 0 &&
-                                  value <= 100
-                                ) {
+                                const value = parseInt(additionalSliderInputValue, 10);
+                                if (!isNaN(value) && value >= 0 && value <= 100) {
                                   // 교차 방지: 기본 슬라이더와 겹치지 않는지 확인
                                   const allProportions = [
                                     cumulativeProportion,
-                                    ...additionalSliders.filter(
-                                      (_, i) => i !== index,
-                                    ),
+                                    ...additionalSliders.filter((_, i) => i !== index),
                                   ];
                                   const isOverlapping = allProportions.some(
-                                    (p) => Math.abs(p - value) < 5,
+                                    (p) => Math.abs(p - value) < 5
                                   );
 
                                   if (!isOverlapping) {
-                                    const updatedSliders = [
-                                      ...additionalSliders,
-                                    ];
+                                    const updatedSliders = [...additionalSliders];
                                     updatedSliders[index] = value;
                                     setAdditionalSliders(updatedSliders);
                                   }
@@ -1641,9 +1478,7 @@ export default function TSIRefineCutoffsPage() {
                             }}
                             onClick={() => {
                               setEditingAdditionalSliderIndex(index);
-                              setAdditionalSliderInputValue(
-                                proportion.toString(),
-                              );
+                              setAdditionalSliderInputValue(proportion.toString());
                               setTimeout(() => {
                                 additionalSliderInputRef.current?.focus();
                               }, 0);
@@ -1660,26 +1495,20 @@ export default function TSIRefineCutoffsPage() {
                           const gridTop = 20;
                           const gridBottom = 30;
                           const gridHeight = 350; // 400px - 20px - 30px
-                          const gridWidth =
-                            chartWidth > 0 ? chartWidth - 55 : 400; // chartWidth - gridLeft(30) - gridRight(25)
-                          const chartContainerWidth =
-                            chartWidth > 0 ? chartWidth : 400;
+                          const gridWidth = chartWidth > 0 ? chartWidth - 55 : 400; // chartWidth - gridLeft(30) - gridRight(25)
+                          const chartContainerWidth = chartWidth > 0 ? chartWidth : 400;
 
                           // 점의 X 좌표
                           const pointX =
-                            gridLeft +
-                            ((additionalSliderSafetyScore + 5) / 10) *
-                              gridWidth;
+                            gridLeft + ((additionalSliderSafetyScore + 5) / 10) * gridWidth;
                           // 점의 Y 좌표
-                          const pointY =
-                            gridTop + ((100 - proportion) / 100) * gridHeight;
+                          const pointY = gridTop + ((100 - proportion) / 100) * gridHeight;
 
                           // 라벨이 잘릴지 확인 (라벨 너비 약 60px 가정)
                           const labelWidth = 60;
                           const labelX = pointX + 18;
                           const willOverflow =
-                            labelX + labelWidth >
-                            chartContainerWidth - gridRight;
+                            labelX + labelWidth > chartContainerWidth - gridRight;
 
                           return (
                             <div
@@ -1768,26 +1597,20 @@ export default function TSIRefineCutoffsPage() {
                     Disease Progression by Group
                   </h4>
                   <div className="flex-1 min-h-0 bg-white rounded-[12px] flex items-center justify-center">
-                    <span className="text-neutral-50 text-sm">
-                      Chart placeholder
-                    </span>
+                    <MultiLineWithErrorBar dataGroup={MOCK_UP_DISEASE_CHART_DATA} />
                   </div>
                 </div>
 
                 {/* rHTE distribution */}
                 <div
-                  className="flex-1 h-[432px] rounded-[24px] overflow-hidden bg-primary-15 flex flex-col p-5"
+                  className="flex-1 h-[432px] rounded-[24px] overㄹflow-hidden bg-primary-15 flex flex-col p-5"
                   style={{
                     boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <h4 className="text-h4 text-white mb-4 flex-shrink-0">
-                    rHTE distribution
-                  </h4>
+                  <h4 className="text-h4 text-white mb-4 flex-shrink-0">Slope distribution</h4>
                   <div className="flex-1 min-h-0 bg-white rounded-[12px] flex items-center justify-center">
-                    <span className="text-neutral-50 text-sm">
-                      Chart placeholder
-                    </span>
+                    <DensityChart data={MOCK_DENSITY_DATA} />
                   </div>
                 </div>
               </div>
@@ -1804,12 +1627,8 @@ export default function TSIRefineCutoffsPage() {
                 <div className="flex flex-col h-full px-8 py-5">
                   {/* 테이블 헤더 */}
                   <div className="flex-shrink-0 h-[39px] border-b border-neutral-80 flex items-center gap-4">
-                    <div className="w-[80px] text-body2 text-neutral-30 font-semibold">
-                      no.
-                    </div>
-                    <div className="w-[240px] text-body2 text-neutral-30 font-semibold">
-                      Group
-                    </div>
+                    <div className="w-[80px] text-body2 text-neutral-30 font-semibold">no.</div>
+                    <div className="w-[240px] text-body2 text-neutral-30 font-semibold">Group</div>
                     <div className="w-[180px] text-body2 text-neutral-30 font-semibold">
                       Patients N
                     </div>
@@ -1824,47 +1643,27 @@ export default function TSIRefineCutoffsPage() {
                   {/* 테이블 바디 */}
                   <div className="flex-shrink-0">
                     <div className="flex h-[42px] border-b border-neutral-80 items-center gap-4">
-                      <div className="w-[80px] text-body3m text-neutral-10">
-                        1
-                      </div>
+                      <div className="w-[80px] text-body3m text-neutral-10">1</div>
                       <div className="w-[240px] flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                        <span className="text-body3m text-neutral-10">
-                          Group 1
-                        </span>
+                        <span className="text-body3m text-neutral-10">Group 1</span>
                       </div>
-                      <div className="w-[180px] text-body3m text-neutral-10">
-                        250
-                      </div>
-                      <div className="w-[290px] text-body3m text-neutral-10">
-                        X&gt;=1.3
-                      </div>
-                      <div className="flex-1 text-body3m text-neutral-10">
-                        Y&gt;=80%
-                      </div>
+                      <div className="w-[180px] text-body3m text-neutral-10">250</div>
+                      <div className="w-[290px] text-body3m text-neutral-10">X&gt;=1.3</div>
+                      <div className="flex-1 text-body3m text-neutral-10">Y&gt;=80%</div>
                     </div>
                     <div className="flex h-[42px] items-center gap-4">
-                      <div className="w-[80px] text-body3m text-neutral-10">
-                        2
-                      </div>
+                      <div className="w-[80px] text-body3m text-neutral-10">2</div>
                       <div className="w-[240px] flex items-center gap-2">
                         <div
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: "#3A11D8" }}
                         ></div>
-                        <span className="text-body3m text-neutral-10">
-                          Group 2
-                        </span>
+                        <span className="text-body3m text-neutral-10">Group 2</span>
                       </div>
-                      <div className="w-[180px] text-body3m text-neutral-10">
-                        150
-                      </div>
-                      <div className="w-[290px] text-body3m text-neutral-10">
-                        X&lt;1.3
-                      </div>
-                      <div className="flex-1 text-body3m text-neutral-10">
-                        Y&lt;80%
-                      </div>
+                      <div className="w-[180px] text-body3m text-neutral-10">150</div>
+                      <div className="w-[290px] text-body3m text-neutral-10">X&lt;1.3</div>
+                      <div className="flex-1 text-body3m text-neutral-10">Y&lt;80%</div>
                     </div>
                   </div>
                 </div>
