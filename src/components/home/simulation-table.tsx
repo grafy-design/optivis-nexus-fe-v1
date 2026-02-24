@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface SimulationTableProps {
@@ -25,6 +26,7 @@ const MOCK_UP_SINULATION_DATA = [
 
 export default function SimulationTable({ serviceId }: SimulationTableProps) {
   const [tableData] = useState(MOCK_UP_SINULATION_DATA);
+  const router = useRouter();
   const firstColumnTitle =
     serviceId === "4" || serviceId === "5" ? "Simulation name" : "Patient ID";
 
@@ -33,7 +35,10 @@ export default function SimulationTable({ serviceId }: SimulationTableProps) {
     simulationId: string
   ): void => {
     event.preventDefault();
-    console.log("Playing simulation:", simulationId);
+
+    if (serviceId === "5") {
+      router.push(`/tsi/patients-summary?simulationId=${simulationId}`);
+    }
   };
 
   return (
