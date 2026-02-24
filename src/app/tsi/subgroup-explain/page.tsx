@@ -6,57 +6,33 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { MultiRankingBarChart } from "@/components/charts/MultiRankingBarChart";
 import { SHAPSummaryPlotChart } from "@/components/charts/SHAPSummaryPlotChart";
 
-import { BASE_LINE_DRIVER_MOCK, EXPORTED_THERAPEUTIC_GAIN_MOCK } from "./mock";
-
-const FEATURE_TABLE_DATA = [
-  {
-    rank: 1,
-    featureName: "ADRECOG",
-    varianceReduction: 45.2,
-    relativeContribution: 100.0,
-    cutoff: 5.7,
-  },
-  {
-    rank: 2,
-    featureName: "ADDRECALL",
-    varianceReduction: 31.8,
-    relativeContribution: 70.3,
-    cutoff: 4.85,
-  },
-  {
-    rank: 3,
-    featureName: "CDJUD",
-    varianceReduction: 4.5,
-    relativeContribution: 9.9,
-    cutoff: 1.5,
-  },
-  {
-    rank: 4,
-    featureName: "ADCANCEL",
-    varianceReduction: 1.2,
-    relativeContribution: 2.6,
-    cutoff: 30,
-  },
-];
+import {
+  BASE_LINE_DRIVER_MOCK,
+  BASELINE_BIN_RATIO_MOCK,
+  BASELINE_DISTRIBUTION_MOCK,
+  BASELINE_SLOPE_MOCK,
+  EXPORTED_THERAPEUTIC_GAIN_MOCK,
+} from "./mock";
+import { BaselineDistributionHistogram } from "@/components/charts/BaselineDistributionHistogram";
+import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
+import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
+import { useRouter } from "next/navigation";
 
 const FEATURE_LIST = [
+  "ADAS Cog 11 BL",
+  "ADAS Cog 13 BL",
+  "ADORIENT",
   "ADRECOG",
-  "ADDRECALL",
   "CDJUD",
-  "ADCANCEL",
-  "ADNAMING",
-  "ADRECALL",
-  "DIAGNS_BL",
-  "TRIGLY",
-  "MMTOTSCORE_BL",
-  "BPSYSTPO",
+  "CDMEM",
+  "ADDRECALL",
+  "ADAS Cog 13",
+  "PTAU",
 ];
-
-const DEFAULT_SELECTED_FEATURE = "ADRECALL";
+const DEFAULT_SELECTED_FEATURE = "ADDRECALL";
 
 type TherapeuticGainMetric = "variance_reduction" | "relative_contribution";
 type TherapeuticGainRiskType = "Slow" | "Rapid";
-
 type TherapeuticGainItem = {
   rank: number;
   variance_reduction: number;
@@ -72,6 +48,17 @@ type MultiRankingBarItem = {
   label: string;
   value: number;
 };
+
+type BaselineSlopeGroup = {
+  points: { x: number; y: number }[];
+  regression?: { slope: number; intercept: number };
+};
+
+type BaselineSlopeFeature = Record<string, BaselineSlopeGroup>;
+
+type BaselineSlopeMock = Record<string, BaselineSlopeFeature>;
+type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
+type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
 
 const convertTherapeuticGainToMultiRankingData = (
   rows: TherapeuticGainItem[],
@@ -121,6 +108,31 @@ const EXPECTED_THERAPEUTIC_GAIN_CHART_DATA = convertTherapeuticGainToMultiRankin
  */
 export default function TSISubgroupExplainPage() {
   const [selectedFeature, setSelectedFeature] = useState(DEFAULT_SELECTED_FEATURE);
+  const router = useRouter();
+  const baselineDistributionData =
+    BASELINE_DISTRIBUTION_MOCK[selectedFeature] ??
+    BASELINE_DISTRIBUTION_MOCK[DEFAULT_SELECTED_FEATURE] ??
+    BASELINE_DISTRIBUTION_MOCK.ADDRECALL ??
+    BASELINE_DISTRIBUTION_MOCK.ADRECOG ??
+    Object.values(BASELINE_DISTRIBUTION_MOCK)[0];
+  const baselineSlopeMock = BASELINE_SLOPE_MOCK as BaselineSlopeMock;
+  const baselineSlopeData =
+    baselineSlopeMock[selectedFeature] ??
+    baselineSlopeMock[DEFAULT_SELECTED_FEATURE] ??
+    baselineSlopeMock.ADDRECALL ??
+    baselineSlopeMock.ADRECOG ??
+    Object.values(baselineSlopeMock)[0];
+  const baselineBinRatioMock = BASELINE_BIN_RATIO_MOCK as BaselineBinRatioMock;
+  const baselineBinRatioData =
+    baselineBinRatioMock[selectedFeature] ??
+    baselineBinRatioMock[DEFAULT_SELECTED_FEATURE] ??
+    baselineBinRatioMock.ADDRECALL ??
+    baselineBinRatioMock.ADRECOG ??
+    Object.values(baselineBinRatioMock)[0];
+
+  const handleClickViewReport = () => {
+    router.push(`/tsi/${selectedFeature}/report`);
+  };
 
   return (
     <AppLayout headerType="tsi">
@@ -322,7 +334,14 @@ export default function TSISubgroupExplainPage() {
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
                     <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
-                      <span className="text-neutral-50 text-xs">Chart placeholder3</span>
+                      <BaselineDistributionHistogram
+                        histogramData={
+                          baselineDistributionData ?? {
+                            bins: [],
+                            groups: {},
+                          }
+                        }
+                      />
                     </div>
                   </div>
 
@@ -332,7 +351,7 @@ export default function TSISubgroupExplainPage() {
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
                     <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
-                      <span className="text-neutral-50 text-xs">Chart placeholder4</span>
+                      <ScatterSlopeChart data={baselineSlopeData ?? {}} />
                     </div>
                   </div>
 
@@ -342,7 +361,7 @@ export default function TSISubgroupExplainPage() {
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
                     <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
-                      <span className="text-neutral-50 text-xs">Chart placeholder5</span>
+                      <SubgroupProportionChart data={baselineBinRatioData ?? []} />
                     </div>
                   </div>
                 </div>
@@ -403,6 +422,7 @@ export default function TSISubgroupExplainPage() {
             className="inline-flex items-center justify-center w-[179px] h-[48px] rounded-[100px] text-body3 text-neutral-30 cursor-pointer hover:opacity-90 transition-opacity border-0 shrink-0 bg-no-repeat bg-center bg-cover"
             style={{ backgroundImage: "url(/assets/tsi/btn.png)" }}
             aria-label="View Report"
+            onClick={handleClickViewReport}
           >
             View Report
           </button>

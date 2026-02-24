@@ -1,12 +1,21 @@
 "use client";
 
 import { AppLayout } from "@/components/layout/AppLayout";
+import { use } from "react";
 
 /**
  * TSI (Target Subgroup Identification) Report 페이지.
  * Step 6: 리포트 페이지
  */
-export default function TSIReportPage() {
+
+type TSIReportPageProps = {
+  params: Promise<{
+    feature: string;
+  }>;
+};
+
+export default function TSIReportPage({ params }: TSIReportPageProps) {
+  const { feature } = use(params);
   return (
     <AppLayout headerType="tsi">
       <div className="w-full flex flex-col items-center min-w-0">
@@ -15,11 +24,9 @@ export default function TSIReportPage() {
           <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
             <div className="flex flex-col gap-1 flex-shrink-0 items-start">
               <div className="text-title text-neutral-5 text-left mb-2">
-                Subgroup Analysis Report
+                Subgroup Analysis Report : {feature}
               </div>
-              <p className="text-body2m text-neutral-50 text-left">
-                Analysis Summary
-              </p>
+              <p className="text-body2m text-neutral-50 text-left">Analysis Summary</p>
             </div>
           </div>
         </div>
@@ -59,12 +66,11 @@ export default function TSIReportPage() {
                       Executive Summary & Stratification Strategy
                     </h4>
                     <p className="text-body3m text-white/90 mb-6 flex-shrink-0 mt-auto">
-                      Patients were initially stratified based on the model's
-                      predicted progression effect into three distinct
-                      categories: Rapid (Top 20%), Moderate (20% ~ 70%), and
-                      Slow (Bottom 30%). To enhance clinical interpretability,
-                      we utilized the CART algorithm to translate complex model
-                      parameters into simplified, feature-based decision rules.
+                      Patients were initially stratified based on the model's predicted progression
+                      effect into three distinct categories: Rapid (Top 20%), Moderate (20% ~ 70%),
+                      and Slow (Bottom 30%). To enhance clinical interpretability, we utilized the
+                      CART algorithm to translate complex model parameters into simplified,
+                      feature-based decision rules.
                     </p>
                     {/* 차트 홀더 영역: 타이틀, 차트, 표 포함 */}
                     <div className="w-full h-[656px] bg-white rounded-[16px] flex flex-col p-5 mt-auto flex-shrink-0">
@@ -73,15 +79,11 @@ export default function TSIReportPage() {
                       </h4>
                       {/* 차트 영역 */}
                       <div className="w-full flex-1 min-h-0 mb-4 flex items-center justify-center">
-                        <span className="text-body4 text-neutral-50">
-                          Chart placeholder
-                        </span>
+                        <span className="text-body4 text-neutral-50">Chart placeholder</span>
                       </div>
                       {/* 표/범례 영역 */}
                       <div className="w-full flex-shrink-0">
-                        <span className="text-body4 text-neutral-50">
-                          Table/Legend placeholder
-                        </span>
+                        <span className="text-body4 text-neutral-50">Table/Legend placeholder</span>
                       </div>
                     </div>
                   </div>
@@ -98,13 +100,11 @@ export default function TSIReportPage() {
                       Feature-Based Decision Rules (CART-derived)
                     </h4>
                     <p className="text-body3m text-white/90 mb-6 flex-shrink-0 mt-auto">
-                      The variance decomposition analysis identified key
-                      baseline drivers and their respective clinical thresholds
-                      that define each subgroup: High Risk (Rapid): Patients
-                      meeting both ADRECOG {">"} 5.7 and ADRECALL {">"} 4.85.
-                      Low Risk (Slow): Patients meeting both ADRECOG {"\u2264"}{" "}
-                      5.7 and CDJUD {"\u2264"} 1.5. Moderate: All patients not
-                      meeting the specific High or Low-risk criteria.
+                      The variance decomposition analysis identified key baseline drivers and their
+                      respective clinical thresholds that define each subgroup: High Risk (Rapid):
+                      Patients meeting both ADRECOG {">"} 5.7 and ADRECALL {">"} 4.85. Low Risk
+                      (Slow): Patients meeting both ADRECOG {"\u2264"} 5.7 and CDJUD {"\u2264"} 1.5.
+                      Moderate: All patients not meeting the specific High or Low-risk criteria.
                     </p>
                     {/* 차트 홀더 영역: 타이틀, 차트, 표 포함 */}
                     <div className="w-full h-[656px] bg-white rounded-[16px] flex flex-col p-5 mt-auto flex-shrink-0">
@@ -113,15 +113,11 @@ export default function TSIReportPage() {
                       </h4>
                       {/* 차트 영역 */}
                       <div className="w-full flex-1 min-h-0 mb-4 flex items-center justify-center">
-                        <span className="text-body4 text-neutral-50">
-                          Chart placeholder
-                        </span>
+                        <span className="text-body4 text-neutral-50">Chart placeholder</span>
                       </div>
                       {/* 표/범례 영역 */}
                       <div className="w-full flex-shrink-0">
-                        <span className="text-body4 text-neutral-50">
-                          Table/Legend placeholder
-                        </span>
+                        <span className="text-body4 text-neutral-50">Table/Legend placeholder</span>
                       </div>
                     </div>
                   </div>
@@ -143,14 +139,12 @@ export default function TSIReportPage() {
                       Prognostic Trajectory & Validation
                     </h4>
                     <p className="text-body3m text-neutral-40">
-                      The longitudinal trajectories for the feature-based
-                      subgroups show a high degree of consistency with the
-                      original model-based classifications, validating the
-                      reliability of these simplified rules. This rule-based
-                      approach captures 34.0% of the total variance (IV= 0.248),
-                      effectively classifying the accelerated cognitive decline
-                      (ADRAS-Cog observed in the High Risk group starting from
-                      Month 12.
+                      The longitudinal trajectories for the feature-based subgroups show a high
+                      degree of consistency with the original model-based classifications,
+                      validating the reliability of these simplified rules. This rule-based approach
+                      captures 34.0% of the total variance (IV= 0.248), effectively classifying the
+                      accelerated cognitive decline (ADRAS-Cog observed in the High Risk group
+                      starting from Month 12.
                     </p>
                   </div>
 
@@ -159,17 +153,13 @@ export default function TSIReportPage() {
                     {/* 첫 번째 차트 섹션 */}
                     <div className="flex flex-col items-start gap-[10px] w-[850px] h-[378px] p-[6px] flex-shrink-0">
                       <div className="w-full flex-1 bg-neutral-95 rounded-[16px] flex items-center justify-center">
-                        <span className="text-body4 text-neutral-50">
-                          Chart placeholder
-                        </span>
+                        <span className="text-body4 text-neutral-50">Chart placeholder</span>
                       </div>
                     </div>
                     {/* 두 번째 차트 섹션 */}
                     <div className="flex flex-col items-start gap-[10px] w-[850px] h-[378px] p-[6px] flex-shrink-0">
                       <div className="w-full flex-1 bg-neutral-95 rounded-[16px] flex items-center justify-center">
-                        <span className="text-body4 text-neutral-50">
-                          Chart placeholder
-                        </span>
+                        <span className="text-body4 text-neutral-50">Chart placeholder</span>
                       </div>
                     </div>
                   </div>
@@ -188,21 +178,17 @@ export default function TSIReportPage() {
                   {/* 왼쪽: 타이틀 영역 */}
                   <div className="flex flex-col items-start gap-[28px] w-[414px] h-[290px] flex-shrink-0">
                     <div className="flex flex-col items-start gap-[24px] w-full">
-                      <h3 className="text-h4 text-neutral-5">
-                        Risk & Response Assessment
-                      </h3>
+                      <h3 className="text-h4 text-neutral-5">Risk & Response Assessment</h3>
                       <p className="text-body3m text-neutral-40">
                         Risk & Response Assessment (rHTE & Safety)
-                        <br /> Drug Response (rHTE): Forest plot analysis
-                        indicates that the High Risk (Rapid) subgroup exhibits
-                        the most pronounced therapeutic benefit compared to the
-                        placebo.
+                        <br /> Drug Response (rHTE): Forest plot analysis indicates that the High
+                        Risk (Rapid) subgroup exhibits the most pronounced therapeutic benefit
+                        compared to the placebo.
                         <br />
                         <br />
-                        Safety Assessment: Consistent safety profiles were
-                        observed across all subgroups, supporting the clinical
-                        utility of this classification system for targeted
-                        patient management.
+                        Safety Assessment: Consistent safety profiles were observed across all
+                        subgroups, supporting the clinical utility of this classification system for
+                        targeted patient management.
                       </p>
                     </div>
                   </div>
@@ -238,10 +224,7 @@ export default function TSIReportPage() {
                       {/* 컬럼 2: Disease progression */}
                       <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
                         {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div
-                          className="h-[22px] flex-shrink-0 mb-1"
-                          aria-hidden
-                        />
+                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
                         {/* 눈금선 */}
                         <div
                           className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
@@ -262,9 +245,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -274,9 +255,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -286,9 +265,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -296,10 +273,7 @@ export default function TSIReportPage() {
                       {/* 컬럼 3: Drug response */}
                       <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
                         {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div
-                          className="h-[22px] flex-shrink-0 mb-1"
-                          aria-hidden
-                        />
+                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
                         {/* 눈금선 */}
                         <div
                           className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
@@ -320,9 +294,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -332,9 +304,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -344,9 +314,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -354,10 +322,7 @@ export default function TSIReportPage() {
                       {/* 컬럼 4: Safety */}
                       <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
                         {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div
-                          className="h-[22px] flex-shrink-0 mb-1"
-                          aria-hidden
-                        />
+                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
                         {/* 눈금선 */}
                         <div
                           className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
@@ -378,9 +343,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -390,9 +353,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -402,9 +363,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -440,10 +399,7 @@ export default function TSIReportPage() {
                       {/* 컬럼 2: Disease progression */}
                       <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
                         {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div
-                          className="h-[22px] flex-shrink-0 mb-1"
-                          aria-hidden
-                        />
+                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
                         {/* 눈금선 */}
                         <div
                           className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
@@ -464,9 +420,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -476,9 +430,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -488,9 +440,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -498,10 +448,7 @@ export default function TSIReportPage() {
                       {/* 컬럼 3: Drug response */}
                       <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
                         {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div
-                          className="h-[22px] flex-shrink-0 mb-1"
-                          aria-hidden
-                        />
+                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
                         {/* 눈금선 */}
                         <div
                           className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
@@ -522,9 +469,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -534,9 +479,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -546,9 +489,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -556,10 +497,7 @@ export default function TSIReportPage() {
                       {/* 컬럼 4: Safety */}
                       <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
                         {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div
-                          className="h-[22px] flex-shrink-0 mb-1"
-                          aria-hidden
-                        />
+                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
                         {/* 눈금선 */}
                         <div
                           className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
@@ -580,9 +518,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -592,9 +528,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>
@@ -604,9 +538,7 @@ export default function TSIReportPage() {
                             style={{ minHeight: 8 }}
                           >
                             <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">
-                                Chart
-                              </span>
+                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
                             </div>
                           </div>
                         </div>

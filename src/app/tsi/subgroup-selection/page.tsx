@@ -176,7 +176,7 @@ export default function TSISubgroupSelectionPage() {
 
                         return (
                           <div
-                            key={set.set_name}
+                            key={`${set.set_name}_${index}`}
                             className="flex border-b border-neutral-80 last:border-b-0 min-h-0"
                           >
                             {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
