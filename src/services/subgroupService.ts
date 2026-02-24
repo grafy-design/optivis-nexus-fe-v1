@@ -227,3 +227,65 @@ export const getSubgroupSummaryList = async (
     throw new Error("Subgroup Summary List 조회에 실패했습니다.");
   }
 };
+
+
+
+
+type HTTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+const fetcher = async (url: string, method: HTTTPMethod, errorMsg?:string) => {
+    try {
+    const response = await fetch(
+      `${API_BASE_URL}/${url}`,
+      {
+        method: method,
+        headers: {
+          accept: "application/json",
+        },
+        // CORS 문제 해결을 위한 옵션
+        mode: "cors",
+        credentials: "omit",
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      // API 응답 오류
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      // 네트워크 에러 상세 정보
+      if (
+        error.message.includes("Failed to fetch") ||
+        error.name === "TypeError"
+      ) {
+        // 네트워크 에러 상세
+        throw new Error(
+          `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
+            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
+        );
+      }
+
+      // Subgroup Summary List API 호출 실패
+      throw error;
+    }
+
+    // Subgroup Summary List API 호출 실패
+    throw new Error(errorMsg);
+  }
+  
+}
+
+export const getExplainList = async (taskId: string,subgroupId: string) => {
+  return await fetcher(`api/nexus/subgroup/explain/list/?task_id=${encodeURIComponent(taskId)}&subgroup_id=${encodeURIComponent(subgroupId)}`, "GET", "Subgroup Explain List 조회에 실패했습니다.");
+}
+
+export const getFeatureList = async (diseaseId : string,schemaName : string,tableName : string ) => {
+  return await fetcher(`api/nexus/subgroup/feature/list/?disease_id=${encodeURIComponent(diseaseId)}&schema_name=${encodeURIComponent(schemaName)}&table_name=${encodeURIComponent(tableName)}`, "GET", "Subgroup Feature List 조회에 실패했습니다.");
+}

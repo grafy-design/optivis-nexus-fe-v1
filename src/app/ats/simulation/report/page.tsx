@@ -1,27 +1,25 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
-import { useSimulationStore } from "@/store/simulationStore";
-import { useProcessedStudyData } from "@/hooks/useProcessedStudyData";
+import { SingleBarChart } from "@/components/charts/SingleBarChart";
+import { Loading } from "@/components/common/Loading";
 import { AppLayout } from "@/components/layout/AppLayout";
 import ArrowIcon from "@/components/ui/arrow-icon";
-import { ComparisonBarChart } from "@/components/charts/ComparisonBarChart";
-import { SingleBarChart } from "@/components/charts/SingleBarChart";
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import Button from "@/components/ui/button";
+import { downloadReportFile } from "@/services/studyService";
+import { useSimulationStore } from "@/store/simulationStore";
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import {
   Step1TypeISafetyChart,
-  Step2VarianceDeclineChart,
   Step2BoxplotChart,
+  Step2VarianceDeclineChart,
   Step3AbsolutePerformanceChart,
   Step3PerformanceGainChart,
   Step4DecisionStabilityChart,
 } from "./charts";
-import { toPng } from "html-to-image";
-import jsPDF from "jspdf";
-import { downloadReportFile } from "@/services/studyService";
-import { Loading } from "@/components/common/Loading";
 
 // Step 카드 컴포넌트
 interface StepCardProps {

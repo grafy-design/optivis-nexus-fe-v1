@@ -1,34 +1,20 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import Image from "next/image";
-import Gauge from "@/components/ui/gauge";
-import Select from "@/components/ui/select";
-import Slider from "@/components/ui/slider";
-import InfoIcon from "@/components/ui/info-icon";
-import ArrowIcon from "@/components/ui/arrow-icon";
-import FullscreenIcon from "@/components/ui/fullscreen-icon";
-import Button from "@/components/ui/button";
-import SimpleBar from "simplebar-react";
-import "simplebar-react/dist/simplebar.min.css";
-import {
-  callMLStudyDesign,
-  type StudyParameters,
-  type PrimaryEndpointData,
-  type SecondaryEndpointData,
-} from "@/services/studyService";
-import { useProcessedStudyData } from "@/hooks/useProcessedStudyData";
-import { useSimulationStore } from "@/store/simulationStore";
-import { SmallerSampleChart } from "@/components/charts/SmallerSampleChart";
-import { SmallerNToScreenChart } from "@/components/charts/SmallerNToScreenChart";
-import { LowerCostChart } from "@/components/charts/LowerCostChart";
-import { FormulaTooltip } from "@/components/math/FormulaTooltip";
-import ReactECharts from "echarts-for-react";
-import { Loading } from "@/components/common/Loading";
 import { LeftPanel } from "@/components/ats/LeftPanel";
 import { RightPanel } from "@/components/ats/RightPanel";
+import { Loading } from "@/components/common/Loading";
+import { AppLayout } from "@/components/layout/AppLayout";
 import type { AddEndpointsSaveData } from "@/components/ui/add-endpoints-modal";
+import { useProcessedStudyData } from "@/hooks/useProcessedStudyData";
+import {
+  callMLStudyDesign,
+  type PrimaryEndpointData,
+  type SecondaryEndpointData,
+  type StudyParameters,
+} from "@/services/studyService";
+import { useSimulationStore } from "@/store/simulationStore";
+import { useMemo } from "react";
+import "simplebar-react/dist/simplebar.min.css";
 
 export default function SimulationPage() {
   // Zustand store에서 상태 가져오기

@@ -1,50 +1,88 @@
 "use client";
 
+import { useState } from "react";
+
 interface SimulationTableProps {
   serviceId?: string | null;
 }
 
+const MOCK_UP_SINULATION_DATA = [
+  {
+    simulation_name: "OPMD-001",
+    disease: "disease",
+    outcome: "outcome",
+    description: "description",
+    last_updated: "2024-06-01",
+  },
+  {
+    simulation_name: "OPMD-001",
+    disease: "disease",
+    outcome: "outcome",
+    description: "description",
+    last_updated: "2024-06-01",
+  },
+];
+
 export default function SimulationTable({ serviceId }: SimulationTableProps) {
-  // 서비스 ID에 따라 헤더 내용 결정
-  const getHeaderColumns = () => {
-    if (serviceId === "4" || serviceId === "5") {
-      // Adaptive Trial Simulation
-      return (
-        <>
-          <span className="w-[106px]">Simulation name</span>
-          <span className="w-[120px]">Disease</span>
-          <span className="w-[102px]">Outcome</span>
-          <span className="w-[206px]">Description</span>
-          <span className="w-[117px]">Last updated</span>
-        </>
-      );
-    } else {
-      // Drug Response Prediction Dashboard (기본값)
-      return (
-        <>
-          <span className="w-[106px]">Patient ID</span>
-          <span className="w-[120px]">Disease</span>
-          <span className="w-[102px]">Outcome</span>
-          <span className="w-[206px]">Description</span>
-          <span className="w-[117px]">Last updated</span>
-        </>
-      );
-    }
+  const [tableData] = useState(MOCK_UP_SINULATION_DATA);
+  const firstColumnTitle =
+    serviceId === "4" || serviceId === "5" ? "Simulation name" : "Patient ID";
+
+  const handlePlaySimulation = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    simulationId: string
+  ): void => {
+    event.preventDefault();
+    console.log("Playing simulation:", simulationId);
   };
 
   return (
-    <div className="flex flex-col w-full gap-[10px]">
-      {/* Table Header */}
-      <div className="rounded-[24px] px-10 h-[46px] bg-[#636364] flex items-center">
-        <div className="flex items-center gap-8 text-body5 text-white w-full">
-          {getHeaderColumns()}
-        </div>
-      </div>
+    <div className="w-full overflow-hidden rounded-[18px]">
+      <table className="w-full table-fixed border-separate border-spacing-y-[10px]">
+        <thead>
+          <tr className="h-[46px] bg-[#636364] text-body5 text-white">
+            <th className="rounded-l-[24px] px-6 text-left font-medium">{firstColumnTitle}</th>
+            <th className="px-6 text-left font-medium">Disease</th>
+            <th className="px-6 text-left font-medium">Outcome</th>
+            <th className="px-6 text-left font-medium">Description</th>
+            <th className=" px-6 text-left font-medium">Last updated</th>
+            <th className="rounded-r-[24px]"></th>
+          </tr>
+        </thead>
 
-      {/* Table Body */}
-      <div className="rounded-[18px] px-5 py-20 flex items-center justify-center bg-white min-h-[394px]">
-        <p className="text-body4 text-[#828993]">No saved simulations.</p>
-      </div>
+        <tbody className="bg-white">
+          {tableData.length === 0 ? (
+            <tr>
+              <td
+                colSpan={6}
+                className="min-h-[394px] px-5 py-20 text-center text-body4 text-[#828993]"
+              >
+                No saved simulations.
+              </td>
+            </tr>
+          ) : (
+            tableData.map((row, index) => {
+              return (
+                <tr key={index} className="text-body4 text-[#1b1b1b]">
+                  <td className="px-6 py-2">{row.simulation_name}</td>
+                  <td className="px-6 py-2">{row.disease}</td>
+                  <td className="px-6 py-2">{row.outcome}</td>
+                  <td className="px-6 py-2">{row.description}</td>
+                  <td className="px-6 py-2">{row.last_updated}</td>
+                  <td className="px-6 py-2">
+                    <button
+                      className="cursor-pointer"
+                      onClick={(event) => handlePlaySimulation(event, row.simulation_name)}
+                    >
+                      play
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
