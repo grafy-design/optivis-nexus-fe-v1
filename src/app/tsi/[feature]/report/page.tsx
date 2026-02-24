@@ -4,6 +4,17 @@ import {
   type ErrorBarGroup,
   type ErrorBarPoint,
 } from "@/components/charts/MultiLineWithErrorBar";
+import {
+  RiskResponseMatrixChartPanel,
+  StratificationComparisonChartPanel,
+  StratificationComparisonChartPanelAlt,
+  type ForestIntervalData,
+  type RiskMetricKey,
+  type RiskResponseRow,
+  type RiskResponseSet,
+  type VarianceBarsChartData,
+  type VarianceStackChartData,
+} from "./components/ReportChartPanels";
 import type {
   ReportRiskResponseAssessmentItem,
   ReportStratificationStrategyItem,
@@ -198,8 +209,47 @@ type DiseaseProgressionPanelProps = {
   rows: SubgroupLegendRow[];
 };
 
-const DECOMPOSITION_LEFT_TICKS = [0, 5, 10, 15, 20, 25, 30, 35];
-const WITHIN_GROUP_TICKS = [0, 10, 20, 30, 40, 50];
+const CHART_21_LEFT_STACK_DATA: VarianceStackChartData = {
+  within: 20,
+  explained: 10,
+  max: 35,
+  ticks: [0, 5, 10, 15, 20, 25, 30, 35],
+  vrLabel: "VR: 0.348 (95% CI: 0.27-0.44)",
+  withinColor: "#9C97D0",
+  explainedColor: "#26225B",
+};
+
+const CHART_21_RIGHT_BAR_DATA: VarianceBarsChartData = {
+  max: 50,
+  ticks: [0, 10, 20, 30, 40, 50],
+  threshold: 30,
+  bars: [
+    { label: "High Risk", value: 50, weightLabel: "w=37", color: "#26225B" },
+    { label: "Mid Risk", value: 30, weightLabel: "w=198", color: "#7A74AC" },
+    { label: "Low Risk", value: 13, weightLabel: "w=203", color: "#A39ED5" },
+  ],
+};
+
+const CHART_22_LEFT_BAR_DATA: VarianceBarsChartData = {
+  max: 50,
+  ticks: [0, 10, 20, 30, 40, 50],
+  threshold: 30,
+  bars: [
+    { label: "High Risk", value: 50, weightLabel: "w=37", color: "#4327E6" },
+    { label: "Mid Risk", value: 30, weightLabel: "w=198", color: "#EF6A00" },
+    { label: "Low Risk", value: 13, weightLabel: "w=203", color: "#26225B" },
+  ],
+};
+
+const CHART_22_RIGHT_STACK_DATA: VarianceStackChartData = {
+  within: 20,
+  explained: 10,
+  max: 50,
+  ticks: [0, 10, 20, 30, 40, 50],
+  vrLabel: "VR: 0.348 (95% CI: 0.27-0.44)",
+  withinColor: "#B7B7BC",
+  explainedColor: "#EF6A00",
+};
 
 function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelProps) {
   return (
@@ -288,402 +338,20 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
 }
 
 function StratificationComparisonChartMockPanel() {
-  const leftPlot = { left: 52, right: 500, top: 16, bottom: 220 };
-  const leftHeight = leftPlot.bottom - leftPlot.top;
-  const leftValueToY = (value: number) => leftPlot.bottom - (value / 35) * leftHeight;
-
-  const withinTop = leftValueToY(20);
-  const explainedTop = leftValueToY(30);
-  const barX = 58;
-  const barWidth = 434;
-
-  const rightPlot = { left: 36, right: 500, top: 16, bottom: 220 };
-  const rightHeight = rightPlot.bottom - rightPlot.top;
-  const rightValueToY = (value: number) => rightPlot.bottom - (value / 50) * rightHeight;
-
-  const highY = rightValueToY(50);
-  const midY = rightValueToY(30);
-  const lowY = rightValueToY(13);
-  const thresholdY = rightValueToY(30);
-
   return (
-    <div className="w-full h-full bg-[#ECECF1] rounded-[16px] p-4 flex flex-col">
-      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-        <div className="flex flex-col min-h-0">
-          <h4 className="text-h3 text-neutral-20">Variance decomposition</h4>
-          <div className="h-px bg-[#A9A8B2] mt-2 flex-shrink-0" />
-
-          <div className="flex-1 mt-2 min-h-0">
-            <svg
-              viewBox="0 0 520 240"
-              className="w-full h-full"
-              role="img"
-              aria-label="Variance decomposition"
-            >
-              <line
-                x1={leftPlot.left}
-                y1={leftPlot.top}
-                x2={leftPlot.left}
-                y2={leftPlot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-              <line
-                x1={leftPlot.left}
-                y1={leftPlot.bottom}
-                x2={leftPlot.right}
-                y2={leftPlot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-
-              {DECOMPOSITION_LEFT_TICKS.map((tick) => {
-                const y = leftValueToY(tick);
-                return (
-                  <g key={`left-tick-${tick}`}>
-                    <line
-                      x1={leftPlot.left - 4}
-                      y1={y}
-                      x2={leftPlot.left}
-                      y2={y}
-                      stroke="#6F6E76"
-                      strokeWidth="1"
-                    />
-                    <text x={leftPlot.left - 9} y={y + 4} textAnchor="end" fill="#4A4949" fontSize="12">
-                      {tick}
-                    </text>
-                  </g>
-                );
-              })}
-
-              <text
-                x={14}
-                y={(leftPlot.top + leftPlot.bottom) / 2}
-                textAnchor="middle"
-                fill="#1B1B1B"
-                fontSize="14"
-                transform={`rotate(-90, 14, ${(leftPlot.top + leftPlot.bottom) / 2})`}
-              >
-                CIWidth
-              </text>
-
-              <text x={leftPlot.left + (leftPlot.right - leftPlot.left) / 2} y={34} textAnchor="middle" fill="#1B1B1B" fontSize="12">
-                VR: 0.348 (95% CI: 0.27-0.44)
-              </text>
-
-              <rect
-                x={barX}
-                y={explainedTop}
-                width={barWidth}
-                height={leftPlot.bottom - explainedTop}
-                rx="10"
-                ry="10"
-                fill="#26225B"
-              />
-              <rect
-                x={barX}
-                y={withinTop}
-                width={barWidth}
-                height={leftPlot.bottom - withinTop}
-                rx="10"
-                ry="10"
-                fill="#9C97D0"
-              />
-            </svg>
-          </div>
-
-          <div className="mt-1 flex items-center justify-center gap-8 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="w-[48px] h-[14px] rounded-[5px] bg-[#9C97D0]" />
-              <span className="text-body2m text-neutral-20">Within</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-[48px] h-[14px] rounded-[5px] bg-[#26225B]" />
-              <span className="text-body2m text-neutral-20">Explained</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col min-h-0">
-          <h4 className="text-h3 text-neutral-20">Within-group variance</h4>
-          <div className="h-px bg-[#A9A8B2] mt-2 flex-shrink-0" />
-
-          <div className="flex-1 mt-2 min-h-0">
-            <svg
-              viewBox="0 0 520 240"
-              className="w-full h-full"
-              role="img"
-              aria-label="Within-group variance"
-            >
-              <line
-                x1={rightPlot.left}
-                y1={rightPlot.top}
-                x2={rightPlot.left}
-                y2={rightPlot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-              <line
-                x1={rightPlot.left}
-                y1={rightPlot.bottom}
-                x2={rightPlot.right}
-                y2={rightPlot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-
-              {WITHIN_GROUP_TICKS.map((tick) => {
-                const y = rightValueToY(tick);
-                return (
-                  <text key={`right-tick-${tick}`} x={rightPlot.left - 8} y={y + 4} textAnchor="end" fill="#4A4949" fontSize="12">
-                    {tick}
-                  </text>
-                );
-              })}
-
-              <line
-                x1={rightPlot.left}
-                y1={thresholdY}
-                x2={rightPlot.right}
-                y2={thresholdY}
-                stroke="#2C295A"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-
-              <rect x={126} y={highY} width={72} height={rightPlot.bottom - highY} rx="10" ry="10" fill="#26225B" />
-              <rect
-                x={228}
-                y={midY}
-                width={72}
-                height={rightPlot.bottom - midY}
-                rx="10"
-                ry="10"
-                fill="#7A74AC"
-                stroke="#8A47FF"
-                strokeWidth="4"
-              />
-              <rect x={330} y={lowY} width={72} height={rightPlot.bottom - lowY} rx="10" ry="10" fill="#A39ED5" />
-
-              <text x={162} y={196} textAnchor="middle" fill="#FFFFFF" fontSize="13">
-                w=37
-              </text>
-              <text x={264} y={196} textAnchor="middle" fill="#FFFFFF" fontSize="13">
-                w=198
-              </text>
-              <text x={366} y={196} textAnchor="middle" fill="#FFFFFF" fontSize="13">
-                w=203
-              </text>
-
-              <text x={162} y={236} textAnchor="middle" fill="#1B1B1B" fontSize="13">
-                High Risk
-              </text>
-              <text x={264} y={236} textAnchor="middle" fill="#1B1B1B" fontSize="13">
-                Mid Risk
-              </text>
-              <text x={366} y={236} textAnchor="middle" fill="#1B1B1B" fontSize="13">
-                Low Risk
-              </text>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
+    <StratificationComparisonChartPanel
+      leftStack={CHART_21_LEFT_STACK_DATA}
+      rightBars={CHART_21_RIGHT_BAR_DATA}
+    />
   );
 }
 
 function StratificationComparisonChartMockPanelAlt() {
-  const plot = { left: 36, right: 500, top: 16, bottom: 220 };
-  const plotHeight = plot.bottom - plot.top;
-  const valueToY = (value: number) => plot.bottom - (value / 50) * plotHeight;
-
-  const highY = valueToY(50);
-  const midY = valueToY(30);
-  const lowY = valueToY(13);
-  const thresholdY = valueToY(30);
-
-  const withinTop = valueToY(20);
-  const explainedTop = valueToY(30);
-
   return (
-    <div className="w-full h-full bg-[#ECECF1] rounded-[16px] p-4 flex flex-col">
-      <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
-        <div className="flex flex-col min-h-0">
-          <div className="text-body2m text-neutral-30">Separation evidence</div>
-          <h4 className="text-h3 text-neutral-20">Variance decomposition</h4>
-          <div className="h-px bg-[#A9A8B2] mt-2 flex-shrink-0" />
-
-          <div className="flex-1 mt-2 min-h-0">
-            <svg
-              viewBox="0 0 520 240"
-              className="w-full h-full"
-              role="img"
-              aria-label="Variance decomposition by subgroup"
-            >
-              <line
-                x1={plot.left}
-                y1={plot.top}
-                x2={plot.left}
-                y2={plot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-              <line
-                x1={plot.left}
-                y1={plot.bottom}
-                x2={plot.right}
-                y2={plot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-
-              {WITHIN_GROUP_TICKS.map((tick) => {
-                const y = valueToY(tick);
-                return (
-                  <text
-                    key={`alt-left-tick-${tick}`}
-                    x={plot.left - 8}
-                    y={y + 4}
-                    textAnchor="end"
-                    fill="#4A4949"
-                    fontSize="12"
-                  >
-                    {tick}
-                  </text>
-                );
-              })}
-
-              <line
-                x1={plot.left}
-                y1={thresholdY}
-                x2={plot.right}
-                y2={thresholdY}
-                stroke="#2C295A"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-
-              <rect x={126} y={highY} width={72} height={plot.bottom - highY} rx="10" ry="10" fill="#4327E6" />
-              <rect x={228} y={midY} width={72} height={plot.bottom - midY} rx="10" ry="10" fill="#EF6A00" />
-              <rect x={330} y={lowY} width={72} height={plot.bottom - lowY} rx="10" ry="10" fill="#26225B" />
-
-              <text x={162} y={196} textAnchor="middle" fill="#FFFFFF" fontSize="13">
-                w=37
-              </text>
-              <text x={264} y={196} textAnchor="middle" fill="#FFFFFF" fontSize="13">
-                w=198
-              </text>
-              <text x={366} y={196} textAnchor="middle" fill="#FFFFFF" fontSize="13">
-                w=203
-              </text>
-
-              <text x={162} y={236} textAnchor="middle" fill="#1B1B1B" fontSize="13">
-                High Risk
-              </text>
-              <text x={264} y={236} textAnchor="middle" fill="#1B1B1B" fontSize="13">
-                Mid Risk
-              </text>
-              <text x={366} y={236} textAnchor="middle" fill="#1B1B1B" fontSize="13">
-                Low Risk
-              </text>
-            </svg>
-          </div>
-        </div>
-
-        <div className="flex flex-col min-h-0">
-          <div className="text-body2m text-neutral-30">Separation evidence</div>
-          <h4 className="text-h3 text-neutral-20">Within-group variance by subgroup</h4>
-          <div className="h-px bg-[#A9A8B2] mt-2 flex-shrink-0" />
-
-          <div className="flex-1 mt-2 min-h-0">
-            <svg
-              viewBox="0 0 520 240"
-              className="w-full h-full"
-              role="img"
-              aria-label="Within-group variance decomposition"
-            >
-              <line
-                x1={plot.left}
-                y1={plot.top}
-                x2={plot.left}
-                y2={plot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-              <line
-                x1={plot.left}
-                y1={plot.bottom}
-                x2={plot.right}
-                y2={plot.bottom}
-                stroke="#6F6E76"
-                strokeWidth="1.5"
-              />
-
-              {WITHIN_GROUP_TICKS.map((tick) => {
-                const y = valueToY(tick);
-                return (
-                  <text
-                    key={`alt-right-tick-${tick}`}
-                    x={plot.left - 8}
-                    y={y + 4}
-                    textAnchor="end"
-                    fill="#4A4949"
-                    fontSize="12"
-                  >
-                    {tick}
-                  </text>
-                );
-              })}
-
-              <text
-                x={12}
-                y={(plot.top + plot.bottom) / 2}
-                textAnchor="middle"
-                fill="#1B1B1B"
-                fontSize="14"
-                transform={`rotate(-90, 12, ${(plot.top + plot.bottom) / 2})`}
-              >
-                CIWidth
-              </text>
-
-              <text x={272} y={92} textAnchor="middle" fill="#1B1B1B" fontSize="12">
-                VR: 0.348 (95% CI: 0.27-0.44)
-              </text>
-
-              <rect
-                x={44}
-                y={explainedTop}
-                width={456}
-                height={plot.bottom - explainedTop}
-                rx="10"
-                ry="10"
-                fill="#EF6A00"
-              />
-              <rect
-                x={44}
-                y={withinTop}
-                width={456}
-                height={plot.bottom - withinTop}
-                rx="10"
-                ry="10"
-                fill="#B7B7BC"
-              />
-            </svg>
-          </div>
-
-          <div className="mt-1 flex items-center justify-center gap-8 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="w-[48px] h-[14px] rounded-[5px] bg-[#B7B7BC]" />
-              <span className="text-body2m text-neutral-20">Within</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-[48px] h-[14px] rounded-[5px] bg-[#EF6A00]" />
-              <span className="text-body2m text-neutral-20">Explained</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <StratificationComparisonChartPanelAlt
+      leftBars={CHART_22_LEFT_BAR_DATA}
+      rightStack={CHART_22_RIGHT_STACK_DATA}
+    />
   );
 }
 
@@ -787,26 +455,6 @@ const RISK_METRICS = [
   { key: "drugResponse", label: "Drug response" },
   { key: "safety", label: "Safety" },
 ] as const;
-
-type RiskMetricKey = (typeof RISK_METRICS)[number]["key"];
-
-type ForestIntervalData = {
-  low: number;
-  mean: number;
-  high: number;
-  color: string;
-  dotColor?: string;
-};
-
-type RiskResponseRow = {
-  groupLabel: string;
-  metrics: Record<RiskMetricKey, ForestIntervalData>;
-};
-
-type RiskResponseSet = {
-  setName: string;
-  rows: RiskResponseRow[];
-};
 
 const mapRiskMetricKey = (
   item: ReportRiskResponseAssessmentItem
@@ -948,130 +596,6 @@ const RISK_RESPONSE_MOCK_SETS: RiskResponseSet[] = [
     ],
   },
 ];
-
-function ForestIntervalCell({ interval }: { interval: ForestIntervalData }) {
-  const width = Math.max(0, interval.high - interval.low);
-  return (
-    <div className="h-7 relative">
-      <span
-        className="absolute top-1/2 -translate-y-1/2 h-[3px]"
-        style={{
-          left: `${interval.low}%`,
-          width: `${width}%`,
-          backgroundColor: interval.color,
-        }}
-      />
-      <span
-        className="absolute top-1/2 -translate-y-1/2 w-[3px] h-[14px]"
-        style={{ left: `calc(${interval.low}% - 1px)`, backgroundColor: interval.color }}
-      />
-      <span
-        className="absolute top-1/2 -translate-y-1/2 w-[3px] h-[14px]"
-        style={{ left: `calc(${interval.high}% - 1px)`, backgroundColor: interval.color }}
-      />
-      <span
-        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full"
-        style={{
-          left: `${interval.mean}%`,
-          backgroundColor: interval.dotColor ?? interval.color,
-        }}
-      />
-    </div>
-  );
-}
-
-function RiskMetricAxis({ label }: { label: string }) {
-  return (
-    <div className="pt-0 pb-1 px-3">
-      <div className="relative h-3">
-        <div
-          className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-b"
-          style={{ borderColor: "#9A98A3" }}
-        />
-        <div className="absolute left-0 right-2 top-1/2 -translate-y-1/2 flex justify-between">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <span
-              key={`${label}-tick-${i}`}
-              className="w-px h-[6px]"
-              style={{ backgroundColor: "#9A98A3" }}
-            />
-          ))}
-        </div>
-        <span
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0"
-          style={{
-            borderTop: "4px solid transparent",
-            borderBottom: "4px solid transparent",
-            borderLeft: "6px solid #9A98A3",
-          }}
-        />
-      </div>
-      <div className="text-body4m text-neutral-30 mt-0.5 text-center">{label}</div>
-    </div>
-  );
-}
-
-function RiskResponseMatrixPanel({ sets }: { sets: RiskResponseSet[] }) {
-  return (
-    <div className="flex-1 min-w-0 rounded-[16px] bg-[#ECECF1] border border-[#E5E4EA] p-3">
-      <div className="w-full h-full flex flex-col min-h-0">
-        {sets.map((setData, setIdx) => (
-          <div
-            key={setData.setName}
-            className={`grid grid-cols-[120px_1fr_1fr_1fr] ${
-              setIdx === 0 ? "border-b border-[#BAB9C2]" : ""
-            }`}
-          >
-            <div className="py-1 pr-3 border-r border-[#BAB9C2]">
-              <div className="h-[24px] mb-1 flex items-center">
-                <span
-                  className="w-[120px] h-[24px] rounded-full flex items-center justify-center text-white text-body5m bg-[#292561]"
-                >
-                  {setData.setName}
-                </span>
-              </div>
-              {setData.rows.map((row) => (
-                <div
-                  key={`${setData.setName}-${row.groupLabel}`}
-                  className="h-7 flex items-center text-body1 text-neutral-20"
-                >
-                  {row.groupLabel}
-                </div>
-              ))}
-            </div>
-
-            {RISK_METRICS.map((metric, metricIdx) => (
-              <div
-                key={`${setData.setName}-${metric.key}`}
-                className={`py-1 px-3 ${metricIdx < 2 ? "border-r border-[#BAB9C2]" : ""}`}
-              >
-                <div className="h-[24px] mb-1" aria-hidden />
-                {setData.rows.map((row) => (
-                  <ForestIntervalCell
-                    key={`${setData.setName}-${metric.key}-${row.groupLabel}`}
-                    interval={row.metrics[metric.key]}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-
-        <div className="grid grid-cols-[120px_1fr_1fr_1fr] mt-auto">
-          <div className="border-r border-[#BAB9C2]" aria-hidden />
-          {RISK_METRICS.map((metric, metricIdx) => (
-            <div
-              key={`axis-${metric.key}`}
-              className={`${metricIdx < 2 ? "border-r border-[#BAB9C2]" : ""}`}
-            >
-              <RiskMetricAxis label={metric.label} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default async function TSIReportPage({ params }: TSIReportPageProps) {
   const { feature } = await params;
@@ -1257,7 +781,7 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
 
                   {/* 오른쪽: 포레스트 플롯 */}
                   <div className="flex-1 min-w-0 flex">
-                    <RiskResponseMatrixPanel sets={riskResponseSets} />
+                    <RiskResponseMatrixChartPanel sets={riskResponseSets} />
                   </div>
                 </div>
               </div>
