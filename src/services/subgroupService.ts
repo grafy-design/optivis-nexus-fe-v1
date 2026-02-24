@@ -172,3 +172,60 @@ export const getReportByFeature = async (
     "sdFDf"
   );
 };
+
+export const deleteSubgroupIdentification = async (taskId: string) => {
+  return await fetcher(
+    `api/nexus/subgroup/identification/delete/?task_id=${encodeURIComponent(taskId)}`,
+    "DELETE",
+    "Subgroup Identification Cutoff 삭제에 실패했습니다."
+  );
+};
+
+export const getIdentificationFeatureInfo = async (
+  taskId: string,
+  subgroupId?: string,
+  featureName?: string
+) => {
+  const query = new URLSearchParams({
+    task_id: taskId,
+    ...(subgroupId !== undefined ? { subgroup_id: subgroupId } : {}),
+    ...(featureName !== undefined ? { feature_name: featureName } : {}),
+  });
+
+  return await fetcher(
+    `api/nexus/subgroup/identification/feature/info/?${query.toString()}`,
+    "GET",
+    "Subgroup Identification Feature Info 조회에 실패했습니다."
+  );
+};
+
+export const getIdentificationSetInfo = async (
+  taskId: string,
+  subgroupId?: string,
+  setId?: string
+) => {
+  const query = new URLSearchParams({
+    task_id: taskId,
+    ...(subgroupId !== undefined ? { subgroup_id: subgroupId } : {}),
+    ...(setId !== undefined ? { set_id: setId } : {}),
+  });
+
+  return await fetcher(
+    `api/nexus/subgroup/identification/set/info/?${query.toString()}`,
+    "GET",
+    "Subgroup Identification Set Info 조회에 실패했습니다."
+  );
+};
+
+export const saveSubgroupIdentification = async (taskId: string, subgroupId?: string) => {
+  const query = new URLSearchParams({
+    task_id: taskId,
+    ...(subgroupId !== undefined ? { subgroup_id: subgroupId } : {}),
+  });
+
+  return await fetcher(
+    `api/nexus/subgroup/identification/save/?${query.toString()}`,
+    "PUT",
+    "Subgroup Identification Cutoff 저장에 실패했습니다."
+  );
+};

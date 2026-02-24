@@ -5,9 +5,16 @@ import type { EChartsOption } from "echarts";
 const gaussianKernel = (x: number): number => (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
 
 const kde = (data: number[], bandwidth: number, xValues: number[]): number[] => {
+  const effectiveBandwidth = bandwidth > 0 ? bandwidth : 1;
+
+  if (data.length === 0) {
+    return Array.from({ length: xValues.length }, () => 0);
+  }
+
   return xValues.map((x) => {
-    const sum = data.reduce((acc, val) => acc + gaussianKernel((x - val) / bandwidth), 0);
-    return sum / (data.length * bandwidth);
+    const sum = data.reduce((acc, val) => acc + gaussianKernel((x - val) / effectiveBandwidth), 0);
+    const density = sum / (data.length * effectiveBandwidth);
+    return Number.isFinite(density) ? density : 0;
   });
 };
 
