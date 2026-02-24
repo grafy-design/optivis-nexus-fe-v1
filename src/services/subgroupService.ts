@@ -1,5 +1,76 @@
 import { fetcher } from "@/lib/fetcher";
 
+// Report API 공통 항목 타입
+export interface ReportOverviewDescriptionItem {
+  title: string;
+  description: string;
+}
+
+export interface ReportStratificationStrategyItem {
+  feature_name: string;
+  group: string;
+  month: number;
+  mean: number;
+  ci_low: number;
+  ci_high: number;
+  n: number;
+  cutoff: string;
+}
+
+export interface ReportVarianceDecompositionItem {
+  group: string;
+  variance: number;
+  number: number;
+  vr: number;
+  ci: string;
+  eta_square: number;
+  omega: number;
+}
+
+export interface ReportWithinGroupVarianceItem {
+  group: string;
+  number: number;
+  variance: number;
+  classification: string; // "low" | "middle" | "high"
+  total_var: number;
+}
+
+export interface ReportRiskResponseAssessmentItem {
+  type: string; // "feature_based" | "model_based"
+  outcome: string; // "CDR-SB" | "rHTE" | "Safety"
+  group: string;
+  mean: number;
+  ci_low: number;
+  ci_high: number;
+  name: string; // "Disease Progression" | "Drug Response" | "Safety"
+}
+
+export interface ReportJsonData {
+  overview_description: ReportOverviewDescriptionItem[];
+  model_stratification_strategy: ReportStratificationStrategyItem[];
+  feature_stratification_strategy: ReportStratificationStrategyItem[];
+  model_variance_decomposition: ReportVarianceDecompositionItem[];
+  model_within_group_variance_by_subgroup: ReportWithinGroupVarianceItem[];
+  feature_variance_decomposition: ReportVarianceDecompositionItem[];
+  feature_within_group_variance_by_subgroup: ReportWithinGroupVarianceItem[];
+  risk_response_assessment: ReportRiskResponseAssessmentItem[];
+}
+
+export interface ReportByFeatureData {
+  subgroup_id: number;
+  set_name: string;
+  outcome: string;
+  month: number;
+  report_json: ReportJsonData;
+}
+
+export interface ReportByFeatureResponse {
+  status: string;
+  status_code: number;
+  message: string;
+  data: ReportByFeatureData;
+}
+
 // Baseline Characteristics 항목 타입
 export interface BaselineCharacteristicItem {
   group_name: string;
@@ -165,8 +236,8 @@ export const getReportByFeature = async (
   taskId: string,
   subgroupId: string,
   featureName: string
-) => {
-  return await fetcher(
+): Promise<ReportByFeatureResponse> => {
+  return await fetcher<ReportByFeatureResponse>(
     `api/nexus/subgroup/report/info/?task_id=${taskId}&subgroup_id=${subgroupId}&feature_name=${featureName}`,
     "GET",
     "sdFDf"

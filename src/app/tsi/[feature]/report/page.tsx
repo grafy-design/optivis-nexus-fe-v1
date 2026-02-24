@@ -1,6 +1,14 @@
 import { AppLayout } from "@/components/layout/AppLayout";
-import { MultiLineWithErrorBar, type ErrorBarGroup } from "@/components/charts/MultiLineWithErrorBar";
-import { getReportByFeature } from "@/services/subgroupService";
+import {
+  MultiLineWithErrorBar,
+  type ErrorBarGroup,
+  type ErrorBarPoint,
+} from "@/components/charts/MultiLineWithErrorBar";
+import type {
+  ReportRiskResponseAssessmentItem,
+  ReportStratificationStrategyItem,
+} from "@/services/subgroupService";
+import reportMockResponse from "./report.mock";
 
 /**
  * TSI (Target Subgroup Identification) Report 페이지.
@@ -120,6 +128,71 @@ const FEATURE_BASED_RULE_ROWS: SubgroupLegendRow[] = [
   },
 ];
 
+const REPORT_SET_TYPES = ["feature_based", "model_based"] as const;
+const REPORT_SET_TYPE_TO_NAME = {
+  feature_based: "Set 1",
+  model_based: "Set 2",
+} as const;
+const REPORT_SET_TYPE_TO_COLORS = {
+  feature_based: ["#3E26D9", "#EF6A00", "#2C295A"],
+  model_based: ["#4E4C84", "#7773AC", "#A5A1D9"],
+} as const;
+
+const getGroupOrder = <T extends { group: string }>(rows: T[]): string[] => {
+  return Array.from(new Set(rows.map((row) => row.group))).sort((a, b) => {
+    const aNum = Number(a.replace(/\D/g, ""));
+    const bNum = Number(b.replace(/\D/g, ""));
+    if (Number.isNaN(aNum) || Number.isNaN(bNum)) {
+      return a.localeCompare(b);
+    }
+    return aNum - bNum;
+  });
+};
+
+const mapStrategyToErrorBarGroup = (
+  strategyRows: ReportStratificationStrategyItem[],
+  fallback: ErrorBarGroup[]
+): ErrorBarGroup[] => {
+  if (strategyRows.length === 0) return fallback;
+
+  const groupOrder = getGroupOrder(strategyRows);
+  const grouped = new Map<string, ErrorBarPoint[]>();
+
+  strategyRows.forEach((row) => {
+    const error = Math.max(0, (row.ci_high - row.ci_low) / 2);
+    const points = grouped.get(row.group) ?? [];
+    points.push([row.month, row.mean, error]);
+    grouped.set(row.group, points);
+  });
+
+  const mapped = groupOrder.map((group) =>
+    (grouped.get(group) ?? []).sort((a, b) => a[0] - b[0])
+  );
+
+  return mapped.length > 0 ? mapped : fallback;
+};
+
+const mapLegendRowsWithCutoff = (
+  legendRows: SubgroupLegendRow[],
+  strategyRows: ReportStratificationStrategyItem[]
+): SubgroupLegendRow[] => {
+  if (strategyRows.length === 0) return legendRows;
+
+  const groupOrder = getGroupOrder(strategyRows);
+  const cutoffByGroup = new Map<string, string>();
+
+  strategyRows.forEach((row) => {
+    if (!cutoffByGroup.has(row.group)) {
+      cutoffByGroup.set(row.group, row.cutoff);
+    }
+  });
+
+  return legendRows.map((row, index) => ({
+    ...row,
+    cutoff: cutoffByGroup.get(groupOrder[index] ?? "") ?? row.cutoff,
+  }));
+};
+
 type DiseaseProgressionPanelProps = {
   chartData: ErrorBarGroup[];
   rows: SubgroupLegendRow[];
@@ -142,7 +215,7 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
           height={390}
           xAxis={{
             min: 0,
-            max: 27,
+            max: 24,
             interval: 3,
             splitLine: true,
             splitLineColor: "#CECDD6",
@@ -614,7 +687,15 @@ function StratificationComparisonChartMockPanelAlt() {
   );
 }
 
-function FeatureBasedDiseaseProgressionPanel() {
+type FeatureBasedDiseaseProgressionPanelProps = {
+  chartData: ErrorBarGroup[];
+  rows: SubgroupLegendRow[];
+};
+
+function FeatureBasedDiseaseProgressionPanel({
+  chartData,
+  rows,
+}: FeatureBasedDiseaseProgressionPanelProps) {
   return (
     <div className="w-full h-[656px] bg-[#ECECF1] rounded-[16px] flex flex-col p-5 mt-auto flex-shrink-0">
       <h4 className="text-h3 text-neutral-20 flex-shrink-0">Disease Progression by Subgroup</h4>
@@ -622,14 +703,14 @@ function FeatureBasedDiseaseProgressionPanel() {
 
       <div className="mt-3 flex-1 min-h-0">
         <MultiLineWithErrorBar
-          dataGroup={FEATURE_BASED_CHART_MOCK}
+          dataGroup={chartData}
           seriesLabels={FEATURE_BASED_RISK_SERIES_LABELS}
           colors={FEATURE_BASED_RISK_SERIES_COLORS}
           height={430}
           xAxis={{
             min: 0,
-            max: 28,
-            interval: 5,
+            max: 24,
+            interval: 3,
             splitLine: true,
             splitLineColor: "#CBCAD3",
             axisLineColor: "#CBCAD3",
@@ -681,7 +762,7 @@ function FeatureBasedDiseaseProgressionPanel() {
       </div>
 
       <div className="mt-2 border-t border-[#A9A8B2]">
-        {FEATURE_BASED_RULE_ROWS.map((row, index) => (
+        {rows.map((row, index) => (
           <div
             key={row.subgroupName}
             className={`grid grid-cols-[140px_180px_1fr] items-center h-[42px] ${
@@ -701,10 +782,322 @@ function FeatureBasedDiseaseProgressionPanel() {
   );
 }
 
+const RISK_METRICS = [
+  { key: "diseaseProgression", label: "Disease progression" },
+  { key: "drugResponse", label: "Drug response" },
+  { key: "safety", label: "Safety" },
+] as const;
+
+type RiskMetricKey = (typeof RISK_METRICS)[number]["key"];
+
+type ForestIntervalData = {
+  low: number;
+  mean: number;
+  high: number;
+  color: string;
+  dotColor?: string;
+};
+
+type RiskResponseRow = {
+  groupLabel: string;
+  metrics: Record<RiskMetricKey, ForestIntervalData>;
+};
+
+type RiskResponseSet = {
+  setName: string;
+  rows: RiskResponseRow[];
+};
+
+const mapRiskMetricKey = (
+  item: ReportRiskResponseAssessmentItem
+): RiskMetricKey | null => {
+  const outcome = item.outcome.toLowerCase();
+  if (outcome === "cdr-sb") return "diseaseProgression";
+  if (outcome === "rhte") return "drugResponse";
+  if (outcome === "safety") return "safety";
+  return null;
+};
+
+const normalizeToPercent = (value: number, min: number, max: number): number => {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || Math.abs(max - min) < 1e-9) {
+    return 50;
+  }
+  const scaled = 8 + ((value - min) / (max - min)) * 84;
+  return Math.min(96, Math.max(4, scaled));
+};
+
+const mapRiskResponseToSets = (
+  rows: ReportRiskResponseAssessmentItem[],
+  fallback: RiskResponseSet[]
+): RiskResponseSet[] => {
+  if (rows.length === 0) return fallback;
+
+  const domains: Record<RiskMetricKey, { min: number; max: number }> = {
+    diseaseProgression: { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY },
+    drugResponse: { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY },
+    safety: { min: Number.POSITIVE_INFINITY, max: Number.NEGATIVE_INFINITY },
+  };
+
+  rows.forEach((row) => {
+    const metricKey = mapRiskMetricKey(row);
+    if (!metricKey) return;
+    domains[metricKey].min = Math.min(domains[metricKey].min, row.ci_low);
+    domains[metricKey].max = Math.max(domains[metricKey].max, row.ci_high);
+  });
+
+  const sets = REPORT_SET_TYPES.flatMap((setType) => {
+    const setRows = rows.filter((row) => row.type === setType);
+    if (setRows.length === 0) return [];
+
+    const groupOrder = getGroupOrder(setRows);
+    const palette = REPORT_SET_TYPE_TO_COLORS[setType];
+
+    const mappedRows: RiskResponseRow[] = groupOrder.map((group, rowIndex) => {
+      const rowColor = palette[rowIndex] ?? palette[palette.length - 1];
+      const metrics = {} as Record<RiskMetricKey, ForestIntervalData>;
+
+      RISK_METRICS.forEach(({ key }) => {
+        const source = setRows.find((item) => item.group === group && mapRiskMetricKey(item) === key);
+        if (!source) {
+          metrics[key] = { low: 50, mean: 50, high: 50, color: rowColor };
+          return;
+        }
+        const domain = domains[key];
+        metrics[key] = {
+          low: normalizeToPercent(source.ci_low, domain.min, domain.max),
+          mean: normalizeToPercent(source.mean, domain.min, domain.max),
+          high: normalizeToPercent(source.ci_high, domain.min, domain.max),
+          color: rowColor,
+        };
+      });
+
+      return {
+        groupLabel: `Group ${rowIndex + 1}`,
+        metrics,
+      };
+    });
+
+    return [
+      {
+        setName: REPORT_SET_TYPE_TO_NAME[setType],
+        rows: mappedRows,
+      },
+    ];
+  });
+
+  return sets.length > 0 ? sets : fallback;
+};
+
+const RISK_RESPONSE_MOCK_SETS: RiskResponseSet[] = [
+  {
+    setName: "Set 1",
+    rows: [
+      {
+        groupLabel: "Group 1",
+        metrics: {
+          diseaseProgression: { low: 56, mean: 66, high: 76, color: "#3E26D9" },
+          drugResponse: { low: 14, mean: 50, high: 92, color: "#3E26D9" },
+          safety: { low: 44, mean: 72, high: 94, color: "#3E26D9" },
+        },
+      },
+      {
+        groupLabel: "Group 2",
+        metrics: {
+          diseaseProgression: { low: 30, mean: 42, high: 54, color: "#EF6A00" },
+          drugResponse: { low: 12, mean: 36, high: 58, color: "#EF6A00" },
+          safety: { low: 20, mean: 44, high: 72, color: "#EF6A00" },
+        },
+      },
+      {
+        groupLabel: "Group 3",
+        metrics: {
+          diseaseProgression: { low: 5, mean: 18, high: 31, color: "#2C295A", dotColor: "#F0A37A" },
+          drugResponse: { low: 3, mean: 30, high: 52, color: "#2C295A" },
+          safety: { low: 3, mean: 23, high: 36, color: "#2C295A" },
+        },
+      },
+    ],
+  },
+  {
+    setName: "Set 2",
+    rows: [
+      {
+        groupLabel: "Group 1",
+        metrics: {
+          diseaseProgression: { low: 55, mean: 65, high: 75, color: "#4E4C84" },
+          drugResponse: { low: 14, mean: 50, high: 92, color: "#4E4C84" },
+          safety: { low: 44, mean: 72, high: 94, color: "#4E4C84" },
+        },
+      },
+      {
+        groupLabel: "Group 2",
+        metrics: {
+          diseaseProgression: { low: 29, mean: 41, high: 53, color: "#7773AC" },
+          drugResponse: { low: 12, mean: 36, high: 58, color: "#7773AC" },
+          safety: { low: 20, mean: 44, high: 72, color: "#7773AC" },
+        },
+      },
+      {
+        groupLabel: "Group 3",
+        metrics: {
+          diseaseProgression: { low: 4, mean: 17, high: 30, color: "#A5A1D9" },
+          drugResponse: { low: 3, mean: 30, high: 52, color: "#A5A1D9" },
+          safety: { low: 3, mean: 23, high: 36, color: "#A5A1D9" },
+        },
+      },
+    ],
+  },
+];
+
+function ForestIntervalCell({ interval }: { interval: ForestIntervalData }) {
+  const width = Math.max(0, interval.high - interval.low);
+  return (
+    <div className="h-7 relative">
+      <span
+        className="absolute top-1/2 -translate-y-1/2 h-[3px]"
+        style={{
+          left: `${interval.low}%`,
+          width: `${width}%`,
+          backgroundColor: interval.color,
+        }}
+      />
+      <span
+        className="absolute top-1/2 -translate-y-1/2 w-[3px] h-[14px]"
+        style={{ left: `calc(${interval.low}% - 1px)`, backgroundColor: interval.color }}
+      />
+      <span
+        className="absolute top-1/2 -translate-y-1/2 w-[3px] h-[14px]"
+        style={{ left: `calc(${interval.high}% - 1px)`, backgroundColor: interval.color }}
+      />
+      <span
+        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-[14px] h-[14px] rounded-full"
+        style={{
+          left: `${interval.mean}%`,
+          backgroundColor: interval.dotColor ?? interval.color,
+        }}
+      />
+    </div>
+  );
+}
+
+function RiskMetricAxis({ label }: { label: string }) {
+  return (
+    <div className="pt-0 pb-1 px-3">
+      <div className="relative h-3">
+        <div
+          className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-b"
+          style={{ borderColor: "#9A98A3" }}
+        />
+        <div className="absolute left-0 right-2 top-1/2 -translate-y-1/2 flex justify-between">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span
+              key={`${label}-tick-${i}`}
+              className="w-px h-[6px]"
+              style={{ backgroundColor: "#9A98A3" }}
+            />
+          ))}
+        </div>
+        <span
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0"
+          style={{
+            borderTop: "4px solid transparent",
+            borderBottom: "4px solid transparent",
+            borderLeft: "6px solid #9A98A3",
+          }}
+        />
+      </div>
+      <div className="text-body4m text-neutral-30 mt-0.5 text-center">{label}</div>
+    </div>
+  );
+}
+
+function RiskResponseMatrixPanel({ sets }: { sets: RiskResponseSet[] }) {
+  return (
+    <div className="flex-1 min-w-0 rounded-[16px] bg-[#ECECF1] border border-[#E5E4EA] p-3">
+      <div className="w-full h-full flex flex-col min-h-0">
+        {sets.map((setData, setIdx) => (
+          <div
+            key={setData.setName}
+            className={`grid grid-cols-[120px_1fr_1fr_1fr] ${
+              setIdx === 0 ? "border-b border-[#BAB9C2]" : ""
+            }`}
+          >
+            <div className="py-1 pr-3 border-r border-[#BAB9C2]">
+              <div className="h-[24px] mb-1 flex items-center">
+                <span
+                  className="w-[120px] h-[24px] rounded-full flex items-center justify-center text-white text-body5m bg-[#292561]"
+                >
+                  {setData.setName}
+                </span>
+              </div>
+              {setData.rows.map((row) => (
+                <div
+                  key={`${setData.setName}-${row.groupLabel}`}
+                  className="h-7 flex items-center text-body1 text-neutral-20"
+                >
+                  {row.groupLabel}
+                </div>
+              ))}
+            </div>
+
+            {RISK_METRICS.map((metric, metricIdx) => (
+              <div
+                key={`${setData.setName}-${metric.key}`}
+                className={`py-1 px-3 ${metricIdx < 2 ? "border-r border-[#BAB9C2]" : ""}`}
+              >
+                <div className="h-[24px] mb-1" aria-hidden />
+                {setData.rows.map((row) => (
+                  <ForestIntervalCell
+                    key={`${setData.setName}-${metric.key}-${row.groupLabel}`}
+                    interval={row.metrics[metric.key]}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+
+        <div className="grid grid-cols-[120px_1fr_1fr_1fr] mt-auto">
+          <div className="border-r border-[#BAB9C2]" aria-hidden />
+          {RISK_METRICS.map((metric, metricIdx) => (
+            <div
+              key={`axis-${metric.key}`}
+              className={`${metricIdx < 2 ? "border-r border-[#BAB9C2]" : ""}`}
+            >
+              <RiskMetricAxis label={metric.label} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function TSIReportPage({ params }: TSIReportPageProps) {
   const { feature } = await params;
 
-  await getReportByFeature("1", "6", feature);
+  const reportJson = reportMockResponse.data.report_json;
+  const modelBasedChartData = mapStrategyToErrorBarGroup(
+    reportJson.model_stratification_strategy,
+    MODEL_BASED_CHART_MOCK
+  );
+  const featureBasedChartData = mapStrategyToErrorBarGroup(
+    reportJson.feature_stratification_strategy,
+    FEATURE_BASED_CHART_MOCK
+  );
+  const modelBasedRows = mapLegendRowsWithCutoff(
+    SUBGROUP_LEGEND_ROWS,
+    reportJson.model_stratification_strategy
+  );
+  const featureBasedRows = mapLegendRowsWithCutoff(
+    FEATURE_BASED_RULE_ROWS,
+    reportJson.feature_stratification_strategy
+  );
+  const riskResponseSets = mapRiskResponseToSets(
+    reportJson.risk_response_assessment,
+    RISK_RESPONSE_MOCK_SETS
+  );
+
   return (
     <AppLayout headerType="tsi">
       <div className="w-full flex flex-col items-center min-w-0">
@@ -762,8 +1155,8 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                       feature-based decision rules.
                     </p>
                     <DiseaseProgressionPanel
-                      chartData={MODEL_BASED_CHART_MOCK}
-                      rows={SUBGROUP_LEGEND_ROWS}
+                      chartData={modelBasedChartData}
+                      rows={modelBasedRows}
                     />
                   </div>
 
@@ -785,7 +1178,10 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                       (Slow): Patients meeting both ADRECOG {"\u2264"} 5.7 and CDJUD {"\u2264"} 1.5.
                       Moderate: All patients not meeting the specific High or Low-risk criteria.
                     </p>
-                    <FeatureBasedDiseaseProgressionPanel />
+                    <FeatureBasedDiseaseProgressionPanel
+                      chartData={featureBasedChartData}
+                      rows={featureBasedRows}
+                    />
                   </div>
                 </div>
               </div>
@@ -859,453 +1255,9 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                     </div>
                   </div>
 
-                  {/* 오른쪽: 테이블 구조 (Set 2개, 각 Set마다 4개 컬럼) */}
-                  <div className="flex-1 flex flex-col">
-                    {/* Set 1 */}
-                    <div className="flex border-b border-neutral-80 min-h-0">
-                      {/* 컬럼 1: Set 라벨 + Group 라벨 */}
-                      <div className="w-[112px] flex-shrink-0 flex flex-col border-r border-neutral-80 py-2 px-0">
-                        <div className="px-1 flex items-center gap-2 mb-1 h-[22px] flex-shrink-0">
-                          <span
-                            className="flex items-center justify-center gap-1 rounded-full bg-primary-10 text-body5m text-white shrink-0 box-border"
-                            style={{
-                              width: 72,
-                              height: 18,
-                              padding: "0 6px",
-                            }}
-                          >
-                            Set 1
-                          </span>
-                        </div>
-                        <div className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0">
-                          Group 1
-                        </div>
-                        <div className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0">
-                          Group 2
-                        </div>
-                        <div className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0">
-                          Group 3
-                        </div>
-                      </div>
-                      {/* 컬럼 2: Disease progression */}
-                      <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
-                        {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
-                        {/* 눈금선 */}
-                        <div
-                          className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                          aria-hidden
-                        >
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-px h-full flex-shrink-0"
-                              style={{ backgroundColor: "#F8F8FC" }}
-                            />
-                          ))}
-                        </div>
-                        {/* Group 차트들 */}
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* 컬럼 3: Drug response */}
-                      <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
-                        {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
-                        {/* 눈금선 */}
-                        <div
-                          className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                          aria-hidden
-                        >
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-px h-full flex-shrink-0"
-                              style={{ backgroundColor: "#F8F8FC" }}
-                            />
-                          ))}
-                        </div>
-                        {/* Group 차트들 */}
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* 컬럼 4: Safety */}
-                      <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
-                        {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
-                        {/* 눈금선 */}
-                        <div
-                          className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                          aria-hidden
-                        >
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-px h-full flex-shrink-0"
-                              style={{ backgroundColor: "#F8F8FC" }}
-                            />
-                          ))}
-                        </div>
-                        {/* Group 차트들 */}
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Set 2 */}
-                    <div className="flex border-b border-neutral-80 min-h-0">
-                      {/* 컬럼 1: Set 라벨 + Group 라벨 */}
-                      <div className="w-[112px] flex-shrink-0 flex flex-col border-r border-neutral-80 py-2 px-0">
-                        <div className="px-1 flex items-center gap-2 mb-1 h-[22px] flex-shrink-0">
-                          <span
-                            className="flex items-center justify-center gap-1 rounded-full bg-primary-10 text-body5m text-white shrink-0 box-border"
-                            style={{
-                              width: 72,
-                              height: 18,
-                              padding: "0 6px",
-                            }}
-                          >
-                            Set 2
-                          </span>
-                        </div>
-                        <div className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0">
-                          Group 1
-                        </div>
-                        <div className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0">
-                          Group 2
-                        </div>
-                        <div className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0">
-                          Group 3
-                        </div>
-                      </div>
-                      {/* 컬럼 2: Disease progression */}
-                      <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
-                        {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
-                        {/* 눈금선 */}
-                        <div
-                          className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                          aria-hidden
-                        >
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-px h-full flex-shrink-0"
-                              style={{ backgroundColor: "#F8F8FC" }}
-                            />
-                          ))}
-                        </div>
-                        {/* Group 차트들 */}
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* 컬럼 3: Drug response */}
-                      <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative border-r border-neutral-80">
-                        {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
-                        {/* 눈금선 */}
-                        <div
-                          className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                          aria-hidden
-                        >
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-px h-full flex-shrink-0"
-                              style={{ backgroundColor: "#F8F8FC" }}
-                            />
-                          ))}
-                        </div>
-                        {/* Group 차트들 */}
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* 컬럼 4: Safety */}
-                      <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
-                        {/* Set 행과 동일: h-[22px] + mb-1 */}
-                        <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
-                        {/* 눈금선 */}
-                        <div
-                          className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
-                          aria-hidden
-                        >
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <span
-                              key={i}
-                              className="w-px h-full flex-shrink-0"
-                              style={{ backgroundColor: "#F8F8FC" }}
-                            />
-                          ))}
-                        </div>
-                        {/* Group 차트들 */}
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center h-7 flex-shrink-0 relative z-[1]">
-                          <div
-                            className="relative w-full h-2 flex items-center"
-                            style={{ minHeight: 8 }}
-                          >
-                            <div className="w-full h-7 bg-neutral-95 rounded flex items-center justify-center">
-                              <span className="text-body4 text-neutral-50 text-xs">Chart</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* X축 행: 왼쪽 빈 칸 + 각 컬럼마다 축과 타이틀 */}
-                    <div className="flex flex-shrink-0">
-                      {/* 컬럼 1: 빈 공간 */}
-                      <div
-                        className="w-[112px] flex-shrink-0 border-r border-neutral-80"
-                        aria-hidden
-                      />
-                      {/* 컬럼 2: Disease progression */}
-                      <div className="flex-1 min-w-0 pt-0 pb-1 pl-2 flex flex-col border-r border-neutral-80">
-                        {/* 축선 + 짧은 눈금 */}
-                        <div className="w-full flex flex-col px-2 min-w-0">
-                          <div
-                            className="w-full border-b"
-                            style={{
-                              borderColor: "var(--neutral-60, #929090)",
-                            }}
-                            aria-hidden
-                          />
-                          <div className="w-full flex justify-between px-0 mt-0">
-                            {Array.from({ length: 9 }).map((_, i) => (
-                              <span
-                                key={i}
-                                className="w-px h-1 shrink-0"
-                                style={{
-                                  backgroundColor: "var(--neutral-60, #929090)",
-                                }}
-                                aria-hidden
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        {/* 타이틀 */}
-                        <div className="text-body4m text-neutral-30 mt-0.5 w-full text-center px-2">
-                          Disease progression
-                        </div>
-                      </div>
-                      {/* 컬럼 3: Drug response */}
-                      <div className="flex-1 min-w-0 pt-0 pb-1 pl-2 flex flex-col border-r border-neutral-80">
-                        {/* 축선 + 짧은 눈금 */}
-                        <div className="w-full flex flex-col px-2 min-w-0">
-                          <div
-                            className="w-full border-b"
-                            style={{
-                              borderColor: "var(--neutral-60, #929090)",
-                            }}
-                            aria-hidden
-                          />
-                          <div className="w-full flex justify-between px-0 mt-0">
-                            {Array.from({ length: 9 }).map((_, i) => (
-                              <span
-                                key={i}
-                                className="w-px h-1 shrink-0"
-                                style={{
-                                  backgroundColor: "var(--neutral-60, #929090)",
-                                }}
-                                aria-hidden
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        {/* 타이틀 */}
-                        <div className="text-body4m text-neutral-30 mt-0.5 w-full text-center px-2">
-                          Drug response
-                        </div>
-                      </div>
-                      {/* 컬럼 4: Safety */}
-                      <div className="flex-1 min-w-0 pt-0 pb-1 pl-2 flex flex-col">
-                        {/* 축선 + 짧은 눈금 */}
-                        <div className="w-full flex flex-col px-2 min-w-0">
-                          <div
-                            className="w-full border-b"
-                            style={{
-                              borderColor: "var(--neutral-60, #929090)",
-                            }}
-                            aria-hidden
-                          />
-                          <div className="w-full flex justify-between px-0 mt-0">
-                            {Array.from({ length: 9 }).map((_, i) => (
-                              <span
-                                key={i}
-                                className="w-px h-1 shrink-0"
-                                style={{
-                                  backgroundColor: "var(--neutral-60, #929090)",
-                                }}
-                                aria-hidden
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        {/* 타이틀 */}
-                        <div className="text-body4m text-neutral-30 mt-0.5 w-full text-center px-2">
-                          Safety
-                        </div>
-                      </div>
-                    </div>
+                  {/* 오른쪽: 포레스트 플롯 */}
+                  <div className="flex-1 min-w-0 flex">
+                    <RiskResponseMatrixPanel sets={riskResponseSets} />
                   </div>
                 </div>
               </div>
