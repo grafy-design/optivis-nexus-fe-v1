@@ -1,7 +1,5 @@
-"use client";
-
 import { AppLayout } from "@/components/layout/AppLayout";
-import { use } from "react";
+import { getReportByFeature } from "@/services/subgroupService";
 
 /**
  * TSI (Target Subgroup Identification) Report 페이지.
@@ -14,8 +12,12 @@ type TSIReportPageProps = {
   }>;
 };
 
-export default function TSIReportPage({ params }: TSIReportPageProps) {
-  const { feature } = use(params);
+export default async function TSIReportPage({ params }: TSIReportPageProps) {
+  const { feature } = await params;
+
+  const res = await getReportByFeature("1", "6", feature);
+
+  console.log(res);
   return (
     <AppLayout headerType="tsi">
       <div className="w-full flex flex-col items-center min-w-0">

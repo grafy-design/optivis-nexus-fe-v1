@@ -200,3 +200,15 @@ export const getFeatureList = async (diseaseId: string, schemaName: string, tabl
     "Subgroup Feature List 조회에 실패했습니다."
   );
 };
+
+export const getReportByFeature = async (
+  taskId: string,
+  subgroupId: string,
+  featureName: string
+) => {
+  return await fetcher(
+    `api/nexus/subgroup/report/info/?task_id=${taskId}&subgroup_id=${subgroupId}&feature_name=${featureName}`,
+    "GET",
+    "sdFDf"
+  );
+};
