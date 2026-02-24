@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://nexus.oprimed.com";
+import { fetcher } from "@/lib/fetcher";
 
 // API 응답 타입 정의
 export interface StudyResult {
@@ -275,118 +274,18 @@ export interface PlayAPIResponse {
 export const callMLStudyDesign = async (
   parameters: StudyParameters
 ): Promise<PlayAPIResponse> => {
-  // 타임아웃 설정 (10분 = 600초, 큰 응답 처리용)
-  const timeout = 600000; // 10분
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/nexus/learning/study/play/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-        body: JSON.stringify(parameters),
-        signal: controller.signal,
-        // CORS 문제 해결을 위한 옵션
-        mode: "cors",
-        credentials: "omit",
-      }
-    );
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      // API 응답 오류
-      throw new Error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-    }
-
-    // 큰 응답을 위한 스트리밍 처리
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error instanceof Error) {
-      if (error.name === "AbortError") {
-        // API 호출 타임아웃
-        throw new Error(
-          "요청 시간이 초과되었습니다. 응답이 너무 큽니다. 잠시 후 다시 시도해주세요."
-        );
-      }
-
-      // 네트워크 에러 상세 정보
-      if (
-        error.message.includes("Failed to fetch") ||
-        error.name === "TypeError"
-      ) {
-        // 네트워크 에러 상세
-        throw new Error(
-          `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
-            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
-        );
-      }
-
-      // ML Study Design API 호출 실패
-      throw error;
-    }
-
-    // ML Study Design API 호출 실패
-    throw new Error("API 호출에 실패했습니다.");
-  }
+  return await fetcher<PlayAPIResponse>("api/nexus/learning/study/play/", "POST", "ML Study Design API 호출에 실패했습니다.", {
+    body: parameters,
+    timeoutMs: 600_000,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 };
 
 // 파일 다운로드 API 호출
 export const downloadReportFile = async (taskId: string): Promise<Blob> => {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/nexus/files/download/${taskId}/`,
-      {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-        },
-        // CORS 문제 해결을 위한 옵션
-        mode: "cors",
-        credentials: "omit",
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      // 파일 다운로드 API 응답 오류
-      throw new Error(
-        `HTTP error! status: ${response.status}, message: ${errorText}`
-      );
-    }
-
-    const blob = await response.blob();
-    return blob;
-  } catch (error) {
-    if (error instanceof Error) {
-      // 네트워크 에러 상세 정보
-      if (
-        error.message.includes("Failed to fetch") ||
-        error.name === "TypeError"
-      ) {
-        // 네트워크 에러 상세
-        throw new Error(
-          `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
-            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
-        );
-      }
-
-      // 파일 다운로드 API 호출 실패
-      throw error;
-    }
-
-    // 파일 다운로드 API 호출 실패
-    throw new Error("파일 다운로드에 실패했습니다.");
-  }
+  return await fetcher<Blob>(`api/nexus/files/download/${taskId}/`, "GET", "파일 다운로드에 실패했습니다.", {
+    responseType: "blob",
+  });
 };

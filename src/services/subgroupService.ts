@@ -1,44 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://nexus.oprimed.com";
-
-type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-
-const fetcher = async <T>(url: string, method: HTTPMethod, errorMsg: string): Promise<T> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/${url}`, {
-      method,
-      headers: {
-        accept: "application/json",
-      },
-      // CORS 문제 해결을 위한 옵션
-      mode: "cors",
-      credentials: "omit",
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      // API 응답 오류
-      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data as T;
-  } catch (error) {
-    if (error instanceof Error) {
-      // 네트워크 에러 상세 정보
-      if (error.message.includes("Failed to fetch") || error.name === "TypeError") {
-        // 네트워크 에러 상세
-        throw new Error(
-          `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
-            `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
-        );
-      }
-
-      throw error;
-    }
-
-    throw new Error(errorMsg);
-  }
-};
+import { fetcher } from "@/lib/fetcher";
 
 // Baseline Characteristics 항목 타입
 export interface BaselineCharacteristicItem {
