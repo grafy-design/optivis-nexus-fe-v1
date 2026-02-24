@@ -4,25 +4,81 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 
-type ErrorBarPoint = [x: number, y: number, error: number];
+export type ErrorBarPoint = [x: number, y: number, error: number];
 
-type GroupType = ErrorBarPoint[];
+export type ErrorBarGroup = ErrorBarPoint[];
 
-interface MultiLineWithErrorBarProps {
-  dataGroup: GroupType[];
+interface AxisConfig {
+  min?: number;
+  max?: number;
+  interval?: number;
+  splitLine?: boolean;
+  splitLineColor?: string;
+  axisLineColor?: string;
+  labelColor?: string;
+  fontSize?: number;
+  name?: string;
+  nameColor?: string;
+  nameFontSize?: number;
+  nameGap?: number;
+  nameRotate?: number;
+  inverse?: boolean;
+  showLabels?: boolean;
 }
 
-export const MultiLineWithErrorBar = ({ dataGroup }: MultiLineWithErrorBarProps) => {
+interface MultiLineWithErrorBarProps {
+  dataGroup: ErrorBarGroup[];
+  seriesLabels?: string[];
+  colors?: string[];
+  height?: number;
+  xAxis?: AxisConfig;
+  yAxis?: AxisConfig;
+  guideLineX?: number | null;
+  guideLineColor?: string;
+  guideLineWidth?: number;
+  guideLineType?: "solid" | "dashed" | "dotted";
+}
+
+const DEFAULT_GROUP_COLORS = [
+  "#F07A22",
+  "#4B3DF2",
+  "#14A38B",
+  "#E04A7A",
+  "#8C62FF",
+  "#2F89FC",
+  "#F1B316",
+];
+
+export const MultiLineWithErrorBar = ({
+  dataGroup,
+  seriesLabels,
+  colors,
+  height = 220,
+  xAxis,
+  yAxis,
+  guideLineX = 12,
+  guideLineColor = "#D2D2DA",
+  guideLineWidth = 1,
+  guideLineType = "dashed",
+}: MultiLineWithErrorBarProps) => {
   const groups = dataGroup ?? [];
   const allPoints = groups.flat();
   const maxYWithError = allPoints.reduce((acc, [, y, error]) => Math.max(acc, y + error), 0);
-  const yAxisMax = maxYWithError > 0 ? Math.ceil(maxYWithError * 1.1) : 5;
-  const yInterval = Math.max(1, Math.ceil(yAxisMax / 4));
-  const groupColors = ["#F07A22", "#4B3DF2", "#14A38B", "#E04A7A", "#8C62FF", "#2F89FC", "#F1B316"];
+
+  const xAxisMin = xAxis?.min ?? 0;
+  const xAxisMax = xAxis?.max ?? 24;
+  const xAxisInterval = xAxis?.interval ?? 3;
+
+  const yAxisMin = yAxis?.min ?? 0;
+  const computedYMax = maxYWithError > 0 ? Math.ceil(maxYWithError * 1.1) : 5;
+  const yAxisMax = yAxis?.max ?? computedYMax;
+  const yAxisRange = Math.max(1, yAxisMax - yAxisMin);
+  const yInterval = yAxis?.interval ?? Math.max(1, Math.ceil(yAxisRange / 4));
+  const groupColors = colors && colors.length > 0 ? colors : DEFAULT_GROUP_COLORS;
 
   const dynamicSeries: NonNullable<EChartsOption["series"]> = groups.flatMap((group, index) => {
     const color = groupColors[index % groupColors.length];
-    const groupName = `Group ${index + 1}`;
+    const groupName = seriesLabels?.[index] ?? `Group ${index + 1}`;
 
     return [
       {
@@ -91,52 +147,84 @@ export const MultiLineWithErrorBar = ({ dataGroup }: MultiLineWithErrorBarProps)
     ];
   });
 
+  const guideSeries: NonNullable<EChartsOption["series"]> =
+    guideLineX === null
+      ? []
+      : [
+          {
+            name: "Center Guide",
+            type: "line",
+            data: [
+              [guideLineX, yAxisMin],
+              [guideLineX, yAxisMax],
+            ],
+            lineStyle: { color: guideLineColor, width: guideLineWidth, type: guideLineType },
+            symbol: "none",
+            silent: true,
+            tooltip: { show: false },
+            z: 0,
+          },
+        ];
+
   const option: EChartsOption = {
     tooltip: { trigger: "axis" },
     legend: { show: false },
     grid: { left: 36, right: 18, top: 10, bottom: 26, containLabel: true },
     xAxis: {
       type: "value",
-      min: 0,
-      max: 24,
-      interval: 3,
-      splitLine: { show: false },
-      axisLine: { show: true, lineStyle: { color: "#9A9AA3", width: 1 } },
+      min: xAxisMin,
+      max: xAxisMax,
+      interval: xAxisInterval,
+      splitLine: {
+        show: xAxis?.splitLine ?? false,
+        lineStyle: {
+          color: xAxis?.splitLineColor ?? "#D8D7DF",
+          width: 1,
+        },
+      },
+      axisLine: { show: true, lineStyle: { color: xAxis?.axisLineColor ?? "#9A9AA3", width: 1 } },
       axisTick: { show: false },
-      axisLabel: { color: "#8A8A94", fontSize: 9 },
+      axisLabel: { color: xAxis?.labelColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? 9 },
+      name: xAxis?.name,
+      nameLocation: "middle",
+      nameGap: xAxis?.nameGap ?? 24,
+      nameTextStyle: {
+        color: xAxis?.nameColor ?? "#8A8A94",
+        fontSize: xAxis?.nameFontSize ?? 9,
+      },
     },
     yAxis: {
       type: "value",
-      min: 0,
+      min: yAxisMin,
       max: yAxisMax,
       interval: yInterval,
-      splitLine: { show: false },
-      axisTick: { show: false },
-      axisLabel: { show: false },
-      axisLine: { show: true, lineStyle: { color: "#9A9AA3", width: 1 } },
-      name: "change from baseline score mean",
-      nameLocation: "middle",
-      nameGap: 28,
-      nameRotate: 90,
-      nameTextStyle: { color: "#8A8A94", fontSize: 8, align: "center" },
-    },
-    series: [
-      {
-        name: "Center Guide",
-        type: "line",
-        data: [
-          [12, 0],
-          [12, yAxisMax],
-        ],
-        lineStyle: { color: "#D2D2DA", width: 1, type: "dashed" },
-        symbol: "none",
-        silent: true,
-        tooltip: { show: false },
-        z: 0,
+      inverse: yAxis?.inverse ?? false,
+      splitLine: {
+        show: yAxis?.splitLine ?? false,
+        lineStyle: {
+          color: yAxis?.splitLineColor ?? "#D8D7DF",
+          width: 1,
+        },
       },
-      ...dynamicSeries,
-    ],
+      axisTick: { show: false },
+      axisLabel: {
+        show: yAxis?.showLabels ?? false,
+        color: yAxis?.labelColor ?? "#8A8A94",
+        fontSize: yAxis?.fontSize ?? 9,
+      },
+      axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? "#9A9AA3", width: 1 } },
+      name: yAxis?.name ?? "change from baseline score mean",
+      nameLocation: "middle",
+      nameGap: yAxis?.nameGap ?? 28,
+      nameRotate: yAxis?.nameRotate ?? 90,
+      nameTextStyle: {
+        color: yAxis?.nameColor ?? "#8A8A94",
+        fontSize: yAxis?.nameFontSize ?? 8,
+        align: "center",
+      },
+    },
+    series: [...guideSeries, ...dynamicSeries],
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 220 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height }} />;
 };
