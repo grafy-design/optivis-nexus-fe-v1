@@ -63,7 +63,7 @@ export default function TSISubgroupSelectionPage() {
   // 왼쪽 그래프용: subgroup_sets_summary 데이터
   const [summaryData, setSummaryData] = useState<SubgroupSetSummary[]>([]);
   // 오른쪽 테이블용: result_table 데이터
-  const [tableData, setTableData] = useState<ResultTableItem[]>([]);
+  const [resultTableData, setResultTableData] = useState<ResultTableItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,7 +80,7 @@ export default function TSISubgroupSelectionPage() {
         setSummaryData(response.data.subgroup_sets_summary);
 
         // 오른쪽 테이블용: result_table 저장
-        setTableData(response.data.result_table);
+        setResultTableData(response.data.result_table);
 
         // 첫 번째 Set을 기본 선택 (result_table의 no 사용)
         if (response.data.result_table.length > 0) {
@@ -110,7 +110,11 @@ export default function TSISubgroupSelectionPage() {
   };
 
   const handleSubgroupExplain = () => {
-    router.push("/tsi/subgroup-explain");
+    const selected = resultTableData.find((item) => item.no === parseInt(selectedSetNo));
+
+    if (selected) {
+      router.push(`/tsi/subgroup-explain?subgroupId=${selected.subgroup_id}`);
+    }
   };
 
   return (
@@ -170,7 +174,7 @@ export default function TSISubgroupSelectionPage() {
                     ) : (
                       summaryData.map((set, index) => {
                         // result_table에서 해당 set_name과 일치하는 항목 찾아서 no 가져오기
-                        const tableItem = tableData.find((t) => t.set_name === set.set_name);
+                        const tableItem = resultTableData.find((t) => t.set_name === set.set_name);
                         const setNo = tableItem
                           ? String(tableItem.no).padStart(2, "0")
                           : String(index + 1).padStart(2, "0");
@@ -435,14 +439,14 @@ export default function TSISubgroupSelectionPage() {
                                 <div className="text-body2 text-red-500">Error: {error}</div>
                               </td>
                             </tr>
-                          ) : tableData.length === 0 ? (
+                          ) : resultTableData.length === 0 ? (
                             <tr>
                               <td colSpan={12} className="h-[200px] text-center">
                                 <div className="text-body2 text-neutral-50">No data available</div>
                               </td>
                             </tr>
                           ) : (
-                            tableData.map((row) => {
+                            resultTableData.map((row) => {
                               const rowNo = String(row.no).padStart(2, "0");
                               const isSelected = selectedSetNo === rowNo;
                               const isExpanded = expandedRows.has(rowNo);
@@ -566,7 +570,11 @@ export default function TSISubgroupSelectionPage() {
                                           type="button"
                                           className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
                                           title="Refine Cutoffs"
-                                          onClick={() => router.push("/tsi/refine-cutoffs")}
+                                          onClick={() => {
+                                            router.push(
+                                              `/tsi/refine-cutoffs?subgroupId=${row.subgroup_id}&month=${row.month}`
+                                            );
+                                          }}
                                         >
                                           <svg
                                             width="24"

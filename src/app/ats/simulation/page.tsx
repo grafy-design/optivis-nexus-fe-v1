@@ -122,8 +122,7 @@ export default function SimulationPage() {
     }
 
     // 필터링된 데이터가 비어있으면 원본 데이터 사용
-    const optivisToSearch =
-      filteredData.optivis.length > 0 ? filteredData.optivis : optivisData;
+    const optivisToSearch = filteredData.optivis.length > 0 ? filteredData.optivis : optivisData;
 
     if (optivisToSearch.length === 0) return null;
 
@@ -132,14 +131,10 @@ export default function SimulationPage() {
 
     // OPTIVIS에서 power 값이 가장 가까운 포인트 찾기
     let optivisIndex = 0;
-    let minPowerDiff = Math.abs(
-      optivisToSearch[0].primary_endpoint_power - targetPower
-    );
+    let minPowerDiff = Math.abs(optivisToSearch[0].primary_endpoint_power - targetPower);
 
     for (let i = 1; i < optivisToSearch.length; i++) {
-      const powerDiff = Math.abs(
-        optivisToSearch[i].primary_endpoint_power - targetPower
-      );
+      const powerDiff = Math.abs(optivisToSearch[i].primary_endpoint_power - targetPower);
       if (powerDiff < minPowerDiff) {
         minPowerDiff = powerDiff;
         optivisIndex = i;
@@ -151,9 +146,7 @@ export default function SimulationPage() {
 
     // Traditional 데이터가 없으면 OPTIVIS만 반환
     const traditionalToSearch =
-      filteredData.traditional.length > 0
-        ? filteredData.traditional
-        : traditionalData;
+      filteredData.traditional.length > 0 ? filteredData.traditional : traditionalData;
 
     if (traditionalToSearch.length === 0) {
       return {
@@ -169,9 +162,7 @@ export default function SimulationPage() {
     );
 
     for (let i = 1; i < traditionalToSearch.length; i++) {
-      const powerDiff = Math.abs(
-        traditionalToSearch[i].primary_endpoint_power - targetPower
-      );
+      const powerDiff = Math.abs(traditionalToSearch[i].primary_endpoint_power - targetPower);
       if (powerDiff < minTraditionalPowerDiff) {
         minTraditionalPowerDiff = powerDiff;
         traditionalIndex = i;
@@ -201,9 +192,7 @@ export default function SimulationPage() {
           nToScreen: optivis.n_to_screen.toLocaleString(),
           sampleSize: optivis.total_patient.toLocaleString(),
           enrollment: optivis.enrollment.toFixed(2),
-          primaryEndpointPower: (optivis.primary_endpoint_power * 100).toFixed(
-            1
-          ),
+          primaryEndpointPower: (optivis.primary_endpoint_power * 100).toFixed(1),
           secondaryEndpointPower: optivis.secondary_endpoint_power
             ? (optivis.secondary_endpoint_power * 100).toFixed(1)
             : "0.0",
@@ -301,47 +290,37 @@ export default function SimulationPage() {
     // 음수가 나오면 안 되므로, 절댓값을 사용하고 화살표 방향을 조정
     // Smaller Sample: (Traditional total_patient - OPTIVIS total_patient) / Traditional total_patient * 100
     const smallerSamplePctRaw =
-      ((traditional.total_patient - optivis.total_patient) /
-        traditional.total_patient) *
-      100;
+      ((traditional.total_patient - optivis.total_patient) / traditional.total_patient) * 100;
     const smallerSamplePct = Math.abs(smallerSamplePctRaw).toFixed(0);
     const smallerSampleIsNegative = smallerSamplePctRaw < 0;
 
     // Smaller N to Screen: (Traditional enrollment - OPTIVIS enrollment) / Traditional enrollment * 100
     // 그래프가 enrollment를 X축으로 사용하므로 enrollment로 계산
     const smallerNToScreenPctRaw =
-      ((traditional.enrollment - optivis.enrollment) / traditional.enrollment) *
-      100;
+      ((traditional.enrollment - optivis.enrollment) / traditional.enrollment) * 100;
     const smallerNToScreenPct = Math.abs(smallerNToScreenPctRaw).toFixed(1);
     const smallerNToScreenIsNegative = smallerNToScreenPctRaw < 0;
 
     // Lower Cost: (Traditional cost - OPTIVIS cost) / Traditional cost * 100
-    const lowerCostPctRaw =
-      ((traditional.cost - optivis.cost) / traditional.cost) * 100;
+    const lowerCostPctRaw = ((traditional.cost - optivis.cost) / traditional.cost) * 100;
     const lowerCostPct = Math.abs(lowerCostPctRaw).toFixed(0);
     const lowerCostIsNegative = lowerCostPctRaw < 0;
 
     // Reduction 계산 (Reduction View용)
     // 음수가 나오면 안 되므로, 절댓값을 사용하고 화살표 방향을 조정
     const sampleSizeReductionRaw =
-      ((traditional.total_patient - optivis.total_patient) /
-        traditional.total_patient) *
-      100;
+      ((traditional.total_patient - optivis.total_patient) / traditional.total_patient) * 100;
     const sampleSizeReduction = Math.abs(sampleSizeReductionRaw).toFixed(0);
     const sampleSizeIsNegative = sampleSizeReductionRaw < 0;
 
     const enrollmentReductionRaw =
-      ((traditional.enrollment - optivis.enrollment) / traditional.enrollment) *
-      100;
+      ((traditional.enrollment - optivis.enrollment) / traditional.enrollment) * 100;
     const enrollmentReduction = Math.abs(enrollmentReductionRaw).toFixed(1);
     const enrollmentIsNegative = enrollmentReductionRaw < 0;
 
-    const costReductionRaw =
-      ((traditional.cost - optivis.cost) / traditional.cost) * 100;
+    const costReductionRaw = ((traditional.cost - optivis.cost) / traditional.cost) * 100;
     const costReduction = Math.abs(costReductionRaw).toFixed(0);
-    const costReductionValue = Math.abs(
-      (traditional.cost - optivis.cost) / 1000000
-    ).toFixed(1);
+    const costReductionValue = Math.abs((traditional.cost - optivis.cost) / 1000000).toFixed(1);
     const costIsNegative = costReductionRaw < 0;
 
     return {
@@ -391,9 +370,7 @@ export default function SimulationPage() {
         },
         primaryEndpointPower: {
           optivis: `${(optivis.primary_endpoint_power * 100).toFixed(1)}%`,
-          traditional: `${(traditional.primary_endpoint_power * 100).toFixed(
-            1
-          )}%`,
+          traditional: `${(traditional.primary_endpoint_power * 100).toFixed(1)}%`,
         },
         secondaryEndpointPower: {
           optivis: optivis.secondary_endpoint_power
@@ -433,19 +410,15 @@ export default function SimulationPage() {
           {
             label: "Power",
             change:
-              optivis.primary_endpoint_power >=
-              traditional.primary_endpoint_power
+              optivis.primary_endpoint_power >= traditional.primary_endpoint_power
                 ? "No loss"
                 : `${(
-                    (traditional.primary_endpoint_power -
-                      optivis.primary_endpoint_power) *
+                    (traditional.primary_endpoint_power - optivis.primary_endpoint_power) *
                     100
                   ).toFixed(1)}%`,
             optivis: Math.round(optivis.primary_endpoint_power * 100),
             traditional: Math.round(traditional.primary_endpoint_power * 100),
-            isNegative:
-              optivis.primary_endpoint_power <
-              traditional.primary_endpoint_power,
+            isNegative: optivis.primary_endpoint_power < traditional.primary_endpoint_power,
           },
           {
             label: "Enrollment Time",
@@ -468,8 +441,7 @@ export default function SimulationPage() {
 
   // 동적 데이터 사용 (슬라이더 값에 따라 업데이트됨)
   // API 데이터가 있을 때만 실제 데이터 사용
-  const simulationData =
-    apiData && dynamicSimulationData ? dynamicSimulationData : null;
+  const simulationData = apiData && dynamicSimulationData ? dynamicSimulationData : null;
 
   // API 데이터를 차트 형식으로 변환 (Traditional 데이터가 없어도 OPTIVIS만으로 그래프 그리기)
   const apiChartData = useMemo(() => {
@@ -490,17 +462,11 @@ export default function SimulationPage() {
     const chart2Optivis =
       chartData.chart2Data.optivis.length > 0
         ? chartData.chart2Data.optivis
-        : optivisData.map((item) => [
-            item.enrollment,
-            item.primary_endpoint_power,
-          ]);
+        : optivisData.map((item) => [item.enrollment, item.primary_endpoint_power]);
     const chart2Traditional =
       chartData.chart2Data.traditional.length > 0
         ? chartData.chart2Data.traditional
-        : traditionalData.map((item) => [
-            item.enrollment,
-            item.primary_endpoint_power,
-          ]);
+        : traditionalData.map((item) => [item.enrollment, item.primary_endpoint_power]);
 
     const chart3Optivis =
       chartData.chart3Data.optivis.length > 0
@@ -509,10 +475,7 @@ export default function SimulationPage() {
     const chart3Traditional =
       chartData.chart3Data.traditional.length > 0
         ? chartData.chart3Data.traditional
-        : traditionalData.map((item) => [
-            item.total_patient,
-            item.cost / 1000000,
-          ]);
+        : traditionalData.map((item) => [item.total_patient, item.cost / 1000000]);
 
     return {
       smallerSample: {
@@ -537,6 +500,7 @@ export default function SimulationPage() {
   const convertPrimaryEndpoint = (endpoint: string): string => {
     const endpointMap: Record<string, string> = {
       "ADAS Cog 11": "ADTOT70",
+      "ADAS Cog 13": "ADTOT85",
       MMSE: "MMTOTSCORE",
       CDR: "CDTOTSCORE",
     };
@@ -550,50 +514,39 @@ export default function SimulationPage() {
       setError(null);
 
       // 값들을 정확히 반올림 (부동소수점 오차 방지)
-      const roundedNominalPower = parseFloat(
-        (Math.round(nominalPower / 0.05) * 0.05).toFixed(2)
-      );
+      const roundedNominalPower = parseFloat((Math.round(nominalPower / 0.05) * 0.05).toFixed(2));
 
       // UI type(Continuous/Binary) -> API type(Continous/Binary). 넘겨준 값 또는 기본값 사용
-      const toApiType = (t: string | undefined) =>
-        t === "Binary" ? "Binary" : "Continous";
+      const toApiType = (t: string | undefined) => (t === "Binary" ? "Binary" : "Continous");
 
       // threshold: 단일 값. 없으면 null, 있으면 number (리스트 아님)
       const thresholdPayload = (v: number | null | undefined) =>
-        v != null && Number.isFinite(v)
-          ? { threshold: v }
-          : { threshold: null };
+        v != null && Number.isFinite(v) ? { threshold: v } : { threshold: null };
 
       // Primary 데이터 구성: multiplicity·type은 넘겨준 값(또는 기본값) 사용
-      const primaryDataList: PrimaryEndpointData[] = primaryEndpoints.map(
-        (ep, index) => {
-          const outcome = convertPrimaryEndpoint(ep.name);
-          const effectSize = parseFloat(
-            (Math.round(ep.effectSize * 10) / 10).toFixed(1)
-          );
-          return {
-            no: index + 1,
-            outcome: [outcome],
-            type: [toApiType(ep.type)],
-            effect_size: [effectSize],
-            ...thresholdPayload(ep.threshold),
-            target_power: [roundedNominalPower],
-            statistical_method: "ANCOVA",
-            multiplicity: multiplicity || "Bonferroni",
-            endpoint_objectives: ["Confirmatory"],
-            alpha: alpha,
-          };
-        }
-      );
+      const primaryDataList: PrimaryEndpointData[] = primaryEndpoints.map((ep, index) => {
+        const outcome = convertPrimaryEndpoint(ep.name);
+        const effectSize = parseFloat((Math.round(ep.effectSize * 10) / 10).toFixed(1));
+        return {
+          no: index + 1,
+          outcome: [outcome],
+          type: [toApiType(ep.type)],
+          effect_size: [effectSize],
+          ...thresholdPayload(ep.threshold),
+          target_power: [roundedNominalPower],
+          statistical_method: "ANCOVA",
+          multiplicity: multiplicity || "Bonferroni",
+          endpoint_objectives: ["Confirmatory"],
+          alpha: alpha,
+        };
+      });
 
       // Secondary 데이터 구성: multiplicity·type은 넘겨준 값(또는 기본값) 사용
       const secondaryDataList: SecondaryEndpointData[] =
         secondaryEndpoints.length > 0
           ? secondaryEndpoints.map((ep, index) => {
               const outcome = convertPrimaryEndpoint(ep.name);
-              const effectSize = parseFloat(
-                (Math.round(ep.effectSize * 10) / 10).toFixed(1)
-              );
+              const effectSize = parseFloat((Math.round(ep.effectSize * 10) / 10).toFixed(1));
               return {
                 no: index + 1,
                 outcome: [outcome],
@@ -610,15 +563,8 @@ export default function SimulationPage() {
           : [];
 
       // treatment_duration 검증 및 변환 (3의 배수, >0, 정수)
-      const durationValue = parseInt(
-        treatmentDuration.replace(" months", ""),
-        10
-      );
-      if (
-        isNaN(durationValue) ||
-        durationValue <= 0 ||
-        durationValue % 3 !== 0
-      ) {
+      const durationValue = parseInt(treatmentDuration.replace(" months", ""), 10);
+      if (isNaN(durationValue) || durationValue <= 0 || durationValue % 3 !== 0) {
         throw new Error("Treatment Duration은 3의 배수인 양수여야 합니다.");
       }
 
@@ -631,9 +577,7 @@ export default function SimulationPage() {
         hypothesis_type: hypothesisType,
         subpopulation: subpopulation,
         primary: primaryDataList, // Primary 여러 개 (엔드포인트별 1개)
-        ...(secondaryDataList.length > 0
-          ? { secondary: secondaryDataList }
-          : {}), // Secondary 여러 개 (엔드포인트별 1개)
+        ...(secondaryDataList.length > 0 ? { secondary: secondaryDataList } : {}), // Secondary 여러 개 (엔드포인트별 1개)
       };
 
       const response = await callMLStudyDesign(parameters);
@@ -647,21 +591,17 @@ export default function SimulationPage() {
       }
 
       const manageResult = response.data?.table_results?.manage_result as any;
-      const sampleSizeEvaluation =
-        response.data?.table_results?.sample_size_evaluation;
+      const sampleSizeEvaluation = response.data?.table_results?.sample_size_evaluation;
       const trialDesignConditionsSummary =
         response.data?.table_results?.result_trialdesignconditionsummary;
       const resultTypeSafety = response.data?.table_results?.result_type_safety;
-      const resultVarianceDecline =
-        response.data?.table_results?.result_variancedecline;
+      const resultVarianceDecline = response.data?.table_results?.result_variancedecline;
       const resultEstimatedTreatmentEffect =
         response.data?.table_results?.result_estimatedtreatmenteffect;
       const resultAbsolutePerformance =
         response.data?.table_results?.result_absoluteperformancecomparison;
-      const resultRobustnessProof =
-        response.data?.table_results?.result_robustnessproof;
-      const resultDecisionStability =
-        response.data?.table_results?.result_decisionstability;
+      const resultRobustnessProof = response.data?.table_results?.result_robustnessproof;
+      const resultDecisionStability = response.data?.table_results?.result_decisionstability;
       const graphAccModel = response.data?.table_results?.graph_acc_model;
       const resultPrecModel = response.data?.table_results?.result_prec_model;
       const appendix = response.data?.table_results?.appendix;
@@ -672,8 +612,7 @@ export default function SimulationPage() {
         const traditionalData = manageResult.TRADITIONAL || [];
         const resultFormula = response.data?.table_results?.result_formula;
 
-        const resultOverview =
-          response.data?.table_results?.result_resultsoverview;
+        const resultOverview = response.data?.table_results?.result_resultsoverview;
 
         setApiData({
           OPTIVIS: Array.isArray(optivisData) ? optivisData : [],
@@ -695,9 +634,7 @@ export default function SimulationPage() {
 
         // Nominal Power 값으로 Sample Size Control 초기 위치 설정 (Apply 시)
         // sampleSizeControl 범위: 0.6~0.95 (차트 하이라이트용)
-        const roundedPower = parseFloat(
-          (Math.round(nominalPower / 0.05) * 0.05).toFixed(2)
-        );
+        const roundedPower = parseFloat((Math.round(nominalPower / 0.05) * 0.05).toFixed(2));
         setSampleSizeControl(Math.max(0.6, Math.min(0.95, roundedPower)));
 
         setIsApplied(true);
@@ -716,20 +653,18 @@ export default function SimulationPage() {
     <>
       <Loading isLoading={isLoading} />
       <AppLayout headerType="ats">
-        <div className="w-full flex flex-col items-center">
+        <div className="flex w-full flex-col items-center">
           {/* Top Section - Title and Metrics */}
-          <div className="w-full flex justify-center mb-2 max-w-full">
-            <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
+          <div className="mb-2 flex w-full max-w-full justify-center">
+            <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
               {/* Title Section */}
-              <div className="flex items-start justify-between mb-2 min-w-full">
-                <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-                  <div className="text-title text-neutral-5 text-left mb-2">
+              <div className="mb-2 flex min-w-full items-start justify-between">
+                <div className="flex flex-shrink-0 flex-col items-start gap-1">
+                  <div className="text-title text-neutral-5 mb-2 text-left">
                     Adaptive Trial Simulation
                   </div>
 
-                  <p className="text-body2m text-neutral-50 text-left">
-                    Optimize study design
-                  </p>
+                  <p className="text-body2m text-left text-neutral-50">Optimize study design</p>
                 </div>
 
                 {/* Metrics and Gauge Section - Right Aligned */}
@@ -803,7 +738,7 @@ export default function SimulationPage() {
           </div>
 
           {/* Main Content - Three Column Layout */}
-          <div className="flex gap-4 w-full">
+          <div className="flex w-full gap-4">
             {/* Left Column - Simulation Settings */}
             <LeftPanel
               sampleSizeControl={sampleSizeControl}

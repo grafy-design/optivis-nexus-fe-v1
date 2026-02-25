@@ -1,4 +1,5 @@
 import { fetcher } from "@/lib/fetcher";
+import { stringify } from "querystring";
 
 // Report API 공통 항목 타입
 export interface ReportOverviewDescriptionItem {
@@ -216,7 +217,17 @@ export const getSubgroupSummaryList = async (
   );
 };
 
-export const getExplainList = async (taskId: string, subgroupId: string) => {
+export interface ExplainListResponse {
+  status: string;
+  status_code: number;
+  message: string;
+  data: any;
+}
+
+export const getExplainList = async (
+  taskId: string,
+  subgroupId: string
+): Promise<ExplainListResponse> => {
   return await fetcher(
     `api/nexus/subgroup/explain/list/?task_id=${encodeURIComponent(taskId)}&subgroup_id=${encodeURIComponent(subgroupId)}`,
     "GET",
@@ -244,26 +255,73 @@ export const getReportByFeature = async (
   );
 };
 
-export const deleteSubgroupIdentification = async (taskId: string) => {
+export const deleteSubgroupIdentification = async (taskId: string, subgroupId: string) => {
   return await fetcher(
-    `api/nexus/subgroup/identification/delete/?task_id=${encodeURIComponent(taskId)}`,
+    `api/nexus/subgroup/identification/delete/?task_id=${encodeURIComponent(taskId)}&subgroup_id=${encodeURIComponent(subgroupId)}`,
     "DELETE",
     "Subgroup Identification Cutoff 삭제에 실패했습니다."
   );
 };
 
+export interface IdentificationFeatureInfoRow {
+  rid: string;
+  month: number;
+  [key: string]: string | number | null;
+}
+
+export type IdentificationAxisType = "x_value" | "y_percent";
+
+type IdentificationAxisTagged<T extends IdentificationAxisType> =
+  | {
+      cutoff_axis_type: T;
+      axis_type?: T;
+    }
+  | {
+      axis_type: T;
+      cutoff_axis_type?: T;
+    }
+  | {
+      cutoff_axis_type: T;
+      axis_type: T;
+    };
+
+interface IdentificationFeatureInfoDataBase {
+  outcome: string;
+  entity_type: string;
+  basis_type: string;
+  month: number;
+  month_min: number;
+  month_max: number;
+  cutoff_raw_json: string[];
+  cutoff_x: Array<string | number>;
+  cutoff_y: Array<string | number>;
+  rows: IdentificationFeatureInfoRow[];
+  subgroup_id: number | string;
+}
+
+export type IdentificationFeatureInfoData =
+  | (IdentificationFeatureInfoDataBase & IdentificationAxisTagged<"x_value">)
+  | (IdentificationFeatureInfoDataBase & IdentificationAxisTagged<"y_percent">);
+
+export interface IdentificationFeatureInfoResponse {
+  status: string;
+  status_code: number;
+  message: string;
+  data: IdentificationFeatureInfoData;
+}
+
 export const getIdentificationFeatureInfo = async (
   taskId: string,
-  subgroupId?: string,
-  featureName?: string
-) => {
+  subgroupId: string,
+  month: string
+): Promise<IdentificationFeatureInfoResponse> => {
   const query = new URLSearchParams({
     task_id: taskId,
-    ...(subgroupId !== undefined ? { subgroup_id: subgroupId } : {}),
-    ...(featureName !== undefined ? { feature_name: featureName } : {}),
+    subgroup_id: subgroupId,
+    month: month,
   });
 
-  return await fetcher(
+  return await fetcher<IdentificationFeatureInfoResponse>(
     `api/nexus/subgroup/identification/feature/info/?${query.toString()}`,
     "GET",
     "Subgroup Identification Feature Info 조회에 실패했습니다."
@@ -272,13 +330,19 @@ export const getIdentificationFeatureInfo = async (
 
 export const getIdentificationSetInfo = async (
   taskId: string,
-  subgroupId?: string,
-  setId?: string
+  subgroupId: string,
+  month: string,
+  axisType: "x_value" | "y_percent",
+  cutoffX: string[],
+  cutoffY: string[]
 ) => {
   const query = new URLSearchParams({
     task_id: taskId,
-    ...(subgroupId !== undefined ? { subgroup_id: subgroupId } : {}),
-    ...(setId !== undefined ? { set_id: setId } : {}),
+    subgroup_id: subgroupId,
+    month,
+    axis_type: axisType,
+    cutoff_x: cutoffX.toString(),
+    cutoff_y: cutoffY.toString(),
   });
 
   return await fetcher(
@@ -288,15 +352,25 @@ export const getIdentificationSetInfo = async (
   );
 };
 
-export const saveSubgroupIdentification = async (taskId: string, subgroupId?: string) => {
-  const query = new URLSearchParams({
-    task_id: taskId,
-    ...(subgroupId !== undefined ? { subgroup_id: subgroupId } : {}),
-  });
-
+export const saveSubgroupIdentification = async (
+  subgroupId: string,
+  cutoffAxisType: "x_value" | "y_percent",
+  cutoffRawVersion: string,
+  cutoffX: string[],
+  cutoffY: string[]
+) => {
   return await fetcher(
-    `api/nexus/subgroup/identification/save/?${query.toString()}`,
+    `api/nexus/subgroup/identification/save`,
     "PUT",
-    "Subgroup Identification Cutoff 저장에 실패했습니다."
+    "Subgroup Identification Cutoff 저장에 실패했습니다.",
+    {
+      body: {
+        subgroup_id: subgroupId,
+        cutoff_axis_type: cutoffAxisType,
+        cutoffRawVersion: cutoffRawVersion,
+        cutoffX: cutoffX.toString(),
+        cutoffY: cutoffY.toString(),
+      },
+    }
   );
 };

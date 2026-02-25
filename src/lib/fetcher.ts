@@ -1,7 +1,6 @@
 type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://nexus.oprimed.com";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://nexus.oprimed.com";
 const DEFAULT_TIMEOUT_MS = 600_000; // 10분
 
 interface FetcherOptions {
@@ -30,18 +29,12 @@ export const fetcher = async <T>(
   url: string,
   method: HTTPMethod,
   errorMsg: string,
-  options: FetcherOptions = {},
+  options: FetcherOptions = {}
 ): Promise<T> => {
-  const {
-    headers = {},
-    body,
-    timeoutMs = DEFAULT_TIMEOUT_MS,
-    responseType = "json",
-  } = options;
+  const { headers = {}, body, timeoutMs = DEFAULT_TIMEOUT_MS, responseType = "json" } = options;
 
   const controller = new AbortController();
-  const timeoutId =
-    timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  const timeoutId = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
   try {
     const response = await fetch(`${API_BASE_URL}/${url}`, {
@@ -78,10 +71,7 @@ export const fetcher = async <T>(
         );
       }
 
-      if (
-        error.message.includes("Failed to fetch") ||
-        error.name === "TypeError"
-      ) {
+      if (error.message.includes("Failed to fetch") || error.name === "TypeError") {
         throw new Error(
           `네트워크 연결에 실패했습니다. 서버(${API_BASE_URL})에 연결할 수 없습니다. ` +
             `CORS 문제이거나 서버가 응답하지 않을 수 있습니다.`
@@ -98,4 +88,3 @@ export const fetcher = async <T>(
     }
   }
 };
-

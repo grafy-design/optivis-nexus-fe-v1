@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MultiRankingBarChart } from "@/components/charts/MultiRankingBarChart";
@@ -16,7 +16,8 @@ import {
 import { BaselineDistributionHistogram } from "@/components/charts/BaselineDistributionHistogram";
 import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getExplainList } from "@/services/subgroupService";
 
 const FEATURE_LIST = [
   "ADAS Cog 11 BL",
@@ -100,6 +101,7 @@ const EXPECTED_THERAPEUTIC_GAIN_CHART_DATA = convertTherapeuticGainToMultiRankin
   }
 );
 
+const MOCK_TASK_ID = "test-task-id";
 /**
  * TSI Step 5: Subgroup Explain
  * 구조: 상위 배경 카드 2개 나란히
@@ -108,6 +110,9 @@ const EXPECTED_THERAPEUTIC_GAIN_CHART_DATA = convertTherapeuticGainToMultiRankin
  */
 export default function TSISubgroupExplainPage() {
   const [selectedFeature, setSelectedFeature] = useState(DEFAULT_SELECTED_FEATURE);
+  const searchParams = useSearchParams();
+  const subgroupId = searchParams.get("subgroupId") ?? "";
+
   const router = useRouter();
   const baselineDistributionData =
     BASELINE_DISTRIBUTION_MOCK[selectedFeature] ??
@@ -134,24 +139,33 @@ export default function TSISubgroupExplainPage() {
     router.push(`/tsi/${selectedFeature}/report`);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await getExplainList(MOCK_TASK_ID, subgroupId);
+
+      console.log(res);
+    };
+
+    fetchData();
+  }, [subgroupId]);
   return (
     <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center">
+      <div className="flex w-full flex-col items-center">
         {/* 타이틀: 카드 밖 */}
-        <div className="w-full flex justify-center mb-2 max-w-full">
-          <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
-            <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">Subgroup Explain</div>
-              <p className="text-body2m text-neutral-50 text-left">Drug Responsiveness</p>
+        <div className="mb-2 flex w-full max-w-full justify-center">
+          <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
+            <div className="flex flex-shrink-0 flex-col items-start gap-1">
+              <div className="text-title text-neutral-5 mb-2 text-left">Subgroup Explain</div>
+              <p className="text-body2m text-left text-neutral-50">Drug Responsiveness</p>
             </div>
           </div>
         </div>
 
         {/* 메인: 상위 배경 카드 2개 나란히 */}
-        <div className="w-[1772px] flex-shrink-0 mx-auto flex flex-row flex-nowrap gap-2 items-stretch">
+        <div className="mx-auto flex w-[1772px] flex-shrink-0 flex-row flex-nowrap items-stretch gap-2">
           {/* 왼쪽 상위 배경 카드 */}
           <div
-            className="w-[565px] h-[875px] flex-shrink-0 rounded-[36px] overflow-hidden flex flex-col p-3 bg-white"
+            className="flex h-[875px] w-[565px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
             style={{
               backgroundImage: "url(/assets/tsi/explain-left-bg.png)",
               backgroundSize: "100% 100%",
@@ -162,40 +176,40 @@ export default function TSISubgroupExplainPage() {
           >
             {/* 파란색 그래프 카드: Expected Therapeutic Gain */}
             <div
-              className="w-full h-[549px] flex-shrink-0 rounded-[24px] overflow-hidden bg-primary-15 flex flex-col p-5 mb-4"
+              className="bg-primary-15 mb-4 flex h-[549px] w-full flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-5"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <h2 className="text-body2 text-white mb-4 flex-shrink-0">
+              <h2 className="text-body2 mb-4 flex-shrink-0 text-white">
                 Expected Therapeutic Gain
               </h2>
               {/* 그래프 영역 */}
-              <div className="h-[452px] flex-shrink-0 mt-auto bg-white rounded-[16px] flex items-center justify-center">
+              <div className="mt-auto flex h-[452px] flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
                 <MultiRankingBarChart data={EXPECTED_THERAPEUTIC_GAIN_CHART_DATA} />
               </div>
             </div>
 
             {/* 흰색 테이블 카드 */}
             <div
-              className="w-full flex-1 min-h-0 rounded-[24px] overflow-hidden bg-white flex flex-col"
+              className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px] bg-white"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
             >
               {/* 테이블 전체 컨테이너 */}
-              <div className="flex-1 min-h-0 flex flex-col px-4">
+              <div className="flex min-h-0 flex-1 flex-col px-4">
                 {/* 테이블 헤더 */}
-                <div className="flex-shrink-0 h-[64px] border-b border-neutral-80 flex items-center gap-4">
-                  <div className="w-[60px] text-body4 text-neutral-30">Rank</div>
-                  <div className="w-[140px] text-body4 text-neutral-30">Feature name</div>
-                  <div className="w-[140px] text-body4 text-neutral-30 leading-tight">
+                <div className="border-neutral-80 flex h-[64px] flex-shrink-0 items-center gap-4 border-b">
+                  <div className="text-body4 text-neutral-30 w-[60px]">Rank</div>
+                  <div className="text-body4 text-neutral-30 w-[140px]">Feature name</div>
+                  <div className="text-body4 text-neutral-30 w-[140px] leading-tight">
                     Max Variance
                     <br />
                     Reduction(△▽)
                   </div>
-                  <div className="w-[100px] text-body4 text-neutral-30">Contribution</div>
-                  <div className="w-[140px] text-body4 text-neutral-30 leading-tight">
+                  <div className="text-body4 text-neutral-30 w-[100px]">Contribution</div>
+                  <div className="text-body4 text-neutral-30 w-[140px] leading-tight">
                     Cutoff
                     <br />
                     (Auto-derived)
@@ -203,23 +217,23 @@ export default function TSISubgroupExplainPage() {
                 </div>
 
                 {/* 테이블 바디 */}
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="min-h-0 flex-1 overflow-y-auto">
                   {EXPORTED_THERAPEUTIC_GAIN_MOCK.filter(
                     ({ risk_type }) => risk_type === "Rapid"
                   ).map((row, index) => (
                     <div
                       key={`${row.rank}_${index}`}
-                      className="flex h-[52px] border-b border-neutral-80 items-center gap-4"
+                      className="border-neutral-80 flex h-[52px] items-center gap-4 border-b"
                     >
-                      <div className="w-[60px] text-body4 text-neutral-40">{row.rank}</div>
-                      <div className="w-[140px] text-body4 text-neutral-40">{row.feature_name}</div>
-                      <div className="w-[140px] text-body4 text-neutral-40">
+                      <div className="text-body4 text-neutral-40 w-[60px]">{row.rank}</div>
+                      <div className="text-body4 text-neutral-40 w-[140px]">{row.feature_name}</div>
+                      <div className="text-body4 text-neutral-40 w-[140px]">
                         {row.variance_reduction}
                       </div>
-                      <div className="w-[100px] text-body4 text-neutral-40">
+                      <div className="text-body4 text-neutral-40 w-[100px]">
                         {row.relative_contribution.toFixed(2)}%
                       </div>
-                      <div className="w-[140px] text-body4 text-neutral-40">{row.cutoff}</div>
+                      <div className="text-body4 text-neutral-40 w-[140px]">{row.cutoff}</div>
                     </div>
                   ))}
                 </div>
@@ -229,7 +243,7 @@ export default function TSISubgroupExplainPage() {
 
           {/* 오른쪽 상위 배경 카드 */}
           <div
-            className="w-[1195px] h-[1075px] flex-shrink-0 rounded-[36px] overflow-hidden flex flex-col p-3 bg-white"
+            className="flex h-[1075px] w-[1195px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
             style={{
               backgroundImage: "url(/assets/tsi/explain-right-bg.png)",
               backgroundSize: "100% 100%",
@@ -239,27 +253,27 @@ export default function TSISubgroupExplainPage() {
             }}
           >
             {/* 상단 행: 파란색 그래프 카드 + 설명 텍스트 */}
-            <div className="flex gap-4 mb-[12px] flex-shrink-0">
+            <div className="mb-[12px] flex flex-shrink-0 gap-4">
               {/* 파란색 그래프 카드: Baseline driver Top 10 (전체 너비) */}
               <div
-                className="flex-1 h-[423px] flex-shrink-0 rounded-[24px] overflow-hidden bg-primary-15 flex flex-row p-4 gap-5"
+                className="bg-primary-15 flex h-[423px] flex-1 flex-shrink-0 flex-row gap-5 overflow-hidden rounded-[24px] p-4"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {/* 그래프 영역 */}
-                <div className="w-[659px] flex-shrink-0 flex flex-col">
-                  <h2 className="text-body2 text-white mb-4 flex-shrink-0">
+                <div className="flex w-[659px] flex-shrink-0 flex-col">
+                  <h2 className="text-body2 mb-4 flex-shrink-0 text-white">
                     Baseline driver Top 10
                   </h2>
-                  <div className="w-full h-[322px] flex-shrink-0 mt-auto bg-white rounded-[16px] flex items-center justify-center">
+                  <div className="mt-auto flex h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
                     <SHAPSummaryPlotChart data={BASE_LINE_DRIVER_MOCK} />
                   </div>
                 </div>
 
                 {/* 설명 텍스트 */}
-                <div className="flex-1 min-w-0 flex flex-col justify-end">
-                  <ul className="flex flex-col gap-3 text-white list-disc pl-4">
+                <div className="flex min-w-0 flex-1 flex-col justify-end">
+                  <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                     <li className="break-words">
                       <span className="text-body1m">X-axis (SHAP value):</span>
                       <br />
@@ -292,21 +306,21 @@ export default function TSISubgroupExplainPage() {
             </div>
 
             {/* 하단 행: 흰색 카드 + 파란색 카드(흰색 그래프 3개 + 설명) */}
-            <div className="flex gap-[12px] flex-1 min-h-0">
+            <div className="flex min-h-0 flex-1 gap-[12px]">
               {/* 왼쪽 흰색 카드: Feature 목록 */}
               <div
-                className="w-[200px] h-[616px] flex-shrink-0 rounded-[24px] overflow-hidden bg-white flex flex-col py-3"
+                className="flex h-[616px] w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white py-3"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <div className="flex-1 min-h-0 overflow-y-auto">
+                <div className="min-h-0 flex-1 overflow-y-auto">
                   {FEATURE_LIST.map((feature, index) => (
                     <button
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
-                      className={`w-full flex items-center gap-[10px] self-stretch h-[59px] px-[12px] py-[18px] text-body4 transition-colors ${
-                        index < FEATURE_LIST.length - 1 ? "border-b border-neutral-90" : ""
+                      className={`text-body4 flex h-[59px] w-full items-center gap-[10px] self-stretch px-[12px] py-[18px] transition-colors ${
+                        index < FEATURE_LIST.length - 1 ? "border-neutral-90 border-b" : ""
                       } ${
                         selectedFeature === feature
                           ? "bg-primary-15 text-white"
@@ -321,19 +335,19 @@ export default function TSISubgroupExplainPage() {
 
               {/* 파란색 카드: 흰색 그래프 카드 3개 + 설명 텍스트 (나머지 전체 너비) */}
               <div
-                className="flex-1 h-[616px] flex-shrink-0 rounded-[24px] overflow-hidden bg-primary-15 flex flex-row p-4 gap-4"
+                className="bg-primary-15 flex h-[616px] flex-1 flex-shrink-0 flex-row gap-4 overflow-hidden rounded-[24px] p-4"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {/* 그래프 카드 3개 세로 배치 */}
-                <div className="flex flex-col gap-4 flex-1 min-h-0">
+                <div className="flex min-h-0 flex-1 flex-col gap-4">
                   {/* 그래프 카드 1: Baseline Distribution */}
-                  <div className="w-[442px] flex-1 min-h-0 rounded-[16px] overflow-hidden bg-white flex flex-col p-4">
+                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
                     <h3 className="text-body4 text-neutral-40 mb-3">
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
+                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
                       <BaselineDistributionHistogram
                         histogramData={
                           baselineDistributionData ?? {
@@ -346,29 +360,29 @@ export default function TSISubgroupExplainPage() {
                   </div>
 
                   {/* 그래프 카드 2: ADAS Progression Slope */}
-                  <div className="w-[442px] flex-1 min-h-0 rounded-[16px] overflow-hidden bg-white flex flex-col p-4">
+                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
                     <h3 className="text-body4 text-neutral-40 mb-3">
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
+                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
                       <ScatterSlopeChart data={baselineSlopeData ?? {}} />
                     </div>
                   </div>
 
                   {/* 그래프 카드 3: Subgroup Proportion */}
-                  <div className="w-[442px] flex-1 min-h-0 rounded-[16px] overflow-hidden bg-white flex flex-col p-4">
+                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
                     <h3 className="text-body4 text-neutral-40 mb-3">
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex-1 min-h-0 bg-white rounded flex items-center justify-center">
+                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
                       <SubgroupProportionChart data={baselineBinRatioData ?? []} />
                     </div>
                   </div>
                 </div>
 
                 {/* 오른쪽 설명 텍스트 */}
-                <div className="flex-1 min-w-0 flex flex-col justify-start pt-4">
-                  <ul className="flex flex-col gap-3 text-white list-disc pl-4">
+                <div className="flex min-w-0 flex-1 flex-col justify-start pt-4">
+                  <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                     <li className="break-words">
                       <span className="text-body1m">ADAS Word Delay Recall:</span>
                       <br />
@@ -403,10 +417,10 @@ export default function TSISubgroupExplainPage() {
         </div>
 
         {/* 버튼: 카드 밖 아래 */}
-        <div className="w-[1772px] flex-shrink-0 mx-auto flex justify-end items-center gap-4 mt-4 pb-2">
+        <div className="mx-auto mt-4 flex w-[1772px] flex-shrink-0 items-center justify-end gap-4 pb-2">
           <button
             type="button"
-            className="inline-flex items-center justify-center h-[48px] cursor-pointer hover:opacity-90 transition-opacity border-0 bg-transparent p-0"
+            className="inline-flex h-[48px] cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-opacity hover:opacity-90"
             aria-label="Save Progress"
           >
             <Image
@@ -419,7 +433,7 @@ export default function TSISubgroupExplainPage() {
           </button>
           <button
             type="button"
-            className="inline-flex items-center justify-center w-[179px] h-[48px] rounded-[100px] text-body3 text-neutral-30 cursor-pointer hover:opacity-90 transition-opacity border-0 shrink-0 bg-no-repeat bg-center bg-cover"
+            className="text-body3 text-neutral-30 inline-flex h-[48px] w-[179px] shrink-0 cursor-pointer items-center justify-center rounded-[100px] border-0 bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
             style={{ backgroundImage: "url(/assets/tsi/btn.png)" }}
             aria-label="View Report"
             onClick={handleClickViewReport}
