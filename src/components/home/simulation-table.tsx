@@ -7,7 +7,7 @@ interface SimulationTableProps {
   serviceId?: string | null;
 }
 
-const MOCK_UP_SINULATION_DATA = [
+const MOCK_UP_SIMULATION_DATA = [
   {
     simulation_name: "OPMD-001",
     disease: "disease",
@@ -16,16 +16,16 @@ const MOCK_UP_SINULATION_DATA = [
     last_updated: "2024-06-01",
   },
   {
-    simulation_name: "OPMD-001",
+    simulation_name: "OPMD-002",
     disease: "disease",
     outcome: "outcome",
     description: "description",
-    last_updated: "2024-06-01",
+    last_updated: "2024-06-02",
   },
 ];
 
 export default function SimulationTable({ serviceId }: SimulationTableProps) {
-  const [tableData] = useState(MOCK_UP_SINULATION_DATA);
+  const [tableData] = useState(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
   const router = useRouter();
   const firstColumnTitle =
     serviceId === "4" || serviceId === "5" ? "Simulation name" : "Patient ID";
