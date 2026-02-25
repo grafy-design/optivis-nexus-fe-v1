@@ -217,18 +217,112 @@ export const getSubgroupSummaryList = async (
   );
 };
 
+export interface ExplainOverviewDescriptionItem {
+  no: number;
+  title: string;
+  description: string;
+  feature?: string;
+}
+
+export type ExplainOverviewDescription = {
+  baseline_driver_top10_msg: ExplainOverviewDescriptionItem[];
+} & Record<string, ExplainOverviewDescriptionItem[]>;
+
+export interface ExplainExpectedTherapeuticGainItem {
+  rank: number;
+  variance_reduction: number;
+  relative_contribution: number;
+  cutoff: number[];
+  risk_type: "Slow" | "Rapid";
+  feature_name: string;
+}
+
+export interface ExplainBaselineDriverItem {
+  rank: number;
+  shap_value: string[];
+  color_value: string[];
+  feature_name: string;
+}
+
+export interface ExplainStratificationStrategyItem {
+  feature: string;
+  group: string;
+  month: number;
+  mean: number;
+  ci_low: number;
+  ci_high: number;
+  n: number;
+}
+
+export interface ExplainScenarioCutoffItem {
+  group: string;
+  cutoff: string;
+}
+
+export interface ExplainScenarioMeta {
+  feature: string;
+  month: number;
+  axis_type: IdentificationAxisType;
+  n_groups: number;
+  defined_groups: string[];
+  cutoffs: ExplainScenarioCutoffItem[];
+}
+
+export interface ExplainHistogramFeatureData {
+  bins: number[];
+  groups: Record<string, number[]>;
+}
+
+export interface ExplainScatterPoint {
+  x: number;
+  y: number;
+}
+
+export interface ExplainScatterRegression {
+  slope: number;
+  intercept: number;
+}
+
+export interface ExplainScatterGroupData {
+  points: ExplainScatterPoint[];
+  regression?: ExplainScatterRegression;
+}
+
+export type ExplainBinRatioItem = {
+  range: [number, number];
+} & Record<string, number | [number, number]>;
+
+export interface ExplainJsonData {
+  overview_description: ExplainOverviewDescription;
+  expected_therapeutic_gain: ExplainExpectedTherapeuticGainItem[];
+  baseline_driver: ExplainBaselineDriverItem[];
+  stratification_strategy: ExplainStratificationStrategyItem[];
+  scenario_meta: ExplainScenarioMeta;
+  explain_histogram: Record<string, ExplainHistogramFeatureData>;
+  explain_scatter: Record<string, Record<string, ExplainScatterGroupData>>;
+  explain_bin_ratio: Record<string, ExplainBinRatioItem[]>;
+}
+
+export interface ExplainListData {
+  subgroup_id: number;
+  set_name: string;
+  outcome: string;
+  month: number;
+  explain_json: ExplainJsonData;
+}
+
 export interface ExplainListResponse {
   status: string;
   status_code: number;
   message: string;
-  data: any;
+  data: ExplainListData;
 }
 
 export const getExplainList = async (
   taskId: string,
   subgroupId: string
 ): Promise<ExplainListResponse> => {
-  return await fetcher(
+  return await fetcher<ExplainListResponse>(
     `api/nexus/subgroup/explain/list/?task_id=${encodeURIComponent(taskId)}&subgroup_id=${encodeURIComponent(subgroupId)}`,
     "GET",
     "Subgroup Explain List 조회에 실패했습니다."
