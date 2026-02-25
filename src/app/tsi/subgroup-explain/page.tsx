@@ -17,7 +17,7 @@ import { BaselineDistributionHistogram } from "@/components/charts/BaselineDistr
 import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
 import { useRouter, useSearchParams } from "next/navigation";
-import { getExplainList } from "@/services/subgroupService";
+import { ExplainListData, getExplainList } from "@/services/subgroupService";
 
 const FEATURE_LIST = [
   "ADAS Cog 11 BL",
@@ -112,6 +112,7 @@ export default function TSISubgroupExplainPage() {
   const [selectedFeature, setSelectedFeature] = useState(DEFAULT_SELECTED_FEATURE);
   const searchParams = useSearchParams();
   const subgroupId = searchParams.get("subgroupId") ?? "";
+  const [resultData, setResultData] = useState<ExplainListData>();
 
   const router = useRouter();
   const baselineDistributionData =
@@ -143,11 +144,13 @@ export default function TSISubgroupExplainPage() {
     const fetchData = async () => {
       const res = await getExplainList(MOCK_TASK_ID, subgroupId);
 
-      console.log(res);
+      setResultData(res.data);
     };
 
     fetchData();
   }, [subgroupId]);
+
+  console.log(resultData);
   return (
     <AppLayout headerType="tsi">
       <div className="flex w-full flex-col items-center">
@@ -186,7 +189,11 @@ export default function TSISubgroupExplainPage() {
               </h2>
               {/* 그래프 영역 */}
               <div className="mt-auto flex h-[452px] flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
-                <MultiRankingBarChart data={EXPECTED_THERAPEUTIC_GAIN_CHART_DATA} />
+                {resultData?.explain_json.expected_therapeutic_gain && (
+                  <MultiRankingBarChart
+                    data={resultData?.explain_json.expected_therapeutic_gain || []}
+                  />
+                )}
               </div>
             </div>
 

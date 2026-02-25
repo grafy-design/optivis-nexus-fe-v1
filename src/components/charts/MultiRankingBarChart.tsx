@@ -2,21 +2,43 @@
 
 import ReactECharts from "echarts-for-react";
 
-type DataItemType = {
-  id: string;
-  rank: number;
+export interface MultiRankingBarItem {
   label: string;
   value: number;
-};
+  rank?: number;
+  id?: string;
+}
+
+interface ExplainGainLikeItem {
+  rank: number;
+  variance_reduction: number;
+  relative_contribution?: number;
+  feature_name?: string;
+}
+
+type MultiRankingBarInputItem = MultiRankingBarItem | ExplainGainLikeItem;
 
 interface MultiRankingBarChartProps {
-  data: DataItemType[];
+  data: MultiRankingBarInputItem[];
   height?: string;
   label?: string;
 }
 
 export function MultiRankingBarChart({ data, height = "100%", label }: MultiRankingBarChartProps) {
-  const maxValue = data.length > 0 ? Math.max(...data.map((item) => item.value)) : 0;
+  const normalizedData: MultiRankingBarItem[] = data.map((item) => {
+    if ("value" in item && "label" in item) {
+      return item;
+    }
+
+    const value = Number(item.variance_reduction);
+    return {
+      label: `#${item.rank}`,
+      value: Number.isFinite(value) ? value : 0,
+      rank: item.rank,
+    };
+  });
+
+  const maxValue = normalizedData.length > 0 ? Math.max(...normalizedData.map((item) => item.value)) : 0;
   const yAxisMax = maxValue > 0 ? maxValue * 1.2 : 1;
 
   const commonOption = {
@@ -35,7 +57,7 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
     legend: { show: false },
   };
 
-  const barCount = Math.max(data.length, 1);
+  const barCount = Math.max(normalizedData.length, 1);
   const gapRatio = barCount <= 3 ? 0.35 : barCount <= 5 ? 0.25 : 0.18;
   const barWidthPercent = 100 / (barCount + gapRatio * (barCount - 1));
   const barWidth = `${barWidthPercent.toFixed(2)}%`;
@@ -44,7 +66,7 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
     <ReactECharts
       option={{
         ...commonOption,
-        series: data.map((item, index) => ({
+        series: normalizedData.map((item, index) => ({
           type: "bar",
           data: [item.value],
           itemStyle: { color: index < 3 ? "#f06600" : "#AAAAAD", borderRadius: [8, 8, 8, 8] },
