@@ -54,6 +54,8 @@ const TABLE_INNER_DIV_LEFT = "w-full h-[28px] flex items-center border-l border-
 const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full h-[28px] flex items-center justify-center";
 const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-[28px] flex items-center";
 
+const TEST_TASK_ID = "test-task-id";
+
 export default function TSISubgroupSelectionPage() {
   const router = useRouter();
   const [selectedSetNo, setSelectedSetNo] = useState<string>("");
@@ -72,7 +74,7 @@ export default function TSISubgroupSelectionPage() {
         setIsLoading(true);
         setError(null);
         // task_id는 일단 임시로 하드코딩 (나중에 스토어나 쿼리 파라미터로 받을 수 있음)
-        const response = await getSubgroupSummaryList("test-task-id");
+        const response = await getSubgroupSummaryList(TEST_TASK_ID);
 
         // 왼쪽 그래프용: subgroup_sets_summary 저장
         setSummaryData(response.data.subgroup_sets_summary);
@@ -113,22 +115,22 @@ export default function TSISubgroupSelectionPage() {
 
   return (
     <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center">
+      <div className="flex w-full flex-col items-center">
         {/* 타이틀: 카드 밖 */}
-        <div className="w-full flex justify-center mb-2 max-w-full">
-          <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
-            <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">Subgroup Selection</div>
-              <p className="text-body2m text-neutral-50 text-left">Prognostic</p>
+        <div className="mb-2 flex w-full max-w-full justify-center">
+          <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
+            <div className="flex flex-shrink-0 flex-col items-start gap-1">
+              <div className="text-title text-neutral-5 mb-2 text-left">Subgroup Selection</div>
+              <p className="text-body2m text-left text-neutral-50">Prognostic</p>
             </div>
           </div>
         </div>
 
         {/* 메인: 상위 배경 카드 2개 나란히 (좌 selection-left, 우 selection-bg) */}
-        <div className="w-[1772px] flex-shrink-0 mx-auto flex flex-row flex-nowrap gap-4 items-stretch">
+        <div className="mx-auto flex w-[1772px] flex-shrink-0 flex-row flex-nowrap items-stretch gap-4">
           {/* 왼쪽 상위 배경 카드: selection-left.png (Figma 536x614, radius 36) */}
           <div
-            className="w-[536px] h-[614px] flex-shrink-0 rounded-[36px] overflow-hidden flex flex-col p-3"
+            className="flex h-[614px] w-[536px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] p-3"
             style={{
               backgroundImage: "url(/assets/tsi/selection-left.png)",
               backgroundSize: "100% 100%",
@@ -139,30 +141,30 @@ export default function TSISubgroupSelectionPage() {
           >
             {/* 남색 카드: Figma Frame 1618872954 512x590, radius 24, set 추가 시 스크롤 */}
             <div
-              className="w-full flex-1 min-h-0 flex flex-col rounded-[24px] overflow-hidden bg-primary-15"
+              className="bg-primary-15 flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px]"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
             >
               {/* 헤더: Figma 16,16 → 480x32, 카드와 간격 100px */}
-              <div className="flex-shrink-0 px-4 pt-4 pb-3 mb-[60px]">
+              <div className="mb-[60px] flex-shrink-0 px-4 pt-4 pb-3">
                 <h2 className="text-body2 text-white">Subgroup Sets Summary</h2>
               </div>
               {/* 흰 패널: Set 목록 + 구간 차트 + Disease Progression 축 */}
-              <div className="flex-1 min-h-0 flex flex-col px-3 pb-3">
-                <div className="flex-1 min-h-0 rounded-[16px] bg-white overflow-hidden flex flex-col border border-neutral-80 py-2 px-4">
+              <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
+                <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] border bg-white px-4 py-2">
                   {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
-                  <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
+                  <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                     {isLoading ? (
-                      <div className="flex items-center justify-center h-full">
+                      <div className="flex h-full items-center justify-center">
                         <div className="text-body2 text-white">Loading...</div>
                       </div>
                     ) : error ? (
-                      <div className="flex items-center justify-center h-full">
+                      <div className="flex h-full items-center justify-center">
                         <div className="text-body2 text-red-300">Error: {error}</div>
                       </div>
                     ) : summaryData.length === 0 ? (
-                      <div className="flex items-center justify-center h-full">
+                      <div className="flex h-full items-center justify-center">
                         <div className="text-body2 text-white">No data available</div>
                       </div>
                     ) : (
@@ -177,13 +179,13 @@ export default function TSISubgroupSelectionPage() {
                         return (
                           <div
                             key={`${set.set_name}_${index}`}
-                            className="flex border-b border-neutral-80 last:border-b-0 min-h-0"
+                            className="border-neutral-80 flex min-h-0 border-b last:border-b-0"
                           >
                             {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
-                            <div className="w-[112px] flex-shrink-0 flex flex-col border-r border-neutral-80 py-2 px-0">
-                              <div className="px-1 flex items-center gap-2 mb-1 h-[22px] flex-shrink-0">
+                            <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2">
+                              <div className="mb-1 flex h-[22px] flex-shrink-0 items-center gap-2 px-1">
                                 <span
-                                  className="flex items-center justify-center gap-1 rounded-full bg-primary-10 text-body5m text-white shrink-0 box-border"
+                                  className="bg-primary-10 text-body5m box-border flex shrink-0 items-center justify-center gap-1 rounded-full text-white"
                                   style={{
                                     width: 72,
                                     height: 18,
@@ -209,7 +211,7 @@ export default function TSISubgroupSelectionPage() {
                                 return (
                                   <div
                                     key={`${set.set_name}-group-${groupIndex}`}
-                                    className="pl-2 pr-1 h-7 flex items-center text-body4m text-neutral-30 flex-shrink-0"
+                                    className="text-body4m text-neutral-30 flex h-7 flex-shrink-0 items-center pr-1 pl-2"
                                   >
                                     {groupName}
                                   </div>
@@ -217,18 +219,18 @@ export default function TSISubgroupSelectionPage() {
                               })}
                             </div>
                             {/* 오른쪽 셀: 왼쪽 기준 맞춤 (스페이서=Set행, 행높이=그룹 h-7) */}
-                            <div className="flex-1 min-w-0 flex flex-col py-2 pl-2 pr-4 relative">
+                            <div className="relative flex min-w-0 flex-1 flex-col py-2 pr-4 pl-2">
                               {/* 왼쪽 Set 행과 동일: h-[22px] + mb-1 */}
-                              <div className="h-[22px] flex-shrink-0 mb-1" aria-hidden />
+                              <div className="mb-1 h-[22px] flex-shrink-0" aria-hidden />
                               {/* 눈금선: 엄청 연하게 (패딩=셀과 동일) */}
                               <div
-                                className="absolute inset-0 flex justify-between pointer-events-none py-2 pl-2 pr-4"
+                                className="pointer-events-none absolute inset-0 flex justify-between py-2 pr-4 pl-2"
                                 aria-hidden
                               >
                                 {Array.from({ length: 9 }).map((_, i) => (
                                   <span
                                     key={i}
-                                    className="w-px h-full flex-shrink-0 bg-neutral-90/20"
+                                    className="bg-neutral-90/20 h-full w-px flex-shrink-0"
                                   />
                                 ))}
                               </div>
@@ -260,10 +262,10 @@ export default function TSISubgroupSelectionPage() {
                                   return (
                                     <div
                                       key={`${set.set_name}-chart-${i}`}
-                                      className="flex items-center h-7 flex-shrink-0 relative z-[1]"
+                                      className="relative z-[1] flex h-7 flex-shrink-0 items-center"
                                     >
                                       <div
-                                        className="relative w-full h-2 flex items-center"
+                                        className="relative flex h-2 w-full items-center"
                                         style={{ minHeight: 8 }}
                                       >
                                         {/* 가로선: ci_low ~ ci_high 범위 */}
@@ -279,7 +281,7 @@ export default function TSISubgroupSelectionPage() {
                                         />
                                         {/* 심볼: mean 위치 */}
                                         <span
-                                          className="absolute w-3 h-3 rounded-full shrink-0"
+                                          className="absolute h-3 w-3 shrink-0 rounded-full"
                                           style={{
                                             left: `${meanPct}%`,
                                             top: "50%",
@@ -289,7 +291,7 @@ export default function TSISubgroupSelectionPage() {
                                         />
                                         {/* 왼쪽 꼬리: ci_low 위치 */}
                                         <span
-                                          className="absolute shrink-0 w-px"
+                                          className="absolute w-px shrink-0"
                                           style={{
                                             left: `${ciLowPct}%`,
                                             top: "50%",
@@ -300,7 +302,7 @@ export default function TSISubgroupSelectionPage() {
                                         />
                                         {/* 오른쪽 꼬리: ci_high 위치 */}
                                         <span
-                                          className="absolute shrink-0 w-px"
+                                          className="absolute w-px shrink-0"
                                           style={{
                                             left: `${ciHighPct}%`,
                                             top: "50%",
@@ -321,23 +323,23 @@ export default function TSISubgroupSelectionPage() {
                     )}
                     {/* X축 행: 왼쪽 빈 칸 + 오른쪽에만 Slow/Rapid (위쪽 선은 마지막 Set 행 border-b로만 표시) */}
                     <div className="flex flex-shrink-0">
-                      <div className="w-[112px] flex-shrink-0  border-neutral-80" aria-hidden />
-                      <div className="flex-1 min-w-0 pt-0 pb-1 pl-2 flex flex-col">
+                      <div className="border-neutral-80 w-[112px] flex-shrink-0" aria-hidden />
+                      <div className="flex min-w-0 flex-1 flex-col pt-0 pb-1 pl-2">
                         {/* 1) 축선 + 짧은 눈금(아래로) */}
-                        <div className="w-full flex flex-col px-2 min-w-0">
+                        <div className="flex w-full min-w-0 flex-col px-2">
                           <div className="w-full border-b border-neutral-50" aria-hidden />
-                          <div className="w-full flex justify-between px-0 mt-0">
+                          <div className="mt-0 flex w-full justify-between px-0">
                             {Array.from({ length: 9 }).map((_, i) => (
                               <span
                                 key={i}
-                                className="w-px h-1 bg-neutral-40 shrink-0"
+                                className="bg-neutral-40 h-1 w-px shrink-0"
                                 aria-hidden
                               />
                             ))}
                           </div>
                         </div>
                         {/* 2) 그 아래 줄: Slow / Rapid */}
-                        <div className="w-full flex items-center justify-between text-body5 text-neutral-30 gap-2 px-2 mt-0.5">
+                        <div className="text-body5 text-neutral-30 mt-0.5 flex w-full items-center justify-between gap-2 px-2">
                           <span className="shrink-0">Slow</span>
                           <span className="flex-1 shrink-0" aria-hidden />
                           <span className="shrink-0">Rapid</span>
@@ -355,7 +357,7 @@ export default function TSISubgroupSelectionPage() {
           </div>
           {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
           <div
-            className="flex-1 min-w-0 rounded-[24px] overflow-hidden flex flex-col min-h-[796px] flex-shrink-0 p-3"
+            className="flex min-h-[796px] min-w-0 flex-1 flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-3"
             style={{
               backgroundImage: "url(/assets/tsi/selection-bg.png)",
               backgroundSize: "100% 100%",
@@ -363,16 +365,16 @@ export default function TSISubgroupSelectionPage() {
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="relative p-0 flex flex-col flex-1 min-h-0">
+            <div className="relative flex min-h-0 flex-1 flex-col p-0">
               {/* 안에 테이블 카드 (흰색) */}
               <div
-                className="flex-1 flex flex-col min-h-0 rounded-[24px] overflow-hidden bg-white py-2 px-4"
+                className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] bg-white px-4 py-2"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                  <div className="flex-1 overflow-auto min-h-0 w-full">
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <div className="min-h-0 w-full flex-1 overflow-auto">
                     {/* 전통적인 HTML 테이블: 좌우 padding 8px 고정, 헤더 컬럼 auto */}
                     <RadioGroup.Root
                       value={selectedSetNo}
@@ -381,7 +383,7 @@ export default function TSISubgroupSelectionPage() {
                     >
                       <table className="w-full border-collapse">
                         <thead>
-                          <tr className="border-b border-neutral-30">
+                          <tr className="border-neutral-30 border-b">
                             <th className={`${TABLE_HEADER_CELL_BASE_NO_BORDER} text-center`}>
                               <div className={TABLE_INNER_DIV_CENTER_NO_BORDER}>Detail</div>
                             </th>
@@ -452,7 +454,7 @@ export default function TSISubgroupSelectionPage() {
                                         <button
                                           type="button"
                                           onClick={() => toggleRowExpansion(rowNo)}
-                                          className="cursor-pointer text-neutral-40 p-0 border-0 bg-transparent inline-flex items-center justify-center shrink-0 transition-transform duration-200"
+                                          className="text-neutral-40 inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-transform duration-200"
                                           title={isExpanded ? "접기" : "펼치기"}
                                         >
                                           <svg
@@ -480,17 +482,17 @@ export default function TSISubgroupSelectionPage() {
                                         <RadioGroup.Item
                                           value={rowNo}
                                           id={`radio-${rowNo}`}
-                                          className="flex items-center justify-center cursor-pointer w-8 h-8 shrink-0 border-0 bg-transparent p-0 outline-none focus:outline-none focus:ring-0"
+                                          className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 outline-none focus:ring-0 focus:outline-none"
                                         >
                                           <span
-                                            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                            className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
                                               isSelected
                                                 ? "border-neutral-60 bg-primary-15"
                                                 : "border-neutral-60"
                                             }`}
                                           >
-                                            <RadioGroup.Indicator className="flex items-center justify-center w-full h-full">
-                                              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                                            <RadioGroup.Indicator className="flex h-full w-full items-center justify-center">
+                                              <span className="h-1.5 w-1.5 rounded-full bg-white" />
                                             </RadioGroup.Indicator>
                                           </span>
                                         </RadioGroup.Item>
@@ -498,12 +500,12 @@ export default function TSISubgroupSelectionPage() {
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">{rowNo}</span>
+                                        <span className="block truncate">{rowNo}</span>
                                       </div>
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="inline-flex items-center gap-1 truncate min-w-0">
+                                        <span className="inline-flex min-w-0 items-center gap-1 truncate">
                                           <span className="truncate">{row.set_name}</span>
                                           {isSelected && (
                                             <Image
@@ -519,31 +521,31 @@ export default function TSISubgroupSelectionPage() {
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">{row.outcome}</span>
+                                        <span className="block truncate">{row.outcome}</span>
                                       </div>
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">
+                                        <span className="block truncate">
                                           {row.cut_off.join("  ")}
                                         </span>
                                       </div>
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">{row.month}</span>
+                                        <span className="block truncate">{row.month}</span>
                                       </div>
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">{row.of_group}</span>
+                                        <span className="block truncate">{row.of_group}</span>
                                       </div>
                                     </td>
                                     <td
                                       className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left ${row.variance_benefit_label.includes("Highest") ? "text-[#3A11D8]" : ""}`}
                                     >
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">
+                                        <span className="block truncate">
                                           {(row.variance_benefit * 100).toFixed(1)}%
                                           {row.variance_benefit_label
                                             ? ` ${row.variance_benefit_label}`
@@ -553,7 +555,7 @@ export default function TSISubgroupSelectionPage() {
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}>
                                       <div className={TABLE_INNER_DIV_LEFT}>
-                                        <span className="truncate block">{row.group_balance}</span>
+                                        <span className="block truncate">{row.group_balance}</span>
                                       </div>
                                     </td>
                                     <td
@@ -562,7 +564,7 @@ export default function TSISubgroupSelectionPage() {
                                       <div className={TABLE_INNER_DIV_CENTER}>
                                         <button
                                           type="button"
-                                          className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
+                                          className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
                                           title="Refine Cutoffs"
                                           onClick={() => router.push("/tsi/refine-cutoffs")}
                                         >
@@ -601,7 +603,7 @@ export default function TSISubgroupSelectionPage() {
                                       <div className={TABLE_INNER_DIV_CENTER}>
                                         <button
                                           type="button"
-                                          className="p-1 text-neutral-40 hover:text-neutral-30 cursor-pointer shrink-0 border-0 bg-transparent"
+                                          className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
                                           title="Delete"
                                         >
                                           <Image
@@ -713,18 +715,18 @@ export default function TSISubgroupSelectionPage() {
                                         <tr className="bg-[#efeff4]">
                                           <td
                                             colSpan={12}
-                                            className="p-0 border-b border-neutral-80"
+                                            className="border-neutral-80 border-b p-0"
                                           >
                                             <div className="bg-[#efeff4] px-4 py-6">
                                               <div className="flex gap-3">
                                                 {/* Left Column */}
-                                                <div className="w-[372px] flex flex-col gap-3">
+                                                <div className="flex w-[372px] flex-col gap-3">
                                                   {/* Disease Progression by Subgroup */}
-                                                  <div className="h-[252px] bg-white/60 rounded-[18px] p-4 flex flex-col">
-                                                    <h3 className="text-[#1c1b1b] text-body3 font-semibold mb-4 flex-shrink-0">
+                                                  <div className="flex h-[252px] flex-col rounded-[18px] bg-white/60 p-4">
+                                                    <h3 className="text-body3 mb-4 flex-shrink-0 font-semibold text-[#1c1b1b]">
                                                       Disease Progression by Subgroup
                                                     </h3>
-                                                    <div className="flex-1 bg-white rounded-[8px] overflow-hidden min-h-0">
+                                                    <div className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white">
                                                       {detailData.disease_progression_by_subgroup &&
                                                       detailData.disease_progression_by_subgroup
                                                         .length > 0 ? (
@@ -1037,8 +1039,8 @@ export default function TSISubgroupSelectionPage() {
                                                           );
                                                         })()
                                                       ) : (
-                                                        <div className="flex items-center justify-center h-full">
-                                                          <span className="text-[#484646] text-sm">
+                                                        <div className="flex h-full items-center justify-center">
+                                                          <span className="text-sm text-[#484646]">
                                                             No data available
                                                           </span>
                                                         </div>
@@ -1046,17 +1048,17 @@ export default function TSISubgroupSelectionPage() {
                                                     </div>
                                                   </div>
                                                   {/* Number of patients */}
-                                                  <div className="h-[196px] bg-white/60 rounded-[18px] p-4 flex flex-col">
-                                                    <h3 className="text-[#1c1b1b] text-body3 font-semibold mb-0 flex-shrink-0">
+                                                  <div className="flex h-[196px] flex-col rounded-[18px] bg-white/60 p-4">
+                                                    <h3 className="text-body3 mb-0 flex-shrink-0 font-semibold text-[#1c1b1b]">
                                                       Number of patients
                                                     </h3>
-                                                    <p className="text-[#605e5e] text-sm mb-0 flex-shrink-0">
+                                                    <p className="mb-0 flex-shrink-0 text-sm text-[#605e5e]">
                                                       At least {minPatients} patients per group are
                                                       recommended.
                                                     </p>
                                                     <div className="mt-auto">
-                                                      <div className="h-[110px] bg-white rounded-[8px] p-3 space-y-0 overflow-auto">
-                                                        <div className="flex items-center gap-2 text-[#231f52] text-sm font-semibold pb-0 border-b border-[#adaaaa]">
+                                                      <div className="h-[110px] space-y-0 overflow-auto rounded-[8px] bg-white p-3">
+                                                        <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-0 text-sm font-semibold text-[#231f52]">
                                                           <span>Group</span>
                                                           <span className="ml-auto">
                                                             Number of patients
@@ -1077,14 +1079,14 @@ export default function TSISubgroupSelectionPage() {
                                                           return (
                                                             <div
                                                               key={patient.group}
-                                                              className={`flex items-center gap-2 text-[#1c1b1b] text-sm ${
+                                                              className={`flex items-center gap-2 text-sm text-[#1c1b1b] ${
                                                                 idx > 0
                                                                   ? "border-t border-[#adaaaa] pt-0"
                                                                   : ""
                                                               }`}
                                                             >
                                                               <div
-                                                                className="w-3 h-3 rounded-full"
+                                                                className="h-3 w-3 rounded-full"
                                                                 style={{
                                                                   backgroundColor: groupColor,
                                                                 }}
@@ -1101,13 +1103,13 @@ export default function TSISubgroupSelectionPage() {
                                                   </div>
                                                 </div>
                                                 {/* Right Column */}
-                                                <div className="w-[746px] h-[468px] bg-primary-15 rounded-[18px] px-4 py-6 flex flex-col gap-3">
+                                                <div className="bg-primary-15 flex h-[468px] w-[746px] flex-col gap-3 rounded-[18px] px-4 py-6">
                                                   {/* Variance Reduction Explained */}
                                                   <div>
-                                                    <h3 className="text-white text-feature-title mb-4">
+                                                    <h3 className="text-feature-title mb-4 text-white">
                                                       Variance Reduction Explained
                                                     </h3>
-                                                    <p className="text-white text-body5 font-semibold leading-relaxed">
+                                                    <p className="text-body5 leading-relaxed font-semibold text-white">
                                                       Subgroup stratification reduced the overall
                                                       variance by {variancePercent}%. The observed
                                                       variance reduction was primarily driven by the{" "}
@@ -1122,35 +1124,35 @@ export default function TSISubgroupSelectionPage() {
                                                     </p>
                                                   </div>
                                                   {/* Two cards in one row */}
-                                                  <div className="grid grid-cols-2 gap-3 mt-auto">
+                                                  <div className="mt-auto grid grid-cols-2 gap-3">
                                                     {/* Variance decomposition */}
-                                                    <div className="w-[350px] h-[306px] bg-white rounded-[12px] flex flex-col overflow-hidden">
+                                                    <div className="flex h-[306px] w-[350px] flex-col overflow-hidden rounded-[12px] bg-white">
                                                       {/* 텍스트 영역 (패딩 있음) */}
-                                                      <div className="p-4 flex-shrink-0">
-                                                        <h3 className="text-[#1c1b1b] text-body4 mb-4 tracking-[-0.75px]">
+                                                      <div className="flex-shrink-0 p-4">
+                                                        <h3 className="text-body4 mb-4 tracking-[-0.75px] text-[#1c1b1b]">
                                                           Variance decomposition
                                                         </h3>
                                                         <div className="mb-4 flex gap-5">
                                                           <div>
-                                                            <div className="text-[#f06600] text-body5 font-semibold mb-1">
+                                                            <div className="text-body5 mb-1 font-semibold text-[#f06600]">
                                                               Variance
                                                             </div>
-                                                            <div className="text-[#f06600] text-[28px] font-semibold leading-[28px] tracking-[-0.84px]">
+                                                            <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
                                                               {totalVariance.toFixed(2)}
                                                             </div>
                                                           </div>
                                                           <div>
-                                                            <div className="text-[#f06600] text-body5 font-semibold mb-1">
+                                                            <div className="text-body5 mb-1 font-semibold text-[#f06600]">
                                                               VR
                                                             </div>
-                                                            <div className="text-[#f06600] text-[28px] font-semibold leading-[28px] tracking-[-0.84px]">
+                                                            <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
                                                               {totalVR.toFixed(3)}
                                                             </div>
                                                           </div>
                                                         </div>
                                                       </div>
                                                       {/* 그래프 영역 (패딩 없음) */}
-                                                      <div className="flex-1 bg-white min-h-0 overflow-hidden">
+                                                      <div className="min-h-0 flex-1 overflow-hidden bg-white">
                                                         {detailData.variance_decomposition &&
                                                         detailData.variance_decomposition.length >
                                                           0 ? (
@@ -1282,8 +1284,8 @@ export default function TSISubgroupSelectionPage() {
                                                             );
                                                           })()
                                                         ) : (
-                                                          <div className="flex items-center justify-center h-full">
-                                                            <span className="text-[#484646] text-sm">
+                                                          <div className="flex h-full items-center justify-center">
+                                                            <span className="text-sm text-[#484646]">
                                                               No data available
                                                             </span>
                                                           </div>
@@ -1291,10 +1293,10 @@ export default function TSISubgroupSelectionPage() {
                                                       </div>
                                                     </div>
                                                     {/* Within-group variance by subgroup */}
-                                                    <div className="w-[350px] h-[306px] bg-white rounded-[12px] flex flex-col overflow-hidden">
+                                                    <div className="flex h-[306px] w-[350px] flex-col overflow-hidden rounded-[12px] bg-white">
                                                       {/* 텍스트 영역 (패딩 있음) */}
-                                                      <div className="p-4 flex-shrink-0">
-                                                        <h3 className="text-[#262625] text-[15px] font-semibold mb-4">
+                                                      <div className="flex-shrink-0 p-4">
+                                                        <h3 className="mb-4 text-[15px] font-semibold text-[#262625]">
                                                           Within-group variance by subgroup
                                                         </h3>
                                                         <div className="mb-4 flex gap-5">
@@ -1307,10 +1309,10 @@ export default function TSISubgroupSelectionPage() {
                                                                   : "Low";
                                                             return (
                                                               <div key={v.group}>
-                                                                <div className="text-[#f06600] text-xs font-semibold mb-1">
+                                                                <div className="mb-1 text-xs font-semibold text-[#f06600]">
                                                                   {displayName}
                                                                 </div>
-                                                                <div className="text-[#f06600] text-[28px] font-semibold">
+                                                                <div className="text-[28px] font-semibold text-[#f06600]">
                                                                   {v.variance.toFixed(2)}
                                                                 </div>
                                                               </div>
@@ -1319,7 +1321,7 @@ export default function TSISubgroupSelectionPage() {
                                                         </div>
                                                       </div>
                                                       {/* 그래프 영역 (패딩 없음) */}
-                                                      <div className="flex-1 bg-white min-h-0 overflow-hidden">
+                                                      <div className="min-h-0 flex-1 overflow-hidden bg-white">
                                                         {sortedVariance.length > 0 ? (
                                                           (() => {
                                                             const maxVar = Math.max(
@@ -1463,8 +1465,8 @@ export default function TSISubgroupSelectionPage() {
                                                             );
                                                           })()
                                                         ) : (
-                                                          <div className="flex items-center justify-center h-full">
-                                                            <span className="text-[#484646] text-sm">
+                                                          <div className="flex h-full items-center justify-center">
+                                                            <span className="text-sm text-[#484646]">
                                                               No data available
                                                             </span>
                                                           </div>
@@ -1493,10 +1495,10 @@ export default function TSISubgroupSelectionPage() {
           </div>
         </div>
         {/* 버튼: 카드 밖 아래 */}
-        <div className="w-[1772px] flex-shrink-0 mx-auto flex justify-end items-center gap-4 mt-4 pb-2">
+        <div className="mx-auto mt-4 flex w-[1772px] flex-shrink-0 items-center justify-end gap-4 pb-2">
           <button
             type="button"
-            className="inline-flex items-center justify-center h-[48px] cursor-pointer hover:opacity-90 transition-opacity border-0 bg-transparent p-0"
+            className="inline-flex h-[48px] cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-opacity hover:opacity-90"
             aria-label="Save Progress"
           >
             <Image
@@ -1510,7 +1512,7 @@ export default function TSISubgroupSelectionPage() {
           <button
             type="button"
             onClick={handleSubgroupExplain}
-            className="inline-flex items-center justify-center w-[179px] h-[48px] rounded-[100px] text-body3 text-neutral-30 cursor-pointer hover:opacity-90 transition-opacity border-0 shrink-0 bg-no-repeat bg-center bg-cover"
+            className="text-body3 text-neutral-30 inline-flex h-[48px] w-[179px] shrink-0 cursor-pointer items-center justify-center rounded-[100px] border-0 bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
             style={{ backgroundImage: "url(/assets/tsi/btn.png)" }}
             aria-label="Subgroup Explain"
           >

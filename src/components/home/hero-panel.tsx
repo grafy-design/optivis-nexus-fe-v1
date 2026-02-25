@@ -11,14 +11,7 @@ interface HeroPanelProps {
   serviceId?: string | null;
 }
 
-
-
-export default function HeroPanel({
-  title,
-  description,
-  imageUrl,
-  serviceId,
-}: HeroPanelProps) {
+export default function HeroPanel({ title, description, imageUrl, serviceId }: HeroPanelProps) {
   const router = useRouter();
 
   // Drug Response Prediction Dashboard (serviceId: "6")는 아직 비활성화
@@ -27,7 +20,7 @@ export default function HeroPanel({
   // 서비스별 시뮬레이션 라우트: Adaptive Trial Simulation -> ats, Target Subgroup Identification -> tsi
   const getSimulationPath = () => {
     if (serviceId === "4") return "/ats/simulation";
-    if (serviceId === "5") return "/tsi/default-setting";
+    if (serviceId === "5") return "/tsi/patients-summary";
     return "/simulation";
   };
 

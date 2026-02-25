@@ -176,9 +176,7 @@ const mapStrategyToErrorBarGroup = (
     grouped.set(row.group, points);
   });
 
-  const mapped = groupOrder.map((group) =>
-    (grouped.get(group) ?? []).sort((a, b) => a[0] - b[0])
-  );
+  const mapped = groupOrder.map((group) => (grouped.get(group) ?? []).sort((a, b) => a[0] - b[0]));
 
   return mapped.length > 0 ? mapped : fallback;
 };
@@ -253,11 +251,11 @@ const CHART_22_RIGHT_STACK_DATA: VarianceStackChartData = {
 
 function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelProps) {
   return (
-    <div className="w-full h-[656px] bg-[#ECECF1] rounded-[16px] border-[3px] border-[#8A47FF] flex flex-col p-5 mt-auto flex-shrink-0">
+    <div className="mt-auto flex h-[656px] w-full flex-shrink-0 flex-col rounded-[16px] border-[3px] border-[#8A47FF] bg-[#ECECF1] p-5">
       <h4 className="text-h3 text-neutral-20 flex-shrink-0">Disease Progression by Subgroup</h4>
-      <div className="h-px bg-[#B7B6BE] mt-3 flex-shrink-0" />
+      <div className="mt-3 h-px flex-shrink-0 bg-[#B7B6BE]" />
 
-      <div className="mt-3 flex-1 min-h-0">
+      <div className="mt-3 min-h-0 flex-1">
         <MultiLineWithErrorBar
           dataGroup={chartData}
           seriesLabels={RISK_SERIES_LABELS}
@@ -299,14 +297,14 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
         />
       </div>
 
-      <div className="mt-2 flex items-center gap-6 flex-wrap">
+      <div className="mt-2 flex flex-wrap items-center gap-6">
         {RISK_SERIES_LABELS.map((label, index) => {
           const color = RISK_SERIES_COLORS[index];
           return (
             <div key={label} className="flex items-center gap-2">
-              <div className="relative w-[84px] h-[2px]" style={{ backgroundColor: color }}>
+              <div className="relative h-[2px] w-[84px]" style={{ backgroundColor: color }}>
                 <span
-                  className="absolute top-1/2 left-1/2 w-[12px] h-[12px] rounded-full -translate-x-1/2 -translate-y-1/2"
+                  className="absolute top-1/2 left-1/2 h-[12px] w-[12px] -translate-x-1/2 -translate-y-1/2 rounded-full"
                   style={{ backgroundColor: color }}
                 />
               </div>
@@ -320,7 +318,7 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
         {rows.map((row, index) => (
           <div
             key={row.subgroupName}
-            className={`grid grid-cols-[160px_1fr_220px] items-center h-[44px] ${
+            className={`grid h-[44px] grid-cols-[160px_1fr_220px] items-center ${
               index > 0 ? "border-t border-[#D1D0D8]" : ""
             }`}
           >
@@ -365,11 +363,11 @@ function FeatureBasedDiseaseProgressionPanel({
   rows,
 }: FeatureBasedDiseaseProgressionPanelProps) {
   return (
-    <div className="w-full h-[656px] bg-[#ECECF1] rounded-[16px] flex flex-col p-5 mt-auto flex-shrink-0">
+    <div className="mt-auto flex h-[656px] w-full flex-shrink-0 flex-col rounded-[16px] bg-[#ECECF1] p-5">
       <h4 className="text-h3 text-neutral-20 flex-shrink-0">Disease Progression by Subgroup</h4>
-      <div className="h-px bg-[#A9A8B2] mt-3 flex-shrink-0" />
+      <div className="mt-3 h-px flex-shrink-0 bg-[#A9A8B2]" />
 
-      <div className="mt-3 flex-1 min-h-0">
+      <div className="mt-3 min-h-0 flex-1">
         <MultiLineWithErrorBar
           dataGroup={chartData}
           seriesLabels={FEATURE_BASED_RISK_SERIES_LABELS}
@@ -412,14 +410,14 @@ function FeatureBasedDiseaseProgressionPanel({
         />
       </div>
 
-      <div className="mt-1 flex items-center gap-6 flex-wrap">
+      <div className="mt-1 flex flex-wrap items-center gap-6">
         {FEATURE_BASED_RISK_SERIES_LABELS.map((label, index) => {
           const color = FEATURE_BASED_RISK_SERIES_COLORS[index];
           return (
             <div key={label} className="flex items-center gap-2">
-              <div className="relative w-[86px] h-[2px]" style={{ backgroundColor: color }}>
+              <div className="relative h-[2px] w-[86px]" style={{ backgroundColor: color }}>
                 <span
-                  className="absolute top-1/2 left-1/2 w-[12px] h-[12px] rounded-full -translate-x-1/2 -translate-y-1/2"
+                  className="absolute top-1/2 left-1/2 h-[12px] w-[12px] -translate-x-1/2 -translate-y-1/2 rounded-full"
                   style={{ backgroundColor: color }}
                 />
               </div>
@@ -433,14 +431,14 @@ function FeatureBasedDiseaseProgressionPanel({
         {rows.map((row, index) => (
           <div
             key={row.subgroupName}
-            className={`grid grid-cols-[140px_180px_1fr] items-center h-[42px] ${
+            className={`grid h-[42px] grid-cols-[140px_180px_1fr] items-center ${
               index > 0 ? "border-t border-[#CAC9D1]" : ""
             }`}
           >
             <span className="text-body3m text-neutral-50">{row.subgroupName}</span>
             <span className="text-h4 text-neutral-20">{row.riskLabel}</span>
             <div className="flex items-center gap-4">
-              <span className="text-body3m text-neutral-50 shrink-0">Cutoff</span>
+              <span className="text-body3m shrink-0 text-neutral-50">Cutoff</span>
               <span className="text-h4 text-neutral-20 whitespace-nowrap">{row.cutoff}</span>
             </div>
           </div>
@@ -456,9 +454,7 @@ const RISK_METRICS = [
   { key: "safety", label: "Safety" },
 ] as const;
 
-const mapRiskMetricKey = (
-  item: ReportRiskResponseAssessmentItem
-): RiskMetricKey | null => {
+const mapRiskMetricKey = (item: ReportRiskResponseAssessmentItem): RiskMetricKey | null => {
   const outcome = item.outcome.toLowerCase();
   if (outcome === "cdr-sb") return "diseaseProgression";
   if (outcome === "rhte") return "drugResponse";
@@ -505,7 +501,9 @@ const mapRiskResponseToSets = (
       const metrics = {} as Record<RiskMetricKey, ForestIntervalData>;
 
       RISK_METRICS.forEach(({ key }) => {
-        const source = setRows.find((item) => item.group === group && mapRiskMetricKey(item) === key);
+        const source = setRows.find(
+          (item) => item.group === group && mapRiskMetricKey(item) === key
+        );
         if (!source) {
           metrics[key] = { low: 50, mean: 50, high: 50, color: rowColor };
           return;
@@ -624,22 +622,22 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
 
   return (
     <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center min-w-0">
+      <div className="flex w-full min-w-0 flex-col items-center">
         {/* 타이틀: 카드 밖 */}
-        <div className="w-full flex justify-center mb-[42px] max-w-full">
-          <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
-            <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">
-                Subgroup Analysis Report : {feature}
+        <div className="mb-[42px] flex w-full max-w-full justify-center">
+          <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
+            <div className="flex flex-shrink-0 flex-col items-start gap-1">
+              <div className="text-title text-neutral-5 mb-2 text-left">
+                Subgroup Analysis Report : {decodeURI(feature)}
               </div>
-              <p className="text-body2m text-neutral-50 text-left">Analysis Summary</p>
+              <p className="text-body2m text-left text-neutral-50">Analysis Summary</p>
             </div>
           </div>
         </div>
 
         {/* 리포트 배경 카드 */}
         <div
-          className="w-[1772px] max-w-[calc(100vw-100px)] h-[2244px] flex-shrink-0 rounded-[36px] overflow-hidden flex flex-col bg-white py-[26px] px-[12px]"
+          className="flex h-[2244px] w-[1772px] max-w-[calc(100vw-100px)] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white px-[12px] py-[26px]"
           style={{
             backgroundImage: "url(/assets/tsi/report-bg.png)",
             backgroundSize: "100% 100%",
@@ -649,29 +647,29 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
           }}
         >
           {/* 리포트 내용 영역 */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex flex-1 flex-col">
             {/* 첫 번째 섹션: Stratification Strategy Comparison (150px y부터, 1748px 너비, 962px 높이) */}
-            <div className="flex-shrink-0 w-[1748px] max-w-full h-[962px] mx-auto mb-[100px] min-w-0">
-              <div className="w-full h-full flex flex-col">
+            <div className="mx-auto mb-[100px] h-[962px] w-[1748px] max-w-full min-w-0 flex-shrink-0">
+              <div className="flex h-full w-full flex-col">
                 {/* 섹션 제목 */}
-                <h2 className="ml-[28px] text-h2 text-primary-15 mb-[40px] flex-shrink-0">
+                <h2 className="text-h2 text-primary-15 mb-[40px] ml-[28px] flex-shrink-0">
                   Stratification Strategy Comparison
                 </h2>
 
                 {/* 두 개의 파란색 카드 나란히 */}
-                <div className="w-full flex-shrink-0 flex flex-row gap-4">
+                <div className="flex w-full flex-shrink-0 flex-row gap-4">
                   {/* 왼쪽 카드: Executive Summary & Stratification Strategy */}
-                  <div className="flex-1 h-[880px] rounded-[24px] bg-primary-15 overflow-hidden flex flex-col p-5">
+                  <div className="bg-primary-15 flex h-[880px] flex-1 flex-col overflow-hidden rounded-[24px] p-5">
                     {/* Model Based 라벨 */}
                     <div className="mb-4 flex-shrink-0">
-                      <span className="flex items-center justify-center gap-2 w-[104px] h-[24px] rounded-md bg-orange-500 text-body5 text-white font-medium ">
+                      <span className="text-body5 flex h-[24px] w-[104px] items-center justify-center gap-2 rounded-md bg-orange-500 font-medium text-white">
                         Model Based
                       </span>
                     </div>
-                    <h4 className="text-h4 text-white mb-4 flex-shrink-0">
+                    <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
                       Executive Summary & Stratification Strategy
                     </h4>
-                    <p className="text-body3m text-white/90 mb-6 flex-shrink-0 mt-auto">
+                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 text-white/90">
                       Patients were initially stratified based on the model's predicted progression
                       effect into three distinct categories: Rapid (Top 20%), Moderate (20% ~ 70%),
                       and Slow (Bottom 30%). To enhance clinical interpretability, we utilized the
@@ -685,17 +683,17 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                   </div>
 
                   {/* 오른쪽 카드: Feature-Based Decision Rules */}
-                  <div className="flex-1 h-[880px] rounded-[24px] bg-primary-15 overflow-hidden flex flex-col p-5">
+                  <div className="bg-primary-15 flex h-[880px] flex-1 flex-col overflow-hidden rounded-[24px] p-5">
                     {/* Feature Based 라벨 */}
                     <div className="mb-4 flex-shrink-0">
-                      <span className="flex items-center justify-center gap-2 w-[104px] h-[24px] rounded-md bg-orange-500 text-body5 text-white font-medium ">
+                      <span className="text-body5 flex h-[24px] w-[104px] items-center justify-center gap-2 rounded-md bg-orange-500 font-medium text-white">
                         Feature Based
                       </span>
                     </div>
-                    <h4 className="text-h4 text-white mb-4 flex-shrink-0">
+                    <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
                       Feature-Based Decision Rules (CART-derived)
                     </h4>
-                    <p className="text-body3m text-white/90 mb-6 flex-shrink-0 mt-auto">
+                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 text-white/90">
                       The variance decomposition analysis identified key baseline drivers and their
                       respective clinical thresholds that define each subgroup: High Risk (Rapid):
                       Patients meeting both ADRECOG {">"} 5.7 and ADRECALL {">"} 4.85. Low Risk
@@ -712,13 +710,13 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
             </div>
 
             {/* 두 번째 섹션: Stratification Strategy Comparison */}
-            <div className="flex-shrink-0 w-[1748px] max-w-full mx-auto mb-[100px] min-w-0">
-              <div className="w-full flex flex-col">
+            <div className="mx-auto mb-[100px] w-[1748px] max-w-full min-w-0 flex-shrink-0">
+              <div className="flex w-full flex-col">
                 {/* 섹션 제목 */}
-                <h2 className="ml-[28px] text-h2 text-primary-15 mb-[40px] flex-shrink-0">
+                <h2 className="text-h2 text-primary-15 mb-[40px] ml-[28px] flex-shrink-0">
                   Stratification Strategy Comparison
                 </h2>
-                <div className="w-[1748px] h-[562px] rounded-[24px] bg-white border border-neutral-90 p-4 flex flex-col">
+                <div className="border-neutral-90 flex h-[562px] w-[1748px] flex-col rounded-[24px] border bg-white p-4">
                   {/* 텍스트 영역 */}
                   <div className="w-[850px] flex-shrink-0">
                     <h4 className="text-h4 text-neutral-5 mb-4">
@@ -735,16 +733,16 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                   </div>
 
                   {/* 두 개의 차트 섹션 */}
-                  <div className="w-full flex gap-4 mt-auto flex-shrink-0">
+                  <div className="mt-auto flex w-full flex-shrink-0 gap-4">
                     {/* 첫 번째 차트 섹션 */}
-                    <div className="flex flex-col items-start gap-[10px] w-[850px] h-[378px] p-[6px] flex-shrink-0">
-                      <div className="w-full flex-1 rounded-[16px] overflow-hidden">
+                    <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
+                      <div className="w-full flex-1 overflow-hidden rounded-[16px]">
                         <StratificationComparisonChartMockPanel />
                       </div>
                     </div>
                     {/* 두 번째 차트 섹션 */}
-                    <div className="flex flex-col items-start gap-[10px] w-[850px] h-[378px] p-[6px] flex-shrink-0">
-                      <div className="w-full flex-1 rounded-[16px] overflow-hidden">
+                    <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
+                      <div className="w-full flex-1 overflow-hidden rounded-[16px]">
                         <StratificationComparisonChartMockPanelAlt />
                       </div>
                     </div>
@@ -754,16 +752,16 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
             </div>
 
             {/* 세 번째 섹션: Risk & Response Assessment */}
-            <div className="flex-shrink-0 w-[1748px] max-w-full mx-auto min-w-0">
-              <div className="w-full flex flex-col">
+            <div className="mx-auto w-[1748px] max-w-full min-w-0 flex-shrink-0">
+              <div className="flex w-full flex-col">
                 {/* 섹션 제목 */}
-                <h2 className="ml-[28px] text-h2 text-primary-15 mb-[40px] flex-shrink-0">
+                <h2 className="text-h2 text-primary-15 mb-[40px] ml-[28px] flex-shrink-0">
                   Risk & Response Assessment
                 </h2>
-                <div className="w-[1748px] h-[322px] rounded-[24px] bg-white border border-neutral-90 p-4 flex gap-4">
+                <div className="border-neutral-90 flex h-[322px] w-[1748px] gap-4 rounded-[24px] border bg-white p-4">
                   {/* 왼쪽: 타이틀 영역 */}
-                  <div className="flex flex-col items-start gap-[28px] w-[414px] h-[290px] flex-shrink-0">
-                    <div className="flex flex-col items-start gap-[24px] w-full">
+                  <div className="flex h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
+                    <div className="flex w-full flex-col items-start gap-[24px]">
                       <h3 className="text-h4 text-neutral-5">Risk & Response Assessment</h3>
                       <p className="text-body3m text-neutral-40">
                         Risk & Response Assessment (rHTE & Safety)
@@ -780,7 +778,7 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                   </div>
 
                   {/* 오른쪽: 포레스트 플롯 */}
-                  <div className="flex-1 min-w-0 flex">
+                  <div className="flex min-w-0 flex-1">
                     <RiskResponseMatrixChartPanel sets={riskResponseSets} />
                   </div>
                 </div>

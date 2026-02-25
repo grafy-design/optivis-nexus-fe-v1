@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SimulationTableProps {
   serviceId?: string | null;
@@ -25,7 +25,7 @@ const MOCK_UP_SIMULATION_DATA = [
 ];
 
 export default function SimulationTable({ serviceId }: SimulationTableProps) {
-  const [tableData] = useState(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
+  const [tableData, setTableData] = useState(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
   const router = useRouter();
   const firstColumnTitle =
     serviceId === "4" || serviceId === "5" ? "Simulation name" : "Patient ID";
@@ -41,53 +41,61 @@ export default function SimulationTable({ serviceId }: SimulationTableProps) {
     }
   };
 
-  return (
-    <div className="w-full overflow-hidden rounded-[18px]">
-      <table className="w-full table-fixed border-separate border-spacing-y-[10px]">
-        <thead>
-          <tr className="h-[46px] bg-[#636364] text-body5 text-white">
-            <th className="rounded-l-[24px] px-6 text-left font-medium">{firstColumnTitle}</th>
-            <th className="px-6 text-left font-medium">Disease</th>
-            <th className="px-6 text-left font-medium">Outcome</th>
-            <th className="px-6 text-left font-medium">Description</th>
-            <th className=" px-6 text-left font-medium">Last updated</th>
-            <th className="rounded-r-[24px]"></th>
-          </tr>
-        </thead>
+  useEffect(() => {
+    setTableData(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
+  }, [serviceId]);
 
-        <tbody className="bg-white">
-          {tableData.length === 0 ? (
-            <tr>
-              <td
-                colSpan={6}
-                className="min-h-[394px] px-5 py-20 text-center text-body4 text-[#828993]"
+  return (
+    <div className="">
+      <div className="text-body5 mb-2 grid h-[40px] grid-cols-[15%_16%_14%_29%_18%_8%] items-center rounded-[24px] bg-[#636364] px-4 text-white">
+        <div className="font-medium">{firstColumnTitle}</div>
+        <div className="font-medium">Disease</div>
+        <div className="font-medium">Outcome</div>
+        <div className="font-medium">Description</div>
+        <div className="font-medium">Last updated</div>
+        <div></div>
+      </div>
+
+      {tableData.length === 0 ? (
+        <div className="text-body4 min-h-[320px] rounded-[18px] bg-white p-1 text-center">
+          <p className="my-auto">No saved simulations.</p>
+        </div>
+      ) : (
+        <div className="min-h-[320px] rounded-[18px] bg-white p-1">
+          {tableData.map((row, index) => {
+            return (
+              <div
+                key={index}
+                className="grid grid-cols-[15%_16%_14%_29%_18%_8%] items-center px-4 py-[6px] text-[14px] text-[#1b1b1b]"
               >
-                No saved simulations.
-              </td>
-            </tr>
-          ) : (
-            tableData.map((row, index) => {
-              return (
-                <tr key={index} className="text-body4 text-[#1b1b1b]">
-                  <td className="px-6 py-2">{row.simulation_name}</td>
-                  <td className="px-6 py-2">{row.disease}</td>
-                  <td className="px-6 py-2">{row.outcome}</td>
-                  <td className="px-6 py-2">{row.description}</td>
-                  <td className="px-6 py-2">{row.last_updated}</td>
-                  <td className="px-6 py-2">
-                    <button
-                      className="cursor-pointer"
-                      onClick={(event) => handlePlaySimulation(event, row.simulation_name)}
+                <div className="font-medium">{row.simulation_name}</div>
+                <div>{row.disease}</div>
+                <div>{row.outcome}</div>
+                <div>{row.description}</div>
+                <div>{row.last_updated}</div>
+                <div className="text-right">
+                  <button
+                    className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#5D33D6]"
+                    aria-label={`Play ${row.simulation_name}`}
+                    onClick={(event) => handlePlaySimulation(event, row.simulation_name)}
+                  >
+                    <svg
+                      aria-hidden
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      play
-                    </button>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+                      <path d="M3 2.2L7.2 5L3 7.8V2.2Z" fill="currentColor" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
