@@ -6,102 +6,18 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { MultiRankingBarChart } from "@/components/charts/MultiRankingBarChart";
 import { SHAPSummaryPlotChart } from "@/components/charts/SHAPSummaryPlotChart";
 
-import {
-  BASE_LINE_DRIVER_MOCK,
-  BASELINE_BIN_RATIO_MOCK,
-  BASELINE_DISTRIBUTION_MOCK,
-  BASELINE_SLOPE_MOCK,
-  EXPORTED_THERAPEUTIC_GAIN_MOCK,
-} from "./mock";
 import { BaselineDistributionHistogram } from "@/components/charts/BaselineDistributionHistogram";
 import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ExplainListData, getExplainList } from "@/services/subgroupService";
+import {
+  ExplainExpectedTherapeuticGainItem,
+  ExplainListData,
+  getExplainList,
+} from "@/services/subgroupService";
 
-const FEATURE_LIST = [
-  "ADAS Cog 11 BL",
-  "ADAS Cog 13 BL",
-  "ADORIENT",
-  "ADRECOG",
-  "CDJUD",
-  "CDMEM",
-  "ADDRECALL",
-  "ADAS Cog 13",
-  "PTAU",
-];
-const DEFAULT_SELECTED_FEATURE = "ADDRECALL";
-
-type TherapeuticGainMetric = "variance_reduction" | "relative_contribution";
-type TherapeuticGainRiskType = "Slow" | "Rapid";
-type TherapeuticGainItem = {
-  rank: number;
-  variance_reduction: number;
-  relative_contribution: number;
-  cutoff: number[];
-  risk_type: TherapeuticGainRiskType;
-  feature_name: string;
-};
-
-type MultiRankingBarItem = {
-  id: string;
-  rank: number;
-  label: string;
-  value: number;
-};
-
-type BaselineSlopeGroup = {
-  points: { x: number; y: number }[];
-  regression?: { slope: number; intercept: number };
-};
-
-type BaselineSlopeFeature = Record<string, BaselineSlopeGroup>;
-
-type BaselineSlopeMock = Record<string, BaselineSlopeFeature>;
 type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
 type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
-
-const convertTherapeuticGainToMultiRankingData = (
-  rows: TherapeuticGainItem[],
-  options: {
-    metric: TherapeuticGainMetric;
-    riskType?: TherapeuticGainRiskType;
-    topN?: number;
-  }
-): MultiRankingBarItem[] => {
-  const { metric, riskType, topN = 10 } = options;
-  const filteredRows = riskType ? rows.filter((row) => row.risk_type === riskType) : rows;
-
-  const byRank = new Map<number, TherapeuticGainItem>();
-  filteredRows
-    .slice()
-    .sort((a, b) => a.rank - b.rank)
-    .forEach((row) => {
-      if (!byRank.has(row.rank)) {
-        byRank.set(row.rank, row);
-      }
-    });
-
-  return Array.from(byRank.values())
-    .sort((a, b) => a.rank - b.rank)
-    .slice(0, topN)
-    .map((row) => ({
-      id: `${riskType ?? "all"}-${row.rank}-${row.feature_name}`,
-      rank: row.rank,
-      label: `#${row.rank}`,
-      value: Number(row[metric]) || 0,
-    }));
-};
-
-const EXPECTED_THERAPEUTIC_GAIN_CHART_DATA = convertTherapeuticGainToMultiRankingData(
-  EXPORTED_THERAPEUTIC_GAIN_MOCK as TherapeuticGainItem[],
-  {
-    metric: "variance_reduction",
-    riskType: "Slow",
-  }
-);
-
-const MOCK_TASK_ID = "test-task-id";
 /**
  * TSI Step 5: Subgroup Explain
  * 구조: 상위 배경 카드 2개 나란히
@@ -109,29 +25,31 @@ const MOCK_TASK_ID = "test-task-id";
  * - 오른쪽 상위: explain-right.png → 안에 파란색 그래프 카드 + 설명 / 흰색 카드 + 파란색 카드(흰색 그래프 3개) + 설명
  */
 export default function TSISubgroupExplainPage() {
-  const [selectedFeature, setSelectedFeature] = useState(DEFAULT_SELECTED_FEATURE);
+  const [defaultSelectedFeature] = useState("ADDRECALL");
+  const [taskId] = useState("test-task-id");
+  const [selectedFeature, setSelectedFeature] = useState(defaultSelectedFeature);
   const searchParams = useSearchParams();
   const subgroupId = searchParams.get("subgroupId") ?? "";
   const [resultData, setResultData] = useState<ExplainListData>();
 
   const router = useRouter();
   const baselineDistributionData =
-    BASELINE_DISTRIBUTION_MOCK[selectedFeature] ??
-    BASELINE_DISTRIBUTION_MOCK[DEFAULT_SELECTED_FEATURE] ??
-    BASELINE_DISTRIBUTION_MOCK.ADDRECALL ??
-    BASELINE_DISTRIBUTION_MOCK.ADRECOG ??
-    Object.values(BASELINE_DISTRIBUTION_MOCK)[0];
-  const baselineSlopeMock = BASELINE_SLOPE_MOCK as BaselineSlopeMock;
+    resultData?.explain_json.explain_histogram[selectedFeature] ??
+    resultData?.explain_json.explain_histogram[defaultSelectedFeature] ??
+    resultData?.explain_json.explain_histogram.ADDRECALL ??
+    resultData?.explain_json.explain_histogram.ADRECOG ??
+    Object.values(resultData?.explain_json.explain_histogram || {})[0];
   const baselineSlopeData =
-    baselineSlopeMock[selectedFeature] ??
-    baselineSlopeMock[DEFAULT_SELECTED_FEATURE] ??
-    baselineSlopeMock.ADDRECALL ??
-    baselineSlopeMock.ADRECOG ??
-    Object.values(baselineSlopeMock)[0];
-  const baselineBinRatioMock = BASELINE_BIN_RATIO_MOCK as BaselineBinRatioMock;
+    resultData?.explain_json.explain_scatter[selectedFeature] ??
+    resultData?.explain_json.explain_scatter[defaultSelectedFeature] ??
+    resultData?.explain_json.explain_scatter.ADDRECALL ??
+    resultData?.explain_json.explain_scatter.ADRECOG ??
+    Object.values(resultData?.explain_json.explain_scatter || {})[0];
+  const baselineBinRatioMock = (resultData?.explain_json.explain_bin_ratio ??
+    {}) as BaselineBinRatioMock;
   const baselineBinRatioData =
     baselineBinRatioMock[selectedFeature] ??
-    baselineBinRatioMock[DEFAULT_SELECTED_FEATURE] ??
+    baselineBinRatioMock[defaultSelectedFeature] ??
     baselineBinRatioMock.ADDRECALL ??
     baselineBinRatioMock.ADRECOG ??
     Object.values(baselineBinRatioMock)[0];
@@ -142,15 +60,100 @@ export default function TSISubgroupExplainPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getExplainList(MOCK_TASK_ID, subgroupId);
+      const res = await getExplainList(taskId, subgroupId);
 
       setResultData(res.data);
     };
 
     fetchData();
-  }, [subgroupId]);
+  }, [subgroupId, taskId]);
 
-  console.log(resultData);
+  const convertExpectedTherapeuticGain = (
+    originData: ExplainExpectedTherapeuticGainItem[]
+  ): ExplainExpectedTherapeuticGainItem[] => {
+    const groupedByRank = new Map<
+      number,
+      {
+        count: number;
+        varianceReductionSum: number;
+        relativeContributionSum: number;
+        cutoffSums: number[];
+        cutoffCounts: number[];
+        sample: ExplainExpectedTherapeuticGainItem;
+      }
+    >();
+
+    originData.forEach((row) => {
+      const varianceReduction = Number(row.variance_reduction);
+      const relativeContribution = Number(row.relative_contribution);
+      const cutoffs = Array.isArray(row.cutoff) ? row.cutoff : [];
+
+      const existing = groupedByRank.get(row.rank);
+
+      if (!existing) {
+        const cutoffSums = cutoffs.map(() => 0);
+        const cutoffCounts = cutoffs.map(() => 0);
+
+        groupedByRank.set(row.rank, {
+          count: 1,
+          varianceReductionSum: Number.isFinite(varianceReduction) ? varianceReduction : 0,
+          relativeContributionSum: Number.isFinite(relativeContribution) ? relativeContribution : 0,
+          cutoffSums,
+          cutoffCounts,
+          sample: row,
+        });
+
+        cutoffs.forEach((value, index) => {
+          const numericValue = Number(value);
+          if (!Number.isFinite(numericValue)) return;
+          cutoffSums[index] += numericValue;
+          cutoffCounts[index] += 1;
+        });
+
+        return;
+      }
+
+      existing.count += 1;
+      existing.varianceReductionSum += Number.isFinite(varianceReduction) ? varianceReduction : 0;
+      existing.relativeContributionSum += Number.isFinite(relativeContribution)
+        ? relativeContribution
+        : 0;
+
+      cutoffs.forEach((value, index) => {
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) return;
+
+        if (existing.cutoffSums[index] === undefined) {
+          existing.cutoffSums[index] = 0;
+          existing.cutoffCounts[index] = 0;
+        }
+
+        existing.cutoffSums[index] += numericValue;
+        existing.cutoffCounts[index] += 1;
+      });
+    });
+
+    return Array.from(groupedByRank.entries())
+      .sort(([leftRank], [rightRank]) => leftRank - rightRank)
+      .map(([rank, grouped]) => ({
+        rank,
+        variance_reduction: grouped.varianceReductionSum / grouped.count,
+        relative_contribution: grouped.relativeContributionSum / grouped.count,
+        cutoff: grouped.cutoffSums.map((sum, index) => {
+          const count = grouped.cutoffCounts[index] ?? 0;
+          return count > 0 ? sum / count : 0;
+        }),
+        risk_type: grouped.sample.risk_type,
+        feature_name: grouped.sample.feature_name,
+      }));
+  };
+
+  const expectedTherapeuticGainData = convertExpectedTherapeuticGain(
+    resultData?.explain_json.expected_therapeutic_gain ?? []
+  );
+
+  const featureList = expectedTherapeuticGainData.map(({ feature_name }) => feature_name);
+
   return (
     <AppLayout headerType="tsi">
       <div className="flex w-full flex-col items-center">
@@ -189,11 +192,7 @@ export default function TSISubgroupExplainPage() {
               </h2>
               {/* 그래프 영역 */}
               <div className="mt-auto flex h-[452px] flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
-                {resultData?.explain_json.expected_therapeutic_gain && (
-                  <MultiRankingBarChart
-                    data={resultData?.explain_json.expected_therapeutic_gain || []}
-                  />
-                )}
+                <MultiRankingBarChart data={expectedTherapeuticGainData} />
               </div>
             </div>
 
@@ -225,9 +224,7 @@ export default function TSISubgroupExplainPage() {
 
                 {/* 테이블 바디 */}
                 <div className="min-h-0 flex-1 overflow-y-auto">
-                  {EXPORTED_THERAPEUTIC_GAIN_MOCK.filter(
-                    ({ risk_type }) => risk_type === "Rapid"
-                  ).map((row, index) => (
+                  {expectedTherapeuticGainData.map((row, index) => (
                     <div
                       key={`${row.rank}_${index}`}
                       className="border-neutral-80 flex h-[52px] items-center gap-4 border-b"
@@ -274,7 +271,7 @@ export default function TSISubgroupExplainPage() {
                     Baseline driver Top 10
                   </h2>
                   <div className="mt-auto flex h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
-                    <SHAPSummaryPlotChart data={BASE_LINE_DRIVER_MOCK} />
+                    <SHAPSummaryPlotChart data={resultData?.explain_json.baseline_driver} />
                   </div>
                 </div>
 
@@ -322,12 +319,12 @@ export default function TSISubgroupExplainPage() {
                 }}
               >
                 <div className="min-h-0 flex-1 overflow-y-auto">
-                  {FEATURE_LIST.map((feature, index) => (
+                  {featureList.map((feature, index) => (
                     <button
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
                       className={`text-body4 flex h-[59px] w-full items-center gap-[10px] self-stretch px-[12px] py-[18px] transition-colors ${
-                        index < FEATURE_LIST.length - 1 ? "border-neutral-90 border-b" : ""
+                        index < featureList.length - 1 ? "border-neutral-90 border-b" : ""
                       } ${
                         selectedFeature === feature
                           ? "bg-primary-15 text-white"

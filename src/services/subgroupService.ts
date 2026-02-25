@@ -1,5 +1,4 @@
 import { fetcher } from "@/lib/fetcher";
-import { stringify } from "querystring";
 
 // Report API 공통 항목 타입
 export interface ReportOverviewDescriptionItem {
@@ -233,7 +232,7 @@ export interface ExplainExpectedTherapeuticGainItem {
   variance_reduction: number;
   relative_contribution: number;
   cutoff: number[];
-  risk_type: "Slow" | "Rapid";
+  risk_type: string;
   feature_name: string;
 }
 
