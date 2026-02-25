@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Select from "@/components/ui/select";
@@ -240,7 +240,7 @@ const buildTableGroupRows = (cutoffs: CutoffPoint[], xValues: number[]): TableGr
  * - 오른쪽 카드: 차트와 테이블
  */
 
-export default function TSIRefineCutoffsPage() {
+function TSIRefineCutoffsPageContent() {
   const searchParams = useSearchParams();
 
   const subgroupId = searchParams.get("subgroupId");
@@ -741,5 +741,13 @@ export default function TSIRefineCutoffsPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function TSIRefineCutoffsPage() {
+  return (
+    <Suspense fallback={null}>
+      <TSIRefineCutoffsPageContent />
+    </Suspense>
   );
 }

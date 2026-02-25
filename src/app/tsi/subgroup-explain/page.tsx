@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MultiRankingBarChart } from "@/components/charts/MultiRankingBarChart";
@@ -24,7 +24,7 @@ type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
  * - 왼쪽 상위: explain-left.png → 안에 파란색 그래프 카드 + 흰색 테이블 카드
  * - 오른쪽 상위: explain-right.png → 안에 파란색 그래프 카드 + 설명 / 흰색 카드 + 파란색 카드(흰색 그래프 3개) + 설명
  */
-export default function TSISubgroupExplainPage() {
+function TSISubgroupExplainPageContent() {
   const [defaultSelectedFeature] = useState("ADDRECALL");
   const [taskId] = useState("test-task-id");
   const [selectedFeature, setSelectedFeature] = useState(defaultSelectedFeature);
@@ -447,5 +447,13 @@ export default function TSISubgroupExplainPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function TSISubgroupExplainPage() {
+  return (
+    <Suspense fallback={null}>
+      <TSISubgroupExplainPageContent />
+    </Suspense>
   );
 }
