@@ -82,7 +82,9 @@ const mapStrategyToErrorBarGroup = (
   return mapped.length > 0 ? mapped : fallback;
 };
 
-const getRiskRankByGroup = (strategyRows: ReportStratificationStrategyItem[]): Map<string, number> => {
+const getRiskRankByGroup = (
+  strategyRows: ReportStratificationStrategyItem[]
+): Map<string, number> => {
   const latestRowByGroup = new Map<string, ReportStratificationStrategyItem>();
 
   strategyRows.forEach((row) => {
@@ -556,7 +558,9 @@ export default function TSIReportPage() {
         setReportResponse(response);
       } catch (error) {
         if (cancelled) return;
-        setFetchError(error instanceof Error ? error.message : "Subgroup Report 정보 조회에 실패했습니다.");
+        setFetchError(
+          error instanceof Error ? error.message : "Subgroup Report 정보 조회에 실패했습니다."
+        );
       }
     };
 
@@ -628,10 +632,7 @@ export default function TSIReportPage() {
     [],
     []
   );
-  const riskResponseSets = mapRiskResponseToSets(
-    reportJson?.risk_response_assessment ?? [],
-    []
-  );
+  const riskResponseSets = mapRiskResponseToSets(reportJson?.risk_response_assessment ?? [], []);
   const hasModelBasedData = modelBasedPanelData.chartData.length > 0;
   const hasFeatureBasedData = featureBasedPanelData.chartData.length > 0;
   const hasComparisonSectionData = hasModelBasedData && hasFeatureBasedData;
@@ -643,18 +644,42 @@ export default function TSIReportPage() {
         {/* 타이틀: 카드 밖 */}
         <div className="mb-[42px] flex w-full max-w-full justify-center">
           <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
-            <div className="flex flex-shrink-0 flex-col items-start gap-1">
-              <div className="text-title text-neutral-5 mb-2 text-left">
-                Subgroup Analysis Report : {featureName}
+            <div className="flex w-full items-end justify-between">
+              <div className="flex flex-shrink-0 flex-col items-start gap-1">
+                <div className="text-title text-neutral-5 mb-2 text-left">
+                  Subgroup Analysis Report : {featureName}
+                </div>
+                <p className="text-body2m text-left text-neutral-50">Analysis Summary</p>
               </div>
-              <p className="text-body2m text-left text-neutral-50">Analysis Summary</p>
+              <button
+                type="button"
+                onClick={() => {
+                  console.log("[TSI][Report] Save as PDF clicked");
+                }}
+                className="text-body2 flex h-[42px] w-[144px] items-center justify-center gap-2 rounded-[100px] bg-[#AAAAAD] text-white"
+              >
+                <span>Save as PDF</span>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M4 13.9571V4.04286C4 3.68571 4.08261 3.42381 4.24782 3.25714C4.41304 3.08571 4.60951 3 4.83724 3C5.03818 3 5.24358 3.0619 5.45345 3.18571L13.2565 8.05C13.5334 8.22143 13.7254 8.37619 13.8326 8.51429C13.9442 8.64762 14 8.80952 14 9C14 9.18571 13.9442 9.34762 13.8326 9.48571C13.7254 9.62381 13.5334 9.77857 13.2565 9.95L5.45345 14.8143C5.24358 14.9381 5.03818 15 4.83724 15C4.60951 15 4.41304 14.9143 4.24782 14.7429C4.08261 14.5714 4 14.3095 4 13.9571Z"
+                    fill="white"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
 
         {/* 리포트 배경 카드 */}
         <div
-          className="flex h-[2244px] w-[1772px] max-w-[calc(100vw-100px)] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white px-[12px] py-[26px]"
+          className="flex h-auto min-h-[2244px] w-[1772px] max-w-[calc(100vw-100px)] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white px-[12px] py-[26px]"
           style={{
             backgroundImage: "url(/assets/tsi/report-bg.png)",
             backgroundSize: "100% 100%",
@@ -683,9 +708,7 @@ export default function TSIReportPage() {
                         Model Based
                       </span>
                     </div>
-                    <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
-                      {modelOverview.title}
-                    </h4>
+                    <h4 className="text-h4 mb-4 flex-shrink-0 text-white">{modelOverview.title}</h4>
                     <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
                       {modelOverview.description}
                     </p>
@@ -698,7 +721,9 @@ export default function TSIReportPage() {
                       />
                     ) : (
                       <div className="mt-auto flex h-[656px] w-full items-center justify-center rounded-[16px] border-[3px] border-[#8A47FF] bg-[#ECECF1]">
-                        <p className="text-body2m text-neutral-50">Model Based 데이터가 없습니다.</p>
+                        <p className="text-body2m text-neutral-50">
+                          Model Based 데이터가 없습니다.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -726,7 +751,9 @@ export default function TSIReportPage() {
                       />
                     ) : (
                       <div className="mt-auto flex h-[656px] w-full items-center justify-center rounded-[16px] bg-[#ECECF1]">
-                        <p className="text-body2m text-neutral-50">Feature Based 데이터가 없습니다.</p>
+                        <p className="text-body2m text-neutral-50">
+                          Feature Based 데이터가 없습니다.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -747,7 +774,7 @@ export default function TSIReportPage() {
                       {/* 텍스트 영역 */}
                       <div className="w-[850px] flex-shrink-0">
                         <h4 className="text-h4 text-neutral-5 mb-4">{comparisonOverview.title}</h4>
-                        <p className="text-body3m whitespace-pre-line text-neutral-40">
+                        <p className="text-body3m text-neutral-40 whitespace-pre-line">
                           {comparisonOverview.description}
                         </p>
                       </div>
@@ -791,7 +818,7 @@ export default function TSIReportPage() {
                   <div className="flex h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
                     <div className="flex w-full flex-col items-start gap-[24px]">
                       <h3 className="text-h4 text-neutral-5">{riskOverview.title}</h3>
-                      <p className="text-body3m whitespace-pre-line text-neutral-40">
+                      <p className="text-body3m text-neutral-40 whitespace-pre-line">
                         {riskOverview.description}
                       </p>
                     </div>
@@ -812,6 +839,86 @@ export default function TSIReportPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* 하단 우측 CTA */}
+        <div className="mb-[28px] flex w-[1772px] max-w-[calc(100vw-100px)] justify-end pr-[38px]">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                console.log("[TSI][Report] Save Progress clicked");
+              }}
+              className="text-body1 flex h-[48px] w-[190px] items-center gap-2 rounded-[100px] bg-[#AAAAAD] px-[24px] py-[6px] text-white"
+            >
+              <svg
+                width="36"
+                height="36"
+                viewBox="0 0 36 36"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                className="flex-shrink-0"
+              >
+                <path
+                  d="M18 7.5V21"
+                  stroke="white"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M12 15.75L18 21.75L24 15.75"
+                  stroke="white"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M10 24V27C10 28.1046 10.8954 29 12 29H24C25.1046 29 26 28.1046 26 27V24"
+                  stroke="white"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>Save Progress</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                console.log("[TSI][Report] Add Basis clicked");
+              }}
+              className="text-body1 flex h-[48px] w-[158px] items-center justify-center gap-2 rounded-[100px] bg-[#F06600] text-white"
+            >
+              <span>Add Basis</span>
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 28 28"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                className="flex-shrink-0"
+              >
+                <path
+                  d="M14 5V23"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M5 14H23"
+                  stroke="white"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>

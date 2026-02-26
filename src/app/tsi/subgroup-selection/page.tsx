@@ -630,6 +630,8 @@ export default function TSISubgroupSelectionPage() {
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_LAST} text-center`}>
                                       <div className={TABLE_INNER_DIV_CENTER}>
+                                        {/* TODO(ui): Re-enable Delete action icon when policy is finalized. */}
+                                        {/*
                                         <button
                                           type="button"
                                           className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
@@ -642,6 +644,7 @@ export default function TSISubgroupSelectionPage() {
                                             height={24}
                                           />
                                         </button>
+                                        */}
                                       </div>
                                     </td>
                                   </tr>

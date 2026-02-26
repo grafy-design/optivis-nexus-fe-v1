@@ -914,7 +914,6 @@ function TSIRefineCutoffsPageContent() {
               <div className="text-title text-neutral-5 mb-2 text-left">
                 Target Subgroup Identification
               </div>
-              <p className="text-body2m text-left text-neutral-50">Optimize study design</p>
             </div>
           </div>
         </div>
@@ -952,7 +951,9 @@ function TSIRefineCutoffsPageContent() {
                 {/* Outcome */}
                 <div className="flex flex-col gap-0">
                   <span className="text-body3m text-white">Outcome</span>
-                  <span className="text-body2 font-semibold text-white">Safety Score</span>
+                  <span className="text-body2 font-semibold text-white">
+                    {featureInfoData?.outcome ?? ""}
+                  </span>
                 </div>
 
                 {/* Stratification month 슬라이더 */}
@@ -1222,7 +1223,7 @@ function TSIRefineCutoffsPageContent() {
                       Patients N
                     </div>
                     <div className="text-body2 text-neutral-30 w-[290px] font-semibold">
-                      Safety Score (x)
+                      △ Outcome (x)
                     </div>
                     <div className="text-body2 text-neutral-30 flex-1 font-semibold">
                       cumulative proportion (y)

@@ -90,7 +90,7 @@ export default function TSIPatientsSummaryPage() {
               <div className="mb-8 flex items-start justify-between">
                 {/* Title layout */}
                 <div className="flex flex-col gap-2">
-                  <div className="text-title text-neutral-5">Patient Summary</div>
+                  <div className="text-title text-neutral-5">Patients Summary</div>
                   <div className="text-body2m text-neutral-50">
                     Number Analyzed {displayNumberAnalyzed} participants
                   </div>
@@ -191,7 +191,7 @@ export default function TSIPatientsSummaryPage() {
                             >
                               {/* Category Label */}
                               <div className="flex h-full w-[405px] items-center px-[0px]">
-                                <div className="text-body2 text-neutral-5">{category.category}</div>
+                                <div className="text-body2 text-neutral-30">{category.category}</div>
                               </div>
                               {/* Empty space for conversion rate */}
                               <div className="w-[405px] px-[0px]" />
@@ -221,7 +221,7 @@ export default function TSIPatientsSummaryPage() {
                                 >
                                   {/* Item Label */}
                                   <div className="flex h-full w-[405px] items-center px-[0px]">
-                                    <div className="text-body3m text-neutral-50">{item.label}</div>
+                                    <div className="text-body3m text-[#929090]">{item.label}</div>
                                   </div>
                                   {/* Empty space for conversion rate */}
                                   <div className="w-[405px] px-[0px]" />
