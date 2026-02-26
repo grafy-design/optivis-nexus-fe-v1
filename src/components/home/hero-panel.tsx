@@ -20,7 +20,7 @@ export default function HeroPanel({ title, description, imageUrl, serviceId }: H
   // 서비스별 시뮬레이션 라우트: Adaptive Trial Simulation -> ats, Target Subgroup Identification -> tsi
   const getSimulationPath = () => {
     if (serviceId === "4") return "/ats/simulation";
-    if (serviceId === "5") return "/tsi/patients-summary";
+    if (serviceId === "5") return "/tsi";
     return "/simulation";
   };
 
