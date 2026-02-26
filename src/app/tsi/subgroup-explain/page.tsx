@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ExplainExpectedTherapeuticGainItem,
   ExplainListData,
+  ExplainOverviewDescriptionItem,
   getExplainList,
 } from "@/services/subgroupService";
 
@@ -49,12 +50,31 @@ function TSISubgroupExplainPageContent() {
     Object.values(resultData?.explain_json.explain_scatter || {})[0];
   const baselineBinRatioMock = (resultData?.explain_json.explain_bin_ratio ??
     {}) as BaselineBinRatioMock;
+  const overviewDescription = resultData?.explain_json.overview_description;
   const baselineBinRatioData =
     baselineBinRatioMock[selectedFeature] ??
     baselineBinRatioMock[defaultSelectedFeature] ??
     baselineBinRatioMock.ADDRECALL ??
     baselineBinRatioMock.ADRECOG ??
     Object.values(baselineBinRatioMock)[0];
+  const baselineDriverTop10Messages =
+    overviewDescription?.baseline_driver_top10_msg?.filter(
+      (item) => item?.title?.trim() || item?.description?.trim()
+    ) ?? [];
+  const featureMessages =
+    (overviewDescription?.[selectedFeature] ??
+      overviewDescription?.[defaultSelectedFeature] ??
+      overviewDescription?.ADDRECALL ??
+      overviewDescription?.ADRECOG ??
+      Object.entries(overviewDescription ?? {}).find(
+        ([key, value]) =>
+          key !== "baseline_driver_top10_msg" &&
+          Array.isArray(value) &&
+          value.some((item) => item?.title?.trim() || item?.description?.trim())
+      )?.[1] ??
+      []) as ExplainOverviewDescriptionItem[];
+  const baselineDriverMessageItems = baselineDriverTop10Messages;
+  const featureMessageItems = featureMessages;
 
   const handleClickViewReport = () => {
     const query = new URLSearchParams({
@@ -284,32 +304,16 @@ function TSISubgroupExplainPageContent() {
                 {/* 설명 텍스트 */}
                 <div className="flex min-w-0 flex-1 flex-col justify-end">
                   <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
-                    <li className="break-words">
-                      <span className="text-body1m">X-axis (SHAP value):</span>
-                      <br />
-                      <span className="text-body4m">
-                        Represents the impact on the model's predicted value. A value further to the
-                        right of 0 indicates a factor that increases the output (in this case,
-                        ΔADAS-Cog).
-                      </span>
-                    </li>
-                    <li className="break-words">
-                      <span className="text-body1m">Color (Feature Value):</span>
-                      <br />
-                      <span className="text-body4m">
-                        Represents the magnitude (size) of the value for that specific variable.
-                        High value, Light Blue. Low value.
-                      </span>
-                    </li>
-                    <li className="break-words">
-                      <span className="text-body1m">Dot:</span>
-                      <br />
-                      <span className="text-body4m">
-                        Each dot represents one patient. A thicker (denser) vertical accumulation of
-                        dots indicates a higher concentration of data points, representing higher
-                        frequency and reliability in that specific range.
-                      </span>
-                    </li>
+                    {baselineDriverMessageItems.map((item, index) => (
+                      <li
+                        key={`${item.no ?? index}-${item.title}`}
+                        className="break-words"
+                      >
+                        <span className="text-body1m">{item.title}</span>
+                        <br />
+                        <span className="text-body4m whitespace-pre-line">{item.description}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -393,32 +397,16 @@ function TSISubgroupExplainPageContent() {
                 {/* 오른쪽 설명 텍스트 */}
                 <div className="flex min-w-0 flex-1 flex-col justify-start pt-4">
                   <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
-                    <li className="break-words">
-                      <span className="text-body1m">ADAS Word Delay Recall:</span>
-                      <br />
-                      <span className="text-body4m">
-                        Higher scores indicate worse cognitive performance (greater disease
-                        severity).
-                      </span>
-                    </li>
-                    <li className="break-words">
-                      <span className="text-body1m">Early Detection Indicator:</span>
-                      <br />
-                      <span className="text-body4m">
-                        Delayed word recall is used as a highly sensitive indicator for the early
-                        detection of the disease, as it is one of the first symptoms to appear in
-                        patients with Alzheimer's disease or Mild Cognitive Impairment (MCI).
-                      </span>
-                    </li>
-                    <li className="break-words">
-                      <span className="text-body1m">Core Assessment Goal:</span>
-                      <br />
-                      <span className="text-body4m">
-                        It is a key assessment item that captures memory decline, particularly in
-                        the early stages of dementia, by measuring how well one can remember 10
-                        recently learned words after a short period of time.
-                      </span>
-                    </li>
+                    {featureMessageItems.map((item, index) => (
+                      <li
+                        key={`${item.no ?? index}-${item.title}`}
+                        className="break-words"
+                      >
+                        <span className="text-body1m">{item.title}</span>
+                        <br />
+                        <span className="text-body4m whitespace-pre-line">{item.description}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>

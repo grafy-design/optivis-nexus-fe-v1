@@ -762,6 +762,18 @@ export default function TSIReportPage() {
     );
   }
   const reportJson = reportResponse?.data?.report_json;
+  const overviewItems = reportJson?.overview_description ?? [];
+  const getOverviewContent = (index: number) => {
+    const item = overviewItems[index];
+    return {
+      title: item?.title?.trim() ? item.title : "",
+      description: item?.description?.trim() ? item.description : "",
+    };
+  };
+  const modelOverview = getOverviewContent(0);
+  const featureOverview = getOverviewContent(1);
+  const comparisonOverview = getOverviewContent(2);
+  const riskOverview = getOverviewContent(3);
 
   const modelBasedPanelData = buildProgressionPanelData(
     reportJson?.model_stratification_strategy ?? [],
@@ -831,14 +843,10 @@ export default function TSIReportPage() {
                       </span>
                     </div>
                     <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
-                      Executive Summary & Stratification Strategy
+                      {modelOverview.title}
                     </h4>
-                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 text-white/90">
-                      Patients were initially stratified based on the model's predicted progression
-                      effect into three distinct categories: Rapid (Top 20%), Moderate (20% ~ 70%),
-                      and Slow (Bottom 30%). To enhance clinical interpretability, we utilized the
-                      CART algorithm to translate complex model parameters into simplified,
-                      feature-based decision rules.
+                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
+                      {modelOverview.description}
                     </p>
                     {hasModelBasedData ? (
                       <DiseaseProgressionPanel
@@ -863,14 +871,10 @@ export default function TSIReportPage() {
                       </span>
                     </div>
                     <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
-                      Feature-Based Decision Rules (CART-derived)
+                      {featureOverview.title}
                     </h4>
-                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 text-white/90">
-                      The variance decomposition analysis identified key baseline drivers and their
-                      respective clinical thresholds that define each subgroup: High Risk (Rapid):
-                      Patients meeting both ADRECOG {">"} 5.7 and ADRECALL {">"} 4.85. Low Risk
-                      (Slow): Patients meeting both ADRECOG {"\u2264"} 5.7 and CDJUD {"\u2264"} 1.5.
-                      Moderate: All patients not meeting the specific High or Low-risk criteria.
+                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
+                      {featureOverview.description}
                     </p>
                     {hasFeatureBasedData ? (
                       <FeatureBasedDiseaseProgressionPanel
@@ -901,16 +905,9 @@ export default function TSIReportPage() {
                     <>
                       {/* 텍스트 영역 */}
                       <div className="w-[850px] flex-shrink-0">
-                        <h4 className="text-h4 text-neutral-5 mb-4">
-                          Prognostic Trajectory & Validation
-                        </h4>
-                        <p className="text-body3m text-neutral-40">
-                          The longitudinal trajectories for the feature-based subgroups show a high
-                          degree of consistency with the original model-based classifications,
-                          validating the reliability of these simplified rules. This rule-based approach
-                          captures 34.0% of the total variance (IV= 0.248), effectively classifying the
-                          accelerated cognitive decline (ADRAS-Cog observed in the High Risk group
-                          starting from Month 12.
+                        <h4 className="text-h4 text-neutral-5 mb-4">{comparisonOverview.title}</h4>
+                        <p className="text-body3m whitespace-pre-line text-neutral-40">
+                          {comparisonOverview.description}
                         </p>
                       </div>
 
@@ -952,17 +949,9 @@ export default function TSIReportPage() {
                   {/* 왼쪽: 타이틀 영역 */}
                   <div className="flex h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
                     <div className="flex w-full flex-col items-start gap-[24px]">
-                      <h3 className="text-h4 text-neutral-5">Risk & Response Assessment</h3>
-                      <p className="text-body3m text-neutral-40">
-                        Risk & Response Assessment (rHTE & Safety)
-                        <br /> Drug Response (rHTE): Forest plot analysis indicates that the High
-                        Risk (Rapid) subgroup exhibits the most pronounced therapeutic benefit
-                        compared to the placebo.
-                        <br />
-                        <br />
-                        Safety Assessment: Consistent safety profiles were observed across all
-                        subgroups, supporting the clinical utility of this classification system for
-                        targeted patient management.
+                      <h3 className="text-h4 text-neutral-5">{riskOverview.title}</h3>
+                      <p className="text-body3m whitespace-pre-line text-neutral-40">
+                        {riskOverview.description}
                       </p>
                     </div>
                   </div>
