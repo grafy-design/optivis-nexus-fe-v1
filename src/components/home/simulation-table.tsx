@@ -75,19 +75,25 @@ export default function SimulationTable({ serviceId }: SimulationTableProps) {
                 <div>{row.last_updated}</div>
                 <div className="text-right">
                   <button
-                    className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#5D33D6]"
+                    className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#484646]"
                     aria-label={`Play ${row.simulation_name}`}
                     onClick={(event) => handlePlaySimulation(event, row.simulation_name)}
                   >
                     <svg
                       aria-hidden
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
+                      width="10"
+                      height="12"
+                      viewBox="0 0 10 12"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path d="M3 2.2L7.2 5L3 7.8V2.2Z" fill="currentColor" />
+                      <path
+                        d="M0.75 0.75L8.75 5.75L0.75 10.75V0.75Z"
+                        fill="#484646"
+                        stroke="#484646"
+                        strokeWidth="1.5"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </button>
                 </div>
