@@ -30,7 +30,7 @@ interface MultiLineWithErrorBarProps {
   dataGroup: ErrorBarGroup[];
   seriesLabels?: string[];
   colors?: string[];
-  height?: number;
+  height?: number | string;
   xAxis?: AxisConfig;
   yAxis?: AxisConfig;
   guideLineX?: number | null;
