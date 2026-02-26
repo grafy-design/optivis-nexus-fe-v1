@@ -18,6 +18,8 @@ import {
 
 type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
 type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
+const FALLBACK_TASK_ID = "test-task-id";
+
 /**
  * TSI Step 5: Subgroup Explain
  * 구조: 상위 배경 카드 2개 나란히
@@ -26,10 +28,10 @@ type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
  */
 function TSISubgroupExplainPageContent() {
   const [defaultSelectedFeature] = useState("ADDRECALL");
-  const [taskId] = useState("test-task-id");
   const [selectedFeature, setSelectedFeature] = useState(defaultSelectedFeature);
   const searchParams = useSearchParams();
   const subgroupId = searchParams.get("subgroupId") ?? "";
+  const taskId = searchParams.get("taskId") ?? FALLBACK_TASK_ID;
   const [resultData, setResultData] = useState<ExplainListData>();
 
   const router = useRouter();
@@ -55,7 +57,11 @@ function TSISubgroupExplainPageContent() {
     Object.values(baselineBinRatioMock)[0];
 
   const handleClickViewReport = () => {
-    router.push(`/tsi/${selectedFeature}/report`);
+    const query = new URLSearchParams({
+      taskId,
+      subgroupId,
+    });
+    router.push(`/tsi/${encodeURIComponent(selectedFeature)}/report?${query.toString()}`);
   };
 
   useEffect(() => {

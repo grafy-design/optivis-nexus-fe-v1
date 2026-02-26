@@ -8,6 +8,7 @@ interface FetcherOptions {
   body?: unknown;
   timeoutMs?: number;
   responseType?: "json" | "blob";
+  cache?: RequestCache;
 }
 
 const buildBody = (body: unknown): BodyInit | undefined => {
@@ -31,7 +32,13 @@ export const fetcher = async <T>(
   errorMsg: string,
   options: FetcherOptions = {}
 ): Promise<T> => {
-  const { headers = {}, body, timeoutMs = DEFAULT_TIMEOUT_MS, responseType = "json" } = options;
+  const {
+    headers = {},
+    body,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    responseType = "json",
+    cache,
+  } = options;
 
   const controller = new AbortController();
   const timeoutId = timeoutMs > 0 ? setTimeout(() => controller.abort(), timeoutMs) : null;
@@ -44,6 +51,7 @@ export const fetcher = async <T>(
         ...headers,
       },
       body: buildBody(body),
+      cache,
       mode: "cors",
       credentials: "omit",
       signal: controller.signal,

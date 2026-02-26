@@ -46,22 +46,22 @@ export interface ReportRiskResponseAssessmentItem {
 }
 
 export interface ReportJsonData {
-  overview_description: ReportOverviewDescriptionItem[];
-  model_stratification_strategy: ReportStratificationStrategyItem[];
-  feature_stratification_strategy: ReportStratificationStrategyItem[];
-  model_variance_decomposition: ReportVarianceDecompositionItem[];
-  model_within_group_variance_by_subgroup: ReportWithinGroupVarianceItem[];
-  feature_variance_decomposition: ReportVarianceDecompositionItem[];
-  feature_within_group_variance_by_subgroup: ReportWithinGroupVarianceItem[];
-  risk_response_assessment: ReportRiskResponseAssessmentItem[];
+  overview_description?: ReportOverviewDescriptionItem[];
+  model_stratification_strategy?: ReportStratificationStrategyItem[];
+  feature_stratification_strategy?: ReportStratificationStrategyItem[];
+  model_variance_decomposition?: ReportVarianceDecompositionItem[];
+  model_within_group_variance_by_subgroup?: ReportWithinGroupVarianceItem[];
+  feature_variance_decomposition?: ReportVarianceDecompositionItem[];
+  feature_within_group_variance_by_subgroup?: ReportWithinGroupVarianceItem[];
+  risk_response_assessment?: ReportRiskResponseAssessmentItem[];
 }
 
 export interface ReportByFeatureData {
   subgroup_id: number;
-  set_name: string;
-  outcome: string;
-  month: number;
-  report_json: ReportJsonData;
+  set_name?: string;
+  outcome?: string;
+  month?: number;
+  report_json?: ReportJsonData;
 }
 
 export interface ReportByFeatureResponse {
@@ -341,10 +341,19 @@ export const getReportByFeature = async (
   subgroupId: string,
   featureName: string
 ): Promise<ReportByFeatureResponse> => {
+  const query = new URLSearchParams({
+    task_id: taskId,
+    subgroup_id: subgroupId,
+    feature_name: featureName,
+  });
+
   return await fetcher<ReportByFeatureResponse>(
-    `api/nexus/subgroup/report/info/?task_id=${taskId}&subgroup_id=${subgroupId}&feature_name=${featureName}`,
+    `api/nexus/subgroup/report/info/?${query.toString()}`,
     "GET",
-    "sdFDf"
+    "Subgroup Report 정보 조회에 실패했습니다.",
+    {
+      cache: "no-store",
+    }
   );
 };
 

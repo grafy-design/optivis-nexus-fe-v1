@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
   MultiLineWithErrorBar,
@@ -15,22 +19,17 @@ import {
   type VarianceBarsChartData,
   type VarianceStackChartData,
 } from "./components/ReportChartPanels";
+import { getReportByFeature } from "@/services/subgroupService";
 import type {
+  ReportByFeatureResponse,
   ReportRiskResponseAssessmentItem,
   ReportStratificationStrategyItem,
 } from "@/services/subgroupService";
-import reportMockResponse from "./report.mock";
 
 /**
  * TSI (Target Subgroup Identification) Report 페이지.
  * Step 6: 리포트 페이지
  */
-
-type TSIReportPageProps = {
-  params: Promise<{
-    feature: string;
-  }>;
-};
 
 type SubgroupLegendRow = {
   subgroupName: string;
@@ -38,10 +37,10 @@ type SubgroupLegendRow = {
   cutoff: string;
 };
 
-const RISK_SERIES_LABELS = ["Low Risk", "Mid Risk", "High Risk"];
+const _DEFAULT_MODEL_SERIES_LABELS = ["Low Risk", "Mid Risk", "High Risk"];
 const RISK_SERIES_COLORS = ["#A6A3E3", "#6E6AA7", "#272354"];
 
-const MODEL_BASED_CHART_MOCK: ErrorBarGroup[] = [
+const _MODEL_BASED_CHART_MOCK: ErrorBarGroup[] = [
   [
     [0, -2.4, 0.15],
     [3, -2.1, 0.12],
@@ -80,16 +79,16 @@ const MODEL_BASED_CHART_MOCK: ErrorBarGroup[] = [
   ],
 ];
 
-const SUBGROUP_LEGEND_ROWS: SubgroupLegendRow[] = [
+const _SUBGROUP_LEGEND_ROWS: SubgroupLegendRow[] = [
   { subgroupName: "Subgroup No.1", riskLabel: "Rapid", cutoff: "20%" },
   { subgroupName: "Subgroup No.2", riskLabel: "Moderate", cutoff: "20~70%" },
   { subgroupName: "Subgroup No.3", riskLabel: "Slow", cutoff: "70%" },
 ];
 
-const FEATURE_BASED_RISK_SERIES_LABELS = ["Low Risk", "Mid Risk", "High Risk"];
+const _DEFAULT_FEATURE_SERIES_LABELS = ["Low Risk", "Mid Risk", "High Risk"];
 const FEATURE_BASED_RISK_SERIES_COLORS = ["#26225B", "#EF6A00", "#4327E6"];
 
-const FEATURE_BASED_CHART_MOCK: ErrorBarGroup[] = [
+const _FEATURE_BASED_CHART_MOCK: ErrorBarGroup[] = [
   [
     [0, 0.0, 0.05],
     [3, -2.1, 0.08],
@@ -125,7 +124,7 @@ const FEATURE_BASED_CHART_MOCK: ErrorBarGroup[] = [
   ],
 ];
 
-const FEATURE_BASED_RULE_ROWS: SubgroupLegendRow[] = [
+const _FEATURE_BASED_RULE_ROWS: SubgroupLegendRow[] = [
   {
     subgroupName: "Subgroup No.1",
     riskLabel: "Rapid",
@@ -181,30 +180,110 @@ const mapStrategyToErrorBarGroup = (
   return mapped.length > 0 ? mapped : fallback;
 };
 
-const mapLegendRowsWithCutoff = (
-  legendRows: SubgroupLegendRow[],
-  strategyRows: ReportStratificationStrategyItem[]
-): SubgroupLegendRow[] => {
-  if (strategyRows.length === 0) return legendRows;
+const getRiskRankByGroup = (strategyRows: ReportStratificationStrategyItem[]): Map<string, number> => {
+  const latestRowByGroup = new Map<string, ReportStratificationStrategyItem>();
+
+  strategyRows.forEach((row) => {
+    const current = latestRowByGroup.get(row.group);
+    if (!current || row.month >= current.month) {
+      latestRowByGroup.set(row.group, row);
+    }
+  });
+
+  return new Map(
+    Array.from(latestRowByGroup.entries())
+      .sort(([, left], [, right]) => left.mean - right.mean)
+      .map(([group], index) => [group, index])
+  );
+};
+
+const getSeriesLabelByRiskRank = (rank: number, total: number): string => {
+  if (total === 2) {
+    return rank === 0 ? "Low Risk" : "High Risk";
+  }
+  if (total === 3) {
+    return ["Low Risk", "Mid Risk", "High Risk"][rank] ?? `Risk ${rank + 1}`;
+  }
+  return `Risk ${rank + 1}`;
+};
+
+const getRiskDescriptorByRank = (rank: number, total: number): string => {
+  if (total === 2) {
+    return rank === 0 ? "Slow" : "Rapid";
+  }
+  if (total === 3) {
+    return ["Slow", "Moderate", "Rapid"][rank] ?? `Group ${rank + 1}`;
+  }
+  return `Group ${rank + 1}`;
+};
+
+const buildProgressionPanelData = (
+  strategyRows: ReportStratificationStrategyItem[],
+  fallbackChartData: ErrorBarGroup[],
+  fallbackRows: SubgroupLegendRow[],
+  fallbackSeriesLabels: string[]
+) => {
+  if (strategyRows.length === 0) {
+    return {
+      chartData: fallbackChartData,
+      rows: fallbackRows,
+      seriesLabels: fallbackSeriesLabels,
+    };
+  }
 
   const groupOrder = getGroupOrder(strategyRows);
   const cutoffByGroup = new Map<string, string>();
-
   strategyRows.forEach((row) => {
     if (!cutoffByGroup.has(row.group)) {
       cutoffByGroup.set(row.group, row.cutoff);
     }
   });
 
-  return legendRows.map((row, index) => ({
-    ...row,
-    cutoff: cutoffByGroup.get(groupOrder[index] ?? "") ?? row.cutoff,
-  }));
+  const riskRankByGroup = getRiskRankByGroup(strategyRows);
+  const totalGroups = groupOrder.length;
+
+  const rows: SubgroupLegendRow[] = groupOrder.map((group, index) => {
+    const riskRank = riskRankByGroup.get(group) ?? index;
+    return {
+      subgroupName: `Subgroup No.${index + 1}`,
+      riskLabel: getRiskDescriptorByRank(riskRank, totalGroups),
+      cutoff: cutoffByGroup.get(group) ?? "-",
+    };
+  });
+
+  const seriesLabels = groupOrder.map((group, index) => {
+    const riskRank = riskRankByGroup.get(group) ?? index;
+    return getSeriesLabelByRiskRank(riskRank, totalGroups);
+  });
+
+  return {
+    chartData: mapStrategyToErrorBarGroup(strategyRows, fallbackChartData),
+    rows,
+    seriesLabels,
+  };
 };
 
 type DiseaseProgressionPanelProps = {
   chartData: ErrorBarGroup[];
   rows: SubgroupLegendRow[];
+  seriesLabels: string[];
+  seriesColors: string[];
+};
+
+const buildProgressionYAxis = (chartData: ErrorBarGroup[]) => {
+  const defaultRange = { min: -3.5, max: 15.5, interval: 2.5 };
+  const points = chartData.flat();
+  if (points.length === 0) return defaultRange;
+
+  const minValue = Math.min(...points.map(([, y, error]) => y - error));
+  const maxValue = Math.max(...points.map(([, y, error]) => y + error));
+  const interval = 2.5;
+
+  return {
+    min: Math.floor(Math.min(defaultRange.min, minValue) / interval) * interval,
+    max: Math.ceil(Math.max(defaultRange.max, maxValue) / interval) * interval,
+    interval,
+  };
 };
 
 const CHART_21_LEFT_STACK_DATA: VarianceStackChartData = {
@@ -249,7 +328,14 @@ const CHART_22_RIGHT_STACK_DATA: VarianceStackChartData = {
   explainedColor: "#EF6A00",
 };
 
-function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelProps) {
+function DiseaseProgressionPanel({
+  chartData,
+  rows,
+  seriesLabels,
+  seriesColors,
+}: DiseaseProgressionPanelProps) {
+  const yAxisRange = buildProgressionYAxis(chartData);
+
   return (
     <div className="mt-auto flex h-[656px] w-full flex-shrink-0 flex-col rounded-[16px] border-[3px] border-[#8A47FF] bg-[#ECECF1] p-5">
       <h4 className="text-h3 text-neutral-20 flex-shrink-0">Disease Progression by Subgroup</h4>
@@ -258,8 +344,8 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
       <div className="mt-3 min-h-0 flex-1">
         <MultiLineWithErrorBar
           dataGroup={chartData}
-          seriesLabels={RISK_SERIES_LABELS}
-          colors={RISK_SERIES_COLORS}
+          seriesLabels={seriesLabels}
+          colors={seriesColors}
           height={390}
           xAxis={{
             min: 0,
@@ -276,9 +362,9 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
             nameGap: 30,
           }}
           yAxis={{
-            min: -3.5,
-            max: 15.5,
-            interval: 2.5,
+            min: yAxisRange.min,
+            max: yAxisRange.max,
+            interval: yAxisRange.interval,
             inverse: true,
             splitLine: true,
             splitLineColor: "#CECDD6",
@@ -298,8 +384,8 @@ function DiseaseProgressionPanel({ chartData, rows }: DiseaseProgressionPanelPro
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-6">
-        {RISK_SERIES_LABELS.map((label, index) => {
-          const color = RISK_SERIES_COLORS[index];
+        {seriesLabels.map((label, index) => {
+          const color = seriesColors[index] ?? seriesColors[seriesColors.length - 1] ?? "#272354";
           return (
             <div key={label} className="flex items-center gap-2">
               <div className="relative h-[2px] w-[84px]" style={{ backgroundColor: color }}>
@@ -356,12 +442,18 @@ function StratificationComparisonChartMockPanelAlt() {
 type FeatureBasedDiseaseProgressionPanelProps = {
   chartData: ErrorBarGroup[];
   rows: SubgroupLegendRow[];
+  seriesLabels: string[];
+  seriesColors: string[];
 };
 
 function FeatureBasedDiseaseProgressionPanel({
   chartData,
   rows,
+  seriesLabels,
+  seriesColors,
 }: FeatureBasedDiseaseProgressionPanelProps) {
+  const yAxisRange = buildProgressionYAxis(chartData);
+
   return (
     <div className="mt-auto flex h-[656px] w-full flex-shrink-0 flex-col rounded-[16px] bg-[#ECECF1] p-5">
       <h4 className="text-h3 text-neutral-20 flex-shrink-0">Disease Progression by Subgroup</h4>
@@ -370,8 +462,8 @@ function FeatureBasedDiseaseProgressionPanel({
       <div className="mt-3 min-h-0 flex-1">
         <MultiLineWithErrorBar
           dataGroup={chartData}
-          seriesLabels={FEATURE_BASED_RISK_SERIES_LABELS}
-          colors={FEATURE_BASED_RISK_SERIES_COLORS}
+          seriesLabels={seriesLabels}
+          colors={seriesColors}
           height={430}
           xAxis={{
             min: 0,
@@ -388,9 +480,9 @@ function FeatureBasedDiseaseProgressionPanel({
             nameGap: 30,
           }}
           yAxis={{
-            min: -3.5,
-            max: 15.5,
-            interval: 2.5,
+            min: yAxisRange.min,
+            max: yAxisRange.max,
+            interval: yAxisRange.interval,
             inverse: true,
             splitLine: true,
             splitLineColor: "#CBCAD3",
@@ -411,8 +503,8 @@ function FeatureBasedDiseaseProgressionPanel({
       </div>
 
       <div className="mt-1 flex flex-wrap items-center gap-6">
-        {FEATURE_BASED_RISK_SERIES_LABELS.map((label, index) => {
-          const color = FEATURE_BASED_RISK_SERIES_COLORS[index];
+        {seriesLabels.map((label, index) => {
+          const color = seriesColors[index] ?? seriesColors[seriesColors.length - 1] ?? "#4327E6";
           return (
             <div key={label} className="flex items-center gap-2">
               <div className="relative h-[2px] w-[86px]" style={{ backgroundColor: color }}>
@@ -534,7 +626,7 @@ const mapRiskResponseToSets = (
   return sets.length > 0 ? sets : fallback;
 };
 
-const RISK_RESPONSE_MOCK_SETS: RiskResponseSet[] = [
+const _RISK_RESPONSE_MOCK_SETS: RiskResponseSet[] = [
   {
     setName: "Set 1",
     rows: [
@@ -595,30 +687,102 @@ const RISK_RESPONSE_MOCK_SETS: RiskResponseSet[] = [
   },
 ];
 
-export default async function TSIReportPage({ params }: TSIReportPageProps) {
-  const { feature } = await params;
+export default function TSIReportPage() {
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("taskId") ?? "";
+  const subgroupId = searchParams.get("subgroupId") ?? "";
+  const [reportResponse, setReportResponse] = useState<ReportByFeatureResponse | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  // TODO: subgroup-explain에서 실제 선택한 feature를 전달받아 사용하도록 교체
+  const featureName = "ADAS Cog 11";
+  const hasRequiredParams = Boolean(taskId && subgroupId);
 
-  const reportJson = reportMockResponse.data.report_json;
-  const modelBasedChartData = mapStrategyToErrorBarGroup(
-    reportJson.model_stratification_strategy,
-    MODEL_BASED_CHART_MOCK
+  useEffect(() => {
+    if (!hasRequiredParams) {
+      setReportResponse(null);
+      setFetchError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setReportResponse(null);
+    setFetchError(null);
+
+    const fetchReport = async () => {
+      try {
+        const response = await getReportByFeature(taskId, subgroupId, featureName);
+        if (cancelled) return;
+        setReportResponse(response);
+      } catch (error) {
+        if (cancelled) return;
+        setFetchError(error instanceof Error ? error.message : "Subgroup Report 정보 조회에 실패했습니다.");
+      }
+    };
+
+    fetchReport();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [featureName, hasRequiredParams, subgroupId, taskId]);
+
+  if (!hasRequiredParams) {
+    return (
+      <AppLayout headerType="tsi">
+        <div className="mx-auto w-[1772px] max-w-full py-12">
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
+            Report 조회에 필요한 파라미터가 누락되었습니다. (`taskId`, `subgroupId`)
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!reportResponse && !fetchError) {
+    return (
+      <AppLayout headerType="tsi">
+        <div className="mx-auto w-[1772px] max-w-full py-12">
+          <div className="rounded-[24px] border border-[#D9D8E2] bg-[#F6F6FA] p-6 text-[#6A687A]">
+            리포트 데이터를 조회 중입니다.
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <AppLayout headerType="tsi">
+        <div className="mx-auto w-[1772px] max-w-full py-12">
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
+            {fetchError}
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+  const reportJson = reportResponse?.data?.report_json;
+
+  const modelBasedPanelData = buildProgressionPanelData(
+    reportJson?.model_stratification_strategy ?? [],
+    [],
+    [],
+    []
   );
-  const featureBasedChartData = mapStrategyToErrorBarGroup(
-    reportJson.feature_stratification_strategy,
-    FEATURE_BASED_CHART_MOCK
-  );
-  const modelBasedRows = mapLegendRowsWithCutoff(
-    SUBGROUP_LEGEND_ROWS,
-    reportJson.model_stratification_strategy
-  );
-  const featureBasedRows = mapLegendRowsWithCutoff(
-    FEATURE_BASED_RULE_ROWS,
-    reportJson.feature_stratification_strategy
+  const featureBasedPanelData = buildProgressionPanelData(
+    reportJson?.feature_stratification_strategy ?? [],
+    [],
+    [],
+    []
   );
   const riskResponseSets = mapRiskResponseToSets(
-    reportJson.risk_response_assessment,
-    RISK_RESPONSE_MOCK_SETS
+    reportJson?.risk_response_assessment ?? [],
+    []
   );
+  const hasModelBasedData = modelBasedPanelData.chartData.length > 0;
+  const hasFeatureBasedData = featureBasedPanelData.chartData.length > 0;
+  const hasComparisonSectionData = hasModelBasedData && hasFeatureBasedData;
+  const hasRiskResponseData = riskResponseSets.length > 0;
 
   return (
     <AppLayout headerType="tsi">
@@ -628,7 +792,7 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
           <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
             <div className="flex flex-shrink-0 flex-col items-start gap-1">
               <div className="text-title text-neutral-5 mb-2 text-left">
-                Subgroup Analysis Report : {decodeURI(feature)}
+                Subgroup Analysis Report : {featureName}
               </div>
               <p className="text-body2m text-left text-neutral-50">Analysis Summary</p>
             </div>
@@ -676,10 +840,18 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                       CART algorithm to translate complex model parameters into simplified,
                       feature-based decision rules.
                     </p>
-                    <DiseaseProgressionPanel
-                      chartData={modelBasedChartData}
-                      rows={modelBasedRows}
-                    />
+                    {hasModelBasedData ? (
+                      <DiseaseProgressionPanel
+                        chartData={modelBasedPanelData.chartData}
+                        rows={modelBasedPanelData.rows}
+                        seriesLabels={modelBasedPanelData.seriesLabels}
+                        seriesColors={RISK_SERIES_COLORS}
+                      />
+                    ) : (
+                      <div className="mt-auto flex h-[656px] w-full items-center justify-center rounded-[16px] border-[3px] border-[#8A47FF] bg-[#ECECF1]">
+                        <p className="text-body2m text-neutral-50">Model Based 데이터가 없습니다.</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* 오른쪽 카드: Feature-Based Decision Rules */}
@@ -700,10 +872,18 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                       (Slow): Patients meeting both ADRECOG {"\u2264"} 5.7 and CDJUD {"\u2264"} 1.5.
                       Moderate: All patients not meeting the specific High or Low-risk criteria.
                     </p>
-                    <FeatureBasedDiseaseProgressionPanel
-                      chartData={featureBasedChartData}
-                      rows={featureBasedRows}
-                    />
+                    {hasFeatureBasedData ? (
+                      <FeatureBasedDiseaseProgressionPanel
+                        chartData={featureBasedPanelData.chartData}
+                        rows={featureBasedPanelData.rows}
+                        seriesLabels={featureBasedPanelData.seriesLabels}
+                        seriesColors={FEATURE_BASED_RISK_SERIES_COLORS}
+                      />
+                    ) : (
+                      <div className="mt-auto flex h-[656px] w-full items-center justify-center rounded-[16px] bg-[#ECECF1]">
+                        <p className="text-body2m text-neutral-50">Feature Based 데이터가 없습니다.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -717,36 +897,46 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
                   Stratification Strategy Comparison
                 </h2>
                 <div className="border-neutral-90 flex h-[562px] w-[1748px] flex-col rounded-[24px] border bg-white p-4">
-                  {/* 텍스트 영역 */}
-                  <div className="w-[850px] flex-shrink-0">
-                    <h4 className="text-h4 text-neutral-5 mb-4">
-                      Prognostic Trajectory & Validation
-                    </h4>
-                    <p className="text-body3m text-neutral-40">
-                      The longitudinal trajectories for the feature-based subgroups show a high
-                      degree of consistency with the original model-based classifications,
-                      validating the reliability of these simplified rules. This rule-based approach
-                      captures 34.0% of the total variance (IV= 0.248), effectively classifying the
-                      accelerated cognitive decline (ADRAS-Cog observed in the High Risk group
-                      starting from Month 12.
-                    </p>
-                  </div>
+                  {hasComparisonSectionData ? (
+                    <>
+                      {/* 텍스트 영역 */}
+                      <div className="w-[850px] flex-shrink-0">
+                        <h4 className="text-h4 text-neutral-5 mb-4">
+                          Prognostic Trajectory & Validation
+                        </h4>
+                        <p className="text-body3m text-neutral-40">
+                          The longitudinal trajectories for the feature-based subgroups show a high
+                          degree of consistency with the original model-based classifications,
+                          validating the reliability of these simplified rules. This rule-based approach
+                          captures 34.0% of the total variance (IV= 0.248), effectively classifying the
+                          accelerated cognitive decline (ADRAS-Cog observed in the High Risk group
+                          starting from Month 12.
+                        </p>
+                      </div>
 
-                  {/* 두 개의 차트 섹션 */}
-                  <div className="mt-auto flex w-full flex-shrink-0 gap-4">
-                    {/* 첫 번째 차트 섹션 */}
-                    <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
-                      <div className="w-full flex-1 overflow-hidden rounded-[16px]">
-                        <StratificationComparisonChartMockPanel />
+                      {/* 두 개의 차트 섹션 */}
+                      <div className="mt-auto flex w-full flex-shrink-0 gap-4">
+                        {/* 첫 번째 차트 섹션 */}
+                        <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
+                          <div className="w-full flex-1 overflow-hidden rounded-[16px]">
+                            <StratificationComparisonChartMockPanel />
+                          </div>
+                        </div>
+                        {/* 두 번째 차트 섹션 */}
+                        <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
+                          <div className="w-full flex-1 overflow-hidden rounded-[16px]">
+                            <StratificationComparisonChartMockPanelAlt />
+                          </div>
+                        </div>
                       </div>
+                    </>
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <p className="text-body2m text-neutral-50">
+                        비교 분석(Validation) 데이터가 없습니다.
+                      </p>
                     </div>
-                    {/* 두 번째 차트 섹션 */}
-                    <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
-                      <div className="w-full flex-1 overflow-hidden rounded-[16px]">
-                        <StratificationComparisonChartMockPanelAlt />
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -779,7 +969,15 @@ export default async function TSIReportPage({ params }: TSIReportPageProps) {
 
                   {/* 오른쪽: 포레스트 플롯 */}
                   <div className="flex min-w-0 flex-1">
-                    <RiskResponseMatrixChartPanel sets={riskResponseSets} />
+                    {hasRiskResponseData ? (
+                      <RiskResponseMatrixChartPanel sets={riskResponseSets} />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center rounded-[16px] border border-[#D9D8E2] bg-[#F6F6FA]">
+                        <p className="text-body2m text-neutral-50">
+                          Risk & Response Assessment 데이터가 없습니다.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

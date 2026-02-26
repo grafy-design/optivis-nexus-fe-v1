@@ -113,7 +113,11 @@ export default function TSISubgroupSelectionPage() {
     const selected = resultTableData.find((item) => item.no === parseInt(selectedSetNo));
 
     if (selected) {
-      router.push(`/tsi/subgroup-explain?subgroupId=${selected.subgroup_id}`);
+      const query = new URLSearchParams({
+        subgroupId: String(selected.subgroup_id),
+        taskId: TEST_TASK_ID,
+      });
+      router.push(`/tsi/subgroup-explain?${query.toString()}`);
     }
   };
 
