@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 
 /**
@@ -72,10 +72,18 @@ function ChevronRightIcon({ className }: { className?: string }) {
 
 export default function TSIBasisSelectionPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("taskId");
   const [selectedBasis, setSelectedBasis] = useState<string>("prognostic");
 
   const handleGoToSubgroupSelection = () => {
-    router.push("/tsi/subgroup-selection");
+    if (!taskId) {
+      router.push("/tsi/patients-summary");
+      return;
+    }
+
+    const query = new URLSearchParams({ taskId });
+    router.push(`/tsi/subgroup-selection?${query.toString()}`);
   };
 
   return (

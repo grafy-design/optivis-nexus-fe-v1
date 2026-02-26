@@ -19,7 +19,6 @@ import {
 
 type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
 type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
-const FALLBACK_TASK_ID = "test-task-id";
 
 /**
  * TSI Step 5: Subgroup Explain
@@ -32,7 +31,7 @@ function TSISubgroupExplainPageContent() {
   const [selectedFeature, setSelectedFeature] = useState(defaultSelectedFeature);
   const searchParams = useSearchParams();
   const subgroupId = searchParams.get("subgroupId") ?? "";
-  const taskId = searchParams.get("taskId") ?? FALLBACK_TASK_ID;
+  const taskId = searchParams.get("taskId") ?? "";
   const [resultData, setResultData] = useState<ExplainListData>();
 
   const router = useRouter();
@@ -77,6 +76,10 @@ function TSISubgroupExplainPageContent() {
   const featureMessageItems = featureMessages;
 
   const handleClickViewReport = () => {
+    if (!taskId || !subgroupId) {
+      return;
+    }
+
     const query = new URLSearchParams({
       taskId,
       subgroupId,
@@ -85,6 +88,11 @@ function TSISubgroupExplainPageContent() {
   };
 
   useEffect(() => {
+    if (!taskId || !subgroupId) {
+      setResultData(undefined);
+      return;
+    }
+
     const fetchData = async () => {
       const res = await getExplainList(taskId, subgroupId);
 

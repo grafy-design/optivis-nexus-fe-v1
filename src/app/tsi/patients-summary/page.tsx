@@ -12,10 +12,14 @@ import { getPatientSummary, type PatientSummaryData } from "@/services/subgroupS
  * 피그마: [FLT-003] Patients Summary - 8
  */
 
+// TODO(taskId): Replace this temporary value with the real taskId source
+// (e.g. simulation creation response, store, or query param) once defined.
 const MOCK_TASK_ID = "test-task-id";
 
 export default function TSIPatientsSummaryPage() {
   const router = useRouter();
+  // TODO(taskId): Remove this alias after wiring the real taskId source.
+  const taskId = MOCK_TASK_ID;
   const [patientSummaryData, setPatientSummaryData] = useState<PatientSummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,8 +30,7 @@ export default function TSIPatientsSummaryPage() {
       try {
         setIsLoading(true);
         setError(null);
-        // task_id는 일단 임시로 하드코딩 (나중에 스토어나 쿼리 파라미터로 받을 수 있음)
-        const response = await getPatientSummary(MOCK_TASK_ID);
+        const response = await getPatientSummary(taskId);
         setPatientSummaryData(response.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Patient Summary 조회에 실패했습니다.");
@@ -38,10 +41,11 @@ export default function TSIPatientsSummaryPage() {
     };
 
     fetchPatientSummary();
-  }, []);
+  }, [taskId]);
 
   const handleGoToBasisSelection = () => {
-    router.push("/tsi/basis-selection");
+    const query = new URLSearchParams({ taskId });
+    router.push(`/tsi/basis-selection?${query.toString()}`);
   };
 
   // API 데이터를 UI 데이터 구조로 변환 (Gender 제외)

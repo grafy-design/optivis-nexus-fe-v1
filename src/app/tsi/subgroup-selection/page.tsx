@@ -2,7 +2,7 @@
 
 import { useState, Fragment, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {
@@ -54,10 +54,10 @@ const TABLE_INNER_DIV_LEFT = "w-full h-[28px] flex items-center border-l border-
 const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full h-[28px] flex items-center justify-center";
 const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-[28px] flex items-center";
 
-const TEST_TASK_ID = "test-task-id";
-
 export default function TSISubgroupSelectionPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("taskId") ?? "";
   const [selectedSetNo, setSelectedSetNo] = useState<string>("");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   // 왼쪽 그래프용: subgroup_sets_summary 데이터
@@ -69,12 +69,20 @@ export default function TSISubgroupSelectionPage() {
 
   // 페이지 마운트 시 API 호출
   useEffect(() => {
+    if (!taskId) {
+      setSummaryData([]);
+      setResultTableData([]);
+      setSelectedSetNo("");
+      setError("taskId 쿼리 파라미터가 없습니다.");
+      setIsLoading(false);
+      return;
+    }
+
     const fetchSubgroupSummary = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        // task_id는 일단 임시로 하드코딩 (나중에 스토어나 쿼리 파라미터로 받을 수 있음)
-        const response = await getSubgroupSummaryList(TEST_TASK_ID);
+        const response = await getSubgroupSummaryList(taskId);
 
         // 왼쪽 그래프용: subgroup_sets_summary 저장
         setSummaryData(response.data.subgroup_sets_summary);
@@ -95,7 +103,7 @@ export default function TSISubgroupSelectionPage() {
     };
 
     fetchSubgroupSummary();
-  }, []);
+  }, [taskId]);
 
   const toggleRowExpansion = (rowNo: string) => {
     setExpandedRows((prev) => {
@@ -110,12 +118,16 @@ export default function TSISubgroupSelectionPage() {
   };
 
   const handleSubgroupExplain = () => {
+    if (!taskId) {
+      return;
+    }
+
     const selected = resultTableData.find((item) => item.no === parseInt(selectedSetNo));
 
     if (selected) {
       const query = new URLSearchParams({
         subgroupId: String(selected.subgroup_id),
-        taskId: TEST_TASK_ID,
+        taskId,
       });
       router.push(`/tsi/subgroup-explain?${query.toString()}`);
     }
@@ -575,9 +587,14 @@ export default function TSISubgroupSelectionPage() {
                                           className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
                                           title="Refine Cutoffs"
                                           onClick={() => {
-                                            router.push(
-                                              `/tsi/refine-cutoffs?subgroupId=${row.subgroup_id}&month=${row.month}`
-                                            );
+                                            const query = new URLSearchParams({
+                                              subgroupId: String(row.subgroup_id),
+                                              month: String(row.month),
+                                            });
+                                            if (taskId) {
+                                              query.set("taskId", taskId);
+                                            }
+                                            router.push(`/tsi/refine-cutoffs?${query.toString()}`);
                                           }}
                                         >
                                           <svg

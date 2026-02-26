@@ -18,7 +18,6 @@ import {
   type IdentificationSetInfoData,
 } from "@/services/subgroupService";
 
-const MOCK_TASK_ID = "test-task-id";
 const MONTH_STEP = 3;
 const DEFAULT_MONTH_MIN = 3;
 const DEFAULT_MONTH_MAX = 24;
@@ -417,6 +416,7 @@ const buildSetOneChartData = (
 function TSIRefineCutoffsPageContent() {
   const searchParams = useSearchParams();
 
+  const taskId = searchParams.get("taskId") ?? "";
   const subgroupId = searchParams.get("subgroupId");
   const initialMonthFromQuery = (() => {
     const parsed = Number.parseInt(searchParams.get("month") || "", 10);
@@ -747,6 +747,11 @@ function TSIRefineCutoffsPageContent() {
 
   useEffect(() => {
     let isCancelled = false;
+    if (!taskId || !subgroupId) {
+      setFeatureInfoData(null);
+      setSetInfoData(null);
+      return;
+    }
 
     const fetchData = async () => {
       let setInfoParams: {
@@ -759,8 +764,8 @@ function TSIRefineCutoffsPageContent() {
       try {
         const requestedMonth = effectiveStratificationMonth;
         const res = await getIdentificationFeatureInfo(
-          MOCK_TASK_ID,
-          subgroupId ?? "",
+          taskId,
+          subgroupId,
           requestedMonth.toString()
         );
 
@@ -814,8 +819,8 @@ function TSIRefineCutoffsPageContent() {
 
       try {
         const setInfoResponse = await getIdentificationSetInfo(
-          MOCK_TASK_ID,
-          subgroupId ?? "",
+          taskId,
+          subgroupId,
           setInfoParams.month,
           setInfoParams.axisType,
           setInfoParams.cutoffX,
@@ -836,7 +841,7 @@ function TSIRefineCutoffsPageContent() {
     return () => {
       isCancelled = true;
     };
-  }, [effectiveStratificationMonth, subgroupId]);
+  }, [effectiveStratificationMonth, subgroupId, taskId]);
 
   // 뒤로가기 버튼을 눌렀을 때 Subgroup Selection으로 이동하도록 처리
   useEffect(() => {
@@ -844,7 +849,12 @@ function TSIRefineCutoffsPageContent() {
     window.history.pushState(null, "", window.location.href);
 
     const handlePopState = () => {
-      router.push("/tsi/subgroup-selection");
+      if (!taskId) {
+        router.push("/tsi/subgroup-selection");
+        return;
+      }
+      const query = new URLSearchParams({ taskId });
+      router.push(`/tsi/subgroup-selection?${query.toString()}`);
     };
 
     window.addEventListener("popstate", handlePopState);
@@ -852,16 +862,20 @@ function TSIRefineCutoffsPageContent() {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [router]);
+  }, [router, taskId]);
 
   // 슬라이더 값 계산 (feature/info의 month_min ~ month_max 범위)
   const monthRange = Math.max(maxMonth - minMonth, 1);
   const monthPercentage = ((effectiveStratificationMonth - minMonth) / monthRange) * 100;
 
   const handleClickGenerateSubGroup = async () => {
+    if (!taskId || !subgroupId) {
+      return;
+    }
+
     const requestParams = {
-      task_id: MOCK_TASK_ID,
-      subgroup_id: subgroupId ?? "",
+      task_id: taskId,
+      subgroup_id: subgroupId,
       month: effectiveStratificationMonth.toString(),
       axis_type: cutoffAxisType,
       cutoff_x: cutoffXValues,

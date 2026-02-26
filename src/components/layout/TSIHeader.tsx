@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import IconButton from "@/components/ui/icon-button";
 
@@ -57,10 +57,20 @@ function getTSIPreviousStepPath(pathname: string): string | null {
   return TSI_BREADCRUMB_STEPS[index - 1].path;
 }
 
+function withTaskId(path: string, taskId: string | null): string {
+  if (!taskId || !path.startsWith("/tsi")) {
+    return path;
+  }
+  const query = new URLSearchParams({ taskId });
+  return `${path}?${query.toString()}`;
+}
+
 /** TSI 헤더: ATS 헤더와 동일한 디자인(원형 16x16, 회색 화살표), 브레드크럼만 1~6 스텝으로 다름 */
 export const TSIHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("taskId");
   const activeStepIndex = getTSIActiveStepIndex(pathname);
 
   return (
@@ -96,7 +106,7 @@ export const TSIHeader = () => {
                   </svg>
                 )}
                 <button
-                  onClick={() => router.push(step.path)}
+                  onClick={() => router.push(withTaskId(step.path, taskId))}
                   className={`flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer ${textColor}`}
                 >
                   {/* ATS와 동일: 16x16 원형, 흰색 숫자 */}
@@ -140,7 +150,7 @@ export const TSIHeader = () => {
             onClick={() => {
               const prevPath = getTSIPreviousStepPath(pathname);
               if (prevPath) {
-                router.push(prevPath);
+                router.push(withTaskId(prevPath, taskId));
               } else {
                 router.push("/");
               }
