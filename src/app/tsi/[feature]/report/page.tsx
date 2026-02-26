@@ -220,10 +220,7 @@ const toRiskLabel = (classification: string, group: string): string => {
   return group;
 };
 
-const toRiskColor = (
-  classification: string,
-  colors: ComparisonColorSet["bars"]
-): string => {
+const toRiskColor = (classification: string, colors: ComparisonColorSet["bars"]): string => {
   const normalized = normalizeClassification(classification);
   if (normalized === "high") return colors.high;
   if (normalized === "middle") return colors.middle;
@@ -313,8 +310,10 @@ const mapWithinGroupVarianceToBarsData = (
   const sorted = [...rows].sort((a, b) => {
     const orderDiff = classificationOrder(a.classification) - classificationOrder(b.classification);
     if (orderDiff !== 0) return orderDiff;
-    return (groupRank.get(a.group) ?? Number.MAX_SAFE_INTEGER) -
-      (groupRank.get(b.group) ?? Number.MAX_SAFE_INTEGER);
+    return (
+      (groupRank.get(a.group) ?? Number.MAX_SAFE_INTEGER) -
+      (groupRank.get(b.group) ?? Number.MAX_SAFE_INTEGER)
+    );
   });
 
   const bars = sorted.map((row) => ({
@@ -590,7 +589,7 @@ export default function TSIReportPage() {
 
         {/* 리포트 배경 카드 */}
         <div
-          className="flex h-auto min-h-[2244px] w-[1772px] max-w-[calc(100vw-100px)] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white px-[12px] py-[26px]"
+          className="flex h-auto min-h-[2244px] w-[1772px] max-w-[calc(100vw-100px)] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-[12px] pt-[26px]"
           style={{
             backgroundImage: "url(/assets/tsi/report-bg.png)",
             backgroundSize: "100% 100%",
@@ -706,14 +705,18 @@ export default function TSIReportPage() {
                                   <div className="flex items-center gap-2">
                                     <span
                                       className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{ backgroundColor: modelComparisonData.stack.withinColor }}
+                                      style={{
+                                        backgroundColor: modelComparisonData.stack.withinColor,
+                                      }}
                                     />
                                     <span className="text-body2m text-neutral-20">Within</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span
                                       className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{ backgroundColor: modelComparisonData.stack.explainedColor }}
+                                      style={{
+                                        backgroundColor: modelComparisonData.stack.explainedColor,
+                                      }}
                                     />
                                     <span className="text-body2m text-neutral-20">Explained</span>
                                   </div>
@@ -735,7 +738,9 @@ export default function TSIReportPage() {
                           <div className="flex h-full w-full flex-col rounded-[16px] bg-[#ECECF1] p-4">
                             <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                               <div className="flex min-h-0 flex-col">
-                                <div className="text-body2m text-neutral-30">Separation evidence</div>
+                                <div className="text-body2m text-neutral-30">
+                                  Separation evidence
+                                </div>
                                 <h4 className="text-h3 text-neutral-20">Variance decomposition</h4>
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
                                 <div className="mt-2 min-h-0 flex-1">
@@ -744,8 +749,12 @@ export default function TSIReportPage() {
                               </div>
 
                               <div className="flex min-h-0 flex-col">
-                                <div className="text-body2m text-neutral-30">Separation evidence</div>
-                                <h4 className="text-h3 text-neutral-20">Within-group variance by subgroup</h4>
+                                <div className="text-body2m text-neutral-30">
+                                  Separation evidence
+                                </div>
+                                <h4 className="text-h3 text-neutral-20">
+                                  Within-group variance by subgroup
+                                </h4>
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
                                 <div className="mt-2 min-h-0 flex-1">
                                   <TSIStackedVarianceChart data={featureComparisonData.stack} />
@@ -754,14 +763,18 @@ export default function TSIReportPage() {
                                   <div className="flex items-center gap-2">
                                     <span
                                       className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{ backgroundColor: featureComparisonData.stack.withinColor }}
+                                      style={{
+                                        backgroundColor: featureComparisonData.stack.withinColor,
+                                      }}
                                     />
                                     <span className="text-body2m text-neutral-20">Within</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span
                                       className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{ backgroundColor: featureComparisonData.stack.explainedColor }}
+                                      style={{
+                                        backgroundColor: featureComparisonData.stack.explainedColor,
+                                      }}
                                     />
                                     <span className="text-body2m text-neutral-20">Explained</span>
                                   </div>
@@ -804,8 +817,8 @@ export default function TSIReportPage() {
                   {/* 오른쪽: 포레스트 플롯 */}
                   <div className="flex min-w-0 flex-1">
                     {hasRiskResponseData ? (
-                      <div className="flex-1 min-w-0 rounded-[16px] border border-[#E5E4EA] bg-[#ECECF1] p-4">
-                        <div className="flex w-full min-h-0 flex-col">
+                      <div className="min-w-0 flex-1 rounded-[16px] border border-[#E5E4EA] bg-[#ECECF1] p-4">
+                        <div className="flex min-h-0 w-full flex-col">
                           {riskResponseSets.map((setData, setIdx) => (
                             <div
                               key={setData.setName}
