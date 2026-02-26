@@ -844,7 +844,7 @@ function TSIRefineCutoffsPageContent() {
     window.history.pushState(null, "", window.location.href);
 
     const handlePopState = () => {
-      router.push("/tsi/subgroup-section");
+      router.push("/tsi/subgroup-selection");
     };
 
     window.addEventListener("popstate", handlePopState);
