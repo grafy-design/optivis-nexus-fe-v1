@@ -18,42 +18,176 @@ const kde = (data: number[], bandwidth: number, xValues: number[]): number[] => 
   });
 };
 
-interface DensityChartProps {
-  data: {
-    orangeGroup: number[];
-    blueGroup: number[];
-  };
+export interface DensitySeries {
+  name: string;
+  values: number[];
+  color: string;
+  lineWidth?: number;
 }
 
-export const DensityChart = ({ data }: DensityChartProps) => {
-  const xValues: number[] = [];
-  for (let i = 0; i <= 2.8; i += 0.02) {
-    xValues.push(i);
+export interface DensitySegmentedConfig {
+  values: number[];
+  boundaries: number[];
+  colors: string[];
+  labels?: string[];
+}
+
+interface DensityChartProps {
+  data?: {
+    orangeGroup: number[];
+    blueGroup: number[];
+    grayGroup?: number[];
+  };
+  series?: DensitySeries[];
+  segmented?: DensitySegmentedConfig;
+  height?: number;
+}
+
+const hexToRgba = (hexColor: string, alpha: number): string => {
+  if (hexColor.startsWith("rgba(") || hexColor.startsWith("rgb(")) {
+    return hexColor;
   }
 
-  const yOrangeRaw = kde(data.orangeGroup, 0.16, xValues);
-  const yBlueRaw = kde(data.blueGroup, 0.16, xValues);
+  const hex = hexColor.replace("#", "");
+  const normalized = hex.length === 3 ? hex.split("").map((c) => `${c}${c}`).join("") : hex;
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
 
-  const densityThreshold = 0.02;
-  const orangeEndIndex = yOrangeRaw.reduce(
-    (last, y, index) => (y > densityThreshold ? index : last),
-    -1
-  );
-  const blueStartIndex = yBlueRaw.findIndex((y) => y > densityThreshold);
+  if ([r, g, b].some((value) => Number.isNaN(value))) {
+    return `rgba(120,120,120,${alpha})`;
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
-  const orangeEndX =
-    orangeEndIndex >= 0 ? xValues[orangeEndIndex] : xValues[Math.floor(xValues.length / 2)];
-  const blueStartRawX = blueStartIndex >= 0 ? xValues[blueStartIndex] : xValues[0];
-  const blueShiftX = orangeEndX - blueStartRawX;
+const buildLegacySeries = (data?: DensityChartProps["data"]): DensitySeries[] => {
+  if (!data) return [];
 
-  const orangeData = xValues.map((x, i) => [x, x <= orangeEndX ? yOrangeRaw[i] : 0]);
-  const blueData = xValues.map((x, i) => {
-    const shiftedX = x + blueShiftX;
-    return [shiftedX, shiftedX >= orangeEndX ? yBlueRaw[i] : 0];
+  const series: DensitySeries[] = [
+    {
+      name: "Group 1",
+      values: data.orangeGroup ?? [],
+      color: "#F07A22",
+    },
+  ];
+
+  if (Array.isArray(data.grayGroup)) {
+    series.push({
+      name: "Group 2",
+      values: data.grayGroup,
+      color: "#919092",
+    });
+    series.push({
+      name: "Group 3",
+      values: data.blueGroup ?? [],
+      color: "#4B3DF2",
+    });
+    return series;
+  }
+
+  series.push({
+    name: "Group 2",
+    values: data.blueGroup ?? [],
+    color: "#4B3DF2",
   });
+  return series;
+};
 
-  const maxY = Math.max(...yOrangeRaw, ...yBlueRaw);
-  const xAxisMax = Math.max(2.8, blueData[blueData.length - 1][0]);
+const calculateBandwidth = (values: number[], minX: number, maxX: number): number => {
+  const span = Math.max(maxX - minX, 1e-6);
+  if (values.length <= 1) {
+    return Math.max(span * 0.2, 0.05);
+  }
+
+  const mean = values.reduce((acc, value) => acc + value, 0) / values.length;
+  const variance = values.reduce((acc, value) => acc + (value - mean) ** 2, 0) / values.length;
+  const stdDev = Math.sqrt(Math.max(variance, 0));
+  const silverman = 1.06 * stdDev * values.length ** (-1 / 5);
+
+  if (!Number.isFinite(silverman) || silverman <= 0) {
+    return Math.max(span * 0.1, 0.05);
+  }
+
+  return Math.max(silverman, span * 0.02, 0.02);
+};
+
+export const DensityChart = ({ data, series, segmented, height = 220 }: DensityChartProps) => {
+  const baseSeries =
+    segmented && segmented.values.length > 0
+      ? []
+      : series && series.length > 0
+        ? series
+        : buildLegacySeries(data);
+
+  const segmentedValues = (segmented?.values ?? []).filter((value) => Number.isFinite(value));
+  const normalizedSeries = baseSeries.map((item) => ({
+    ...item,
+    values: (item.values ?? []).filter((value) => Number.isFinite(value)),
+  }));
+
+  const allValues =
+    segmentedValues.length > 0 ? segmentedValues : normalizedSeries.flatMap((item) => item.values);
+  const hasData = allValues.length > 0;
+  const rawMinX = hasData ? Math.min(...allValues) : -1;
+  const rawMaxX = hasData ? Math.max(...allValues) : 1;
+  const span = Math.max(rawMaxX - rawMinX, 1e-6);
+  const padding = span * 0.15;
+  const xMin = rawMinX - padding;
+  const xMax = rawMaxX + padding;
+  const xSteps = 220;
+
+  const xValues: number[] = [];
+  for (let i = 0; i <= xSteps; i++) {
+    xValues.push(xMin + ((xMax - xMin) * i) / xSteps);
+  }
+
+  const bandwidth = calculateBandwidth(allValues, xMin, xMax);
+  const segmentedBoundaries = [...(segmented?.boundaries ?? [])]
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b);
+  const fullDensity = segmentedValues.length > 0 ? kde(segmentedValues, bandwidth, xValues) : [];
+
+  const densityBySeries =
+    segmentedValues.length > 0
+      ? (() => {
+          const ranges: Array<{ lower: number; upper: number }> = [];
+          if (segmentedBoundaries.length === 0) {
+            ranges.push({ lower: Number.NEGATIVE_INFINITY, upper: Number.POSITIVE_INFINITY });
+          } else if (segmentedBoundaries.length === 1) {
+            ranges.push(
+              { lower: Number.NEGATIVE_INFINITY, upper: segmentedBoundaries[0] },
+              { lower: segmentedBoundaries[0], upper: Number.POSITIVE_INFINITY }
+            );
+          } else {
+            ranges.push(
+              { lower: Number.NEGATIVE_INFINITY, upper: segmentedBoundaries[0] },
+              { lower: segmentedBoundaries[0], upper: segmentedBoundaries[1] },
+              { lower: segmentedBoundaries[1], upper: Number.POSITIVE_INFINITY }
+            );
+          }
+
+          return ranges.map((range, index) => {
+            const color = segmented?.colors[index] ?? segmented?.colors[segmented.colors.length - 1] ?? "#4B3DF2";
+            const label = segmented?.labels?.[index] ?? `Group ${index + 1}`;
+            const density = xValues.map((x, densityIndex) => {
+              const isInside = x >= range.lower && x <= range.upper;
+              return isInside ? fullDensity[densityIndex] : 0;
+            });
+
+            return {
+              name: label,
+              color,
+              lineWidth: 1.8,
+              density,
+            };
+          });
+        })()
+      : normalizedSeries.map((item) => ({
+          ...item,
+          density: kde(item.values, bandwidth, xValues),
+        }));
+
+  const maxY = Math.max(0, ...densityBySeries.flatMap((item) => item.density));
 
   const option: EChartsOption = {
     animation: false,
@@ -67,8 +201,8 @@ export const DensityChart = ({ data }: DensityChartProps) => {
     },
     xAxis: {
       type: "value",
-      min: 0,
-      max: xAxisMax,
+      min: xMin,
+      max: xMax,
       axisLine: { show: true, lineStyle: { color: "#9B9CA6", width: 1 } },
       axisTick: { show: false },
       axisLabel: { show: false },
@@ -77,57 +211,34 @@ export const DensityChart = ({ data }: DensityChartProps) => {
     yAxis: {
       type: "value",
       min: 0,
-      max: maxY * 1.35,
+      max: maxY > 0 ? maxY * 1.35 : 1,
       axisLine: { show: true, lineStyle: { color: "#9B9CA6", width: 1 } },
       axisTick: { show: false },
       axisLabel: { show: false },
       splitLine: { show: false },
     },
-    series: [
-      {
-        name: "Orange",
-        type: "line",
-        data: orangeData,
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 2, color: "#F07A22" },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: "rgba(240, 122, 34, 0.35)" },
-              { offset: 1, color: "rgba(240, 122, 34, 0.02)" },
-            ],
-          },
+    series: densityBySeries.map((item) => ({
+      name: item.name,
+      type: "line",
+      data: xValues.map((x, index) => [x, item.density[index]]),
+      smooth: true,
+      showSymbol: false,
+      lineStyle: { width: item.lineWidth ?? 1.8, color: item.color },
+      areaStyle: {
+        color: {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: hexToRgba(item.color, 0.35) },
+            { offset: 1, color: hexToRgba(item.color, 0.02) },
+          ],
         },
       },
-      {
-        name: "Blue",
-        type: "line",
-        data: blueData,
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 1.4, color: "#4B3DF2" },
-        areaStyle: {
-          color: {
-            type: "linear",
-            x: 0,
-            y: 0,
-            x2: 0,
-            y2: 1,
-            colorStops: [
-              { offset: 0, color: "rgba(75, 61, 242, 0.35)" },
-              { offset: 1, color: "rgba(75, 61, 242, 0.02)" },
-            ],
-          },
-        },
-      },
-    ],
+    })),
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 220 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height }} />;
 };

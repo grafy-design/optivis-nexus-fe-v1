@@ -403,6 +403,46 @@ export interface IdentificationFeatureInfoResponse {
   data: IdentificationFeatureInfoData;
 }
 
+export interface IdentificationSetInfoDiseaseProgressionItem {
+  group: string;
+  month: number;
+  mean: number;
+  ci_low: number;
+  ci_high: number;
+  classification: string;
+}
+
+export interface IdentificationSetInfoSlopeDistributionItem {
+  group: string;
+  slope: number[];
+}
+
+export interface IdentificationSetInfoResultTableItem {
+  no: number;
+  group: string;
+  patient_number: number;
+  delta_outcome: string;
+  cumulative_proportion: string;
+}
+
+export interface IdentificationSetInfoData {
+  axis_type: IdentificationAxisType;
+  cutoff_x: string[];
+  cutoff_y: string[];
+  disease_progression: IdentificationSetInfoDiseaseProgressionItem[];
+  month: number;
+  outcome: string;
+  result_table: IdentificationSetInfoResultTableItem[];
+  slope_distribution: IdentificationSetInfoSlopeDistributionItem[];
+}
+
+export interface IdentificationSetInfoResponse {
+  status: string;
+  status_code: number;
+  message: string;
+  data: IdentificationSetInfoData;
+}
+
 export const getIdentificationFeatureInfo = async (
   taskId: string,
   subgroupId: string,
@@ -428,17 +468,17 @@ export const getIdentificationSetInfo = async (
   axisType: "x_value" | "y_percent",
   cutoffX: string[],
   cutoffY: string[]
-) => {
+): Promise<IdentificationSetInfoResponse> => {
   const query = new URLSearchParams({
     task_id: taskId,
     subgroup_id: subgroupId,
     month,
     axis_type: axisType,
-    cutoff_x: cutoffX.toString(),
-    cutoff_y: cutoffY.toString(),
+    cutoff_x: JSON.stringify(cutoffX),
+    cutoff_y: JSON.stringify(cutoffY),
   });
 
-  return await fetcher(
+  return await fetcher<IdentificationSetInfoResponse>(
     `api/nexus/subgroup/identification/set/info/?${query.toString()}`,
     "GET",
     "Subgroup Identification Set Info 조회에 실패했습니다."

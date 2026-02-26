@@ -25,26 +25,9 @@ const GRID_TOP = 20;
 const GRID_BOTTOM = 30;
 const CHART_HEIGHT = 400;
 const PLOT_HEIGHT = CHART_HEIGHT - GRID_TOP - GRID_BOTTOM;
+const EPSILON = 1e-6;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
-
-const buildFallbackCdfData = (): CdfPoint[] => {
-  const data: CdfPoint[] = [];
-  const minX = -5;
-  const maxX = 5;
-  const steps = 200;
-  const stepSize = (maxX - minX) / steps;
-  const center = 0;
-  const steepness = 0.8;
-
-  for (let i = 0; i <= steps; i++) {
-    const x = minX + i * stepSize;
-    const y = 100 / (1 + Math.exp(-steepness * (x - center)));
-    data.push([x, y]);
-  }
-
-  return data;
-};
 
 const parseNumericValue = (value: string | number | null | undefined): number | null => {
   if (typeof value === "number") {
@@ -59,35 +42,86 @@ const parseNumericValue = (value: string | number | null | undefined): number | 
   return null;
 };
 
-const findClosestXForProportion = (cdfData: CdfPoint[], proportion: number): number => {
+const findInterpolatedXForProportion = (cdfData: CdfPoint[], proportion: number): number => {
   if (cdfData.length === 0) {
     return 0;
   }
 
-  let closestIndex = 0;
-  let minDiff = Infinity;
+  const targetProportion = clamp(proportion, 0, 100);
+  const firstPoint = cdfData[0];
+  const lastPoint = cdfData[cdfData.length - 1];
 
-  for (let i = 0; i < cdfData.length; i++) {
-    const diff = Math.abs(cdfData[i][1] - proportion);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closestIndex = i;
-    }
+  if (targetProportion <= firstPoint[1]) {
+    return firstPoint[0];
+  }
+  if (targetProportion >= lastPoint[1]) {
+    return lastPoint[0];
   }
 
-  return cdfData[closestIndex][0];
+  for (let i = 0; i < cdfData.length - 1; i++) {
+    const [x1, y1] = cdfData[i];
+    const [x2, y2] = cdfData[i + 1];
+    const lowerY = Math.min(y1, y2);
+    const upperY = Math.max(y1, y2);
+
+    if (targetProportion < lowerY || targetProportion > upperY) {
+      continue;
+    }
+
+    const deltaY = y2 - y1;
+    if (Math.abs(deltaY) < EPSILON) {
+      return x1;
+    }
+
+    const t = (targetProportion - y1) / deltaY;
+    return x1 + t * (x2 - x1);
+  }
+
+  return lastPoint[0];
 };
 
-const findClosestYForSafetyScore = (cdfData: CdfPoint[], safetyScore: number): number => {
+const findInterpolatedYForSafetyScore = (cdfData: CdfPoint[], safetyScore: number): number => {
   if (cdfData.length === 0) {
     return 0;
   }
 
+  const firstPoint = cdfData[0];
+  const lastPoint = cdfData[cdfData.length - 1];
+  const targetSafetyScore = clamp(safetyScore, firstPoint[0], lastPoint[0]);
+
+  if (targetSafetyScore <= firstPoint[0]) {
+    return firstPoint[1];
+  }
+  if (targetSafetyScore >= lastPoint[0]) {
+    return lastPoint[1];
+  }
+
+  for (let i = 0; i < cdfData.length - 1; i++) {
+    const [x1, y1] = cdfData[i];
+    const [x2, y2] = cdfData[i + 1];
+    const lowerX = Math.min(x1, x2);
+    const upperX = Math.max(x1, x2);
+
+    if (targetSafetyScore < lowerX || targetSafetyScore > upperX) {
+      continue;
+    }
+
+    const deltaX = x2 - x1;
+    if (Math.abs(deltaX) < EPSILON) {
+      if (Math.abs(targetSafetyScore - x1) < EPSILON) {
+        return y2;
+      }
+      continue;
+    }
+
+    const t = (targetSafetyScore - x1) / deltaX;
+    return y1 + t * (y2 - y1);
+  }
+
   let closestIndex = 0;
   let minDiff = Infinity;
-
   for (let i = 0; i < cdfData.length; i++) {
-    const diff = Math.abs(cdfData[i][0] - safetyScore);
+    const diff = Math.abs(cdfData[i][0] - targetSafetyScore);
     if (diff < minDiff) {
       minDiff = diff;
       closestIndex = i;
@@ -95,6 +129,48 @@ const findClosestYForSafetyScore = (cdfData: CdfPoint[], safetyScore: number): n
   }
 
   return cdfData[closestIndex][1];
+};
+
+const dedupeAdjacentCdfPoints = (points: CdfPoint[]): CdfPoint[] => {
+  if (points.length === 0) {
+    return points;
+  }
+
+  const deduped: CdfPoint[] = [points[0]];
+
+  for (let i = 1; i < points.length; i++) {
+    const [x, y] = points[i];
+    const [prevX, prevY] = deduped[deduped.length - 1];
+    const sameX = Math.abs(x - prevX) < EPSILON;
+    const sameY = Math.abs(y - prevY) < EPSILON;
+
+    if (!sameX || !sameY) {
+      deduped.push([x, y]);
+    }
+  }
+
+  return deduped;
+};
+
+const buildCdfSegmentData = (cdfData: CdfPoint[], startX: number, endX: number): CdfPoint[] => {
+  if (cdfData.length === 0) {
+    return [];
+  }
+
+  const minDataX = cdfData[0][0];
+  const maxDataX = cdfData[cdfData.length - 1][0];
+  const clampedStart = clamp(startX, minDataX, maxDataX);
+  const clampedEnd = clamp(endX, minDataX, maxDataX);
+
+  if (clampedStart > clampedEnd) {
+    return [];
+  }
+
+  const startPoint: CdfPoint = [clampedStart, findInterpolatedYForSafetyScore(cdfData, clampedStart)];
+  const endPoint: CdfPoint = [clampedEnd, findInterpolatedYForSafetyScore(cdfData, clampedEnd)];
+  const innerPoints = cdfData.filter((point) => point[0] > clampedStart && point[0] < clampedEnd);
+
+  return dedupeAdjacentCdfPoints([startPoint, ...innerPoints, endPoint]);
 };
 
 const applyNonCrossingConstraint = (
@@ -158,7 +234,7 @@ export function RefineCutoffChartEditor({
 
     if (rowsForCdf.length === 0) {
       return {
-        cdfData: buildFallbackCdfData(),
+        cdfData: [],
         chartFeatureKey: outcomeKey || "Safety Score",
       };
     }
@@ -172,7 +248,7 @@ export function RefineCutoffChartEditor({
 
     if (!effectiveFeatureKey) {
       return {
-        cdfData: buildFallbackCdfData(),
+        cdfData: [],
         chartFeatureKey: outcomeKey || "Safety Score",
       };
     }
@@ -184,7 +260,7 @@ export function RefineCutoffChartEditor({
 
     if (sortedValues.length === 0) {
       return {
-        cdfData: buildFallbackCdfData(),
+        cdfData: [],
         chartFeatureKey: effectiveFeatureKey,
       };
     }
@@ -223,6 +299,11 @@ export function RefineCutoffChartEditor({
     return [cumulativeProportion, ...limitedAdditional].sort((a, b) => a - b);
   }, [additionalSliders, cumulativeProportion, maxAdditionalSliders]);
 
+  const cutoffScores = useMemo(
+    () => sortedSliders.map((proportion) => findInterpolatedXForProportion(cdfData, proportion)),
+    [cdfData, sortedSliders]
+  );
+
   useEffect(() => {
     if (additionalSliders.length > maxAdditionalSliders) {
       onAdditionalSlidersChange(additionalSliders.slice(0, maxAdditionalSliders));
@@ -230,7 +311,7 @@ export function RefineCutoffChartEditor({
   }, [additionalSliders, maxAdditionalSliders, onAdditionalSlidersChange]);
 
   useEffect(() => {
-    setSafetyScoreCutoff(findClosestXForProportion(cdfData, cumulativeProportion));
+    setSafetyScoreCutoff(findInterpolatedXForProportion(cdfData, cumulativeProportion));
   }, [cdfData, cumulativeProportion]);
 
   useEffect(() => {
@@ -333,14 +414,16 @@ export function RefineCutoffChartEditor({
       },
       series: (() => {
         const series: any[] = [];
+        const minDataX = cdfData[0]?.[0] ?? xAxisBounds.min;
+        const maxDataX = cdfData[cdfData.length - 1]?.[0] ?? xAxisBounds.max;
 
         if (sortedSliders.length === 1) {
-          const cutoffScore = findClosestXForProportion(cdfData, sortedSliders[0]);
+          const cutoffScore = cutoffScores[0] ?? minDataX;
           series.push(
             {
               name: "CDF Orange",
               type: "line",
-              data: cdfData.filter((point) => point[0] <= cutoffScore),
+              data: buildCdfSegmentData(cdfData, minDataX, cutoffScore),
               smooth: true,
               lineStyle: { width: 2, color: segmentColors[0].line },
               areaStyle: {
@@ -361,7 +444,7 @@ export function RefineCutoffChartEditor({
             {
               name: "CDF Blue",
               type: "line",
-              data: cdfData.filter((point) => point[0] >= cutoffScore),
+              data: buildCdfSegmentData(cdfData, cutoffScore, maxDataX),
               smooth: true,
               lineStyle: { width: 2, color: segmentColors[2].line },
               areaStyle: {
@@ -389,14 +472,14 @@ export function RefineCutoffChartEditor({
             }
           );
         } else if (sortedSliders.length >= 2) {
-          const score1 = findClosestXForProportion(cdfData, sortedSliders[0]);
-          const score2 = findClosestXForProportion(cdfData, sortedSliders[1]);
+          const score1 = cutoffScores[0] ?? minDataX;
+          const score2 = cutoffScores[1] ?? maxDataX;
 
           series.push(
             {
               name: "CDF Segment 1",
               type: "line",
-              data: cdfData.filter((point) => point[0] <= score1),
+              data: buildCdfSegmentData(cdfData, minDataX, score1),
               smooth: true,
               lineStyle: { width: 2, color: segmentColors[0].line },
               areaStyle: {
@@ -417,7 +500,7 @@ export function RefineCutoffChartEditor({
             {
               name: "CDF Segment 2",
               type: "line",
-              data: cdfData.filter((point) => point[0] > score1 && point[0] <= score2),
+              data: buildCdfSegmentData(cdfData, score1, score2),
               smooth: true,
               lineStyle: { width: 2, color: segmentColors[1].line },
               areaStyle: {
@@ -438,7 +521,7 @@ export function RefineCutoffChartEditor({
             {
               name: "CDF Segment 3",
               type: "line",
-              data: cdfData.filter((point) => point[0] > score2),
+              data: buildCdfSegmentData(cdfData, score2, maxDataX),
               smooth: true,
               lineStyle: { width: 2, color: segmentColors[2].line },
               areaStyle: {
@@ -459,7 +542,7 @@ export function RefineCutoffChartEditor({
             {
               name: "Cutoff Points",
               type: "scatter",
-              data: sortedSliders.map((prop) => [findClosestXForProportion(cdfData, prop), prop]),
+              data: sortedSliders.map((prop, index) => [cutoffScores[index] ?? minDataX, prop]),
               symbolSize: 10,
               itemStyle: { color: segmentColors[2].line },
               z: 10,
@@ -481,7 +564,7 @@ export function RefineCutoffChartEditor({
         });
 
         sortedSliders.forEach((proportion, index) => {
-          const score = findClosestXForProportion(cdfData, proportion);
+          const score = cutoffScores[index] ?? xAxisBounds.min;
           series.push(
             {
               name: `Vertical Line ${index}`,
@@ -512,7 +595,7 @@ export function RefineCutoffChartEditor({
       })(),
       tooltip: { trigger: "none" },
     }),
-    [cdfData, chartFeatureKey, outcomeKey, sortedSliders, xAxisBounds.max, xAxisBounds.min]
+    [cdfData, chartFeatureKey, cutoffScores, outcomeKey, sortedSliders, xAxisBounds.max, xAxisBounds.min]
   );
 
   const addSliderIfValid = (proportion: number) => {
@@ -561,6 +644,12 @@ export function RefineCutoffChartEditor({
               return;
             }
 
+            if (cdfData.length === 0) {
+              setShowAddButton(false);
+              setAddButtonPosition(null);
+              return;
+            }
+
             const rect = chartContainerRef.current?.getBoundingClientRect();
             if (!rect) return;
 
@@ -584,7 +673,7 @@ export function RefineCutoffChartEditor({
             const xRange = xAxisBounds.max - xAxisBounds.min;
             const safetyScore =
               xAxisBounds.min + (relativeX / gridWidth) * (xRange === 0 ? 1 : xRange);
-            const curveY = findClosestYForSafetyScore(cdfData, safetyScore);
+            const curveY = findInterpolatedYForSafetyScore(cdfData, safetyScore);
             const clickProportion = 100 - ((mouseY - GRID_TOP) / gridHeight) * 100;
 
             if (Math.abs(clickProportion - curveY) > 5) {
@@ -858,7 +947,7 @@ export function RefineCutoffChartEditor({
           )}
 
           {additionalSliders.slice(0, maxAdditionalSliders).map((proportion, index) => {
-            const additionalSliderSafetyScore = findClosestXForProportion(cdfData, proportion);
+            const additionalSliderSafetyScore = findInterpolatedXForProportion(cdfData, proportion);
             const gridWidth = chartWidth > 0 ? chartWidth - (GRID_LEFT + GRID_RIGHT) : 400;
             const chartContainerWidth = chartWidth > 0 ? chartWidth : 400;
             const xRange = xAxisBounds.max - xAxisBounds.min;
