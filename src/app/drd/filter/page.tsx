@@ -1,4 +1,30 @@
-﻿"use client";
+﻿/**
+ * Filter Page — Default Settings Step 1: Filter
+ *
+ * 역할:
+ *   환자 코호트를 직접 피처(feature) 기반으로 필터링하는 설정 페이지입니다.
+ *   Inclusion / Exclusion 두 탭으로 나뉘며, 각 탭에 여러 Section을 추가하고
+ *   Section 마다 Feature·연산자(op)·값(value)을 조합한 조건을 정의합니다.
+ *   섹션 내 서브 로우(SubRow)는 And / Or 논리 연산자로 메인 조건과 결합됩니다.
+ *
+ * 레이아웃:
+ *   ┌─────────────────────┬──────────────────────────────────────────────────┐
+ *   │ 왼쪽: Navy Glass     │ 오른쪽: Feature List | 메인 설정 + 수식 미리보기   │
+ *   │ - Filtered % 카드   │                                                  │
+ *   │ - 4-Step 사이드바   │                                                  │
+ *   └─────────────────────┴──────────────────────────────────────────────────┘
+ *
+ * 주요 상태:
+ *   - inclusionSections / exclusionSections: 각 탭의 섹션 목록
+ *   - activeTab: 현재 선택된 탭 ("Inclusion" | "Exclusion")
+ *   - checkedRows: 각 행의 체크박스 선택 여부 (삭제 대상 파악용)
+ *   - searchQuery / searchDropdownOpen: Feature List 검색 UI
+ *
+ * 저장:
+ *   Confirm 버튼 클릭 시 filterData를 defaultSettingStore에 저장하고
+ *   filter 완료 상태를 true로 설정한 뒤 /drd/default-setting으로 이동합니다.
+ */
+"use client";
 
 import React, { useState, useMemo } from "react";
 import { createPortal } from "react-dom";
@@ -11,6 +37,7 @@ import { RightPanel } from "@/components/drd/RightPanel";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 import { IconVirusGray, IconFunnelActive, IconAsteriskGray, IconClockGray } from "@/components/ui/drd-step-icons";
 
+/** 왼쪽 사이드바 4개 스텝 아이콘 클릭 시 이동할 경로 매핑 */
 const stepRoutes: Record<string, string> = {
   "patient-disease-info": "/drd/patient-disease-info",
   "filter": "/drd/filter",
@@ -19,6 +46,10 @@ const stepRoutes: Record<string, string> = {
 };
 
 
+/**
+ * 왼쪽 패널 하단의 4단계 설정 스텝 목록.
+ * isActive: true 인 항목(Filter)이 현재 페이지이며 진한 네이비 배경으로 표시됩니다.
+ */
 const setupSteps = [
   {
     id: "patient-disease-info",
@@ -62,6 +93,7 @@ const setupSteps = [
   },
 ];
 
+/** 행 추가 버튼(+)에 사용되는 플러스 아이콘 SVG */
 function IconPlus({ size = 16, color = "#c6c5c9" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
@@ -71,6 +103,7 @@ function IconPlus({ size = 16, color = "#c6c5c9" }: { size?: number; color?: str
 }
 
 
+/** 파일 다운로드 아이콘 (현재 비활성화 UI에 표시) */
 function IconFileDownload({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -79,6 +112,7 @@ function IconFileDownload({ size = 24 }: { size?: number }) {
   );
 }
 
+/** 폴더+플러스 아이콘 (저장/불러오기 버튼용) */
 function IconFolderPlus({ size = 24, color = "#262255" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -88,6 +122,7 @@ function IconFolderPlus({ size = 24, color = "#262255" }: { size?: number; color
   );
 }
 
+/** 휴지통 아이콘 — 체크된 행 삭제 버튼에 사용 */
 function IconTrash({ size = 24, color = "#c6c5c9" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -96,11 +131,24 @@ function IconTrash({ size = 24, color = "#c6c5c9" }: { size?: number; color?: st
   );
 }
 
+/** INFO 카테고리에 속하는 피처(변수) 목록 — Feature List 아코디언에 표시됩니다 */
 const infoFeatures = [
   "GENDER", "AGE", "ALC", "RACE", "DRUG", "HEIGHT", "WEIGHT", "EDU", "CAORBD", "TOB"
 ];
 
+/**
+ * 섹션 내 추가 조건 행 (And / Or 논리 연산자로 메인 조건과 결합)
+ * - logic: "And" | "Or"
+ * - feature: 비교할 피처명
+ * - op: 비교 연산자 (>, >=, <, <=, =, !=)
+ * - value: 비교 기준값
+ */
 type SubRow = { logic: string; feature: string; op: string; value: string };
+
+/**
+ * 필터 섹션 한 항목.
+ * 메인 조건(feature + op + value)과 0개 이상의 SubRow를 포함합니다.
+ */
 type Section = {
   id: number;
   name: string;
@@ -110,14 +158,22 @@ type Section = {
   subRows?: SubRow[];
 };
 
+/** 드롭다운에서 선택 가능한 피처 옵션 목록 */
 const featureOptions = ["AGE", "WEIGHT [kg]", "MMTOTSCORE", "CDRTOT", "CITY", "GENDER", "ALC", "RACE", "DRUG", "HEIGHT", "EDU"];
+/** 비교 연산자 목록 */
 const opOptions = [">", ">=", "<", "<=", "=", "!="];
+/** 서브 로우 논리 연산자 목록 */
 const logicOptions = ["And", "Or"];
 
+/** 새 섹션 초기 객체 생성 — 모든 필드가 빈 문자열인 기본 섹션 */
 function makeEmptySection(id: number): Section {
   return { id, name: `Section ${id}`, feature: "", op: "", value: "" };
 }
 
+/**
+ * "Test Load" 버튼 — 누르면 fillTestData()가 실행되어 샘플 필터 데이터가 채워집니다.
+ * hover / press 상태에 따라 배경·텍스트 색상이 달라지는 유리 효과 스타일입니다.
+ */
 function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
   const [hovered, setHovered] = React.useState(false);
   const [pressed, setPressed] = React.useState(false);
@@ -168,7 +224,12 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
   );
 }
 
-/* Figma DropdownItem — node 179:24118 */
+/**
+ * 드롭다운 셀 컴포넌트 — 섹션 행의 Feature·Op·Logic 선택에 사용됩니다.
+ * createPortal을 사용해 메뉴를 document.body에 렌더링하여
+ * 부모의 overflow:hidden 제약을 우회합니다.
+ * (Figma DropdownItem — node 179:24118)
+ */
 function DropdownCell({
   value,
   width,
@@ -321,6 +382,7 @@ function DropdownCell({
 
 // ── 아이콘 SVG 컴포넌트 ──────────────────────────────────────────────────
 
+/** Feature List 검색 입력창 왼쪽에 표시되는 돋보기 아이콘 */
 function IconSearch({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
@@ -330,6 +392,7 @@ function IconSearch({ size = 20 }: { size?: number }) {
   );
 }
 
+/** 섹션 헤더·카테고리 열림 상태 아이콘 (아래 방향 화살표) */
 function IconChevronDown({ size = 16, color = "#484646" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 10" fill="none">
@@ -338,6 +401,7 @@ function IconChevronDown({ size = 16, color = "#484646" }: { size?: number; colo
   );
 }
 
+/** 섹션 헤더·카테고리 닫힘 상태 아이콘 (오른쪽 방향 화살표) */
 function IconChevronRight({ size = 16, color = "#484646" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 10 16" fill="none">
@@ -349,6 +413,10 @@ function IconChevronRight({ size = 16, color = "#484646" }: { size?: number; col
 
 // ── 데이터 설정 ───────────────────────────────────────────────────────────
 
+/**
+ * Feature List 아코디언에 표시되는 카테고리 목록.
+ * active: true 인 항목(INFO)이 초기 강조 표시됩니다.
+ */
 const featureCategories = [
   { name: "COHORT", open: false },
   { name: "INFO", open: false, active: true },
@@ -364,11 +432,14 @@ const featureCategories = [
 
 export default function FilterPage() {
   const router = useRouter();
+  // defaultSettingStore: 코호트 수, 필터 데이터, 완료 상태 관리
   const { setCompleted, cohortCount, finalCohortCount, filterData, setFilterData } = useDefaultSettingStore();
+  // filteredRatio: finalCohortCount / cohortCount 백분율 (왼쪽 카드 프로그레스바)
   const filteredRatio = cohortCount > 0 ? Math.round((finalCohortCount / cohortCount) * 100) : 0;
+  // checkedRows: 각 행(main/sub)의 체크박스 상태 — key: "{sectionId}-main" | "{sectionId}-sub-{idx}"
   const [checkedRows, setCheckedRows] = useState<Record<string, boolean>>({});
 
-  // Simulation logic from ATS
+  // simulationStore: 우측 패널(RightPanel) 시뮬레이션 결과 데이터 참조
   const {
     activeTab: simActiveTab,
     isApplied,
@@ -378,15 +449,21 @@ export default function FilterPage() {
     setActiveTab: setSimActiveTab,
   } = useSimulationStore();
 
+  // API 결과 데이터 분리 — OPTIVIS(최적화) / Traditional(전통적) 두 종류
   const optivisData = apiData?.OPTIVIS || [];
   const traditionalData = apiData?.Traditional || [];
 
+  // useProcessedStudyData: 원시 API 데이터를 차트용으로 가공 (필터링 + 차트 포인트 생성)
   const { filteredData, chartData } = useProcessedStudyData(
     optivisData,
     traditionalData,
     nominalPower
   );
 
+  /**
+   * sampleSizeControl(목표 power)에 가장 가까운 OPTIVIS / Traditional 데이터 포인트를 찾아 반환합니다.
+   * 오른쪽 패널의 강조(highlight) 포인트로 사용됩니다.
+   */
   const findHighlightedData = useMemo(() => {
     if (!apiData || optivisData.length === 0) {
       return null;
@@ -452,6 +529,12 @@ export default function FilterPage() {
     };
   }, [apiData, sampleSizeControl, filteredData, optivisData, traditionalData]);
 
+  /**
+   * findHighlightedData를 기반으로 오른쪽 패널에 표시할 지표(metrics)와
+   * 차트 데이터를 계산합니다.
+   * - traditional이 없으면 비교 수치("-")로 채워 단독 표시합니다.
+   * - traditional이 있으면 OPTIVIS vs Traditional 감소율(%)을 계산합니다.
+   */
   const dynamicSimulationData = useMemo(() => {
     if (!findHighlightedData) {
       return null;
@@ -720,6 +803,10 @@ export default function FilterPage() {
     };
   }, [findHighlightedData, chartData, filteredData]);
 
+  /**
+   * 차트 타입에 따라 강조 포인트의 X축 값을 반환합니다.
+   * (현재 우측 패널 미사용 — 추후 RightPanel 연동 시 활용 예정)
+   */
   const getHighlightXValue = (
     _optivisData: number[][],
     chartType: "sampleSize" | "enrollment" | "cost" = "sampleSize"
@@ -742,6 +829,7 @@ export default function FilterPage() {
     }
   };
 
+  // simulationData: API 결과가 있을 때만 동적 시뮬레이션 데이터 사용, 없으면 null (RightPanel용)
   const simulationData =
     apiData && dynamicSimulationData ? dynamicSimulationData : null;
 
@@ -773,23 +861,32 @@ export default function FilterPage() {
     };
   }, [apiData, chartData, optivisData, traditionalData]);
 
+  // chartDataToUse: 최종적으로 사용할 차트 데이터 (RightPanel 연동 예정)
   const chartDataToUse = apiChartData;
 
+  // 현재 선택된 탭 — "Inclusion" 또는 "Exclusion"
   const [activeTab, setActiveTab] = useState<"Inclusion" | "Exclusion">("Inclusion");
+  // 각 카테고리의 아코디언 열림 여부 (카테고리명 → boolean)
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(
     Object.fromEntries(featureCategories.map(c => [c.name, c.open ?? false]))
   );
+  // activeCat: Feature List에서 현재 선택(클릭)된 카테고리명
   const [activeCat, setActiveCat] = useState<string>("");
+  // activeFeature: Feature List에서 선택된 피처명 (null이면 선택 없음)
   const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  // hoveredFeature: 마우스 오버 중인 피처명 (hover 스타일 적용용)
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
+  // searchQuery: Feature 검색 입력값
   const [searchQuery, setSearchQuery] = useState<string>("");
+  // searchDropdownOpen: 검색 결과 드롭다운 표시 여부
   const [searchDropdownOpen, setSearchDropdownOpen] = useState<boolean>(false);
+  // searchDropdownPos: Portal로 렌더링되는 검색 드롭다운의 fixed 위치
   const [searchDropdownPos, setSearchDropdownPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const searchContainerRef = React.useRef<HTMLDivElement>(null);
   const searchDropdownRef = React.useRef<HTMLDivElement>(null);
 
-  // 검색 결과: 카테고리별로 그룹핑
+  // searchResults: searchQuery와 일치하는 피처를 카테고리·피처명 쌍으로 모은 배열
   const searchResults = React.useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
@@ -804,7 +901,7 @@ export default function FilterPage() {
     return results;
   }, [searchQuery]);
 
-  // 카테고리별로 그룹핑
+  // groupedSearchResults: searchResults를 카테고리명 → 피처 목록 형태로 그룹화
   const groupedSearchResults = React.useMemo(() => {
     const groups: Record<string, string[]> = {};
     searchResults.forEach(({ category, feature }) => {
@@ -826,23 +923,34 @@ export default function FilterPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, [searchDropdownOpen]);
 
-  // 탭별 섹션 목록 — 초기: Section 1 하나만, 열린 상태
+  // 탭별 섹션 목록 — 저장된 filterData가 있으면 복원, 없으면 빈 Section 1 하나로 시작
   const [inclusionSections, setInclusionSections] = useState<Section[]>(filterData.inclusion.length > 0 ? filterData.inclusion : [makeEmptySection(1)]);
   const [exclusionSections, setExclusionSections] = useState<Section[]>(filterData.exclusion.length > 0 ? filterData.exclusion : [makeEmptySection(1)]);
+  // 각 섹션의 아코디언 열림 여부 (sectionId → boolean)
   const [inclusionOpenSections, setInclusionOpenSections] = useState<Record<number, boolean>>(filterData.inclusion.length > 0 ? Object.fromEntries(filterData.inclusion.map(s => [s.id, true])) : { 1: true });
   const [exclusionOpenSections, setExclusionOpenSections] = useState<Record<number, boolean>>(filterData.exclusion.length > 0 ? Object.fromEntries(filterData.exclusion.map(s => [s.id, true])) : { 1: true });
 
+  // 현재 탭에 따라 참조할 섹션 데이터·setter를 통일하여 탭 공통 로직에서 사용
   const currentSections = activeTab === "Inclusion" ? inclusionSections : exclusionSections;
   const currentOpenSections = activeTab === "Inclusion" ? inclusionOpenSections : exclusionOpenSections;
   const setCurrentSections = activeTab === "Inclusion" ? setInclusionSections : setExclusionSections;
   const setCurrentOpenSections = activeTab === "Inclusion" ? setInclusionOpenSections : setExclusionOpenSections;
 
+  // isDeleteEnabled: 하나 이상의 행이 체크되어 있으면 삭제 버튼 활성화
   const isDeleteEnabled = Object.values(checkedRows).some(Boolean);
 
+  // hasValidRow: feature·op·value 모두 채워진 행이 하나라도 있으면 true
   const hasValidRow = (sections: Section[]) =>
     sections.some(s => s.feature && s.op && s.value);
+  // isConfirmEnabled: Inclusion 또는 Exclusion 중 하나라도 유효한 행이 있으면 Confirm 버튼 활성화
   const isConfirmEnabled = hasValidRow(inclusionSections) || hasValidRow(exclusionSections);
 
+  /**
+   * 체크된 행을 삭제합니다.
+   * - 메인 행이 체크된 경우: 첫 번째 섹션이면 내용만 초기화, 나머지는 섹션 자체 제거
+   * - 서브 행이 체크된 경우: 해당 SubRow만 제거
+   * 삭제 후 checkedRows를 초기화합니다.
+   */
   const deleteCheckedRows = () => {
     if (!isDeleteEnabled) return;
 
@@ -882,10 +990,12 @@ export default function FilterPage() {
     setCheckedRows({});
   };
 
+  /** 섹션 헤더 클릭 시 해당 섹션의 아코디언 열림/닫힘을 토글합니다 */
   const toggleSection = (id: number) => {
     setCurrentOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  /** "Add Section" 버튼 클릭 시 새 빈 섹션을 현재 탭에 추가하고 바로 열린 상태로 설정합니다 */
   const addSection = () => {
     const newId = currentSections.length > 0 ? Math.max(...currentSections.map(s => s.id)) + 1 : 1;
     const newSection = makeEmptySection(newId);
@@ -893,10 +1003,12 @@ export default function FilterPage() {
     setCurrentOpenSections(prev => ({ ...prev, [newId]: true }));
   };
 
+  /** 특정 섹션의 단일 필드(feature | op | value | name)를 업데이트합니다 */
   const updateSection = (id: number, field: keyof Section, value: string) => {
     setCurrentSections(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
   };
 
+  /** 섹션 행 오른쪽 + 버튼 클릭 시 해당 섹션에 빈 SubRow를 추가합니다 */
   const addSubRow = (sectionId: number) => {
     setCurrentSections(prev => prev.map(s => {
       if (s.id !== sectionId) return s;
@@ -905,6 +1017,7 @@ export default function FilterPage() {
     }));
   };
 
+  /** 특정 섹션의 SubRow 단일 필드(logic | feature | op | value)를 업데이트합니다 */
   const updateSubRow = (sectionId: number, rIdx: number, field: keyof SubRow, value: string) => {
     setCurrentSections(prev => prev.map(s => {
       if (s.id !== sectionId) return s;
@@ -913,6 +1026,10 @@ export default function FilterPage() {
     }));
   };
 
+  /**
+   * Feature List 카테고리 클릭 시 해당 카테고리를 토글합니다.
+   * 아코디언 방식이므로 다른 카테고리는 모두 닫고 하나만 열립니다.
+   */
   const toggleCategory = (name: string) => {
     setOpenCategories(prev => {
       const isCurrentlyOpen = prev[name];
@@ -922,6 +1039,11 @@ export default function FilterPage() {
     });
   };
 
+  /**
+   * "Test Load" 버튼 클릭 시 호출됩니다.
+   * Inclusion 4개 섹션 + Exclusion 1개 섹션의 샘플 데이터를 채워
+   * 필터 설정 UI를 빠르게 테스트할 수 있게 합니다.
+   */
   const fillTestData = () => {
     setInclusionSections([
       { id: 1, name: "Section 1", feature: "AGE", op: ">", value: "55" },

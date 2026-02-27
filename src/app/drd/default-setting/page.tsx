@@ -1,3 +1,16 @@
+/**
+ * Default Settings 메인 페이지 (DRD Step 1)
+ *
+ * 사용자가 시뮬레이션에 사용할 환자 코호트를 설정하는 페이지입니다.
+ * 4가지 설정 항목(Patient/Disease Info, Filter, High-Risk Subgroup, Medical History)을
+ * 완료하면 "Apply to Analysis" 버튼이 활성화되어 Step 2(Simulation Settings)로 이동합니다.
+ *
+ * 주요 구조:
+ * - 왼쪽 패널: Filtered Patients 현황 카드 + 설정 단계 목록
+ * - 오른쪽 패널: 각 설정 항목 카드 2×2 그리드 (미완료=InitialCard, 완료=CompletedCard)
+ * - 하단: Save Progress / Apply to Analysis 버튼
+ */
+
 "use client";
 
 import React from "react";
@@ -9,6 +22,7 @@ import { Loading } from "@/components/common/Loading";
 import { callMLStudyDesign, type PrimaryEndpointData, type SecondaryEndpointData, type StudyParameters } from "@/services/studyService";
 import { IconVirusGray, IconFunnelGray, IconAsteriskGray, IconClockGray, IconVirusOrange, IconFunnelActive, IconAsteriskOrange, IconClockOrange } from "@/components/ui/drd-step-icons";
 
+/** 설정 완료 시 카드 헤더에 표시되는 주황색 체크 원형 아이콘 */
 function IconComplete(): React.JSX.Element {
   return (
     <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#F06600", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -20,6 +34,8 @@ function IconComplete(): React.JSX.Element {
 }
 
 // ── 설정 아이템 정의 ─────────────────────────────────────────────────────────
+// 4개 설정 카드 각각의 메타데이터(id, 제목, 설명, 아이콘, 완료 시 요약 내용)를 정의합니다.
+// completedSummary는 해당 항목이 완료됐을 때 CompletedCard 내부에 표시할 내용입니다.
 
 type IconComp = (props: { size?: number }) => React.JSX.Element;
 
@@ -75,6 +91,7 @@ const settingItems: {
   },
 ];
 
+/** 각 설정 항목 ID → 해당 설정 페이지 경로 매핑 */
 const settingRoutes: Record<DefaultSettingId, string> = {
   "patient-disease-info": "/drd/patient-disease-info",
   "filter": "/drd/filter",
@@ -84,7 +101,10 @@ const settingRoutes: Record<DefaultSettingId, string> = {
 
 // ── 서브컴포넌트 ─────────────────────────────────────────────────────────────
 
-
+/**
+ * InitialCard — 아직 설정하지 않은 항목에 표시되는 카드
+ * 제목, 설명, "Setting +" 버튼을 포함합니다.
+ */
 function InitialCard({ item, onClick }: { item: any; onClick: () => void }) {
   const Icon = item.icon;
   return (
@@ -107,6 +127,12 @@ function InitialCard({ item, onClick }: { item: any; onClick: () => void }) {
   );
 }
 
+/**
+ * CompletedCard — 설정이 완료된 항목에 표시되는 카드
+ * 설정 요약 내용(단일 컬럼 또는 다중 컬럼)과 Reset/Edit 버튼을 포함합니다.
+ * - columns가 있으면 → 여러 열로 나뉜 요약(예: Inclusion/Exclusion)
+ * - 없으면 → 단일 행 목록(예: Demographic/Measurement)
+ */
 function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => void; onEdit: () => void }) {
   const summary = item.completedSummary;
   const hasColumns = !!summary.columns;
@@ -197,6 +223,8 @@ const stepRoutes: Record<string, string> = {
 };
 
 // ── 데이터 설정 ───────────────────────────────────────────────────────────
+// 왼쪽 패널의 설정 단계 목록. 현재 페이지(default-setting)에서는 모두 비활성 상태.
+// 각 하위 설정 페이지에서는 해당 항목만 isActive: true로 강조 표시됩니다.
 
 const setupSteps = [
   {
@@ -250,19 +278,23 @@ const setupSteps = [
 
 export default function DefaultSettingPage() {
   const router = useRouter();
+
+  // defaultSettingStore: 각 설정 항목 완료 여부, 코호트 수치, 각 설정 데이터
   const { completedItems, setCompleted, isAllCompleted, isAnyCompleted, cohortCount, finalCohortCount, filterData, medicalHistoryData, patientDiseaseInfoData, highRiskSubgroupData, addSavedSimulation } = useDefaultSettingStore();
 
-  const allCompleted = isAllCompleted();
-  const anyCompleted = isAnyCompleted();
+  const allCompleted = isAllCompleted(); // 4개 모두 완료 여부
+  const anyCompleted = isAnyCompleted(); // 1개 이상 완료 여부
 
-  const initialCohort = cohortCount;
-  const finalCohort = finalCohortCount;
-  const filteredRatio = initialCohort > 0 ? Math.round((finalCohort / initialCohort) * 100) : 0;
+  const initialCohort = cohortCount;     // 초기 코호트 전체 환자 수
+  const finalCohort = finalCohortCount;  // 필터링 후 최종 코호트 환자 수
+  const filteredRatio = initialCohort > 0 ? Math.round((finalCohort / initialCohort) * 100) : 0; // 필터링 비율(%)
 
+  // Save Progress 모달 표시 여부 + 입력값 상태
   const [showSaveModal, setShowSaveModal] = React.useState(false);
   const [simName, setSimName] = React.useState("");
   const [simDesc, setSimDesc] = React.useState("");
 
+  /** 시뮬레이션 저장 — 이름 필수, 설명은 선택(최대 30자) */
   const handleSaveSimulation = () => {
     if (!simName.trim()) return;
     const now = new Date();
@@ -281,6 +313,8 @@ export default function DefaultSettingPage() {
     setShowSaveModal(false);
   };
 
+  // 필터링 비율(%) 숫자를 부드럽게 카운트업하는 애니메이션
+  // ease-out cubic 곡선으로 처음엔 빠르게, 끝에서 천천히 증가
   const [animatedRatio, setAnimatedRatio] = React.useState(0);
   React.useEffect(() => {
     let start = 0;
@@ -290,7 +324,7 @@ export default function DefaultSettingPage() {
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
       start = Math.round(eased * target);
       setAnimatedRatio(start);
       if (progress < 1) requestAnimationFrame(tick);
@@ -299,10 +333,12 @@ export default function DefaultSettingPage() {
     return () => cancelAnimationFrame(raf);
   }, [filteredRatio]);
 
+  // 각 설정 항목의 completedSummary를 실제 저장된 값으로 동적으로 채워주는 로직.
+  // settingItems 원본을 복사 후, store에서 읽어온 데이터를 기반으로 요약 내용을 덮어씁니다.
   const dynamicSettingItems = React.useMemo(() => {
     const items = [...settingItems];
 
-    // Patient/Disease Info summary
+    // Patient/Disease Info 요약 — 선택된 인구통계, 측정 변수, 제어 모드 표시
     const pdiIdx = items.findIndex(it => it.id === "patient-disease-info");
     if (pdiIdx !== -1) {
       const d = patientDiseaseInfoData ?? { baselineDemo: "Age", baselineMeasure: "BMI", controlMode: "value", trendSelection: "Increase" };
@@ -319,7 +355,7 @@ export default function DefaultSettingPage() {
       };
     }
 
-    // High-Risk Subgroup summary
+    // High-Risk Subgroup 요약 — 선택된 서브그룹 세트/피처/조건/월/기울기/상태 표시
     const hrsIdx = items.findIndex(it => it.id === "high-risk-subgroup");
     if (hrsIdx !== -1) {
       const d = highRiskSubgroupData ?? { parentName: "CKD 1 Stage", subRowName: "Slow", feature: "eGFR", condition: "> 90", month: "36", slope: "2", status: "n=1,200", selectedSubRow: "ckd1-slow" };
@@ -339,6 +375,8 @@ export default function DefaultSettingPage() {
       };
     }
 
+    // Filter 요약 — Inclusion/Exclusion 조건을 수식 형태로 표시
+    // 예: Inclusion [ { AGE > 55 } And { WEIGHT [kg] > 50 } ]
     const filterIdx = items.findIndex(it => it.id === "filter");
     if (filterIdx !== -1) {
       const inclusion = filterData.inclusion.filter(s => s.feature || s.op || s.value || (s.subRows && s.subRows.length > 0));
@@ -389,7 +427,7 @@ export default function DefaultSettingPage() {
         }
       };
     }
-    // Medical History sync
+    // Medical History 요약 — 선택된 Baseline Status(진단/동반질환)와 Control Variables(위험인자) 표시
     const mhIdx = items.findIndex(it => it.id === "medical-history");
     if (mhIdx !== -1) {
       const mhLabels: Record<string, string> = {
@@ -488,7 +526,7 @@ export default function DefaultSettingPage() {
     return items;
   }, [filterData, medicalHistoryData, patientDiseaseInfoData, highRiskSubgroupData]);
 
-  // Simulation logic from ATS
+  // simulationStore: Apply to Analysis 시 API 호출에 필요한 설정값 및 결과 저장 액션
   const {
     isApplied,
     primaryEndpoints,
@@ -510,6 +548,10 @@ export default function DefaultSettingPage() {
     setError,
   } = useSimulationStore();
 
+  /**
+   * UI에서 사용하는 엔드포인트 이름을 API 파라미터 코드로 변환합니다.
+   * 예: "ADAS Cog 11" → "ADTOT70"
+   */
   const convertPrimaryEndpoint = (endpoint: string): string => {
     const endpointMap: Record<string, string> = {
       "ADAS Cog 11": "ADTOT70",
@@ -519,6 +561,11 @@ export default function DefaultSettingPage() {
     return endpointMap[endpoint] || endpoint;
   };
 
+  /**
+   * "Apply to Analysis" 버튼 클릭 시 실행되는 핸들러.
+   * 설정값을 API 형식으로 변환 후 ML 스터디 디자인 API를 호출하고,
+   * 결과를 simulationStore에 저장합니다.
+   */
   const handleApplySettings = async () => {
     try {
       setIsLoading(true);

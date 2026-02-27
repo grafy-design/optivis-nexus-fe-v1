@@ -1,3 +1,34 @@
+/**
+ * Simulation Condition Page — 시뮬레이션 조건 설정 페이지 (Step 2)
+ *
+ * 역할:
+ *   시뮬레이션의 핵심 조건을 설정하는 페이지입니다.
+ *   - Target outcome variable: Category / Detail / Value 3단 선택 후 증감 테이블(Value, Unit, Months) 입력
+ *   - Follow-up Window: 슬라이더로 추적 기간(3~24개월) 선택
+ *   - Add on drug: 약물 검색·추가, 전략별(A/B/C) 체크박스 설정, 타임라인 pill 드래그 배치
+ *
+ * 레이아웃:
+ *   왼쪽 패널 — SMILES Settings / Simulation Conditions 스텝 네비게이션
+ *   오른쪽 패널 (상단) — Select the target outcome variable 카드
+ *     - Category / Detail / Value 선택 컬럼
+ *     - HbA1c 증감 테이블 (Increase / Stable / Decrease)
+ *   오른쪽 패널 (하단 좌) — Follow-up Window (슬라이더 + 드롭다운)
+ *   오른쪽 패널 (하단 우) — Develop a plan for the selected medication
+ *     - Add on drug 검색, 체크박스(전략 A/B/C), 삭제 버튼
+ *     - 전략별 타임라인 차트 (ResizablePill)
+ *
+ * 주요 상태:
+ *   selectedCategory / selectedDetail / selectedValue — 카테고리 3단 선택
+ *   followUpMonths — 추적 기간 (3~24개월)
+ *   inputValues / unitValues / monthValues — HbA1c 증감 테이블 입력값
+ *   drugList — 추가된 약물 목록 (checks, pillPositions 포함)
+ *   pillResetKey — pill 위치를 초기화할 때 증가시키는 키
+ *
+ * 저장:
+ *   Save Progress 버튼 → handleSaveProgress → localStorage에 스냅샷 저장
+ *   Confirm 버튼 → SimulationStore.setSimCondData + setSimCondCompleted(true)
+ *                  → /drd/simulation-setting 으로 이동
+ */
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -10,6 +41,7 @@ import { useSimulationStore, type SimulationState } from "@/store/simulationStor
 
 
 
+/** 체크된 상태의 커스텀 체크박스 아이콘 (파란색 배경 + 흰색 체크) */
 function CheckboxChecked({ size = 17 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 17 17" fill="none">
@@ -19,6 +51,7 @@ function CheckboxChecked({ size = 17 }: { size?: number }) {
   );
 }
 
+/** 미체크 상태의 커스텀 체크박스 아이콘 (흰색 배경 + 회색 테두리) */
 function CheckboxUnchecked({ size = 17 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 17 17" fill="none">
@@ -27,6 +60,7 @@ function CheckboxUnchecked({ size = 17 }: { size?: number }) {
   );
 }
 
+/** 다운로드 아이콘 — "Develop a plan" 헤더 영역 우측 버튼용 */
 function IconDownload({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -36,6 +70,7 @@ function IconDownload({ size = 24 }: { size?: number }) {
   );
 }
 
+/** 폴더 추가 아이콘 — "Develop a plan" 헤더 영역 우측 버튼용 */
 function IconAddFolder({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -45,6 +80,7 @@ function IconAddFolder({ size = 24 }: { size?: number }) {
   );
 }
 
+/** 돋보기 아이콘 — 약물 검색 입력 필드 좌측 장식용 */
 function IconSearch({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
@@ -54,6 +90,7 @@ function IconSearch({ size = 20 }: { size?: number }) {
   );
 }
 
+/** 경고 삼각형 아이콘 — 약물 검색 결과에서 warning=true 약물 옆에 표시 */
 function IconWarning({ size = 12 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
@@ -64,6 +101,7 @@ function IconWarning({ size = 12 }: { size?: number }) {
   );
 }
 
+/** 삭제 아이콘 — drugList의 각 행 우측 삭제 버튼용 */
 function IconDelete({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
@@ -74,6 +112,11 @@ function IconDelete({ size = 16 }: { size?: number }) {
 
 // ── 리퀴드 글래스 버튼 ──────────────────────────────────────────────────────
 
+/**
+ * GlassIconButton — 반투명 글래스 스타일의 원형 아이콘 버튼 래퍼
+ * - 44×44px 고정 크기, children으로 아이콘 SVG를 받아 중앙 정렬 표시
+ * - "Develop a plan" 헤더 영역의 Download, AddFolder 버튼에 사용
+ */
 function GlassIconButton({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ position: "relative", width: 44, height: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
@@ -85,9 +128,18 @@ function GlassIconButton({ children }: { children: React.ReactNode }) {
 
 // ── Category Frame ───────────────────────────────────────────────────────────
 
+/** 목록 항목 하나의 타입: 텍스트, 선택 여부, 비활성 여부, 저장 여부 */
 type CategoryItem = { label: string; selected?: boolean; disabled?: boolean; saved?: boolean };
+/** CategoryFrame 컴포넌트의 props 타입 */
 type CategoryFrameProps = { header: string; items: CategoryItem[]; onSelect?: (index: number) => void };
 
+/**
+ * CategoryFrame — 스크롤 가능한 선택 목록 컬럼 컴포넌트
+ * - 헤더(타이틀)와 항목 목록으로 구성
+ * - 각 행은 selected(진한 파랑), disabled(회색), normal(흰색) 세 가지 상태를 가짐
+ * - 클릭 시 onSelect(index) 콜백 호출
+ * - Category / Detail / Value 3단 컬럼에 각각 사용
+ */
 function CategoryFrame({ header, items, onSelect }: CategoryFrameProps) {
   return (
     <div style={{ background: "white", borderRadius: 12, flex: 1, minWidth: 0, height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
@@ -152,6 +204,12 @@ function CategoryFrame({ header, items, onSelect }: CategoryFrameProps) {
 
 // ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
 
+/**
+ * GlassTestButton — "Test Load" 버튼
+ * - 클릭 시 handleTestLoad가 호출되어 샘플 데이터로 모든 입력 상태를 채움
+ * - hover/press 시 배경이 바뀌는 글래스 스타일 버튼
+ * - disabled 시 반투명 + not-allowed 커서
+ */
 function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -209,6 +267,23 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
 // Pressed:  bg=rgba(58,17,216,0.12), border=rgba(58,17,216,0.3), text=#3a11d8, grip=#7a55e8
 // Disabled: bg=#f5f5f7, border=#e2e1e5, text=#c6c5c9, grip=#e2e1e5
 
+/**
+ * ResizablePill — 타임라인 트랙 위에서 좌우 크기 조절 및 이동이 가능한 pill 컴포넌트
+ *
+ * 기능:
+ *   - 왼쪽/오른쪽 그립(3×3 점 아이콘)을 드래그해 폭 조절
+ *   - 가운데 텍스트 영역을 드래그해 위치 이동
+ *   - testLeftPct / testWidthPct prop으로 부모 컨테이너 너비 대비 % 위치 지정
+ *   - resetKey 변경 시 testLeftPct/testWidthPct 기준으로 위치/크기 재계산
+ *
+ * props:
+ *   disabled   — 드래그 불가, 회색 스타일 적용
+ *   name       — pill에 표시할 약물 이름
+ *   code       — pill에 표시할 ATC 코드
+ *   testLeftPct  — 초기 left 위치 (부모 너비의 %)
+ *   testWidthPct — 초기 너비 (부모 너비의 %)
+ *   resetKey   — 변경 시 위치/크기를 testLeftPct/testWidthPct 기준으로 재설정
+ */
 function ResizablePill({ disabled, name, code, testLeftPct, testWidthPct, resetKey }: { disabled?: boolean; name: string; code: string; testLeftPct?: number; testWidthPct?: number; resetKey?: number }) {
   const minW = 60;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -344,10 +419,14 @@ function ResizablePill({ disabled, name, code, testLeftPct, testWidthPct, resetK
   );
 }
 
-// ── 메인 컴포넌트 ────────────────────────────────────────────────────────────
-
 // ── Save Progress 모달 ───────────────────────────────────────────────────────
 
+/**
+ * SaveProgressModal — 시뮬레이션 저장 이름 입력 모달
+ * - 처음 저장 시 표시; 이름 입력 후 Save 클릭 → onSave(name) 콜백
+ * - Enter 키로 저장, Escape 키 또는 배경 클릭으로 닫기
+ * - 이름이 비어 있으면 Save 버튼 비활성화 (회색)
+ */
 function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (name: string) => void }) {
   const [name, setName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -461,6 +540,12 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
 
 // ── Save Toast ───────────────────────────────────────────────────────────────
 
+/**
+ * SaveToast — 저장 완료 시 하단 중앙에 잠시 표시되는 알림 토스트
+ * - 2400ms 후 자동으로 사라짐 (onDone 콜백 호출)
+ * - fadeInUp 애니메이션 적용
+ * - message: 저장된 시뮬레이션 이름 포함 문자열 (예: '"DRD Baseline" saved')
+ */
 function SaveToast({ message, onDone }: { message: string; onDone: () => void }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2400);
@@ -487,27 +572,50 @@ function SaveToast({ message, onDone }: { message: string; onDone: () => void })
   );
 }
 
+/**
+ * SimulationConditionPage — 시뮬레이션 조건 설정 메인 페이지 컴포넌트
+ *
+ * 페이지 진입 시 모든 상태는 빈 값(null / [])으로 시작하며,
+ * Test Load 버튼으로 샘플 데이터를 채우거나, 사용자가 직접 입력한다.
+ * Confirm 버튼 클릭 시 전역 simulationStore에 데이터를 저장하고 이전 페이지로 이동한다.
+ */
 export default function SimulationConditionPage() {
   const router = useRouter();
-  const [followUpMonths, setFollowUpMonths] = useState(12);
-  const [followUpOpen, setFollowUpOpen] = useState(false);
-  const followUpRef = useRef<HTMLDivElement>(null);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [selectedDetail, setSelectedDetail] = useState<number | null>(null);
-  const [selectedValue, setSelectedValue] = useState<number | null>(null);
-  const [unitValues, setUnitValues] = useState(["%" , "%", "%"]);
-  const [openUnitIdx, setOpenUnitIdx] = useState<number | null>(null);
-  const [unitDropdownPos, setUnitDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
-  const [monthValues, setMonthValues] = useState(["6", "6", "3"]);
-  const [inputValues, setInputValues] = useState(["10", "0", "-10"]);
-  const [pillResetKey, setPillResetKey] = useState(0);
 
-  // Save Progress 상태
-  const [savedSimId, setSavedSimId] = useState<string | null>(null);
-  const [savedSimName, setSavedSimName] = useState<string | null>(null);
-  const [showSaveModal, setShowSaveModal] = useState(false);
-  const [saveToast, setSaveToast] = useState<string | null>(null);
+  // ── Follow-up Window 상태 ────────────────────────────────────────────────
+  const [followUpMonths, setFollowUpMonths] = useState(12); // 추적 기간(개월), 슬라이더 + 드롭다운으로 조작
+  const [followUpOpen, setFollowUpOpen] = useState(false);  // 드롭다운 펼침 여부
+  const followUpRef = useRef<HTMLDivElement>(null);          // 드롭다운 앵커 요소 ref
 
+  // ── Category / Detail / Value 선택 상태 ─────────────────────────────────
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null); // Category 컬럼 선택 인덱스
+  const [selectedDetail, setSelectedDetail] = useState<number | null>(null);     // Detail 컬럼 선택 인덱스
+  const [selectedValue, setSelectedValue] = useState<number | null>(null);       // Value 컬럼 선택 인덱스
+
+  // ── HbA1c 증감 테이블 입력값 ─────────────────────────────────────────────
+  const [unitValues, setUnitValues] = useState(["%" , "%", "%"]);  // 단위 드롭다운 값 (Increase/Stable/Decrease 행)
+  const [openUnitIdx, setOpenUnitIdx] = useState<number | null>(null); // 현재 열린 단위 드롭다운 행 인덱스
+  const [unitDropdownPos, setUnitDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null); // 단위 드롭다운 fixed 좌표
+  const [monthValues, setMonthValues] = useState(["6", "6", "3"]);    // Months 열 입력값 (Increase/Stable/Decrease)
+  const [inputValues, setInputValues] = useState(["10", "0", "-10"]); // Value 열 입력값 (증감 수치)
+
+  const [pillResetKey, setPillResetKey] = useState(0); // 증가 시 모든 pill이 testLeftPct/testWidthPct 기준으로 위치 재계산
+
+  // ── Save Progress 상태 ──────────────────────────────────────────────────
+  const [savedSimId, setSavedSimId] = useState<string | null>(null);   // localStorage 키에 사용하는 고유 ID (Date.now 기반)
+  const [savedSimName, setSavedSimName] = useState<string | null>(null); // 저장된 시뮬레이션 이름 (토스트 메시지용)
+  const [showSaveModal, setShowSaveModal] = useState(false); // SaveProgressModal 표시 여부
+  const [saveToast, setSaveToast] = useState<string | null>(null); // SaveToast 메시지 (null이면 숨김)
+
+  /**
+   * handleTestLoad — "Test Load" 버튼 클릭 시 샘플 데이터로 전체 상태를 채우는 함수
+   *
+   * 설정값:
+   *   - selectedCategory=0 (Patient Info), selectedDetail=1 (Baseline), selectedValue=2 (HbA1c)
+   *   - followUpMonths=12, inputValues=[10,0,-10], unitValues=[%,%,%], monthValues=[6,6,3]
+   *   - drugList: Insulin glargine, Empagliflozin, Glimepiride + 전략별 pill 위치
+   *   - pillResetKey 증가 → 모든 pill의 위치/크기 재계산
+   */
   const handleTestLoad = () => {
     setSelectedCategory(0);
     setSelectedDetail(1);
@@ -524,13 +632,20 @@ export default function SimulationConditionPage() {
     ]);
     setPillResetKey(k => k + 1);
   };
-  const setSimCondCompleted = useSimulationStore((s: SimulationState) => s.setSimCondCompleted);
-  const setSimCondData = useSimulationStore((s: SimulationState) => s.setSimCondData);
-  const simSmilesCompleted = useSimulationStore((s: SimulationState) => s.simSmilesCompleted);
+  const setSimCondCompleted = useSimulationStore((s: SimulationState) => s.setSimCondCompleted); // 조건 설정 완료 여부 전역 상태 setter
+  const setSimCondData = useSimulationStore((s: SimulationState) => s.setSimCondData);           // 조건 데이터 전역 상태 setter
+  const simSmilesCompleted = useSimulationStore((s: SimulationState) => s.simSmilesCompleted);   // SMILES 완료 여부 (왼쪽 패널 아이콘 표시용)
 
   const maxMonths = 24;
+  /** 슬라이더 thumb의 % 위치 (min=3, max=24 기준 0~100%) */
   const sliderPct = ((followUpMonths - 3) / (maxMonths - 3)) * 100;
 
+  /**
+   * allDrugRows — 약물 전체 목록 (정적 데이터)
+   * - 검색 소스이자 drugList 초기화 기준
+   * - checks: [전략A, 전략B, 전략C] 체크박스 기본값
+   * - warning: 경고 아이콘 표시 여부
+   */
   const allDrugRows = [
     { type: "Basal insulin", name: "Insulin glargine", code: "A10AE04", checks: [true, true, true], warning: false },
     { type: "SGLT2 inhibitors", name: "Empagliflozin", code: "A10BK03", checks: [true, true, true], warning: false },
@@ -540,16 +655,28 @@ export default function SimulationConditionPage() {
     { type: "Biguanide", name: "Metformin", code: "A10BA02", checks: [true, false, true], warning: false },
   ];
 
+  /**
+   * drugList — 현재 추가된 약물 목록 (동적 상태)
+   * - allDrugRows에서 검색 후 추가하거나 handleTestLoad로 초기화
+   * - checks: [전략A, 전략B, 전략C] 체크박스 현재값 (초기값: [false, false, false])
+   * - pillPositions: 각 전략의 타임라인 pill 위치/크기 (null이면 해당 전략에 pill 없음)
+   */
   const [drugList, setDrugList] = useState<Array<{ type: string; name: string; code: string; checks: boolean[]; warning: boolean; id: number; pillPositions?: Array<{ leftPct: number; widthPct: number } | null> }>>([]);
-  const nextIdRef = useRef(allDrugRows.length);
+  const nextIdRef = useRef(allDrugRows.length); // 약물 추가 시 고유 id 생성용 카운터
 
-  const [drugSearchQuery, setDrugSearchQuery] = useState("");
-  const [drugSearchOpen, setDrugSearchOpen] = useState(false);
-  const [drugSearchPos, setDrugSearchPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
-  const drugSearchContainerRef = useRef<HTMLDivElement>(null);
-  const drugSearchDropdownRef = useRef<HTMLDivElement>(null);
-  const drugCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // ── 약물 검색 드롭다운 상태 ─────────────────────────────────────────────
+  const [drugSearchQuery, setDrugSearchQuery] = useState("");     // 검색 입력값
+  const [drugSearchOpen, setDrugSearchOpen] = useState(false);    // 드롭다운 열림 여부
+  const [drugSearchPos, setDrugSearchPos] = useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 }); // 드롭다운 fixed 좌표
+  const drugSearchContainerRef = useRef<HTMLDivElement>(null);     // 검색 입력 컨테이너 ref (좌표 계산용)
+  const drugSearchDropdownRef = useRef<HTMLDivElement>(null);      // 드롭다운 ref (외부 클릭 감지용)
+  const drugCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // 마우스아웃 딜레이 타이머
 
+  /**
+   * drugSearchResults — 검색어로 필터링된 약물 목록
+   * - name, code, type 필드를 대소문자 무관하게 검색
+   * - 검색어가 없으면 전체 allDrugRows 반환
+   */
   const drugSearchResults = useMemo(() => {
     const q = drugSearchQuery.toLowerCase().trim();
     if (!q) return allDrugRows;
@@ -570,15 +697,24 @@ export default function SimulationConditionPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, [drugSearchOpen]);
 
-  const drugRows = drugList;
+  const drugRows = drugList; // drugList의 별칭 — JSX에서 가독성 향상 목적
 
   // ── Save Progress 핸들러 ────────────────────────────────────────────────────
 
+  /**
+   * getCurrentSnapshot — 현재 조건 상태를 객체로 직렬화
+   * - localStorage에 저장하거나 덮어쓸 때 사용
+   */
   const getCurrentSnapshot = () => ({
     selectedCategory, selectedDetail, selectedValue,
     followUpMonths, inputValues, unitValues, monthValues, drugList,
   });
 
+  /**
+   * handleSaveProgress — "Save Progress" 버튼 클릭 핸들러
+   * - savedSimId가 있으면 기존 항목 덮어쓰기 후 토스트 표시
+   * - savedSimId가 없으면 SaveProgressModal을 열어 이름 입력 후 저장
+   */
   const handleSaveProgress = () => {
     if (savedSimId) {
       // 저장 이력 있음 → 바로 덮어쓰기
@@ -591,6 +727,10 @@ export default function SimulationConditionPage() {
     }
   };
 
+  /**
+   * handleSaveConfirm — SaveProgressModal에서 이름 입력 후 Save 클릭 시 호출
+   * - localStorage에 스냅샷 저장, savedSimId/Name 설정, 모달 닫기, 토스트 표시
+   */
   const handleSaveConfirm = (name: string) => {
     const id = `${Date.now()}`;
     const snapshot = getCurrentSnapshot();

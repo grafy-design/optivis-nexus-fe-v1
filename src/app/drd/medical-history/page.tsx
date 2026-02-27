@@ -1,4 +1,31 @@
-﻿"use client";
+﻿/**
+ * Medical History Page — Default Settings Step 1: Medical History
+ *
+ * 역할:
+ *   임상 병력 및 위험 요인 기반으로 환자 그룹을 정의하는 설정 페이지입니다.
+ *   두 컬럼으로 구성됩니다:
+ *   - Baseline Status (좌): 진단명(Diagnosis), 동반질환(Comorbidity) 체크박스
+ *   - Control Variables (우): 위험인자(Risk Factors) 체크박스
+ *
+ * 레이아웃:
+ *   ┌─────────────────────┬──────────────────────────────────────────────────┐
+ *   │ 왼쪽: Navy Glass     │ 오른쪽: Baseline Status | Control Variables       │
+ *   │ - Filtered % 카드   │ (CategoryGroup 아코디언 + CheckboxItem 트리 구조)  │
+ *   │ - 4-Step 사이드바   │                                                  │
+ *   └─────────────────────┴──────────────────────────────────────────────────┘
+ *
+ * 주요 상태:
+ *   - checked: 각 체크박스 키의 선택 여부 (Record<string, boolean>)
+ *   - 부모 체크박스 토글 시 하위 자식 항목들도 일괄 체크/해제됩니다
+ *
+ * 유효성 검증:
+ *   - Baseline Status와 Control Variables 양쪽 모두 하나 이상 선택되어야 Confirm 활성화됩니다
+ *
+ * 저장:
+ *   Confirm 클릭 시 checked 상태를 medicalHistoryData로 저장하고
+ *   medical-history 완료 상태를 true로 설정한 뒤 /drd/default-setting으로 이동합니다.
+ */
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,6 +33,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 
+/** 왼쪽 사이드바 4개 스텝 아이콘 클릭 시 이동할 경로 매핑 */
 const stepRoutes: Record<string, string> = {
   "patient-disease-info": "/drd/patient-disease-info",
   "filter": "/drd/filter",
@@ -113,6 +141,10 @@ function IconChevronDown({ size = 14, color = "#484646" }: { size?: number; colo
 
 // ── 데이터 ───────────────────────────────────────────────────────────────
 
+/**
+ * 왼쪽 패널 하단 4단계 설정 스텝 목록.
+ * isActive: true 인 Medical History 항목이 현재 페이지이며 오렌지 아이콘 + 네이비 배경으로 표시됩니다.
+ */
 const setupSteps = [
   {
     id: "patient-disease-info",
@@ -162,6 +194,11 @@ const setupSteps = [
 
 // ── 체크박스 아이템 컴포넌트 ─────────────────────────────────────────────
 
+/**
+ * 체크박스 + 레이블 조합 컴포넌트.
+ * indent=true이면 24px 왼쪽 들여쓰기가 적용되어 하위 항목처럼 표시됩니다.
+ * disabled=true이면 클릭 비활성화 + 회색 텍스트로 표시됩니다.
+ */
 function CheckboxItem({
   label,
   checked = false,
@@ -198,6 +235,11 @@ function CheckboxItem({
 
 // ── 진단/카테고리 그룹 컴포넌트 ──────────────────────────────────────────
 
+/**
+ * 아코디언 형태의 카테고리 그룹 컴포넌트.
+ * defaultOpen=true이면 처음에 펼쳐진 상태로 시작합니다.
+ * 헤더 버튼 클릭 시 내용 표시/숨김 토글됩니다.
+ */
 function CategoryGroup({
   title,
   children,
@@ -236,6 +278,10 @@ function CategoryGroup({
 
 // ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
 
+/**
+ * "Test Load" 버튼 — 클릭 시 CKD Stage 전체 + CVD History 전체를 체크하여
+ * 체크박스 UI를 빠르게 테스트할 수 있게 합니다.
+ */
 function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -287,6 +333,10 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
 
 // ──────────────────────────────────────────────────────────────────────────
 
+/**
+ * 체크박스 초기 상태 — 모든 항목이 false(미선택)입니다.
+ * Reset 버튼 클릭 시 이 상태로 초기화됩니다.
+ */
 const initialChecked: Record<string, boolean> = {
   "ckd": false,
   "ckd-1": false, "ckd-2": false, "ckd-3": false, "ckd-4": false, "ckd-5": false,
@@ -299,11 +349,15 @@ const initialChecked: Record<string, boolean> = {
 
 export default function MedicalHistoryPage() {
   const router = useRouter();
+  // defaultSettingStore: 코호트 수, 완료 상태, 병력 데이터 관리
   const { setCompleted, cohortCount, finalCohortCount, medicalHistoryData, setMedicalHistoryData } = useDefaultSettingStore();
+  // filteredRatio: Filtered Patients 카드 프로그레스바 비율
   const filteredRatio = cohortCount > 0 ? Math.round((finalCohortCount / cohortCount) * 100) : 0;
+  // checked: 저장된 medicalHistoryData가 있으면 복원, 없으면 전부 미선택 상태로 시작
   const [checked, setChecked] = useState<Record<string, boolean>>(
     Object.keys(medicalHistoryData).length > 0 ? medicalHistoryData : initialChecked
   );
+  // parentToChildren: 부모 체크박스 키 → 하위 자식 키 목록 (부모 토글 시 자식 일괄 연동)
   const parentToChildren: Record<string, string[]> = {
     "ckd": ["ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5"],
     "cvd": ["ascvd", "hf", "stroke"],
@@ -311,6 +365,10 @@ export default function MedicalHistoryPage() {
     "dm": ["dm-1", "dm-2", "dm-3"],
   };
 
+  /**
+   * 체크박스 토글 함수.
+   * 부모 키(ckd, cvd, lowbs, dm)를 토글하면 소속 자식들도 동일하게 체크/해제됩니다.
+   */
   const toggle = (key: string) => setChecked(prev => {
     const next = { ...prev, [key]: !prev[key] };
     // 중분류 선택 시 소분류 모두 체크/해제
@@ -320,18 +378,23 @@ export default function MedicalHistoryPage() {
     }
     return next;
   });
+  // isDirty: 하나라도 체크된 항목이 있으면 true — Reset 버튼 활성화 기준
   const isDirty = Object.values(checked).some(Boolean);
+  /** Reset 버튼 클릭 시 모든 체크박스를 초기화하고 완료 상태도 해제합니다 */
   const handleReset = () => {
     setChecked(initialChecked);
     setCompleted("medical-history", false);
   };
+  // Reset 버튼 hover/active 상태 (배경색 변화용)
   const [resetHover, setResetHover] = useState(false);
   const [resetActive, setResetActive] = useState(false);
 
-  // Validation logic
+  // Baseline Status 영역의 체크박스 키 목록
   const baselineKeys = ["ckd", "ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5", "cardiac", "vascular", "metabolism", "renal", "nervous", "eye", "hepato"];
+  // Control Variables 영역의 체크박스 키 목록
   const controlKeys = ["cvd", "ascvd", "hf", "stroke", "lowbs", "lowbs-1", "lowbs-2", "dm", "dm-1", "dm-2", "dm-3"];
 
+  // isConfirmEnabled: Baseline + Control 양쪽 모두 최소 1개 이상 선택되어야 Confirm 버튼 활성화
   const isBaselineSelected = baselineKeys.some((k) => checked[k]);
   const isControlSelected = controlKeys.some((k) => checked[k]);
   const isConfirmEnabled = isBaselineSelected && isControlSelected;

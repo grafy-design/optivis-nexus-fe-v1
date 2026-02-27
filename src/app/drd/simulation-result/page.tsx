@@ -1,4 +1,26 @@
-﻿"use client";
+﻿/**
+ * Simulation Result Page — 시뮬레이션 결과 대시보드 (Step 3)
+ *
+ * 역할:
+ *   counterfactual 시뮬레이션 결과를 전략(A/B/C) 별로 비교·시각화하는 최종 대시보드입니다.
+ *   - 왼쪽 패널: 전략 카드 목록(Strategy A/B/C), Primary Outcome 라디오 선택, Population 정보, Edit Condition 버튼
+ *   - 오른쪽 패널: Summary 텍스트 + Efficacy / AE Risk 탭 전환
+ *
+ * Efficacy 탭:
+ *   - Primary Outcome 카드 (Mean, 95% CI, Median, NNT 통계 테이블)
+ *   - Response Probability 카드 (Strong/Partial/Non/Deteriorator 반응군 분류)
+ *   - Simulated Trajectory 카드 (스파게티 플롯 — HbA1c 시계열)
+ *   - Counterfactual Comparison 카드 (히스토그램 — Primary Outcome 분포)
+ *
+ * AE Risk 탭:
+ *   - Safety Trade-off 카드 (버블 차트 — △HbA1c vs AE 확률)
+ *   - AE Risk 카드 (계단 꺾은선 차트 — AE 유형 선택 가능)
+ *   - Non-responder Identification (전략별 비반응자 특성 피처 테이블)
+ *
+ * 저장:
+ *   Save Simulation 버튼 → 글래스모피즘 모달 → 이름·설명 입력 → Save
+ */
+"use client";
 
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -8,6 +30,7 @@ import ReactECharts from "@/components/charts/DynamicECharts";
 
 // ── 차트 컴포넌트 (인라인) ────────────────────────────────────────────────────
 
+// 전략별 차트 컬러 (내부 차트 전용)
 const _COLOR_A = "#3a11d8";
 const _COLOR_B = "#f06600";
 const _COLOR_C = "#24c6c9";
@@ -15,6 +38,12 @@ const _N10 = "#1c1b1b";
 const _N30 = "#484646";
 const _N60 = "#929090";
 
+/**
+ * SpaghettiPlotChart — 전략별 HbA1c 감소 궤적을 보여주는 스파게티 플롯
+ * - X축: 증상 발생 후 경과 개월 (0~24개월)
+ * - Y축: HbA1c 감소량 (0~-4)
+ * - 전략 A(파랑)/B(주황)/C(청록) 3개 라인 + 점선 마커
+ */
 function SpaghettiPlotChart() {
   const months = [0, 3, 6, 9, 12, 15, 18, 21, 24];
   const strategyB = [0, -0.3, -0.8, -1.4, -1.8, -2.2, -2.6, -2.7, -2.5];
@@ -49,6 +78,11 @@ function SpaghettiPlotChart() {
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
+/**
+ * HistogramChart — Primary Outcome(HbA1c 변화량) 분포를 전략별로 겹쳐서 보여주는 히스토그램
+ * - X축: Primary Outcome Change(△HbA1c), Y축: 환자 수
+ * - 각 x 위치에서 전략별 값을 크기 기준 내림차순 slot으로 레이어링해 중첩 막대 표현
+ */
 function HistogramChart() {
   const xLabels = ["-2.0","-1.9","-1.8","-1.7","-1.6","-1.5","-1.4","-1.3","-1.2","-1.1","-1.0","-0.9","-0.8","-0.7","-0.6","-0.5","-0.4","-0.3","-0.2","-0.1","0.0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"];
   const rawA = [0,0,0,0,0,1,1,2,5,9,11,12,14,24,25,19,22,23,30,48,46,22,11,5,0,0,0,0,0,0,0];
@@ -97,6 +131,12 @@ function HistogramChart() {
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
+/**
+ * BubbleChart — Safety Trade-off 버블 차트
+ * - X축: △HbA1c (효능), Y축: AE 확률(%)
+ * - 버블 크기: 상대적 빈도/위험 규모를 시각적으로 표현
+ * - A(파랑)/B(주황)/C(청록) 세 전략을 각각 원 하나로 표현
+ */
 function BubbleChart() {
   const option = {
     grid: { left: 56, right: 16, top: 12, bottom: 62 },
@@ -112,6 +152,12 @@ function BubbleChart() {
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
+/**
+ * StepLineChart — AE 발생 확률의 계단 꺾은선(step line) 차트
+ * - X축: 치료 시작 후 연수, Y축: AE 확률(%)
+ * - 아래쪽에 그라데이션 면적(areaStyle) 적용
+ * - AE Risk 탭의 "AE Risk" 카드 내부에 표시됨
+ */
 function StepLineChart() {
   const xData = [0,1,2,3,4,5,6,7,8,9,10];
   const dataA = [0,0.2,0.6,1.2,2.0,3.0,6.0,6.4,6.8,7.2,7.8];
@@ -132,27 +178,37 @@ function StepLineChart() {
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
-// ?? ?대?吏 ?먯뀑 寃쎈줈 ??????????????????????????????????????????????????????????
+// ── 이미지 경로 ───────────────────────────────────────────────────────────────
 const imgFrame1618873826 = "/figma-assets/159570a2cd4a5962c7b68be950ef1ec97d5cd2e1.svg";
 
-// ?? ?됱긽 ?곸닔 ????????????????????????????????????????????????????????????????
-const COLOR_STRATEGY_A = "#3a11d8";  // chart-set06-group01
-const COLOR_STRATEGY_B = "#f06600";  // chart-set06-group02 / secondary-60
-const COLOR_STRATEGY_C = "#24c6c9";  // chart-set06-group03
-const COLOR_PRIMARY    = "#262255";  // primary-15
-const COLOR_NEUTRAL_10 = "#1c1b1b";
-const COLOR_NEUTRAL_30 = "#484646";
-const COLOR_NEUTRAL_40 = "#5f5e5e";
-const COLOR_NEUTRAL_60 = "#929090";
-const COLOR_TABLE_BODY = "#787776";
 
-// ?? ?ы띁: ?꾨왂 移대뱶 ??????????????????????????????????????????????????????????
+// ── 전역 색상 상수 ────────────────────────────────────────────────────────────
+const COLOR_STRATEGY_A = "#3a11d8";  // 전략 A 색상 (파랑)
+const COLOR_STRATEGY_B = "#f06600";  // 전략 B 색상 (주황)
+const COLOR_STRATEGY_C = "#24c6c9";  // 전략 C 색상 (청록)
+const COLOR_PRIMARY    = "#262255";  // 메인 브랜드 컬러 (짙은 남색)
+const COLOR_NEUTRAL_10 = "#1c1b1b";  // 중립 10단계 (거의 검정)
+const COLOR_NEUTRAL_30 = "#484646";  // 중립 30단계 (진한 회색)
+const COLOR_NEUTRAL_40 = "#5f5e5e";  // 중립 40단계
+const COLOR_NEUTRAL_60 = "#929090";  // 중립 60단계 (중간 회색)
+const COLOR_TABLE_BODY = "#787776";  // 테이블 본문 텍스트 색상
+
 // ── 전략 카드 툴팁 ────────────────────────────────────────────────────────────
 
+/**
+ * StrategyTooltipData — 전략 카드 info 아이콘 호버 시 표시할 툴팁 데이터 타입
+ * - groups: 약물 그룹 목록 (그룹명, 약물 이름 배열, 컬러)
+ */
 interface StrategyTooltipData {
   groups: { label: string; items: string[]; color: string }[];
 }
 
+/**
+ * StrategyInfoTooltip — 전략 카드 info 아이콘 호버 시 나타나는 포탈 기반 툴팁
+ * - 약물 그룹(GLP-1 RA, SGLT2 inhibitors 등)별로 막대 바 레이아웃으로 표시
+ * - anchorRect: info 아이콘의 DOMRect — 툴팁 위치 계산에 사용 (anchorRect.right + 12)
+ * - createPortal로 document.body에 렌더링하여 overflow:hidden 클리핑 방지
+ */
 function StrategyInfoTooltip({ data, anchorRect }: { data: StrategyTooltipData; anchorRect: DOMRect }) {
   const top = anchorRect.top + anchorRect.height / 2;
   const left = anchorRect.right + 12;
@@ -274,16 +330,22 @@ function StrategyInfoTooltip({ data, anchorRect }: { data: StrategyTooltipData; 
   return createPortal(content, document.body);
 }
 
+/** StrategyCard 컴포넌트 props 타입 */
 interface StrategyCardProps {
-  name: string;
-  nameColor: string;
-  target: string;
-  drugs: string[];
-  extraDrug?: string;
-  lineColor: string;
-  tooltipData: StrategyTooltipData;
+  name: string;          // 전략명 (예: "Strategy A")
+  nameColor: string;     // 전략명 텍스트 색상
+  target: string;        // 목표 설명 (예: "HbA1c / Increase 10% / 3 Months")
+  drugs: string[];       // 주요 약물 목록
+  extraDrug?: string;    // 추가 약물 이름 (아이콘과 함께 표시)
+  lineColor: string;     // 헤더 하단 구분선 색상
+  tooltipData: StrategyTooltipData; // info 아이콘 호버 툴팁 데이터
 }
 
+/**
+ * StrategyCard — 왼쪽 패널에 표시되는 전략 요약 카드
+ * - 헤더: 전략명 + info 아이콘 (hover 시 StrategyInfoTooltip 표시)
+ * - 콘텐츠: 목표 텍스트 + 약물 번호 목록 + extraDrug(선택)
+ */
 function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, tooltipData }: StrategyCardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
@@ -405,7 +467,11 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
   );
 }
 
-// ?? ?ы띁: Primary Outcome ?뚯씠釉?(Efficacy ?? ???????????????????????????????
+/**
+ * PrimaryOutcomeTable — Primary Outcome 통계 테이블
+ * - 열: Strategy / Mean / 95% CI / Median / NNT* / NNT at Week 24
+ * - 행: 전략 A / B / C 각각의 HbA1c 변화량 통계
+ */
 function PrimaryOutcomeTable() {
   const headers = ["Strategy", "Mean", "95% CI", "Median", "NNT*", "NNT at Week 24"];
   const colWidths = ["16%", "13%", "19%", "13%", "12%", "27%"];
@@ -469,7 +535,12 @@ function PrimaryOutcomeTable() {
   );
 }
 
-// ?? ?ы띁: Response Probability ?뚯씠釉?(Efficacy ?? ??????????????????????????
+/**
+ * ResponseProbabilityTable — 반응군 분류 확률 테이블
+ * - 행: Strong responder / Partial responder / Non responder / Deteriorator
+ * - 열: Category / 전략 A / 전략 B / 전략 C
+ * - 가장 높은 확률의 전략은 굵은 텍스트 + 전략 색상으로 강조
+ */
 function ResponseProbabilityTable() {
   const rows = [
     {
@@ -580,7 +651,9 @@ function ResponseProbabilityTable() {
   );
 }
 
-// ?? ?ы띁: Non-responder ?뚯씠釉?(AE risk ?? ?????????????????????????????????
+/**
+ * NonResponderTableProps — NonResponderTable 컴포넌트의 props 타입
+ */
 interface NonResponderTableProps {
   strategyName: string;
   nameColor: string;
@@ -680,7 +753,11 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
   );
 }
 
-// ?? Efficacy ??而⑦뀗痢????????????????????????????????????????????????????????
+/**
+ * EfficacyContent — Efficacy 탭에서 렌더링되는 전체 콘텐츠
+ * - 상단: Primary Outcome 카드 + Response Probability 카드
+ * - 하단: Simulated Trajectory 스파게티 플롯 + Counterfactual Comparison 히스토그램
+ */
 function EfficacyContent() {
   return (
     <div
@@ -903,7 +980,7 @@ function EfficacyContent() {
   );
 }
 
-// ?? AE risk ??而⑦뀗痢?????????????????????????????????????????????????????????
+/** AE_OPTIONS — AE Risk 탭에서 선택 가능한 AE 유형 목록 */
 const AE_OPTIONS = ["Stroke", "Hypoglycemia", "Weight gain", "Heart failure"];
 
 function AERiskContent() {
@@ -1147,7 +1224,16 @@ function AERiskContent() {
   );
 }
 
-// ?? 硫붿씤 而댄룷?뚰듃 ????????????????????????????????????????????????????????????
+/**
+ * SimulationResultPage — 시뮬레이션 결과 메인 페이지 컴포넌트
+ *
+ * 주요 상태:
+ *   activeTab — 현재 탭 ("efficacy" | "ae-risk")
+ *   showSaveModal — Save Simulation 모달 표시 여부
+ *   simName / simDesc — 저장 이름·설명 입력값
+ *   selectedOutcome — Primary Outcome 라디오 선택값
+ *   strategies — 전략 카드 데이터 배열 (name, colors, drugs, tooltipData)
+ */
 export default function SimulationResultPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"efficacy" | "ae-risk">("efficacy");

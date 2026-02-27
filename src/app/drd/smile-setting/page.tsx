@@ -1,3 +1,27 @@
+/**
+ * SMILES Setting Page — SMILES 기반 약물 유사도 검색 페이지 (Step 2)
+ *
+ * 역할:
+ *   화학 구조(SMILES 문자열)를 입력해 유사 약물을 검색하고,
+ *   시뮬레이션에 사용할 약물을 선택·저장하는 페이지입니다.
+ *
+ * 레이아웃:
+ *   왼쪽 패널 — SMILES Settings / Simulation Conditions 스텝 네비게이션
+ *   오른쪽 패널 (헤더) — SMILES Setting 타이틀 + Test Load / Download / AddFolder 버튼
+ *   오른쪽 패널 (컨텐츠 좌) — Chemical Structure 검색 바 + Similarity results 카드 목록
+ *   오른쪽 패널 (컨텐츠 우) — 저장된 약물 목록 (SavedDrugItem)
+ *
+ * 주요 상태:
+ *   smilesValue          — SMILES 검색 입력값
+ *   similarityThreshold  — 유사도 필터 슬라이더 (85~100%)
+ *   sortValue            — 정렬 기준 ("Relevance" | "Similarity")
+ *   addedCardMap         — 선택된 약물 카드의 추가 순서 (drugData 인덱스 → 1-based 순서)
+ *   savedDrugList        — 우측 저장 목록에 표시될 약물 배열 (name, smilesImage)
+ *
+ * 저장:
+ *   Confirm 버튼 → setSmilesData(savedDrugList) + setSimSmilesCompleted(true)
+ *               → /drd/simulation-setting 으로 이동
+ */
 "use client";
 
 import Image from "next/image";
@@ -9,6 +33,7 @@ import { useSimulationStore } from "@/store/simulationStore";
 
 // ─── 아이콘 ──────────────────────────────────────────────────────────────────
 
+/** 돋보기 아이콘 — SMILES 검색 입력 필드 좌측 장식용 */
 function IconSearch() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -18,6 +43,7 @@ function IconSearch() {
   );
 }
 
+/** X 클리어 아이콘 — 검색 입력값이 있을 때 우측에 표시, 클릭 시 입력값 초기화 */
 function IconClear() {
   return (
     <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
@@ -28,6 +54,7 @@ function IconClear() {
 }
 
 
+/** 펼치기/접기 화살표 아이콘 — DrugCard 우측 상단 토글 버튼용 (현재 미구현) */
 function IconExpand() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -37,6 +64,7 @@ function IconExpand() {
 }
 
 
+/** 파일 다운로드 아이콘 — 오른쪽 패널 헤더 우측 다운로드 버튼용 */
 function IconDownloadFile() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -48,6 +76,7 @@ function IconDownloadFile() {
   );
 }
 
+/** 폴더 추가 아이콘 — 오른쪽 패널 헤더 우측 폴더 추가 버튼용 */
 function IconAddFolder() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -60,6 +89,11 @@ function IconAddFolder() {
 
 // ─── 글래스 아이콘 버튼 ─────────────────────────────────────────────────────
 
+/**
+ * GlassIconButton — 반투명 글래스 스타일의 원형 아이콘 버튼 래퍼
+ * - 44×44px 고정 크기, children으로 아이콘 SVG를 받아 중앙 정렬 표시
+ * - 헤더 영역의 Download, AddFolder 버튼에 사용
+ */
 function GlassIconButton({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
   return (
     <div
@@ -74,6 +108,12 @@ function GlassIconButton({ children, onClick }: { children: React.ReactNode; onC
 
 // ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
 
+/**
+ * GlassTestButton — "Test Load" 버튼
+ * - 클릭 시 handleTestLoad가 호출되어 샘플 약물 데이터로 상태를 채움
+ * - hover/press 시 배경이 바뀌는 글래스 스타일 버튼
+ * - disabled 시 반투명 + not-allowed 커서
+ */
 function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled?: boolean }) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -126,6 +166,12 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
 
 // ─── 왼쪽 패널: 셋업 스텝 ───────────────────────────────────────────────────
 
+/**
+ * SetupSteps — 왼쪽 패널의 단계 네비게이션 컴포넌트
+ * - Step 2 (SMILES Settings): 현재 페이지이므로 진한 네이비 배경으로 활성 표시
+ * - Step 1 (Simulation Conditions): 비활성, 클릭 시 해당 페이지로 이동
+ * - onSmilesClick / onSimCondClick: 각 버튼 클릭 시 라우터 이동 콜백
+ */
 function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => void; onSimCondClick: () => void }) {
   return (
     <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
@@ -188,6 +234,18 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
 
 // ─── 약물 카드 ───────────────────────────────────────────────────────────────
 
+/**
+ * DrugCardProps — DrugCard 컴포넌트의 props 타입
+ * - similarity: 유사도 배지 텍스트 (예: "95%")
+ * - smiles: SMILES 문자열 (두 번째 행에 표시, 검색어 하이라이트 적용)
+ * - drugName: 약물 이름
+ * - mf: 분자식 (Molecular Formula)
+ * - mw: 분자량 (Molecular Weight)
+ * - smilesImage: 분자 구조 이미지 경로 (없으면 MoleculeIcon SVG 표시)
+ * - searchQuery: 현재 검색어 (SMILES 행에 하이라이트 표시용)
+ * - addedIndex: 추가된 순서 (1-based). undefined이면 미추가 상태
+ * - onClick: 카드 클릭 시 약물 추가 콜백 (isAdded이면 클릭 불가)
+ */
 type DrugCardProps = {
   index: number;
   similarity: string;
@@ -201,6 +259,7 @@ type DrugCardProps = {
   onClick?: () => void;
 };
 
+/** MoleculeIcon — smilesImage가 없을 때 대체 표시하는 분자 구조 SVG 플레이스홀더 */
 function MoleculeIcon() {
   return (
     <svg width="90" height="80" viewBox="0 0 90 80" fill="none">
@@ -221,6 +280,18 @@ function MoleculeIcon() {
   );
 }
 
+/**
+ * DrugCard — 유사도 검색 결과 약물 카드
+ *
+ * 구조:
+ *   왼쪽 — 분자 구조 이미지(또는 MoleculeIcon) + 유사도 배지 + 추가 순서 번호
+ *   가운데 — 라벨 컬럼 (SMILES / Drug name / MF / MW)
+ *   오른쪽 — 데이터 컬럼 (실제 값. SMILES 행은 searchQuery 하이라이트 적용)
+ *
+ * 상태:
+ *   isAdded=true(addedIndex 존재) — 배지 오렌지색, 클릭 불가, pressed 이벤트 차단
+ *   hovered / pressed — 배경색 단계적 변화 (leftBg, labelBg, dataBg)
+ */
 function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQuery, addedIndex, onClick }: DrugCardProps) {
   const rowBorderBottom = "1px solid #AAAAAD";
   const labelRows = ["SMILES", "Drug name", "MF", "MW"];
@@ -252,6 +323,11 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
     ? "#FAF8FF"
     : "white";
 
+  /**
+   * dataTextColor — 데이터 컬럼 텍스트 색상 결정 함수
+   * - SMILES 행(rowIdx=0): 검색어 있으면 파란색(#3A11D8), 없으면 기본(#1C1B1B)
+   * - 나머지 행: 검색어 있으면 회색(#787776), 없으면 기본(#1C1B1B)
+   */
   const dataTextColor = (rowIdx: number) => {
     const hasSearch = !!searchQuery?.trim();
     if (rowIdx === 0) {
@@ -262,7 +338,11 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
     return "#787776";
   };
 
-  // Render SMILES text with highlighted matching segment
+  /**
+   * renderSmilesText — SMILES 텍스트에서 검색어와 일치하는 구간을 파란색으로 강조 렌더링
+   * - 검색어 없으면 그대로 반환
+   * - 일치 구간 앞/뒤는 회색(#787776), 일치 구간은 파란색(#3A11D8)
+   */
   const renderSmilesText = (text: string) => {
     const query = searchQuery?.trim();
     if (!query) return <>{text}</>;
@@ -460,12 +540,24 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
 
 // ─── 저장된 약물 항목 ────────────────────────────────────────────────────────
 
+/**
+ * SavedDrugItemProps — 저장된 약물 목록 항목의 props 타입
+ * - index: 표시할 순서 번호 (1-based, 오렌지 배지)
+ * - name: 약물 이름
+ * - smilesImage: 분자 구조 이미지 경로 (DrugTooltip에서 사용)
+ */
 type SavedDrugItemProps = {
   index: number;
   name: string;
   smilesImage?: string;
 };
 
+/**
+ * DrugTooltip — SavedDrugItem의 테이블 아이콘 hover 시 표시되는 상세 정보 툴팁
+ * - fixed 포지션으로 앵커 요소 왼쪽에 고정 표시 (createPortal → document.body)
+ * - 왼쪽: 분자 구조 이미지, 오른쪽: SMILES / Drug name / MF / MW / IUPAC 등 8개 행 테이블
+ * - pointerEvents: "none" — 마우스 이벤트 통과 (hover 상태는 SavedDrugItem이 관리)
+ */
 function DrugTooltip({ name, anchorRect, smilesImage }: { name: string; anchorRect: DOMRect; smilesImage?: string }) {
   const rows = [
     { label: "SMILES", value: "COC1=C(C=C2C(=C1)CC(C2=O)(CC3CCN(CC3)CC4=CC=C(C=C4)OCC5=CC=CC=C5)F)OC" },
@@ -593,6 +685,11 @@ function DrugTooltip({ name, anchorRect, smilesImage }: { name: string; anchorRe
   return createPortal(content, document.body);
 }
 
+/**
+ * SavedDrugItem — 우측 패널의 저장된 약물 목록 항목 컴포넌트
+ * - 오렌지 번호 배지 + 약물 이름 + 테이블 아이콘(hover 시 DrugTooltip) + 삭제 버튼
+ * - onDelete: 삭제 버튼 클릭 시 부모(savedDrugList, addedCardMap) 상태 업데이트 콜백
+ */
 function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProps & { onDelete: () => void }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
@@ -690,6 +787,11 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
 
 // ─── 데이터 ──────────────────────────────────────────────────────────────────
 
+/**
+ * drugData — 유사도 검색 결과 약물 정적 데이터 목록
+ * - 실제 서비스에서는 SMILES 검색 API 응답으로 대체될 데이터
+ * - smilesImage: /assets/smiles/ 경로의 SVG 분자 구조 이미지
+ */
 const drugData: Omit<DrugCardProps, "index">[] = [
   {
     similarity: "100%",
@@ -733,6 +835,10 @@ const drugData: Omit<DrugCardProps, "index">[] = [
   },
 ];
 
+/**
+ * testLoadDrugs — "Test Load" 버튼 클릭 시 자동으로 추가될 약물 목록
+ * - dataIndex: drugData 배열에서의 인덱스
+ */
 const testLoadDrugs = [
   { name: "Empagliflozin", dataIndex: 0 },
   { name: "Dapagliflozin", dataIndex: 1 },
@@ -740,21 +846,38 @@ const testLoadDrugs = [
 
 // ─── 페이지 ──────────────────────────────────────────────────────────────────
 
+/**
+ * SmileSettingPage — SMILES 기반 약물 유사도 검색 메인 페이지 컴포넌트
+ *
+ * 페이지 진입 시 모든 상태는 초기값(빈 목록/85%)으로 시작하며,
+ * Test Load 버튼으로 샘플 2개 약물을 자동 추가하거나,
+ * 사용자가 SMILES 문자열을 직접 검색해 약물 카드를 클릭해 추가한다.
+ *
+ * Confirm 버튼 클릭 시:
+ *   - setSmilesData(savedDrugList): 전역 store에 선택 약물 저장
+ *   - setSimSmilesCompleted(true): SMILES 완료 상태 플래그 설정
+ *   - /drd/simulation-setting 으로 이동
+ */
 export default function SmileSettingPage() {
   const router = useRouter();
   const setSimSmilesCompleted = useSimulationStore((s) => s.setSimSmilesCompleted);
   const setSmilesData = useSimulationStore((s) => s.setSmilesData);
-  const [smilesValue, setSmilesValue] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [similarityThreshold, setSimilarityThreshold] = useState(85);
-  const [sortOpen, setSortOpen] = useState(false);
-  const [sortValue, setSortValue] = useState<"Relevance" | "Similarity">("Relevance");
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [savedDrugList, setSavedDrugList] = useState<{ name: string; smilesImage?: string }[]>([]);
-  // Maps drugData index → addition order (1-based)
+  const [smilesValue, setSmilesValue] = useState("");       // SMILES 검색 입력값
+  const [isFocused, setIsFocused] = useState(false);        // 검색 입력 필드 포커스 여부 (테두리 색 변경용)
+  const inputRef = useRef<HTMLInputElement>(null);           // 검색 입력 DOM ref
+  const [similarityThreshold, setSimilarityThreshold] = useState(85); // 유사도 필터 슬라이더 (85~100)
+  const [sortOpen, setSortOpen] = useState(false);          // 정렬 드롭다운 열림 여부
+  const [sortValue, setSortValue] = useState<"Relevance" | "Similarity">("Relevance"); // 현재 정렬 기준
+  const dropdownRef = useRef<HTMLDivElement>(null);          // 정렬 드롭다운 외부 클릭 감지용 ref
+  const [savedDrugList, setSavedDrugList] = useState<{ name: string; smilesImage?: string }[]>([]); // 우측 저장 목록
+  // drugData 인덱스 → 추가 순서(1-based) 매핑: 카드 배지 번호 및 isAdded 판별에 사용
   const [addedCardMap, setAddedCardMap] = useState<Record<number, number>>({});
 
+  /**
+   * handleTestLoad — "Test Load" 버튼 클릭 시 샘플 약물 2개를 자동 추가하는 함수
+   * - Empagliflozin(인덱스 0), Dapagliflozin(인덱스 1)을 addedCardMap + savedDrugList에 설정
+   * - similarityThreshold를 95로 설정해 결과 카드 필터 범위를 좁힘
+   */
   const handleTestLoad = () => {
     const map: Record<number, number> = {};
     testLoadDrugs.forEach((d, order) => { map[d.dataIndex] = order + 1; });
@@ -763,6 +886,7 @@ export default function SmileSettingPage() {
     setSimilarityThreshold(95);
   };
 
+  // 정렬 드롭다운 외부 클릭 시 자동 닫기
   useEffect(() => {
     if (!sortOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -1210,6 +1334,11 @@ export default function SmileSettingPage() {
                     }}
                   >
                     {(() => {
+                      /**
+                       * handleCardClick — 약물 카드 클릭 핸들러
+                       * - 이미 추가된 카드(addedCardMap에 존재)는 무시
+                       * - 새로 추가 시 addedCardMap에 순서 등록, savedDrugList에 항목 추가
+                       */
                       const handleCardClick = (i: number, drugName: string) => {
                         if (addedCardMap[i] !== undefined) return;
                         const nextOrder = Object.keys(addedCardMap).length + 1;
@@ -1218,6 +1347,7 @@ export default function SmileSettingPage() {
                       };
 
                       if (smilesValue.trim()) {
+                        // 검색어 있을 때: similarityThreshold 이상인 카드만 표시 (검색어 하이라이트 포함)
                         return drugData
                           .filter((drug) => parseInt(drug.similarity) >= similarityThreshold)
                           .map((drug, i) => (
@@ -1231,7 +1361,7 @@ export default function SmileSettingPage() {
                             />
                           ));
                       }
-                      // 검색어 없을 때: 선택된 카드만 표시
+                      // 검색어 없을 때: 선택된 카드만 추가 순서대로 표시
                       const selected = drugData
                         .map((drug, i) => ({ drug, i }))
                         .filter(({ i }) => addedCardMap[i] !== undefined)
@@ -1285,11 +1415,13 @@ export default function SmileSettingPage() {
                       smilesImage={drug.smilesImage}
                       onDelete={() => {
                         const removedOrder = i + 1;
+                        // savedDrugList에서 해당 항목 제거
                         setSavedDrugList((prev) => prev.filter((_: { name: string; smilesImage?: string }, idx: number) => idx !== i));
+                        // addedCardMap에서 삭제된 순서를 제거하고, 이후 순서는 1씩 감소
                         setAddedCardMap((prev) => {
                           const next: Record<number, number> = {};
                           Object.entries(prev).forEach(([k, order]) => {
-                            if (order === removedOrder) return; // 삭제
+                            if (order === removedOrder) return; // 삭제된 항목 스킵
                             next[Number(k)] = order > removedOrder ? order - 1 : order;
                           });
                           return next;

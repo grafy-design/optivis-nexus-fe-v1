@@ -1,5 +1,11 @@
-/* 데모시연 미진행 페이지 -> 개발 진행하지 않음 */
-
+/**
+ * [데모 미진행 페이지] Data Setting 페이지
+ *
+ * Default Settings Step 1의 "Add data" 버튼에서 진입하는 페이지입니다.
+ * 사용자가 분석에 사용할 데이터셋을 업로드하거나 기존 데이터를 선택합니다.
+ *
+ * ※ 현재 데모 시연 범위에 포함되지 않아 실제 기능 구현은 생략되어 있습니다.
+ */
 
 "use client";
 
@@ -12,17 +18,19 @@ import "simplebar-react/dist/simplebar.min.css";
 import SimulationSearch from "@/components/home/simulation-search";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 
-/**
- * TSI (Target Subgroup Identification) 루트 페이지.
- * Step 1: Default Settings 페이지
- */
 export default function TSIPage() {
   const router = useRouter();
+
+  // 파일 업로드 상태 (현재 미사용, 향후 실제 업로드 기능 연결 예정)
   const [_selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  // 테이블에서 선택된 데이터 행 ID 집합
   const [selectedData, setSelectedData] = useState<Set<number>>(new Set());
+
+  // 검색어 상태
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mock data
+  // 임시 목업 데이터 — 실제 API 연동 시 서버 데이터로 교체
   const attachedData = [
     {
       id: 1,
@@ -96,16 +104,19 @@ export default function TSIPage() {
     },
   ];
 
+  // 파일 input 변경 시 선택된 파일을 state에 저장
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setSelectedFiles(Array.from(e.target.files));
     }
   };
 
+  // 드래그 앤 드롭 — 파일을 드래그하는 동안 기본 브라우저 동작을 막음
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
+  // 파일을 드롭했을 때 목록에 추가
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer.files) {
@@ -113,6 +124,7 @@ export default function TSIPage() {
     }
   };
 
+  // 테이블 행 체크박스 토글 — 이미 선택된 경우 해제, 아닌 경우 추가
   const toggleDataSelection = (id: number) => {
     const newSelection = new Set(selectedData);
     if (newSelection.has(id)) {
@@ -123,13 +135,14 @@ export default function TSIPage() {
     setSelectedData(newSelection);
   };
 
+  // "Use Data" 버튼 클릭 시 선택된 데이터가 있으면 다음 단계로 이동
   const handleUseData = () => {
     if (selectedData.size > 0) {
       router.push("/tsi/patients-summary");
     }
   };
 
-  // 데이터를 8개씩 나누기
+  // 테이블을 좌우로 반씩 나눠서 2열 레이아웃으로 표시 (8개 / 나머지)
   const leftTableData = attachedData.slice(0, 8);
   const rightTableData = attachedData.slice(8);
 

@@ -1,3 +1,26 @@
+/**
+ * Simulation Setting Page — 시뮬레이션 설정 허브 페이지 (Step 2)
+ *
+ * 역할:
+ *   Simulation Conditions와 SMILES Settings 두 서브 설정의 진행 상태를 보여주는
+ *   중간 허브 페이지입니다.
+ *   - 두 설정이 미완료 상태일 때: InitialCard(회색 "Setting" 버튼) 표시
+ *   - 설정 완료 후: 각각 SimCondCompletedCard / SmilesCompletedCard로 전환
+ *
+ * 레이아웃:
+ *   왼쪽 패널 — SMILES Settings / Simulation Conditions 스텝 네비게이션 버튼
+ *   오른쪽 패널 — 카드 행 (SMILES 카드 + Simulation Conditions 카드) + 하단 버튼
+ *
+ * 상태 (전역 SimulationStore에서 읽음):
+ *   simCondCompleted  — Simulation Conditions 완료 여부
+ *   simSmilesCompleted — SMILES Settings 완료 여부
+ *   simCondData       — Simulation Conditions에서 저장한 데이터
+ *   smilesData        — SMILES Settings에서 저장한 약물 목록
+ *
+ * 버튼:
+ *   Save Progress — simCondCompleted일 때 활성화 (현재는 라우팅 없음)
+ *   Apply to Analysis — simCondCompleted일 때 활성화 → /drd/simulation-result 이동
+ */
 "use client";
 
 import Image from "next/image";
@@ -9,7 +32,7 @@ import { useSimulationStore, type SimulationState, type SimCondData } from "@/st
    ICONS
 ───────────────────────────────────────────── */
 
-/* 오렌지 원형 배경 + 차트 아이콘 (Simulation Conditions — completed, 우측 카드용) */
+/** Simulation Conditions 완료 상태 아이콘 (우측 카드 헤더 전용 30×30px) */
 function SimCondIconCompleted() {
   return (
     <Image
@@ -22,7 +45,7 @@ function SimCondIconCompleted() {
   );
 }
 
-/* 회색 원형 배경 + 차트 아이콘 (Simulation Conditions — not started, 우측 카드용) */
+/** Simulation Conditions 미시작 상태 아이콘 (우측 카드 헤더 전용 30×30px) */
 function SimCondIconDefault() {
   return (
     <Image
@@ -35,7 +58,7 @@ function SimCondIconDefault() {
   );
 }
 
-/* 회색 원형 배경 + 플라스크 아이콘 (SMILES Settings — not started, 우측 카드용) */
+/** SMILES Settings 미시작 상태 아이콘 (우측 카드 헤더 전용 30×30px) */
 function SmilesIconNotStarted() {
   return (
     <Image
@@ -48,7 +71,7 @@ function SmilesIconNotStarted() {
   );
 }
 
-/* 주황색 원형 배경 + 체크 아이콘 (SMILES Settings — completed, 우측 카드용) */
+/** SMILES Settings 완료 상태 아이콘 (우측 카드 헤더 전용 30×30px) */
 function SmilesIconCompleted() {
   return (
     <Image
@@ -61,7 +84,7 @@ function SmilesIconCompleted() {
   );
 }
 
-/* 왼쪽 패널 아이콘 */
+/** 왼쪽 패널 스텝 버튼용 Simulation Conditions 아이콘 (completed에 따라 이미지 전환, 24×24px) */
 function SimCondIconLeft({ completed }: { completed: boolean }) {
   return (
     <Image
@@ -76,6 +99,7 @@ function SimCondIconLeft({ completed }: { completed: boolean }) {
   );
 }
 
+/** 왼쪽 패널 스텝 버튼용 SMILES Settings 아이콘 (completed에 따라 이미지 전환, 24×24px) */
 function SmilesIconLeft({ completed }: { completed: boolean }) {
   return (
     <Image
@@ -94,6 +118,12 @@ function SmilesIconLeft({ completed }: { completed: boolean }) {
 /* ─────────────────────────────────────────────
    RIGHT PANEL — INITIAL CARD (미완료)
 ───────────────────────────────────────────── */
+/**
+ * InitialCard — 설정이 아직 완료되지 않은 상태의 카드 컴포넌트
+ * - 아이콘(step에 따라 SimCondIconDefault 또는 SmilesIconNotStarted), 제목, 설명, "Setting" 버튼으로 구성
+ * - 버튼 클릭 시 해당 설정 페이지로 이동 (onClick 콜백)
+ * - required가 true이면 제목 옆에 파란 별표(*) 표시
+ */
 function InitialCard({ step, title, required, description, flex, onClick }: {
   step: string; title: string; required?: boolean; description: string; flex?: number; onClick?: () => void;
 }) {
@@ -155,6 +185,11 @@ function InitialCard({ step, title, required, description, flex, onClick }: {
 /* ─────────────────────────────────────────────
    SHARED: Reset + Edit button row
 ───────────────────────────────────────────── */
+/**
+ * ResetEditButtons — 완료된 카드 하단의 Reset + Edit 버튼 행
+ * - Reset: 해당 설정 완료 상태를 초기화 (전역 store setter 호출)
+ * - Edit: 해당 설정 페이지로 이동 (router.push)
+ */
 function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: () => void }) {
   return (
     <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
@@ -191,6 +226,11 @@ function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: 
 /* ─────────────────────────────────────────────
    SHARED: Table row (label + value)
 ───────────────────────────────────────────── */
+/**
+ * TableRow — 완료된 카드 내부의 레이블-값 테이블 행
+ * - isFirst가 false(기본)이면 상단 구분선 표시
+ * - label: 회색 텍스트, value: 짙은 회색 텍스트
+ */
 function TableRow({ label, value, isFirst }: { label: string; value: string; isFirst?: boolean }) {
   return (
     <div style={{ ...(isFirst ? {} : { borderTop: "1px solid #c6c5c9" }), display: "flex", gap: 12, alignItems: "flex-start", paddingTop: 10, paddingBottom: 10 }}>
@@ -207,6 +247,11 @@ function TableRow({ label, value, isFirst }: { label: string; value: string; isF
 /* ─────────────────────────────────────────────
    SHARED: Strategy card (colored border + numbered list)
 ───────────────────────────────────────────── */
+/**
+ * StrategyCard — 전략별 약물 목록 카드 (SimCondCompletedCard 내부에서 A/B/C 각각 렌더링)
+ * - 헤더: 전략명(color 컬러) + 컬러 하단 구분선
+ * - 본문: 약물 이름 번호 목록
+ */
 function StrategyCard({ label, color, drugs }: { label: string; color: string; drugs: string[] }) {
   return (
     <div style={{ width: "100%" }}>
@@ -236,11 +281,16 @@ function StrategyCard({ label, color, drugs }: { label: string; color: string; d
 /* ─────────────────────────────────────────────
    RIGHT PANEL — COMPLETED CARD (Simulation Conditions)
 ───────────────────────────────────────────── */
-const VALUE_LABELS = ["BMI", "SBP", "HbA1c", "Fasting glucose"];
-const TREND_LABELS = ["Increase", "Stable", "Decrease"];
-const STRATEGY_COLORS = ["#3a11d8", "#f06600", "#24c6c9"];
-const STRATEGY_LABELS = ["Strategy A", "Strategy B", "Strategy C"];
+const VALUE_LABELS = ["BMI", "SBP", "HbA1c", "Fasting glucose"]; // selectedValue 인덱스 → 이름 매핑
+const TREND_LABELS = ["Increase", "Stable", "Decrease"];           // HbA1c 증감 행 레이블
+const STRATEGY_COLORS = ["#3a11d8", "#f06600", "#24c6c9"];        // 전략 A/B/C 컬러
+const STRATEGY_LABELS = ["Strategy A", "Strategy B", "Strategy C"]; // 전략 라벨
 
+/**
+ * SimCondCompletedCard — Simulation Conditions 설정 완료 시 표시되는 카드
+ * - SimCondData를 받아 Selected Value, Trend 요약, Follow-up Window, 전략별 약물 목록 표시
+ * - 하단: Reset(완료 상태 초기화) + Edit(simulation-condition 페이지로 이동) 버튼
+ */
 function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number; onClick?: () => void; onReset?: () => void; data: SimCondData }) {
   const valueName = data.selectedValue !== null ? (VALUE_LABELS[data.selectedValue] ?? "") : "";
 
@@ -314,6 +364,11 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
 /* ─────────────────────────────────────────────
    RIGHT PANEL — COMPLETED CARD (SMILES Settings)
 ───────────────────────────────────────────── */
+/**
+ * SmilesCompletedCard — SMILES Settings 완료 시 표시되는 카드
+ * - drugs 배열을 받아 약물 이름 번호 목록 표시
+ * - 하단: Reset(완료 상태 초기화) + Edit(smile-setting 페이지로 이동) 버튼
+ */
 function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number; onClick?: () => void; onReset?: () => void; drugs: { name: string }[] }) {
   return (
     <div style={{
@@ -362,15 +417,22 @@ function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number;
 /* ─────────────────────────────────────────────
    PAGE
 ───────────────────────────────────────────── */
+/**
+ * SimulationSettingPage — 시뮬레이션 설정 허브 페이지 메인 컴포넌트
+ *
+ * 전역 SimulationStore에서 완료 상태와 데이터를 읽어 카드 UI를 조건부 렌더링한다.
+ * - simCondCompleted → true면 SimCondCompletedCard, false면 InitialCard("Step 1")
+ * - simSmilesCompleted → true면 SmilesCompletedCard, false면 InitialCard("Step 2")
+ */
 export default function SimulationSettingPage() {
   const router = useRouter();
-  const simCondCompleted = useSimulationStore((s: SimulationState) => s.simCondCompleted);
-  const simSmilesCompleted = useSimulationStore((s: SimulationState) => s.simSmilesCompleted);
-  const simCondData = useSimulationStore((s: SimulationState) => s.simCondData);
-  const setSimCondCompleted = useSimulationStore((s: SimulationState) => s.setSimCondCompleted);
-  const setSimSmilesCompleted = useSimulationStore((s: SimulationState) => s.setSimSmilesCompleted);
-  const setSimCondData = useSimulationStore((s: SimulationState) => s.setSimCondData);
-  const smilesData = useSimulationStore((s: SimulationState) => s.smilesData);
+  const simCondCompleted = useSimulationStore((s: SimulationState) => s.simCondCompleted);   // Simulation Conditions 완료 여부
+  const simSmilesCompleted = useSimulationStore((s: SimulationState) => s.simSmilesCompleted); // SMILES Settings 완료 여부
+  const simCondData = useSimulationStore((s: SimulationState) => s.simCondData);               // Simulation Conditions 저장 데이터
+  const setSimCondCompleted = useSimulationStore((s: SimulationState) => s.setSimCondCompleted); // 완료 상태 초기화 setter
+  const setSimSmilesCompleted = useSimulationStore((s: SimulationState) => s.setSimSmilesCompleted); // SMILES 완료 상태 초기화 setter
+  const setSimCondData = useSimulationStore((s: SimulationState) => s.setSimCondData);           // 조건 데이터 초기화 setter
+  const smilesData = useSimulationStore((s: SimulationState) => s.smilesData);                   // SMILES 약물 목록
 
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">

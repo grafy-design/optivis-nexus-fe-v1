@@ -1,4 +1,31 @@
-﻿"use client";
+﻿/**
+ * Patient / Disease Info Page — Default Settings Step 1: Patient/Disease Info
+ *
+ * 역할:
+ *   시뮬레이션 조건을 고정하고 대조 변수를 선택하여 환자 그룹을 정의하는 설정 페이지입니다.
+ *   두 컬럼으로 구성됩니다:
+ *   - Baseline Variables (좌): Demographic information·Measurement 중 1개 라디오 선택
+ *   - Control Variables (우): Value / Trend 모드 중 1개 선택 + 세부 트렌드(Increase·Stable·Decrease) 선택
+ *
+ * 레이아웃:
+ *   ┌─────────────────────┬──────────────────────────────────────────────────┐
+ *   │ 왼쪽: Navy Glass     │ 오른쪽: Baseline Variables | Control Variables    │
+ *   │ - Filtered % 카드   │ (아코디언 섹션 + RadioButton 목록)                 │
+ *   │ - 4-Step 사이드바   │                                                  │
+ *   └─────────────────────┴──────────────────────────────────────────────────┘
+ *
+ * 주요 상태:
+ *   - baselineDemo: Demographic 섹션 선택값 (Age | Sex)
+ *   - baselineMeasure: Measurement 섹션 선택값 (BMI | SBP | HbA1c | Glucose | eGFR | UACR)
+ *   - controlMode: Control Variables 모드 (value | trend)
+ *   - trendSelection: 트렌드 리스트 선택값 (Increase | Stable | Decrease)
+ *   - openSections: 각 아코디언 섹션의 열림 여부
+ *
+ * 저장:
+ *   Confirm 클릭 시 4개 값을 patientDiseaseInfoData로 저장하고
+ *   patient-disease-info 완료 상태를 true로 설정한 뒤 /drd/default-setting으로 이동합니다.
+ */
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,6 +33,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import RadioButton from "@/components/ui/radio-button";
 
+/** 왼쪽 사이드바 4개 스텝 아이콘 클릭 시 이동할 경로 매핑 */
 const stepRoutes: Record<string, string> = {
   "patient-disease-info": "/drd/patient-disease-info",
   "filter": "/drd/filter",
@@ -105,6 +133,10 @@ function IconChevronDown({ size = 18 }: { size?: number }) {
 
 // ── 데이터 설정 ───────────────────────────────────────────────────────────
 
+/**
+ * 왼쪽 패널 하단 4단계 설정 스텝 목록.
+ * isActive: true 인 Patient/Disease Info 항목이 현재 페이지이며 오렌지 아이콘 + 네이비 배경으로 표시됩니다.
+ */
 const setupSteps = [
   {
     id: "patient-disease-info",
@@ -151,6 +183,9 @@ const setupSteps = [
 
 // ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
 
+/**
+ * "Test Load" 버튼 — 클릭 시 Sex + HbA1c + value 모드 + Increase로 샘플 값을 채웁니다.
+ */
 function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -201,38 +236,44 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
   );
 }
 
-// 메인 컴포넌트
 export default function PatientDiseaseInfoPage() {
   const router = useRouter();
+  // defaultSettingStore: 코호트 수, 완료 상태, PDI 설정 데이터 관리
   const { setCompleted, cohortCount, finalCohortCount, setPatientDiseaseInfoData } = useDefaultSettingStore();
+  // filteredRatio: Filtered Patients 카드 프로그레스바 비율
   const filteredRatio = cohortCount > 0 ? Math.round((finalCohortCount / cohortCount) * 100) : 0;
+  // controlMode: Control Variables 탭 — "value"(값 기준) | "trend"(트렌드 기준)
   const [controlMode, setControlMode] = useState<"value" | "trend">("value");
+  // openSections: 아코디언 섹션 열림 여부 (demographic, measurement)
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     demographic: true,
     measurement: true,
   });
+  /** 아코디언 섹션 토글 */
   const toggleSection = (key: string) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  // Baseline radio state — default first item
+  // Baseline Variables — Demographic 섹션 선택 (Age | Sex)
   const [baselineDemo, setBaselineDemo] = useState<string>("Age");
+  // Baseline Variables — Measurement 섹션 선택 (BMI | SBP | HbA1c | Glucose | eGFR | UACR)
   const [baselineMeasure, setBaselineMeasure] = useState<string>("BMI");
-
-  // Control trend list radio state
+  // Control Variables — 트렌드 목록 선택 (Increase | Stable | Decrease)
   const [trendSelection, setTrendSelection] = useState<string>("Increase");
 
-  // 초기값 (Reset 활성화 비교용)
+  // 초기값 상수 — isDirty 계산 및 Reset 시 복원에 사용
   const INITIAL_CONTROL_MODE = "value" as const;
   const INITIAL_BASELINE_DEMO = "Age";
   const INITIAL_BASELINE_MEASURE = "BMI";
   const INITIAL_TREND_SELECTION = "Increase";
 
+  // isDirty: 초기값 대비 변경된 값이 있으면 true — Reset 버튼 활성화 기준
   const isDirty =
     controlMode !== INITIAL_CONTROL_MODE ||
     baselineDemo !== INITIAL_BASELINE_DEMO ||
     baselineMeasure !== INITIAL_BASELINE_MEASURE ||
     trendSelection !== INITIAL_TREND_SELECTION;
 
+  /** Reset 버튼 클릭 시 모든 선택을 초기값으로 복원하고 완료 상태를 해제합니다 */
   const handleReset = () => {
     setControlMode(INITIAL_CONTROL_MODE);
     setBaselineDemo(INITIAL_BASELINE_DEMO);
@@ -240,6 +281,7 @@ export default function PatientDiseaseInfoPage() {
     setTrendSelection(INITIAL_TREND_SELECTION);
     setCompleted("patient-disease-info", false);
   };
+  // Reset 버튼 hover/active 상태 (배경색 변화용)
   const [resetHover, setResetHover] = useState(false);
   const [resetActive, setResetActive] = useState(false);
   

@@ -1,4 +1,29 @@
-﻿"use client";
+﻿/**
+ * High-Risk Subgroup Page — Default Settings Step 1: High-Risk Subgroup
+ *
+ * 역할:
+ *   질병 진행 기울기(slope)를 기반으로 고위험 서브그룹을 선택하는 설정 페이지입니다.
+ *   미리 정의된 서브그룹 목록(CKD 1/2 Stage, Set 1/4)을 아코디언 테이블로 표시하며,
+ *   각 항목은 Slow / Rapid 두 가지 서브 행을 가집니다.
+ *   라디오 버튼으로 하나의 서브 행을 선택한 뒤 Confirm하면 설정이 저장됩니다.
+ *
+ * 레이아웃:
+ *   ┌─────────────────────┬──────────────────────────────────────────────────┐
+ *   │ 왼쪽: Navy Glass     │ 오른쪽: "Load Subgroup" 아코디언 테이블           │
+ *   │ - Filtered % 카드   │                                                  │
+ *   │ - 4-Step 사이드바   │                                                  │
+ *   └─────────────────────┴──────────────────────────────────────────────────┘
+ *
+ * 주요 상태:
+ *   - selectedSubRow: 현재 선택된 서브 행 ID (e.g. "ckd1-slow")
+ *   - expandedRows: 현재 열린 부모 행 Set (한 번에 여러 개 열릴 수 있음)
+ *   - showSubgroupModal: "Go to Create Subgroup" 확인 모달 표시 여부
+ *
+ * 저장:
+ *   Confirm 클릭 시 subRowDataMap에서 선택된 서브 행의 메타데이터를 읽어
+ *   defaultSettingStore의 highRiskSubgroupData에 저장하고 완료 상태를 true로 설정합니다.
+ */
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,6 +31,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import RadioButton from "@/components/ui/radio-button";
 
+/** 왼쪽 사이드바 4개 스텝 아이콘 클릭 시 이동할 경로 매핑 */
 const stepRoutes: Record<string, string> = {
   "patient-disease-info": "/drd/patient-disease-info",
   "filter": "/drd/filter",
@@ -94,6 +120,10 @@ function IconClockGray({ size = 24 }: { size?: number }) {
   );
 }
 
+/**
+ * 아코디언 행 헤더 오른쪽에 표시되는 화살표 아이콘.
+ * open=true이면 위쪽 방향(∧), false이면 아래 방향(∨)을 표시합니다.
+ */
 function AccordionItem({ open = false }: { open?: boolean }) {
   const size = 20;
   if (open) {
@@ -114,6 +144,10 @@ function AccordionItem({ open = false }: { open?: boolean }) {
 
 // ── 데이터 설정 ──────────────────────────────────────────────────────────
 
+/**
+ * 왼쪽 패널 하단 4단계 설정 스텝 목록.
+ * isActive: true 인 High-Risk Subgroup 항목이 현재 페이지이며 오렌지 아이콘으로 표시됩니다.
+ */
 const setupSteps = [
   {
     id: "patient-disease-info",
@@ -167,10 +201,15 @@ const setupSteps = [
 
 export default function HighRiskSubgroupPage() {
   const router = useRouter();
+  // defaultSettingStore: 코호트 수, 완료 상태, 고위험 서브그룹 데이터 관리
   const { setCompleted, cohortCount, finalCohortCount, setHighRiskSubgroupData } = useDefaultSettingStore();
+  // filteredRatio: Filtered Patients 카드 프로그레스바 비율
   const filteredRatio = cohortCount > 0 ? Math.round((finalCohortCount / cohortCount) * 100) : 0;
 
-  // 서브행 ID → 표시 데이터 매핑
+  /**
+   * 서브 행 ID → 저장될 메타데이터 매핑.
+   * Confirm 시 selectedSubRow의 ID로 이 맵을 조회해 defaultSettingStore에 저장합니다.
+   */
   const subRowDataMap: Record<string, { parentName: string; subRowName: string; feature: string; condition: string; month: string; slope: string; status: string }> = {
     "ckd1-slow":  { parentName: "CKD 1 Stage", subRowName: "Slow",  feature: "eGFR", condition: "> 90",      month: "36", slope: "2", status: "n=1,200" },
     "ckd1-rapid": { parentName: "CKD 1 Stage", subRowName: "Rapid", feature: "eGFR", condition: "≤ 90",      month: "36", slope: "2", status: "n=360"   },
@@ -181,11 +220,14 @@ export default function HighRiskSubgroupPage() {
     "set4-slow":  { parentName: "Set 4",        subRowName: "Slow",  feature: "HbA1c", condition: "",         month: "",   slope: "",  status: ""         },
     "set4-rapid": { parentName: "Set 4",        subRowName: "Rapid", feature: "HbA1c", condition: "",         month: "",   slope: "",  status: ""         },
   };
+  // selectedSubRow: 현재 라디오 선택된 서브 행 ID (기본값: "ckd1-slow")
   const [selectedSubRow, setSelectedSubRow] = useState<string>("ckd1-slow");
+  // expandedRows: 현재 펼쳐진 부모 행 ID Set
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set(["ckd1"]));
+  // showSubgroupModal: "Go to Create Subgroup" 클릭 시 경고 모달 표시 여부
   const [showSubgroupModal, setShowSubgroupModal] = useState(false);
 
-  // 선택된 서브행이 속한 부모 id를 반환
+  /** 서브 행 ID에서 부모 행 ID를 추출합니다 (예: "ckd1-slow" → "ckd1") */
   const getSelectedParent = (sel: string) => {
     if (sel.startsWith("ckd1-")) return "ckd1";
     if (sel.startsWith("ckd2-")) return "ckd2";
@@ -194,6 +236,10 @@ export default function HighRiskSubgroupPage() {
     return null;
   };
 
+  /**
+   * 부모 행 클릭 시 아코디언 토글.
+   * 이미 열려있으면 닫고, 닫혀있으면 열되 현재 선택된 서브 행의 부모는 유지합니다.
+   */
   const toggleRow = (id: string) => setExpandedRows((prev) => {
     const selectedParent = getSelectedParent(selectedSubRow);
     if (prev.has(id)) {
@@ -209,7 +255,10 @@ export default function HighRiskSubgroupPage() {
     return next;
   });
 
-  // 라디오 버튼 선택: 이전 부모 아코디언 유지, 새 부모 열기
+  /**
+   * 서브 행 라디오 버튼 선택 시 호출됩니다.
+   * 선택된 서브 행의 부모 행을 자동으로 펼쳐 항상 선택 항목이 보이도록 합니다.
+   */
   const selectSubRow = (rowId: string) => {
     const nextParent = getSelectedParent(rowId);
     setSelectedSubRow(rowId);
