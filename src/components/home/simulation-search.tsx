@@ -11,7 +11,7 @@ interface SimulationSearchProps {
 
 export default function SimulationSearch({ keyword, onChangeKeyword }: SimulationSearchProps) {
   return (
-    <div className="min-w-[356px]">
+    <div className="w-[356px]">
       <Input
         placeholder="Search"
         value={keyword}

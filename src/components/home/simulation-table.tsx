@@ -1,5 +1,6 @@
 "use client";
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -15,6 +16,8 @@ type TableType = {
   description: string;
   last_updated: string;
 };
+
+type RowAction = "rename" | "duplicate" | "favorite" | "delete";
 
 const MOCK_UP_SIMULATION_DATA: TableType[] = [
   {
@@ -162,6 +165,7 @@ const MOCK_UP_SIMULATION_DATA: TableType[] = [
 export default function SimulationTable({ serviceId, keyword }: SimulationTableProps) {
   const [originTableData, setOriginTableData] = useState<TableType[]>([]);
   const [resultTableData, setResultTableData] = useState<TableType[]>([]);
+  const [openedActionMenuKey, setOpenedActionMenuKey] = useState<string | null>(null);
   const router = useRouter();
   const firstColumnTitle =
     serviceId === "4" || serviceId === "5" ? "Simulation name" : "Patient ID";
@@ -199,6 +203,30 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
     setResultTableData(filteredTableData);
   }, [keyword, originTableData]);
 
+  const handleRowActionClick = (action: RowAction, simulationId: string) => {
+    setOpenedActionMenuKey(null);
+
+    if (!simulationId) return;
+
+    // TODO: Replace temporary console logs with real row action logic/API calls.
+    switch (action) {
+      case "rename":
+        console.log("[SimulationTable] Rename clicked", { simulationId });
+        return;
+      case "duplicate":
+        console.log("[SimulationTable] Duplicate clicked", { simulationId });
+        return;
+      case "favorite":
+        console.log("[SimulationTable] Favorites clicked", { simulationId });
+        return;
+      case "delete":
+        console.log("[SimulationTable] Delete clicked", { simulationId });
+        return;
+      default:
+        return;
+    }
+  };
+
   return (
     <div className="">
       <div className="text-body5 mb-2 grid h-[40px] grid-cols-[15%_16%_14%_29%_18%_8%] items-center rounded-[24px] bg-[#636364] px-4 text-white">
@@ -217,10 +245,12 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
       ) : (
         <div className="h-[320px] overflow-y-auto rounded-[18px] bg-white p-1">
           {resultTableData.map((row, index) => {
+            const rowActionKey = `${row.simulation_name}-${row.last_updated}-${index}`;
+
             return (
               <div
-                key={index}
-                className="grid grid-cols-[15%_16%_14%_29%_18%_8%] items-center px-4 py-[6px] text-[14px] text-[#1b1b1b]"
+                key={rowActionKey}
+                className="grid grid-cols-[15%_16%_14%_29%_18%_8%] items-center px-4 py-[6px] text-xs text-[14px] font-semibold text-[#484646]"
               >
                 <div className="truncate font-medium" title={row.simulation_name}>
                   {row.simulation_name}
@@ -237,22 +267,21 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                 <div className="truncate" title={row.last_updated}>
                   {row.last_updated}
                 </div>
-                <div className="text-right">
+                <div className="flex items-center justify-end gap-1">
                   <button
                     className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#484646]"
                     aria-label={`Play ${row.simulation_name}`}
                     onClick={(event) => handlePlaySimulation(event, row.simulation_name)}
                   >
                     <svg
-                      aria-hidden
-                      width="10"
-                      height="12"
-                      viewBox="0 0 10 12"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <path
-                        d="M0.75 0.75L8.75 5.75L0.75 10.75V0.75Z"
+                        d="M8 7L16 12L8 17V7Z"
                         fill="#484646"
                         stroke="#484646"
                         strokeWidth="1.5"
@@ -260,6 +289,169 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                       />
                     </svg>
                   </button>
+                  <Popover
+                    open={openedActionMenuKey === rowActionKey}
+                    onOpenChange={(open) => {
+                      setOpenedActionMenuKey(open ? rowActionKey : null);
+                    }}
+                  >
+                    <PopoverTrigger asChild>
+                      <button
+                        className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#484646]"
+                        aria-label={`More_Action ${row.simulation_name}`}
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M10 12C10 12.5304 10.2107 13.0391 10.5858 13.4142C10.9609 13.7893 11.4696 14 12 14C12.5304 14 13.0391 13.7893 13.4142 13.4142C13.7893 13.0391 14 12.5304 14 12C14 11.4696 13.7893 10.9609 13.4142 10.5858C13.0391 10.2107 12.5304 10 12 10C11.4696 10 10.9609 10.2107 10.5858 10.5858C10.2107 10.9609 10 11.4696 10 12ZM10 6C10 6.53043 10.2107 7.03914 10.5858 7.41421C10.9609 7.78929 11.4696 8 12 8C12.5304 8 13.0391 7.78929 13.4142 7.41421C13.7893 7.03914 14 6.53043 14 6C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4C11.4696 4 10.9609 4.21071 10.5858 4.58579C10.2107 4.96086 10 5.46957 10 6ZM10 18C10 18.5304 10.2107 19.0391 10.5858 19.4142C10.9609 19.7893 11.4696 20 12 20C12.5304 20 13.0391 19.7893 13.4142 19.4142C13.7893 19.0391 14 18.5304 14 18C14 17.4696 13.7893 16.9609 13.4142 16.5858C13.0391 16.2107 12.5304 16 12 16C11.4696 16 10.9609 16.2107 10.5858 16.5858C10.2107 16.9609 10 17.4696 10 18Z"
+                            fill="#ADAAAA"
+                          />
+                        </svg>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="left"
+                      align="start"
+                      sideOffset={8}
+                      className="w-[220px] rounded-[22px] border border-[#c5c5c5] bg-[#d9d9d9] p-2 shadow-[0_12px_28px_rgba(0,0,0,0.2)]"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <button
+                          className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
+                          onClick={() => handleRowActionClick("rename", row.simulation_name)}
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M3 21H7L18 10L14 6L3 17V21Z"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M12 8L16 12"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Rename
+                        </button>
+                        <button
+                          className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
+                          onClick={() => handleRowActionClick("duplicate", row.simulation_name)}
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <rect
+                              x="8"
+                              y="8"
+                              width="12"
+                              height="12"
+                              rx="2"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                            />
+                            <rect
+                              x="4"
+                              y="4"
+                              width="12"
+                              height="12"
+                              rx="2"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                            />
+                          </svg>
+                          Duplicate
+                        </button>
+                        <button
+                          className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
+                          onClick={() => handleRowActionClick("favorite", row.simulation_name)}
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M12 3L14.86 8.79L21 9.67L16.5 14.06L17.56 20.2L12 17.27L6.44 20.2L7.5 14.06L3 9.67L9.14 8.79L12 3Z"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                          Favorites
+                        </button>
+                        <button
+                          className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
+                          onClick={() => handleRowActionClick("delete", row.simulation_name)}
+                        >
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M4 7H20"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M9 7V5C9 4.44772 9.44772 4 10 4H14C14.5523 4 15 4.44772 15 5V7"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M6 7L7 20H17L18 7"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M10 11V16"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                            />
+                            <path
+                              d="M14 11V16"
+                              stroke="#484646"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             );
