@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { Loading } from "@/components/common/Loading";
 import Select from "@/components/ui/select";
 import {
   MultiLineWithErrorBar,
@@ -371,7 +372,10 @@ const buildSetOneChartData = (
     ridToGroupIndex.set(rid, resolveGroupIndexByCutoff(selectedMonthEntry.value, sortedCutoffX));
   });
 
-  const monthValuesByGroup = Array.from({ length: expectedGroupCount }, () => new Map<number, number[]>());
+  const monthValuesByGroup = Array.from(
+    { length: expectedGroupCount },
+    () => new Map<number, number[]>()
+  );
   const allMonths = new Set<number>();
 
   ridToRows.forEach((entries, rid) => {
@@ -434,6 +438,7 @@ function TSIRefineCutoffsPageContent() {
   const [cumulativeProportion, setCumulativeProportion] = useState(0);
   const [initialCumulativeProportion, setInitialCumulativeProportion] = useState(0);
   const [initialAdditionalSliders, setInitialAdditionalSliders] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const minMonth = useMemo(() => {
     const parsed = Number(featureInfoData?.month_min);
@@ -462,10 +467,7 @@ function TSIRefineCutoffsPageContent() {
     }
   }, [effectiveStratificationMonth, stratificationMonth]);
 
-  const cutoffAxisType = useMemo(
-    () => resolveAxisType(featureInfoData),
-    [featureInfoData]
-  );
+  const cutoffAxisType = useMemo(() => resolveAxisType(featureInfoData), [featureInfoData]);
 
   const cdfData = useMemo(
     () =>
@@ -487,10 +489,7 @@ function TSIRefineCutoffsPageContent() {
     [cdfData, sortedCutoffY]
   );
 
-  const cutoffXValues = useMemo(
-    () => cutoffXNumbers.map((x) => x.toFixed(2)),
-    [cutoffXNumbers]
-  );
+  const cutoffXValues = useMemo(() => cutoffXNumbers.map((x) => x.toFixed(2)), [cutoffXNumbers]);
 
   const cutoffYValues = useMemo(
     () => sortedCutoffY.map((y) => `${Number(y.toFixed(2))}%`),
@@ -517,7 +516,10 @@ function TSIRefineCutoffsPageContent() {
       .sort((a, b) => a.x - b.x)
       .slice(0, 2);
 
-    return buildTableGroupRows(cutoffPoints, cdfData.map(([x]) => x));
+    return buildTableGroupRows(
+      cutoffPoints,
+      cdfData.map(([x]) => x)
+    );
   }, [cdfData, cutoffXNumbers, sortedCutoffY]);
 
   const setOneChartData = useMemo(
@@ -627,16 +629,12 @@ function TSIRefineCutoffsPageContent() {
       setInfoData.disease_progression
         .filter((row) => row.month <= diseaseDisplayMonth)
         .forEach((row, index) => {
-        const key = normalizeGroupKey(row.group, index);
-        keyToOriginalGroup.set(key, row.group);
+          const key = normalizeGroupKey(row.group, index);
+          keyToOriginalGroup.set(key, row.group);
 
-        const error = Math.max((row.ci_high - row.ci_low) / 2, 0);
-        const points = grouped.get(key) ?? [];
-        points.push([
-          row.month,
-          Number(row.mean.toFixed(6)),
-          Number(error.toFixed(6)),
-        ]);
+          const error = Math.max((row.ci_high - row.ci_low) / 2, 0);
+          const points = grouped.get(key) ?? [];
+          points.push([row.month, Number(row.mean.toFixed(6)), Number(error.toFixed(6))]);
           grouped.set(key, points);
         });
 
@@ -656,9 +654,7 @@ function TSIRefineCutoffsPageContent() {
       const fallbackColors = resolveGroupColors(orderedKeys.length);
 
       return {
-        dataGroup: orderedKeys.map((key) =>
-          (grouped.get(key) ?? []).sort((a, b) => a[0] - b[0])
-        ),
+        dataGroup: orderedKeys.map((key) => (grouped.get(key) ?? []).sort((a, b) => a[0] - b[0])),
         labels: orderedKeys.map((key, index) => {
           const found = setInfoGroupMetaByKey.get(key);
           return found?.label ?? formatGroupLabel(keyToOriginalGroup.get(key) ?? key, index);
@@ -733,7 +729,9 @@ function TSIRefineCutoffsPageContent() {
   }, [activeGroupMeta, cutoffXNumbers, setInfoData, setOneChartData, tableGroupRows]);
 
   const isCutoffDirty = useMemo(() => {
-    if (Number(cumulativeProportion.toFixed(2)) !== Number(initialCumulativeProportion.toFixed(2))) {
+    if (
+      Number(cumulativeProportion.toFixed(2)) !== Number(initialCumulativeProportion.toFixed(2))
+    ) {
       return true;
     }
     if (additionalSliders.length !== initialAdditionalSliders.length) {
@@ -743,95 +741,105 @@ function TSIRefineCutoffsPageContent() {
       (value, index) =>
         Number(value.toFixed(2)) !== Number((initialAdditionalSliders[index] ?? 0).toFixed(2))
     );
-  }, [additionalSliders, cumulativeProportion, initialAdditionalSliders, initialCumulativeProportion]);
+  }, [
+    additionalSliders,
+    cumulativeProportion,
+    initialAdditionalSliders,
+    initialCumulativeProportion,
+  ]);
 
   useEffect(() => {
     let isCancelled = false;
     if (!taskId || !subgroupId) {
       setFeatureInfoData(null);
       setSetInfoData(null);
+      setIsLoading(false);
       return;
     }
 
     const fetchData = async () => {
-      let setInfoParams: {
-        month: string;
-        axisType: CutoffAxisType;
-        cutoffX: string[];
-        cutoffY: string[];
-      } | null = null;
+      setIsLoading(true);
 
       try {
-        const requestedMonth = effectiveStratificationMonth;
-        const res = await getIdentificationFeatureInfo(
-          taskId,
-          subgroupId,
-          requestedMonth.toString()
-        );
+        let setInfoParams: {
+          month: string;
+          axisType: CutoffAxisType;
+          cutoffX: string[];
+          cutoffY: string[];
+        } | null = null;
 
-        if (isCancelled) return;
-        setFeatureInfoData(res.data);
+        try {
+          const requestedMonth = effectiveStratificationMonth;
+          const res = await getIdentificationFeatureInfo(
+            taskId,
+            subgroupId,
+            requestedMonth.toString()
+          );
 
-        const responseMonthMarks = buildMonthMarks(res.data.month_min, res.data.month_max);
-        const resolvedMonth = findClosestMonthMark(requestedMonth, responseMonthMarks);
-        if (resolvedMonth !== requestedMonth) {
-          setStratificationMonth(resolvedMonth);
+          if (isCancelled) return;
+          setFeatureInfoData(res.data);
+
+          const responseMonthMarks = buildMonthMarks(res.data.month_min, res.data.month_max);
+          const resolvedMonth = findClosestMonthMark(requestedMonth, responseMonthMarks);
+          if (resolvedMonth !== requestedMonth) {
+            setStratificationMonth(resolvedMonth);
+            return;
+          }
+
+          const nextAxisType = resolveAxisType(res.data);
+          const nextCdfData = buildCdfData(res.data.rows, res.data.outcome, resolvedMonth);
+          const initialCutoffPoints = buildInitialCutoffPoints(res.data, nextAxisType, nextCdfData);
+          const initialCutoffYValues = initialCutoffPoints
+            .map((point) => Number(point.y.toFixed(2)))
+            .sort((a, b) => a - b);
+          const initialCutoffXValues = initialCutoffYValues
+            .map((y) => findClosestXForY(nextCdfData, y))
+            .map((x) => x.toFixed(2));
+          const initialCutoffYLabels = initialCutoffYValues.map((y) => `${Number(y.toFixed(2))}%`);
+
+          const nextPrimaryCutoffY = initialCutoffYValues[0] ?? 80;
+          const nextAdditionalCutoffs = initialCutoffYValues.slice(1, 2);
+
+          setCumulativeProportion(nextPrimaryCutoffY);
+          setInitialCumulativeProportion(nextPrimaryCutoffY);
+          setAdditionalSliders(nextAdditionalCutoffs);
+          setInitialAdditionalSliders(nextAdditionalCutoffs);
+
+          setInfoParams = {
+            month: resolvedMonth.toString(),
+            axisType: nextAxisType,
+            cutoffX: initialCutoffXValues,
+            cutoffY: initialCutoffYLabels,
+          };
+        } catch (_error) {
+          if (isCancelled) return;
+          setFeatureInfoData(null);
+          setSetInfoData(null);
           return;
         }
 
-        const nextAxisType = resolveAxisType(res.data);
-        const nextCdfData = buildCdfData(
-          res.data.rows,
-          res.data.outcome,
-          resolvedMonth
-        );
-        const initialCutoffPoints = buildInitialCutoffPoints(res.data, nextAxisType, nextCdfData);
-        const initialCutoffYValues = initialCutoffPoints
-          .map((point) => Number(point.y.toFixed(2)))
-          .sort((a, b) => a - b);
-        const initialCutoffXValues = initialCutoffYValues
-          .map((y) => findClosestXForY(nextCdfData, y))
-          .map((x) => x.toFixed(2));
-        const initialCutoffYLabels = initialCutoffYValues.map((y) => `${Number(y.toFixed(2))}%`);
+        if (!setInfoParams) return;
 
-        const nextPrimaryCutoffY = initialCutoffYValues[0] ?? 80;
-        const nextAdditionalCutoffs = initialCutoffYValues.slice(1, 2);
+        try {
+          const setInfoResponse = await getIdentificationSetInfo(
+            taskId,
+            subgroupId,
+            setInfoParams.month,
+            setInfoParams.axisType,
+            setInfoParams.cutoffX,
+            setInfoParams.cutoffY
+          );
 
-        setCumulativeProportion(nextPrimaryCutoffY);
-        setInitialCumulativeProportion(nextPrimaryCutoffY);
-        setAdditionalSliders(nextAdditionalCutoffs);
-        setInitialAdditionalSliders(nextAdditionalCutoffs);
-
-        setInfoParams = {
-          month: resolvedMonth.toString(),
-          axisType: nextAxisType,
-          cutoffX: initialCutoffXValues,
-          cutoffY: initialCutoffYLabels,
-        };
-      } catch (_error) {
-        if (isCancelled) return;
-        setFeatureInfoData(null);
-        setSetInfoData(null);
-        return;
-      }
-
-      if (!setInfoParams) return;
-
-      try {
-        const setInfoResponse = await getIdentificationSetInfo(
-          taskId,
-          subgroupId,
-          setInfoParams.month,
-          setInfoParams.axisType,
-          setInfoParams.cutoffX,
-          setInfoParams.cutoffY
-        );
-
-        if (isCancelled) return;
-        setSetInfoData(setInfoResponse.data);
-      } catch (_error) {
-        if (isCancelled) return;
-        setSetInfoData(null);
+          if (isCancelled) return;
+          setSetInfoData(setInfoResponse.data);
+        } catch (_error) {
+          if (isCancelled) return;
+          setSetInfoData(null);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -882,20 +890,29 @@ function TSIRefineCutoffsPageContent() {
       cutoff_y: cutoffYValues,
     };
 
-    const response = await getIdentificationSetInfo(
-      requestParams.task_id,
-      requestParams.subgroup_id,
-      requestParams.month,
-      requestParams.axis_type,
-      requestParams.cutoff_x,
-      requestParams.cutoff_y
-    );
+    setIsLoading(true);
 
-    setSetInfoData(response.data);
+    try {
+      const response = await getIdentificationSetInfo(
+        requestParams.task_id,
+        requestParams.subgroup_id,
+        requestParams.month,
+        requestParams.axis_type,
+        requestParams.cutoff_x,
+        requestParams.cutoff_y
+      );
+
+      setSetInfoData(response.data);
+    } catch (_error) {
+      setSetInfoData(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <AppLayout headerType="tsi">
+      <Loading isLoading={isLoading} />
       <style jsx global>{`
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
@@ -908,7 +925,7 @@ function TSIRefineCutoffsPageContent() {
       `}</style>
       <div className="flex w-full flex-col items-center">
         {/* 타이틀: 카드 밖 */}
-        <div className="mb-2 flex w-full max-w-full justify-center">
+        <div className="mb-2 mb-[42px] flex w-full max-w-full justify-center">
           <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
             <div className="flex flex-shrink-0 flex-col items-start gap-1">
               <div className="text-title text-neutral-5 mb-2 text-left">
@@ -1009,7 +1026,8 @@ function TSIRefineCutoffsPageContent() {
                                   0,
                                   Math.min(100, (x / rect.width) * 100)
                                 );
-                                const rawMonth = minMonth + (percentage / 100) * (maxMonth - minMonth);
+                                const rawMonth =
+                                  minMonth + (percentage / 100) * (maxMonth - minMonth);
                                 const nextMonth = findClosestMonthMark(rawMonth, monthMarks);
                                 setStratificationMonth(nextMonth);
                               };
@@ -1121,8 +1139,7 @@ function TSIRefineCutoffsPageContent() {
               className="text-body4 mt-auto ml-auto flex h-[42px] w-[236px] items-center justify-center gap-2 rounded-full px-6 py-[6px] font-semibold text-white"
               style={{
                 backgroundColor:
-                  effectiveStratificationMonth !== initialStratificationMonth ||
-                  isCutoffDirty
+                  effectiveStratificationMonth !== initialStratificationMonth || isCutoffDirty
                     ? "#f06600"
                     : "#919092",
               }}
@@ -1191,16 +1208,14 @@ function TSIRefineCutoffsPageContent() {
 
                 {/* rHTE distribution */}
                 <div
-                  className="overflow-hidden bg-primary-15 flex h-[432px] flex-1 flex-col rounded-[24px] p-5"
+                  className="bg-primary-15 flex h-[432px] flex-1 flex-col overflow-hidden rounded-[24px] p-5"
                   style={{
                     boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   <h4 className="text-h4 mb-4 flex-shrink-0 text-white">Slope distribution</h4>
                   <div className="flex min-h-0 flex-1 items-center justify-center rounded-[12px] bg-white">
-                    <DensityChart
-                      segmented={densitySegmentedData ?? undefined}
-                    />
+                    <DensityChart segmented={densitySegmentedData ?? undefined} />
                   </div>
                 </div>
               </div>
@@ -1209,12 +1224,12 @@ function TSIRefineCutoffsPageContent() {
 
               {/* 테이블 */}
               <div
-                className="mb-3 flex min-h-[145px] flex-1 flex-col overflow-hidden rounded-[24px] bg-white"
+                className="mb-3 flex flex-1 flex-col rounded-[24px] bg-white"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <div className="flex h-full flex-col px-8 py-5">
+                <div className="flex flex-col px-8 py-5">
                   {/* 테이블 헤더 */}
                   <div className="border-neutral-80 flex h-[39px] flex-shrink-0 items-center gap-4 border-b">
                     <div className="text-body2 text-neutral-30 w-[80px] font-semibold">no.</div>
@@ -1255,7 +1270,6 @@ function TSIRefineCutoffsPageContent() {
                   </div>
                 </div>
               </div>
-
               {/* 버튼들 */}
               <div className="flex flex-shrink-0 justify-end gap-2">
                 <button

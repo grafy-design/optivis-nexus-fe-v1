@@ -11,6 +11,7 @@ import {
   type ResultTableItem,
 } from "@/services/subgroupService";
 import ReactECharts from "echarts-for-react";
+import { Loading } from "@/components/common/Loading";
 
 /**
  * TSI Step 4: Subgroup Selection
@@ -135,6 +136,7 @@ export default function TSISubgroupSelectionPage() {
 
   return (
     <AppLayout headerType="tsi">
+      <Loading isLoading={isLoading} />
       <div className="flex w-full flex-col items-center">
         {/* 타이틀: 카드 밖 */}
         <div className="mb-2 flex w-full max-w-full justify-center">
@@ -562,7 +564,10 @@ export default function TSISubgroupSelectionPage() {
                                       </div>
                                     </td>
                                     <td
-                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left ${row.variance_benefit_label.includes("Highest") ? "text-[#3A11D8]" : ""}`}
+                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
+                                      style={{
+                                        color: row.variance_benefit_label ? "#3A11D8" : "",
+                                      }}
                                     >
                                       <div className={TABLE_INNER_DIV_LEFT}>
                                         <span className="block truncate">

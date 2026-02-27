@@ -14,24 +14,16 @@ interface AppLayoutProps {
   headerType?: "default" | "ats" | "tsi";
 }
 
-export const AppLayout: React.FC<AppLayoutProps> = ({
-  children,
-  headerType = "default",
-}) => {
+export const AppLayout: React.FC<AppLayoutProps> = ({ children, headerType = "default" }) => {
   return (
-    <div className="h-screen w-full relative overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden">
       <Sidebar />
-      <div className="flex flex-col h-screen overflow-hidden min-w-0" style={{ width: "calc(100% - 68px)", marginLeft: "68px" }}>
-        {headerType === "ats" ? (
-          <ATSHeader />
-        ) : headerType === "tsi" ? (
-          <TSIHeader />
-        ) : (
-          <Header />
-        )}
-        <div
-          className="flex-1 overflow-auto min-w-0"
-        >
+      <div
+        className="flex h-screen min-w-0 flex-col overflow-hidden"
+        style={{ width: "calc(100% - 96px)", marginLeft: "96px" }}
+      >
+        {headerType === "ats" ? <ATSHeader /> : headerType === "tsi" ? <TSIHeader /> : <Header />}
+        <div className="min-w-0 flex-1 overflow-auto">
           <MainContainer>{children}</MainContainer>
         </div>
       </div>

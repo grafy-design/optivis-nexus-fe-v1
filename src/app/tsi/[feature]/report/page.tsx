@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { Loading } from "@/components/common/Loading";
 import type { ErrorBarGroup, ErrorBarPoint } from "@/components/charts/MultiLineWithErrorBar";
 import {
   TSIFeatureDiseaseProgressionPanel,
@@ -430,15 +431,25 @@ const mapRiskResponseToSets = (
   return sets.length > 0 ? sets : fallback;
 };
 
+const decodeFeature = (value: string): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
 export default function TSIReportPage() {
+  const routeParams = useParams<{ feature?: string }>();
+  const featureParam = routeParams?.feature;
+  const featureName = decodeFeature(featureParam ?? "").trim();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId") ?? "";
   const subgroupId = searchParams.get("subgroupId") ?? "";
   const [reportResponse, setReportResponse] = useState<ReportByFeatureResponse | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  // TODO: subgroup-explain에서 실제 선택한 feature를 전달받아 사용하도록 교체
-  const featureName = "ADAS Cog 11";
-  const hasRequiredParams = Boolean(taskId && subgroupId);
+  const hasRequiredParams = Boolean(taskId && subgroupId && featureName);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!hasRequiredParams) {
@@ -461,6 +472,8 @@ export default function TSIReportPage() {
         setFetchError(
           error instanceof Error ? error.message : "Subgroup Report 정보 조회에 실패했습니다."
         );
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -471,41 +484,6 @@ export default function TSIReportPage() {
     };
   }, [featureName, hasRequiredParams, subgroupId, taskId]);
 
-  if (!hasRequiredParams) {
-    return (
-      <AppLayout headerType="tsi">
-        <div className="mx-auto w-[1772px] max-w-full py-12">
-          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
-            Report 조회에 필요한 파라미터가 누락되었습니다. (`taskId`, `subgroupId`)
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  if (!reportResponse && !fetchError) {
-    return (
-      <AppLayout headerType="tsi">
-        <div className="mx-auto w-[1772px] max-w-full py-12">
-          <div className="rounded-[24px] border border-[#D9D8E2] bg-[#F6F6FA] p-6 text-[#6A687A]">
-            리포트 데이터를 조회 중입니다.
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  if (fetchError) {
-    return (
-      <AppLayout headerType="tsi">
-        <div className="mx-auto w-[1772px] max-w-full py-12">
-          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
-            {fetchError}
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
   const reportJson = reportResponse?.data?.report_json;
   const overviewItems = reportJson?.overview_description ?? [];
   const getOverviewContent = (index: number) => {
@@ -547,6 +525,42 @@ export default function TSIReportPage() {
   const hasFeatureBasedData = featureBasedPanelData.chartData.length > 0;
   const hasRiskResponseData = riskResponseSets.length > 0;
 
+  if (!hasRequiredParams) {
+    return (
+      <AppLayout headerType="tsi">
+        <div className="mx-auto w-[1772px] max-w-full py-12">
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
+            Report 조회에 필요한 파라미터가 누락되었습니다. (`feature`, `taskId`, `subgroupId`)
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <AppLayout headerType="tsi">
+        <Loading isLoading />
+        <div className="mx-auto w-[1772px] max-w-full py-12">
+          <div className="rounded-[24px] border border-[#D9D8E2] bg-[#F6F6FA] p-6 text-[#6A687A]">
+            리포트 데이터를 조회 중입니다.
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <AppLayout headerType="tsi">
+        <div className="mx-auto w-[1772px] max-w-full py-12">
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
+            {fetchError}
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
   return (
     <AppLayout headerType="tsi">
       <div className="flex w-full min-w-0 flex-col items-center">

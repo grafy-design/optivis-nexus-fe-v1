@@ -9,6 +9,7 @@ import { SHAPSummaryPlotChart } from "@/components/charts/SHAPSummaryPlotChart";
 import { BaselineDistributionHistogram } from "@/components/charts/BaselineDistributionHistogram";
 import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
+import { Loading } from "@/components/common/Loading";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ExplainExpectedTherapeuticGainItem,
@@ -33,6 +34,8 @@ function TSISubgroupExplainPageContent() {
   const subgroupId = searchParams.get("subgroupId") ?? "";
   const taskId = searchParams.get("taskId") ?? "";
   const [resultData, setResultData] = useState<ExplainListData>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const router = useRouter();
   const baselineDistributionData =
@@ -88,18 +91,41 @@ function TSISubgroupExplainPageContent() {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     if (!taskId || !subgroupId) {
       setResultData(undefined);
+      setFetchError(null);
+      setIsLoading(false);
       return;
     }
 
     const fetchData = async () => {
-      const res = await getExplainList(taskId, subgroupId);
+      setIsLoading(true);
+      setFetchError(null);
 
-      setResultData(res.data);
+      try {
+        const res = await getExplainList(taskId, subgroupId);
+        if (cancelled) return;
+        setResultData(res.data);
+      } catch (error) {
+        if (cancelled) return;
+        setResultData(undefined);
+        setFetchError(
+          error instanceof Error ? error.message : "Subgroup Explain 데이터 조회에 실패했습니다."
+        );
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
     };
 
     fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [subgroupId, taskId]);
 
   const convertExpectedTherapeuticGain = (
@@ -190,6 +216,7 @@ function TSISubgroupExplainPageContent() {
 
   return (
     <AppLayout headerType="tsi">
+      <Loading isLoading={isLoading} />
       <div className="flex w-full flex-col items-center">
         {/* 타이틀: 카드 밖 */}
         <div className="mb-2 flex w-full max-w-full justify-center">
@@ -200,6 +227,13 @@ function TSISubgroupExplainPageContent() {
             </div>
           </div>
         </div>
+        {fetchError && (
+          <div className="mx-auto mb-2 w-[1772px] max-w-full">
+            <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-red-700">
+              {fetchError}
+            </div>
+          </div>
+        )}
 
         {/* 메인: 상위 배경 카드 2개 나란히 */}
         <div className="mx-auto flex w-[1772px] flex-shrink-0 flex-row flex-nowrap items-stretch gap-2">

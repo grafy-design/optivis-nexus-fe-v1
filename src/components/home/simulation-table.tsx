@@ -13,14 +13,14 @@ const MOCK_UP_SIMULATION_DATA = [
     disease: "disease",
     outcome: "outcome",
     description: "description",
-    last_updated: "2024-06-01",
+    last_updated: "2026-02-23",
   },
   {
     simulation_name: "OPMD-002",
     disease: "disease",
     outcome: "outcome",
     description: "description",
-    last_updated: "2024-06-02",
+    last_updated: "2024-02-25",
   },
 ];
 

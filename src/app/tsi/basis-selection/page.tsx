@@ -20,10 +20,7 @@ const BASIS_OPTIONS: Array<{
   { id: "multiple-conditions", label: "Multiple Conditions", disabled: true },
 ];
 
-const BASIS_CONTENT: Record<
-  string,
-  { title: string; description: string; chartSrc: string }
-> = {
+const BASIS_CONTENT: Record<string, { title: string; description: string; chartSrc: string }> = {
   prognostic: {
     title: "Stratify patients based on predicted disease progression metrics",
     description:
@@ -88,15 +85,15 @@ export default function TSIBasisSelectionPage() {
 
   return (
     <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center">
+      <div className="flex w-full flex-col items-center">
         {/* 타이틀: ATS처럼 카드 밖 (배경 카드와 형제) */}
-        <div className="w-full flex justify-center mb-2 max-w-full">
-          <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
-            <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">
+        <div className="mb-2 flex w-full max-w-full justify-center">
+          <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
+            <div className="flex flex-shrink-0 flex-col items-start gap-1">
+              <div className="text-title text-neutral-5 mb-2 text-left">
                 Target Subgroup Identification
               </div>
-              <p className="text-body2m text-neutral-50 text-left">
+              <p className="text-body2m mb-[34px] text-left text-neutral-50">
                 Select a subgroup basis
               </p>
             </div>
@@ -104,9 +101,9 @@ export default function TSIBasisSelectionPage() {
         </div>
 
         {/* 메인 카드 영역 (배경 이미지 카드) */}
-        <div className="w-[1772px] min-h-[750px] flex-shrink-0 mx-auto">
+        <div className="mx-auto min-h-[750px] w-[1772px] flex-shrink-0">
           <div
-            className="relative rounded-[36px] overflow-hidden w-full min-h-[642px]"
+            className="relative min-h-[642px] w-full overflow-hidden rounded-[36px]"
             style={{
               backgroundImage: "url(/assets/tsi/default-setting-bg.png)",
               backgroundSize: "100% 100%",
@@ -115,11 +112,11 @@ export default function TSIBasisSelectionPage() {
               boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <div className="relative p-6 flex flex-col h-full">
-              <div className="flex gap-4 flex-1 min-h-0">
+            <div className="relative flex h-full flex-col p-6">
+              <div className="flex min-h-0 flex-1 gap-4">
                 {/* 왼쪽 카드: Select a subgroup basis - 흰색 배경 */}
                 <div
-                  className="w-[462px] flex-shrink-0 rounded-[16px] overflow-hidden bg-white flex flex-col"
+                  className="flex w-[462px] flex-shrink-0 flex-col overflow-hidden rounded-[16px] bg-white"
                   style={{
                     boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                   }}
@@ -133,12 +130,12 @@ export default function TSIBasisSelectionPage() {
                         type="button"
                         disabled={isDisabled}
                         onClick={() => !isDisabled && setSelectedBasis(opt.id)}
-                        className={`w-full h-[54px] flex items-center justify-between px-4 text-left border-b border-neutral-80 last:border-b-0 ${
+                        className={`border-neutral-80 flex h-[54px] w-full items-center justify-between border-b px-4 text-left last:border-b-0 ${
                           isDisabled
                             ? "bg-neutral-95 text-neutral-60 cursor-not-allowed opacity-60"
                             : isSelected
                               ? "bg-primary-15 text-white"
-                              : "bg-white text-neutral-30"
+                              : "text-neutral-30 bg-white"
                         }`}
                       >
                         <span className="text-body2m">{opt.label}</span>
@@ -146,7 +143,7 @@ export default function TSIBasisSelectionPage() {
                           <ChevronRightIcon
                             className={
                               isSelected
-                                ? "text-white flex-shrink-0"
+                                ? "flex-shrink-0 text-white"
                                 : "text-neutral-60 flex-shrink-0"
                             }
                           />
@@ -160,29 +157,21 @@ export default function TSIBasisSelectionPage() {
                 <button
                   type="button"
                   onClick={handleGoToSubgroupSelection}
-                  className="flex-1 min-w-0 flex rounded-[24px] overflow-hidden bg-primary-15 cursor-pointer hover:opacity-95 transition-opacity text-left"
+                  className="bg-primary-15 flex min-w-0 flex-1 cursor-pointer overflow-hidden rounded-[24px] text-left transition-opacity hover:opacity-95"
                 >
                   {(() => {
-                    const content =
-                      BASIS_CONTENT[selectedBasis] ?? BASIS_CONTENT.prognostic;
+                    const content = BASIS_CONTENT[selectedBasis] ?? BASIS_CONTENT.prognostic;
                     return (
                       <>
-                        <div className="w-[398px] flex-shrink-0 p-6 flex flex-col justify-start">
-                          <h2 className="text-h3 text-white mb-4">
-                            {content.title}
-                          </h2>
-                          <p className="text-body3m text-white leading-[17.85px]">
+                        <div className="flex w-[398px] flex-shrink-0 flex-col justify-start p-6">
+                          <h2 className="text-h3 mb-4 text-white">{content.title}</h2>
+                          <p className="text-body3m leading-[17.85px] text-white">
                             {content.description}
                           </p>
                         </div>
-                        <div className="flex-1 min-w-0 p-4 flex items-center justify-center">
-                          <div className="w-full max-w-[816px] h-[586px] bg-white rounded-[12px] overflow-hidden relative">
-                            <Image
-                              src={content.chartSrc}
-                              alt=""
-                              fill
-                              className="object-contain"
-                            />
+                        <div className="flex min-w-0 flex-1 items-center justify-center p-4">
+                          <div className="relative h-[586px] w-full max-w-[816px] overflow-hidden rounded-[12px] bg-white">
+                            <Image src={content.chartSrc} alt="" fill className="object-contain" />
                           </div>
                         </div>
                       </>
