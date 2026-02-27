@@ -5,27 +5,163 @@ import { useEffect, useState } from "react";
 
 interface SimulationTableProps {
   serviceId?: string | null;
+  keyword?: string;
 }
 
-const MOCK_UP_SIMULATION_DATA = [
+type TableType = {
+  simulation_name: string;
+  disease: string;
+  outcome: string;
+  description: string;
+  last_updated: string;
+};
+
+const MOCK_UP_SIMULATION_DATA: TableType[] = [
   {
-    simulation_name: "OPMD-001",
-    disease: "disease",
-    outcome: "outcome",
-    description: "description",
-    last_updated: "2026-02-23",
+    simulation_name: "ATS Cohort A Dose Sweep",
+    disease: "NSCLC",
+    outcome: "+18% ORR",
+    description: "Dose escalation with biomarker-positive subgroup",
+    last_updated: "2026-02-12",
   },
   {
-    simulation_name: "OPMD-002",
-    disease: "disease",
-    outcome: "outcome",
-    description: "description",
-    last_updated: "2024-02-25",
+    simulation_name: "ATS Safety Window v2",
+    disease: "AML",
+    outcome: "DLT -9%",
+    description: "Safety boundary optimization for cycle-1 toxicity",
+    last_updated: "2026-02-13",
+  },
+  {
+    simulation_name: "Adaptive Interim Rule-3",
+    disease: "Breast Cancer",
+    outcome: "Power 82%",
+    description: "Interim stopping rule tuning for futility",
+    last_updated: "2026-02-13",
+  },
+  {
+    simulation_name: "Subgroup Response Alpha",
+    disease: "RA",
+    outcome: "+11% ACR50",
+    description: "Responder enrichment by baseline CRP",
+    last_updated: "2026-02-14",
+  },
+  {
+    simulation_name: "ATS Enrollment Stress",
+    disease: "IBD",
+    outcome: "Timeline -6w",
+    description: "Enrollment volatility and site-mix simulation",
+    last_updated: "2026-02-14",
+  },
+  {
+    simulation_name: "Twin Predict ARM-B",
+    disease: "HCC",
+    outcome: "HR 0.78",
+    description: "Historical control blending for ARM-B",
+    last_updated: "2026-02-15",
+  },
+  {
+    simulation_name: "Protocol Drift Guard",
+    disease: "SLE",
+    outcome: "Bias -14%",
+    description: "Protocol deviation sensitivity analysis",
+    last_updated: "2026-02-15",
+  },
+  {
+    simulation_name: "Dropout Robustness Set",
+    disease: "COPD",
+    outcome: "Power 79%",
+    description: "MNAR dropout correction scenario",
+    last_updated: "2026-02-16",
+  },
+  {
+    simulation_name: "Dose Frequency Beta",
+    disease: "Psoriasis",
+    outcome: "+9% PASI90",
+    description: "Q2W vs Q4W exposure-response comparison",
+    last_updated: "2026-02-16",
+  },
+  {
+    simulation_name: "ATS Site Quality Mix",
+    disease: "Melanoma",
+    outcome: "SDV -22%",
+    description: "Site quality weighted randomization impact",
+    last_updated: "2026-02-16",
+  },
+  {
+    simulation_name: "Event Accrual Predictor",
+    disease: "mCRC",
+    outcome: "Readout -5w",
+    description: "Event accrual acceleration under adaptive design",
+    last_updated: "2026-02-17",
+  },
+  {
+    simulation_name: "Synthetic Arm Gamma",
+    disease: "Glioblastoma",
+    outcome: "HR 0.83",
+    description: "Synthetic control arm calibration by age strata",
+    last_updated: "2026-02-17",
+  },
+  {
+    simulation_name: "Stage Shift Scenario",
+    disease: "Pancreatic",
+    outcome: "+7% PFS",
+    description: "Stage migration effect on progression curves",
+    last_updated: "2026-02-18",
+  },
+  {
+    simulation_name: "Adaptive Randomization R1",
+    disease: "Ovarian",
+    outcome: "+13% ORR",
+    description: "Response-adaptive randomization trial run",
+    last_updated: "2026-02-18",
+  },
+  {
+    simulation_name: "Bayesian Borrowing Delta",
+    disease: "DLBCL",
+    outcome: "Posterior 0.91",
+    description: "Borrowing intensity tuning from external cohort",
+    last_updated: "2026-02-19",
+  },
+  {
+    simulation_name: "Eligibility Relaxation Test",
+    disease: "UC",
+    outcome: "Enroll +21%",
+    description: "Inclusion criterion relaxation what-if",
+    last_updated: "2026-02-19",
+  },
+  {
+    simulation_name: "Biomarker Cutoff 0.35",
+    disease: "TNBC",
+    outcome: "AUC 0.84",
+    description: "Predictive cutoff optimization for stratification",
+    last_updated: "2026-02-20",
+  },
+  {
+    simulation_name: "Covariate Drift Monitor",
+    disease: "Atopic Derm.",
+    outcome: "Bias -8%",
+    description: "Temporal covariate drift stress simulation",
+    last_updated: "2026-02-20",
+  },
+  {
+    simulation_name: "Adaptive Futility Rule",
+    disease: "Parkinson's",
+    outcome: "Cost -12%",
+    description: "Early futility stop with preserved power",
+    last_updated: "2026-02-21",
+  },
+  {
+    simulation_name: "Endpoint Robustness E2",
+    disease: "NASH",
+    outcome: "CV 0.17",
+    description: "Primary endpoint robustness under noise",
+    last_updated: "2026-02-21",
   },
 ];
 
-export default function SimulationTable({ serviceId }: SimulationTableProps) {
-  const [tableData, setTableData] = useState(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
+export default function SimulationTable({ serviceId, keyword }: SimulationTableProps) {
+  const [originTableData, setOriginTableData] = useState<TableType[]>([]);
+  const [resultTableData, setResultTableData] = useState<TableType[]>([]);
   const router = useRouter();
   const firstColumnTitle =
     serviceId === "4" || serviceId === "5" ? "Simulation name" : "Patient ID";
@@ -42,8 +178,26 @@ export default function SimulationTable({ serviceId }: SimulationTableProps) {
   };
 
   useEffect(() => {
-    setTableData(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
+    setResultTableData(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
+    setOriginTableData(serviceId === "5" ? MOCK_UP_SIMULATION_DATA : []);
   }, [serviceId]);
+
+  useEffect(() => {
+    const normalizedKeyword = keyword?.trim().toLowerCase() ?? "";
+
+    if (!normalizedKeyword) {
+      setResultTableData(originTableData);
+      return;
+    }
+
+    const filteredTableData = originTableData.filter((row) => {
+      return Object.values(row).some((value) => {
+        return value.toLowerCase().includes(normalizedKeyword);
+      });
+    });
+
+    setResultTableData(filteredTableData);
+  }, [keyword, originTableData]);
 
   return (
     <div className="">
@@ -56,23 +210,33 @@ export default function SimulationTable({ serviceId }: SimulationTableProps) {
         <div></div>
       </div>
 
-      {tableData.length === 0 ? (
-        <div className="text-body4 min-h-[320px] rounded-[18px] bg-white p-1 text-center">
+      {resultTableData.length === 0 ? (
+        <div className="text-body4 flex h-[320px] items-center justify-center rounded-[18px] bg-white p-1 text-center">
           <p className="my-auto">No saved simulations.</p>
         </div>
       ) : (
-        <div className="min-h-[320px] rounded-[18px] bg-white p-1">
-          {tableData.map((row, index) => {
+        <div className="h-[320px] overflow-y-auto rounded-[18px] bg-white p-1">
+          {resultTableData.map((row, index) => {
             return (
               <div
                 key={index}
                 className="grid grid-cols-[15%_16%_14%_29%_18%_8%] items-center px-4 py-[6px] text-[14px] text-[#1b1b1b]"
               >
-                <div className="font-medium">{row.simulation_name}</div>
-                <div>{row.disease}</div>
-                <div>{row.outcome}</div>
-                <div>{row.description}</div>
-                <div>{row.last_updated}</div>
+                <div className="truncate font-medium" title={row.simulation_name}>
+                  {row.simulation_name}
+                </div>
+                <div className="truncate" title={row.disease}>
+                  {row.disease}
+                </div>
+                <div className="truncate" title={row.outcome}>
+                  {row.outcome}
+                </div>
+                <div className="truncate" title={row.description}>
+                  {row.description}
+                </div>
+                <div className="truncate" title={row.last_updated}>
+                  {row.last_updated}
+                </div>
                 <div className="text-right">
                   <button
                     className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#484646]"

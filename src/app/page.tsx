@@ -6,6 +6,7 @@ import HeroPanel from "@/components/home/hero-panel";
 import SimulationSearch from "@/components/home/simulation-search";
 import SimulationTable from "@/components/home/simulation-table";
 import { useHomeStore } from "@/store/homeStore";
+import { ChangeEventHandler, useState } from "react";
 
 // Service 인터페이스
 interface Service {
@@ -120,12 +121,14 @@ const serviceContentMap: Record<string, RightPanelContent> = {
 };
 
 export default function HomePage() {
-  const {
-    selectedPackageId,
-    selectedServiceId,
-    setSelectedPackageId,
-    setSelectedServiceId,
-  } = useHomeStore();
+  const { selectedPackageId, selectedServiceId, setSelectedPackageId, setSelectedServiceId } =
+    useHomeStore();
+
+  const [keyword, setKeyword] = useState("");
+
+  const onChangeKeyword: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setKeyword(e.currentTarget.value);
+  };
 
   // 선택된 Package에 해당하는 Service 목록 가져오기
   const selectedPackage = packages.find((p) => p.id === selectedPackageId);
@@ -150,7 +153,7 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div className="grid grid-cols-[400px_400px_1fr] gap-4 w-full box-border max-w-full">
+      <div className="box-border grid w-full max-w-full grid-cols-[400px_400px_1fr] gap-4">
         {/* Left Column - Package */}
         <div className="w-full min-w-0 overflow-hidden">
           <FeatureSection
@@ -179,7 +182,7 @@ export default function HomePage() {
 
         {/* Right Column - Hero + Table */}
         <div
-          className="w-full min-w-0 overflow-hidden relative"
+          className="relative w-full min-w-0 overflow-hidden"
           style={{
             backgroundImage: "url(/assets/main/detail.png)",
             backgroundSize: "930px 936px",
@@ -190,7 +193,7 @@ export default function HomePage() {
           }}
         >
           {rightPanelContent ? (
-            <div className="flex flex-col justify-between w-full h-full p-[20px] min-h-[936px]">
+            <div className="flex h-full min-h-[936px] w-full flex-col justify-between p-[20px]">
               <HeroPanel
                 title={rightPanelContent.title}
                 description={rightPanelContent.description}
@@ -198,16 +201,14 @@ export default function HomePage() {
                 serviceId={selectedServiceId}
               />
               <div className="flex flex-col gap-[20px]">
-                <SimulationSearch />
-                <SimulationTable serviceId={selectedServiceId} />
+                <SimulationSearch keyword={keyword} onChangeKeyword={onChangeKeyword} />
+                <SimulationTable serviceId={selectedServiceId} keyword={keyword} />
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center w-full h-full min-h-[936px] p-[20px]">
+            <div className="flex h-full min-h-[936px] w-full items-center justify-center p-[20px]">
               <p className="text-body4 text-[#828993]">
-                {selectedPackageId
-                  ? "Service를 선택해주세요."
-                  : "Package를 선택해주세요."}
+                {selectedPackageId ? "Service를 선택해주세요." : "Package를 선택해주세요."}
               </p>
             </div>
           )}
