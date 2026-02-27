@@ -52,7 +52,7 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 50, right: 14, top: 24, bottom: 32 },
+    grid: { left: 50, right: 14, top: 24, bottom: 32, containLabel: true },
     tooltip: {
       trigger: "item",
       formatter: (p: any) => `Slope: ${p.value[0]}<br/>C Vision: ${p.value[1]}`,
@@ -76,5 +76,5 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
     series,
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 260 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

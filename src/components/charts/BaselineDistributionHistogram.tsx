@@ -76,7 +76,7 @@ export const BaselineDistributionHistogram = ({
 
     return {
       animation: false,
-      grid: { left: 56, right: 10, top: 8, bottom: 28 },
+      grid: { left: 56, right: 10, top: 8, bottom: 28, containLabel: true },
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
@@ -132,5 +132,5 @@ export const BaselineDistributionHistogram = ({
     };
   }, [histogramData, normalize]);
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 260 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

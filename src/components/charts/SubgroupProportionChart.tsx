@@ -50,7 +50,7 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 48, right: 12, top: 28, bottom: 30 },
+    grid: { left: 48, right: 12, top: 28, bottom: 30, containLabel: true },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -83,5 +83,5 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
     })),
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 220 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

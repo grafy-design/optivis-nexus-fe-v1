@@ -77,12 +77,14 @@ export const SHAPSummaryPlotChart = ({
       animation: false,
       title: {
         text: title,
-        left: 0,
         top: 0,
+        left: 300,
+
+        textAlign: "center",
         textStyle: {
-          fontSize: 18,
-          fontWeight: 700,
-          color: "#231f52",
+          fontSize: 12,
+          fontWeight: 600,
+          color: "#484646",
         },
       },
       grid: {

@@ -63,18 +63,17 @@ function TSISubgroupExplainPageContent() {
     overviewDescription?.baseline_driver_top10_msg?.filter(
       (item) => item?.title?.trim() || item?.description?.trim()
     ) ?? [];
-  const featureMessages =
-    (overviewDescription?.[selectedFeature] ??
-      overviewDescription?.[defaultSelectedFeature] ??
-      overviewDescription?.ADDRECALL ??
-      overviewDescription?.ADRECOG ??
-      Object.entries(overviewDescription ?? {}).find(
-        ([key, value]) =>
-          key !== "baseline_driver_top10_msg" &&
-          Array.isArray(value) &&
-          value.some((item) => item?.title?.trim() || item?.description?.trim())
-      )?.[1] ??
-      []) as ExplainOverviewDescriptionItem[];
+  const featureMessages = (overviewDescription?.[selectedFeature] ??
+    overviewDescription?.[defaultSelectedFeature] ??
+    overviewDescription?.ADDRECALL ??
+    overviewDescription?.ADRECOG ??
+    Object.entries(overviewDescription ?? {}).find(
+      ([key, value]) =>
+        key !== "baseline_driver_top10_msg" &&
+        Array.isArray(value) &&
+        value.some((item) => item?.title?.trim() || item?.description?.trim())
+    )?.[1] ??
+    []) as ExplainOverviewDescriptionItem[];
   const baselineDriverMessageItems = baselineDriverTop10Messages;
   const featureMessageItems = featureMessages;
 
@@ -239,7 +238,7 @@ function TSISubgroupExplainPageContent() {
         <div className="mx-auto flex w-[1772px] flex-shrink-0 flex-row flex-nowrap items-stretch gap-2">
           {/* 왼쪽 상위 배경 카드 */}
           <div
-            className="flex h-[875px] w-[565px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
+            className="flex min-h-[875px] w-[565px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
             style={{
               backgroundImage: "url(/assets/tsi/explain-left-bg.png)",
               backgroundSize: "100% 100%",
@@ -250,7 +249,7 @@ function TSISubgroupExplainPageContent() {
           >
             {/* 파란색 그래프 카드: Expected Therapeutic Gain */}
             <div
-              className="bg-primary-15 mb-4 flex h-[549px] w-full flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-5"
+              className="bg-primary-15 mb-4 flex min-h-[549px] w-full flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-5"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
@@ -259,7 +258,7 @@ function TSISubgroupExplainPageContent() {
                 Expected Therapeutic Gain
               </h2>
               {/* 그래프 영역 */}
-              <div className="mt-auto flex h-[452px] flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
+              <div className="mt-auto flex min-h-[452px] flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
                 <MultiRankingBarChart data={expectedTherapeuticGainData} />
               </div>
             </div>
@@ -315,7 +314,7 @@ function TSISubgroupExplainPageContent() {
 
           {/* 오른쪽 상위 배경 카드 */}
           <div
-            className="flex h-[1075px] w-[1195px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
+            className="flex min-h-[1075px] w-[1195px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
             style={{
               backgroundImage: "url(/assets/tsi/explain-right-bg.png)",
               backgroundSize: "100% 100%",
@@ -328,7 +327,7 @@ function TSISubgroupExplainPageContent() {
             <div className="mb-[12px] flex flex-shrink-0 gap-4">
               {/* 파란색 그래프 카드: Baseline driver Top 10 (전체 너비) */}
               <div
-                className="bg-primary-15 flex h-[423px] flex-1 flex-shrink-0 flex-row gap-5 overflow-hidden rounded-[24px] p-4"
+                className="bg-primary-15 flex min-h-[423px] flex-1 flex-shrink-0 flex-row gap-5 overflow-hidden rounded-[24px] p-4"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
@@ -338,8 +337,11 @@ function TSISubgroupExplainPageContent() {
                   <h2 className="text-body2 mb-4 flex-shrink-0 text-white">
                     Baseline driver Top 10
                   </h2>
-                  <div className="mt-auto flex h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
-                    <SHAPSummaryPlotChart data={resultData?.explain_json.baseline_driver} />
+                  <div className="mt-auto flex min-h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
+                    <SHAPSummaryPlotChart
+                      data={resultData?.explain_json.baseline_driver}
+                      title={`Baseline Features Explaining △${resultData?.outcome ?? "ADAS-Cog"}`}
+                    />
                   </div>
                 </div>
 
@@ -347,10 +349,7 @@ function TSISubgroupExplainPageContent() {
                 <div className="flex min-w-0 flex-1 flex-col justify-end">
                   <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                     {baselineDriverMessageItems.map((item, index) => (
-                      <li
-                        key={`${item.no ?? index}-${item.title}`}
-                        className="break-words"
-                      >
+                      <li key={`${item.no ?? index}-${item.title}`} className="break-words">
                         <span className="text-body1m">{item.title}</span>
                         <br />
                         <span className="text-body4m whitespace-pre-line">{item.description}</span>
@@ -365,7 +364,7 @@ function TSISubgroupExplainPageContent() {
             <div className="flex min-h-0 flex-1 gap-[12px]">
               {/* 왼쪽 흰색 카드: Feature 목록 */}
               <div
-                className="flex h-[616px] w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white py-3"
+                className="flex min-h-[616px] w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white py-3"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
@@ -391,19 +390,19 @@ function TSISubgroupExplainPageContent() {
 
               {/* 파란색 카드: 흰색 그래프 카드 3개 + 설명 텍스트 (나머지 전체 너비) */}
               <div
-                className="bg-primary-15 flex h-[616px] flex-1 flex-shrink-0 flex-row gap-4 overflow-hidden rounded-[24px] p-4"
+                className="bg-primary-15 flex min-h-[616px] flex-1 flex-shrink-0 flex-row gap-4 overflow-hidden rounded-[24px] p-4"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {/* 그래프 카드 3개 세로 배치 */}
-                <div className="flex min-h-0 flex-1 flex-col gap-4">
+                <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
                   {/* 그래프 카드 1: Baseline Distribution */}
-                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
+                  <div className="flex min-h-0 w-full max-w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
                     <h3 className="text-body4 text-neutral-40 mb-3">
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden rounded bg-white">
                       <BaselineDistributionHistogram
                         histogramData={
                           baselineDistributionData ?? {
@@ -416,21 +415,21 @@ function TSISubgroupExplainPageContent() {
                   </div>
 
                   {/* 그래프 카드 2: ADAS Progression Slope */}
-                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
+                  <div className="flex min-h-0 w-full max-w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
                     <h3 className="text-body4 text-neutral-40 mb-3">
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden rounded bg-white">
                       <ScatterSlopeChart data={baselineSlopeData ?? {}} />
                     </div>
                   </div>
 
                   {/* 그래프 카드 3: Subgroup Proportion */}
-                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
+                  <div className="flex min-h-0 w-full max-w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
                     <h3 className="text-body4 text-neutral-40 mb-3">
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden rounded bg-white">
                       <SubgroupProportionChart data={baselineBinRatioData ?? []} />
                     </div>
                   </div>
@@ -440,10 +439,7 @@ function TSISubgroupExplainPageContent() {
                 <div className="flex min-w-0 flex-1 flex-col justify-start pt-4">
                   <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                     {featureMessageItems.map((item, index) => (
-                      <li
-                        key={`${item.no ?? index}-${item.title}`}
-                        className="break-words"
-                      >
+                      <li key={`${item.no ?? index}-${item.title}`} className="break-words">
                         <span className="text-body1m">{item.title}</span>
                         <br />
                         <span className="text-body4m whitespace-pre-line">{item.description}</span>
