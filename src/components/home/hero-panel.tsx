@@ -244,7 +244,16 @@ export default function HeroPanel({
           borderRadius: "24px",
         }}
       >
-        {videoUrl ? (
+        <Image
+          src={imageUrl}
+          alt={title}
+          width={675}
+          height={400}
+          className="h-full w-full object-cover"
+          style={{ width: "100%", height: "100%" }}
+          priority
+        />
+        {/* {videoUrl ? (
           <video
             ref={videoRef}
             src={videoUrl}
@@ -270,7 +279,7 @@ export default function HeroPanel({
             style={{ width: "100%", height: "100%" }}
             priority
           />
-        )}
+        )} */}
       </div>
 
       <style jsx>{`

@@ -43,6 +43,12 @@ export default function TSIPatientsSummaryPage() {
     fetchPatientSummary();
   }, [taskId]);
 
+  const formatUpToTwoDecimals = (value: number) =>
+    value.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+
   const handleGoToBasisSelection = () => {
     const query = new URLSearchParams({ taskId });
     router.push(`/tsi/basis-selection?${query.toString()}`);
@@ -57,12 +63,12 @@ export default function TSIPatientsSummaryPage() {
         items: category.items.map((item) => ({
           label: item.group_name,
           fullCohort: {
-            value: item.full_cohort_n.toLocaleString(),
-            percent: `${item.full_cohort_pct.toFixed(1)}%`,
+            value: formatUpToTwoDecimals(item.full_cohort_n),
+            percent: `${formatUpToTwoDecimals(item.full_cohort_pct)}%`,
           },
           filteredCohort: {
-            value: item.filtered_cohort_n.toLocaleString(),
-            percent: `${item.filtered_cohort_pct.toFixed(1)}%`,
+            value: formatUpToTwoDecimals(item.filtered_cohort_n),
+            percent: `${formatUpToTwoDecimals(item.filtered_cohort_pct)}%`,
           },
         })),
       })) || [];
@@ -196,14 +202,18 @@ export default function TSIPatientsSummaryPage() {
                               {/* Empty space for conversion rate */}
                               <div className="w-[405px] px-[0px]" />
                               {/* Full Cohort Header */}
-                              <div className="flex h-full w-[405px] items-center gap-2 px-[0px]">
-                                <div className="text-body3m text-neutral-50">Value</div>
-                                <div className="text-body3m text-neutral-50">Value%</div>
+                              <div className="-ml-[30px] grid h-full w-[405px] grid-cols-[58px_68px] items-center gap-0 px-[0px]">
+                                <div className="text-body3m text-left text-neutral-50">Value</div>
+                                <div className="text-body3m text-left text-neutral-50">
+                                  Value%
+                                </div>
                               </div>
                               {/* Filtered Cohort Header */}
-                              <div className="flex h-full w-[405px] items-center gap-2 px-[0px]">
-                                <div className="text-body3m text-neutral-5">Value</div>
-                                <div className="text-body3m text-primary-60">Value%</div>
+                              <div className="-ml-[30px] grid h-full w-[405px] grid-cols-[58px_68px] items-center gap-0 px-[0px]">
+                                <div className="text-body3m text-left text-neutral-5">Value</div>
+                                <div className="text-body3m text-left text-primary-60">
+                                  Value%
+                                </div>
                               </div>
                             </div>
                             {/* Category Items */}
@@ -226,20 +236,20 @@ export default function TSIPatientsSummaryPage() {
                                   {/* Empty space for conversion rate */}
                                   <div className="w-[405px] px-[0px]" />
                                   {/* Full Cohort Value */}
-                                  <div className="flex h-full w-[405px] items-center gap-2 px-[0px]">
-                                    <div className="text-body3m text-neutral-50">
+                                  <div className="-ml-[30px] grid h-full w-[405px] grid-cols-[58px_68px] items-center gap-0 px-[0px]">
+                                    <div className="text-body3m text-right tabular-nums text-neutral-50">
                                       {item.fullCohort.value}
                                     </div>
-                                    <div className="text-body3m text-neutral-50">
+                                    <div className="text-body3m text-right tabular-nums text-neutral-50">
                                       {item.fullCohort.percent}
                                     </div>
                                   </div>
                                   {/* Filtered Cohort Value */}
-                                  <div className="flex h-full w-[405px] items-center gap-2 px-[0px]">
-                                    <div className="text-body3m text-neutral-5">
+                                  <div className="-ml-[30px] grid h-full w-[405px] grid-cols-[58px_68px] items-center gap-0 px-[0px]">
+                                    <div className="text-body3m text-right tabular-nums text-neutral-5">
                                       {item.filteredCohort.value}
                                     </div>
-                                    <div className="text-body3m text-primary-60">
+                                    <div className="text-body3m text-right tabular-nums text-primary-60">
                                       {item.filteredCohort.percent}
                                     </div>
                                   </div>
