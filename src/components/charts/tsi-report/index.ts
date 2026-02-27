@@ -8,8 +8,8 @@ export type {
   VarianceBarsItem,
   VarianceStackChartData,
 } from "./types";
-export { TSIFeatureDiseaseProgressionPanel } from "./TSIFeatureDiseaseProgressionPanel";
+export type { TSIDiseaseProgressionPanelVariant } from "./TSIDiseaseProgressionPanel";
+export { TSIDiseaseProgressionPanel } from "./TSIDiseaseProgressionPanel";
 export { TSIForestMetricChart } from "./TSIForestMetricChart";
-export { TSIModelDiseaseProgressionPanel } from "./TSIModelDiseaseProgressionPanel";
 export { TSIStackedVarianceChart } from "./TSIStackedVarianceChart";
 export { TSIVarianceByGroupBarChart } from "./TSIVarianceByGroupBarChart";

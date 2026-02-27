@@ -134,6 +134,8 @@ function TSISubgroupSelectionPageContent() {
     }
   };
 
+  console.log(resultTableData);
+
   return (
     <AppLayout headerType="tsi">
       <Loading isLoading={isLoading} />
@@ -1096,10 +1098,16 @@ function TSISubgroupSelectionPageContent() {
                                                     <div className="mt-auto">
                                                       <div className="h-[110px] space-y-0 overflow-auto rounded-[8px] bg-white p-3">
                                                         <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-0 text-sm font-semibold text-[#231f52]">
-                                                          <span>Group</span>
-                                                          <span className="ml-auto">
-                                                            Number of patients
-                                                          </span>
+                                                          <div className="w-[142px]">
+                                                            <p className="text-sm font-semibold text-[#231F52]">
+                                                              Group
+                                                            </p>
+                                                          </div>
+                                                          <div>
+                                                            <p className="text-sm font-semibold text-[#231F52]">
+                                                              Number of patients
+                                                            </p>
+                                                          </div>
                                                         </div>
                                                         {sortedPatients.map((patient, idx) => {
                                                           const varianceData =
@@ -1122,16 +1130,24 @@ function TSISubgroupSelectionPageContent() {
                                                                   : ""
                                                               }`}
                                                             >
-                                                              <div
-                                                                className="h-3 w-3 rounded-full"
-                                                                style={{
-                                                                  backgroundColor: groupColor,
-                                                                }}
-                                                              ></div>
-                                                              <span>{groupName}</span>
-                                                              <span className="ml-auto">
-                                                                {patient.number.toLocaleString()}
-                                                              </span>
+                                                              <div className="flex w-[142px] items-center gap-[6px]">
+                                                                <div
+                                                                  className="h-3 w-3 rounded-full"
+                                                                  style={{
+                                                                    backgroundColor: groupColor,
+                                                                  }}
+                                                                />
+                                                                <div>
+                                                                  <p className="text-sm font-semibold text-[#1C1B1B]">
+                                                                    {groupName}
+                                                                  </p>
+                                                                </div>
+                                                              </div>
+                                                              <div>
+                                                                <p className="text-sm font-semibold text-[#1C1B1B]">
+                                                                  {patient.number.toLocaleString()}
+                                                                </p>
+                                                              </div>
                                                             </div>
                                                           );
                                                         })}

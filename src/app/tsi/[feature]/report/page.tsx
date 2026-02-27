@@ -6,9 +6,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
 import type { ErrorBarGroup, ErrorBarPoint } from "@/components/charts/MultiLineWithErrorBar";
 import {
-  TSIFeatureDiseaseProgressionPanel,
+  TSIDiseaseProgressionPanel,
   TSIForestMetricChart,
-  TSIModelDiseaseProgressionPanel,
   TSIStackedVarianceChart,
   TSIVarianceByGroupBarChart,
   type ForestIntervalData,
@@ -632,12 +631,13 @@ function TSIReportPageContent() {
                         Model Based
                       </span>
                     </div>
-                    <h4 className="text-h4 mb-4 flex-shrink-0 text-white">{modelOverview.title}</h4>
+                    <h4 className="text-h4 mb-6 flex-shrink-0 text-white">{modelOverview.title}</h4>
                     <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
                       {modelOverview.description}
                     </p>
                     {hasModelBasedData ? (
-                      <TSIModelDiseaseProgressionPanel
+                      <TSIDiseaseProgressionPanel
+                        variant="model"
                         chartData={modelBasedPanelData.chartData}
                         rows={modelBasedPanelData.rows}
                         seriesLabels={modelBasedPanelData.seriesLabels}
@@ -660,14 +660,15 @@ function TSIReportPageContent() {
                         Feature Based
                       </span>
                     </div>
-                    <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
+                    <h4 className="text-h4 mb-6 flex-shrink-0 text-white">
                       {featureOverview.title}
                     </h4>
                     <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
                       {featureOverview.description}
                     </p>
                     {hasFeatureBasedData ? (
-                      <TSIFeatureDiseaseProgressionPanel
+                      <TSIDiseaseProgressionPanel
+                        variant="feature"
                         chartData={featureBasedPanelData.chartData}
                         rows={featureBasedPanelData.rows}
                         seriesLabels={featureBasedPanelData.seriesLabels}
@@ -710,7 +711,9 @@ function TSIReportPageContent() {
                           <div className="flex h-full w-full flex-col rounded-[16px] bg-[#ECECF1] p-4">
                             <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                               <div className="flex min-h-0 flex-col">
-                                <h4 className="text-h3 text-neutral-20">Variance decomposition</h4>
+                                <h4 className="text-2xl font-semibold text-[#484646]">
+                                  Variance decomposition
+                                </h4>
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
                                 <div className="mt-2 min-h-0 flex-1">
                                   <TSIStackedVarianceChart data={modelComparisonData.stack} />
@@ -738,7 +741,10 @@ function TSIReportPageContent() {
                               </div>
 
                               <div className="flex min-h-0 flex-col">
-                                <h4 className="text-h3 text-neutral-20">Within-group variance</h4>
+                                <h4 className="text-2xl font-semibold text-[#484646]">
+                                  Within-group variance
+                                </h4>
+
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
                                 <div className="mt-2 min-h-0 flex-1">
                                   <TSIVarianceByGroupBarChart data={modelComparisonData.bars} />
@@ -752,10 +758,13 @@ function TSIReportPageContent() {
                           <div className="flex h-full w-full flex-col rounded-[16px] bg-[#ECECF1] p-4">
                             <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                               <div className="flex min-h-0 flex-col">
-                                <div className="text-body2m text-neutral-30">
+                                <div className="text-[10px] font-medium text-[#484646]">
                                   Separation evidence
                                 </div>
-                                <h4 className="text-h3 text-neutral-20">Variance decomposition</h4>
+                                <h4 className="text-2xl font-semibold text-[#484646]">
+                                  Variance decomposition
+                                </h4>
+
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
                                 <div className="mt-2 min-h-0 flex-1">
                                   <TSIVarianceByGroupBarChart data={featureComparisonData.bars} />
@@ -763,10 +772,10 @@ function TSIReportPageContent() {
                               </div>
 
                               <div className="flex min-h-0 flex-col">
-                                <div className="text-body2m text-neutral-30">
+                                <div className="text-[10px] font-medium text-[#484646]">
                                   Separation evidence
                                 </div>
-                                <h4 className="text-h3 text-neutral-20">
+                                <h4 className="text-2xl font-semibold text-[#484646]">
                                   Within-group variance by subgroup
                                 </h4>
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
