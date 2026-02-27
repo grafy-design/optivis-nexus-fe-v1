@@ -25,6 +25,10 @@ type VariantStyle = {
   separatorColor: string;
   chartMinHeightClassName: string;
   axisColor: string;
+  lineWidth: number;
+  symbolSize: number;
+  errorBarLineWidth: number;
+  errorBarCapHalfWidth: number;
   guideLineColor: string;
   guideLineType: "solid" | "dashed" | "dotted";
   legendMarginTopClassName: string;
@@ -36,10 +40,14 @@ type VariantStyle = {
 const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = {
   model: {
     containerClassName:
-      "flex min-h-[656px] w-full flex-1 flex-shrink-0 flex-col rounded-[16px] border-[3px] border-[#8A47FF] bg-[#ECECF1] p-4",
+      "flex min-h-[656px] w-full flex-1 flex-shrink-0 flex-col rounded-[16px] border-[3px] border-[#8A47FF] bg-[#FFFFFF] p-4",
     separatorColor: "#B7B6BE",
     chartMinHeightClassName: "min-h-[390px]",
     axisColor: "#CECDD6",
+    lineWidth: 3,
+    symbolSize: 12,
+    errorBarLineWidth: 2,
+    errorBarCapHalfWidth: 6,
     guideLineColor: "#272354",
     guideLineType: "solid",
     legendMarginTopClassName: "mt-2",
@@ -49,10 +57,14 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
   },
   feature: {
     containerClassName:
-      "flex min-h-[656px] w-full flex-1 flex-shrink-0 flex-col rounded-[16px] bg-[#ECECF1] p-4",
+      "flex min-h-[656px] w-full flex-1 flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
     separatorColor: "#A9A8B2",
     chartMinHeightClassName: "min-h-[430px]",
     axisColor: "#CBCAD3",
+    lineWidth: 3,
+    symbolSize: 12,
+    errorBarLineWidth: 2,
+    errorBarCapHalfWidth: 6,
     guideLineColor: "#452CF4",
     guideLineType: "dashed",
     legendMarginTopClassName: "mt-1",
@@ -82,6 +94,11 @@ export function TSIDiseaseProgressionPanel({
           dataGroup={chartData}
           seriesLabels={seriesLabels}
           colors={seriesColors}
+          filledSymbol
+          lineWidth={style.lineWidth}
+          symbolSize={style.symbolSize}
+          errorBarLineWidth={style.errorBarLineWidth}
+          errorBarCapHalfWidth={style.errorBarCapHalfWidth}
           height="100%"
           xAxis={{
             min: 0,

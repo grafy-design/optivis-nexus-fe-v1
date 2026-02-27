@@ -29,7 +29,7 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
     series.push({
       name: groupName,
       type: "scatter",
-      symbolSize: 8,
+      symbolSize: 9,
       data: (group.points ?? []).map((point) => [point.x, point.y]),
       itemStyle: { color: palette[index % palette.length] },
     });
@@ -52,7 +52,7 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 50, right: 14, top: 24, bottom: 32, containLabel: true },
+    grid: { left: 42, right: 8, top: 8, bottom: 22, containLabel: true },
     tooltip: {
       trigger: "item",
       formatter: (p: any) => `Slope: ${p.value[0]}<br/>C Vision: ${p.value[1]}`,
@@ -61,7 +61,7 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
       type: "value",
       name: "ADAS Progression Slope",
       nameLocation: "middle",
-      nameGap: 24,
+      nameGap: 20,
       axisLine: { lineStyle: { color: "#666" } },
       splitLine: { show: false },
     },
@@ -69,7 +69,7 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
       type: "value",
       name: "C Vision",
       nameLocation: "middle",
-      nameGap: 34,
+      nameGap: 24,
       axisLine: { lineStyle: { color: "#666" } },
       splitLine: { show: false },
     },

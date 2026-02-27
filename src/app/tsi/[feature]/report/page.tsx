@@ -632,7 +632,7 @@ function TSIReportPageContent() {
                       </span>
                     </div>
                     <h4 className="text-h4 mb-6 flex-shrink-0 text-white">{modelOverview.title}</h4>
-                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
+                    <p className="text-body3m mt-auto mb-6 min-h-[130px] flex-shrink-0 whitespace-pre-line text-white/90">
                       {modelOverview.description}
                     </p>
                     {hasModelBasedData ? (
@@ -644,7 +644,7 @@ function TSIReportPageContent() {
                         seriesColors={RISK_SERIES_COLORS}
                       />
                     ) : (
-                      <div className="flex min-h-[656px] w-full flex-1 items-center justify-center rounded-[16px] border-[3px] border-[#8A47FF] bg-[#ECECF1] p-4">
+                      <div className="flex min-h-[656px] w-full flex-1 items-center justify-center rounded-[16px] border-[3px] border-[#8A47FF] bg-[#FFFFFF] p-4">
                         <p className="text-body2m text-neutral-50">
                           Model Based 데이터가 없습니다.
                         </p>
@@ -663,7 +663,7 @@ function TSIReportPageContent() {
                     <h4 className="text-h4 mb-6 flex-shrink-0 text-white">
                       {featureOverview.title}
                     </h4>
-                    <p className="text-body3m mt-auto mb-6 flex-shrink-0 whitespace-pre-line text-white/90">
+                    <p className="text-body3m mt-auto mb-6 min-h-[130px] flex-shrink-0 whitespace-pre-line text-white/90">
                       {featureOverview.description}
                     </p>
                     {hasFeatureBasedData ? (
@@ -675,7 +675,7 @@ function TSIReportPageContent() {
                         seriesColors={FEATURE_BASED_RISK_SERIES_COLORS}
                       />
                     ) : (
-                      <div className="flex min-h-[656px] w-full flex-1 items-center justify-center rounded-[16px] bg-[#ECECF1] p-4">
+                      <div className="flex min-h-[656px] w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
                         <p className="text-body2m text-neutral-50">
                           Feature Based 데이터가 없습니다.
                         </p>
@@ -693,7 +693,7 @@ function TSIReportPageContent() {
                 <h2 className="text-h2 text-primary-15 mb-[40px] ml-[28px] flex-shrink-0">
                   Stratification Strategy Comparison
                 </h2>
-                <div className="border-neutral-90 flex h-[562px] w-[1748px] flex-col rounded-[24px] border bg-white p-4">
+                <div className="border-neutral-90 flex h-[562px] w-[1748px] flex-col rounded-[24px] border bg-white/60 p-4">
                   {modelComparisonData && featureComparisonData ? (
                     <>
                       {/* 텍스트 영역 */}
@@ -708,7 +708,7 @@ function TSIReportPageContent() {
                       <div className="mt-auto flex w-full flex-shrink-0 gap-4">
                         {/* 첫 번째 차트 섹션 */}
                         <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
-                          <div className="flex h-full w-full flex-col rounded-[16px] bg-[#ECECF1] p-4">
+                          <div className="flex h-full w-full flex-col rounded-[16px] bg-[#FFFFFF] p-4">
                             <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                               <div className="flex min-h-0 flex-col">
                                 <h4 className="text-2xl font-semibold text-[#484646]">
@@ -755,7 +755,7 @@ function TSIReportPageContent() {
                         </div>
                         {/* 두 번째 차트 섹션 */}
                         <div className="flex h-[378px] w-[850px] flex-shrink-0 flex-col items-start gap-[10px] p-[6px]">
-                          <div className="flex h-full w-full flex-col rounded-[16px] bg-[#ECECF1] p-4">
+                          <div className="flex h-full w-full flex-col rounded-[16px] bg-[#FFFFFF] p-4">
                             <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
                               <div className="flex min-h-0 flex-col">
                                 <div className="text-[10px] font-medium text-[#484646]">
@@ -826,7 +826,7 @@ function TSIReportPageContent() {
                 <h2 className="text-h2 text-primary-15 mb-[40px] ml-[28px] flex-shrink-0">
                   Risk & Response Assessment
                 </h2>
-                <div className="border-neutral-90 flex min-h-[322px] w-[1748px] gap-4 rounded-[24px] border bg-white p-4">
+                <div className="border-neutral-90 flex min-h-[322px] w-[1748px] gap-4 rounded-[24px] border bg-white/60 p-4">
                   {/* 왼쪽: 타이틀 영역 */}
                   <div className="flex min-h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
                     <div className="flex w-full flex-col items-start gap-[24px]">
@@ -840,7 +840,7 @@ function TSIReportPageContent() {
                   {/* 오른쪽: 포레스트 플롯 */}
                   <div className="flex min-w-0 flex-1">
                     {hasRiskResponseData ? (
-                      <div className="min-w-0 flex-1 rounded-[16px] border border-[#E5E4EA] bg-[#ECECF1] p-4">
+                      <div className="min-w-0 flex-1 rounded-[16px] border border-[#E5E4EA] bg-[#FFFFFF] p-4">
                         <div className="flex min-h-0 w-full flex-col">
                           {riskResponseSets.map((setData, setIdx) => (
                             <div
@@ -887,7 +887,7 @@ function TSIReportPageContent() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-[16px] border border-[#D9D8E2] bg-[#F6F6FA] p-4">
+                      <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-[16px] border border-[#D9D8E2] bg-[#FFFFFF] p-4">
                         <p className="text-body2m text-neutral-50">
                           Risk & Response Assessment 데이터가 없습니다.
                         </p>

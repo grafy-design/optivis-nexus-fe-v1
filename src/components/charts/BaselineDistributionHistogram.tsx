@@ -76,7 +76,7 @@ export const BaselineDistributionHistogram = ({
 
     return {
       animation: false,
-      grid: { left: 56, right: 10, top: 8, bottom: 28, containLabel: true },
+      grid: { left: 44, right: 8, top: 4, bottom: 18, containLabel: true },
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
@@ -104,7 +104,7 @@ export const BaselineDistributionHistogram = ({
         interval: yAxisInterval,
         name: "CI Width",
         nameLocation: "middle",
-        nameGap: 34,
+        nameGap: 26,
         nameTextStyle: { color: "#2F2F2F", fontSize: 9 },
         axisLine: { lineStyle: { color: "#4B4B4B", width: 1 } },
         axisTick: { lineStyle: { color: "#8D8D8D" } },
@@ -121,7 +121,7 @@ export const BaselineDistributionHistogram = ({
           name: group.name,
           type: "bar" as const,
           data: group.values,
-          barWidth: "62%",
+          barWidth: "74%",
           barGap: "-100%",
           itemStyle: {
             color: palette[index % palette.length],

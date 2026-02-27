@@ -383,7 +383,6 @@ const buildSetOneChartData = (
     const groupIndex = ridToGroupIndex.get(rid);
     if (groupIndex === undefined) return;
     entries.forEach((entry) => {
-      if (entry.month > selectedMonth) return;
       allMonths.add(entry.month);
       const monthValues = monthValuesByGroup[groupIndex];
       const values = monthValues.get(entry.month) ?? [];
@@ -516,10 +515,6 @@ function TSIRefineCutoffsPageContent() {
     }
     return effectiveAppliedStratificationMonth;
   }, [effectiveAppliedStratificationMonth, setInfoData?.month]);
-  const diseaseXAxisMax = useMemo(
-    () => Math.max(3, Math.ceil(diseaseDisplayMonth / 3) * 3),
-    [diseaseDisplayMonth]
-  );
 
   const tableGroupRows = useMemo(() => {
     if (cdfData.length === 0) {
@@ -640,17 +635,15 @@ function TSIRefineCutoffsPageContent() {
       const grouped = new Map<string, ErrorBarGroup>();
       const keyToOriginalGroup = new Map<string, string>();
 
-      setInfoData.disease_progression
-        .filter((row) => row.month <= diseaseDisplayMonth)
-        .forEach((row, index) => {
-          const key = normalizeGroupKey(row.group, index);
-          keyToOriginalGroup.set(key, row.group);
+      setInfoData.disease_progression.forEach((row, index) => {
+        const key = normalizeGroupKey(row.group, index);
+        keyToOriginalGroup.set(key, row.group);
 
-          const error = Math.max((row.ci_high - row.ci_low) / 2, 0);
-          const points = grouped.get(key) ?? [];
-          points.push([row.month, Number(row.mean.toFixed(6)), Number(error.toFixed(6))]);
-          grouped.set(key, points);
-        });
+        const error = Math.max((row.ci_high - row.ci_low) / 2, 0);
+        const points = grouped.get(key) ?? [];
+        points.push([row.month, Number(row.mean.toFixed(6)), Number(error.toFixed(6))]);
+        grouped.set(key, points);
+      });
 
       if (grouped.size === 0) {
         return {
@@ -685,14 +678,16 @@ function TSIRefineCutoffsPageContent() {
       labels: tableGroupRows.map((row) => row.groupName),
       colors: tableGroupRows.map((row) => row.color),
     };
-  }, [
-    activeGroupMeta,
-    diseaseDisplayMonth,
-    setInfoData,
-    setInfoGroupMetaByKey,
-    setOneChartData,
-    tableGroupRows,
-  ]);
+  }, [activeGroupMeta, setInfoData, setInfoGroupMetaByKey, setOneChartData, tableGroupRows]);
+
+  const diseaseXAxisMax = useMemo(() => {
+    const maxMonthInChart = diseaseChartData.dataGroup.reduce((maxMonth, group) => {
+      const groupMax = group.reduce((innerMax, [month]) => Math.max(innerMax, month), 0);
+      return Math.max(maxMonth, groupMax);
+    }, 0);
+    const axisMax = Math.max(diseaseDisplayMonth, maxMonthInChart);
+    return Math.max(3, Math.ceil(axisMax / 3) * 3);
+  }, [diseaseChartData, diseaseDisplayMonth]);
 
   const densitySegmentedData = useMemo<{
     values: number[];
@@ -946,9 +941,7 @@ function TSIRefineCutoffsPageContent() {
     }
 
     const parsedCutoffRawVersion = Number.parseInt(featureInfoData?.cutoff_raw_json?.[0] ?? "", 10);
-    const cutoffRawVersion = Number.isFinite(parsedCutoffRawVersion)
-      ? parsedCutoffRawVersion
-      : 1;
+    const cutoffRawVersion = Number.isFinite(parsedCutoffRawVersion) ? parsedCutoffRawVersion : 1;
 
     const requestParams = {
       subgroupId: parsedSubgroupId,
@@ -1269,15 +1262,29 @@ function TSIRefineCutoffsPageContent() {
                   <h4 className="text-h4 mb-4 flex-shrink-0 text-white">
                     Disease Progression by Group
                   </h4>
-                  <div className="flex min-h-0 flex-1 items-center justify-center rounded-[12px] bg-white">
+                  <div className="flex min-h-0 flex-1 rounded-[12px] bg-white">
                     <MultiLineWithErrorBar
                       dataGroup={diseaseChartData.dataGroup}
                       seriesLabels={diseaseChartData.labels}
                       colors={diseaseChartData.colors}
+                      filledSymbol
+                      lineWidth={3}
+                      symbolSize={12}
+                      errorBarLineWidth={4}
+                      errorBarCapHalfWidth={6}
+                      height="100%"
                       xAxis={{
                         min: 0,
                         max: diseaseXAxisMax,
                         interval: 3,
+                        labelColor: "#4A4949",
+                        fontSize: 11,
+                      }}
+                      yAxis={{
+                        name: "Disease progression score",
+                        nameColor: "#4A4949",
+                        nameFontSize: 18,
+                        nameGap: 12,
                       }}
                       guideLineX={diseaseDisplayMonth}
                     />

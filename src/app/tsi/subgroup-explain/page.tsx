@@ -21,6 +21,19 @@ import {
 type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
 type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
 
+const formatNumberMax2 = (value: number): string => {
+  if (!Number.isFinite(value)) return "-";
+  return value.toLocaleString("en-US", {
+    useGrouping: false,
+    maximumFractionDigits: 2,
+  });
+};
+
+const formatCutoffValues = (values: number[] | undefined): string => {
+  if (!Array.isArray(values) || values.length === 0) return "-";
+  return values.map((value) => formatNumberMax2(Number(value))).join(", ");
+};
+
 /**
  * TSI Step 5: Subgroup Explain
  * 구조: 상위 배경 카드 2개 나란히
@@ -299,12 +312,14 @@ function TSISubgroupExplainPageContent() {
                       <div className="text-body4 text-neutral-40 w-[60px]">{row.rank}</div>
                       <div className="text-body4 text-neutral-40 w-[140px]">{row.feature_name}</div>
                       <div className="text-body4 text-neutral-40 w-[140px]">
-                        {row.variance_reduction}
+                        {formatNumberMax2(Number(row.variance_reduction))}
                       </div>
                       <div className="text-body4 text-neutral-40 w-[100px]">
-                        {row.relative_contribution.toFixed(2)}%
+                        {formatNumberMax2(Number(row.relative_contribution))}%
                       </div>
-                      <div className="text-body4 text-neutral-40 w-[140px]">{row.cutoff}</div>
+                      <div className="text-body4 text-neutral-40 w-[140px]">
+                        {formatCutoffValues(row.cutoff)}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -390,19 +405,19 @@ function TSISubgroupExplainPageContent() {
 
               {/* 파란색 카드: 흰색 그래프 카드 3개 + 설명 텍스트 (나머지 전체 너비) */}
               <div
-                className="bg-primary-15 flex min-h-[616px] flex-1 flex-shrink-0 flex-row gap-4 overflow-hidden rounded-[24px] p-4"
+                className="bg-primary-15 flex min-h-[616px] flex-1 flex-shrink-0 flex-row gap-3 overflow-hidden rounded-[24px] p-3"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {/* 그래프 카드 3개 세로 배치 */}
-                <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4">
+                <div className="flex min-h-0 min-w-0 flex-[1.45] flex-col gap-3">
                   {/* 그래프 카드 1: Baseline Distribution */}
-                  <div className="flex min-h-0 w-full max-w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
-                    <h3 className="text-body4 text-neutral-40 mb-3">
+                  <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                    <h3 className="text-body4 text-neutral-40 mb-2">
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 overflow-hidden rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden">
                       <BaselineDistributionHistogram
                         histogramData={
                           baselineDistributionData ?? {
@@ -415,28 +430,28 @@ function TSISubgroupExplainPageContent() {
                   </div>
 
                   {/* 그래프 카드 2: ADAS Progression Slope */}
-                  <div className="flex min-h-0 w-full max-w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
-                    <h3 className="text-body4 text-neutral-40 mb-3">
+                  <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                    <h3 className="text-body4 text-neutral-40 mb-2">
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 overflow-hidden rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden">
                       <ScatterSlopeChart data={baselineSlopeData ?? {}} />
                     </div>
                   </div>
 
                   {/* 그래프 카드 3: Subgroup Proportion */}
-                  <div className="flex min-h-0 w-full max-w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
-                    <h3 className="text-body4 text-neutral-40 mb-3">
+                  <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                    <h3 className="text-body4 text-neutral-40 mb-2">
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 overflow-hidden rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden">
                       <SubgroupProportionChart data={baselineBinRatioData ?? []} />
                     </div>
                   </div>
                 </div>
 
                 {/* 오른쪽 설명 텍스트 */}
-                <div className="flex min-w-0 flex-1 flex-col justify-start pt-4">
+                <div className="flex min-w-0 flex-[0.8] flex-col justify-start pt-3">
                   <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                     {featureMessageItems.map((item, index) => (
                       <li key={`${item.no ?? index}-${item.title}`} className="break-words">

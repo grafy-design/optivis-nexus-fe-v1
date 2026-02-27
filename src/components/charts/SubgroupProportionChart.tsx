@@ -50,7 +50,7 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 48, right: 12, top: 28, bottom: 30, containLabel: true },
+    grid: { left: 40, right: 8, top: 10, bottom: 20, containLabel: true },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -69,7 +69,7 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
       interval: 0.2,
       name: "Proportion",
       nameLocation: "middle",
-      nameGap: 34,
+      nameGap: 24,
       axisLine: { lineStyle: { color: "#666" } },
       splitLine: { show: false },
     },
@@ -78,7 +78,7 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
       type: "bar" as const,
       stack: "total",
       data: group.values,
-      barWidth: "88%",
+      barWidth: "94%",
       itemStyle: { color: palette[index % palette.length] },
     })),
   };

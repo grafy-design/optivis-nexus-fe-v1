@@ -35,6 +35,10 @@ interface SetData {
 
 /** 그룹별 에러바 색상 (Group 1, 2, 3 각각 구분) */
 const GROUP_BAR_COLORS = ["#AAA5E1", "#7571A9", "#231F52"];
+const SUMMARY_ERROR_BAR_LINE_HEIGHT_PX = 4;
+const SUMMARY_ERROR_BAR_CAP_WIDTH_PX = 4;
+const SUMMARY_ERROR_BAR_CAP_HEIGHT_PX = 12;
+const SUMMARY_ERROR_BAR_DOT_SIZE_PX = 16;
 
 /** 테이블 공통 스타일: 높이 52px */
 const TABLE_CELL_BASE = "h-[52px] border-b align-middle";
@@ -299,44 +303,49 @@ function TSISubgroupSelectionPageContent() {
                                       >
                                         {/* 가로선: ci_low ~ ci_high 범위 */}
                                         <div
-                                          className="absolute h-px rounded-none"
+                                          className="absolute rounded-full"
                                           style={{
                                             left: `${ciLowPct}%`,
                                             right: `${100 - ciHighPct}%`,
                                             top: "50%",
                                             transform: "translateY(-50%)",
                                             backgroundColor: barColor,
+                                            height: SUMMARY_ERROR_BAR_LINE_HEIGHT_PX,
                                           }}
                                         />
                                         {/* 심볼: mean 위치 */}
                                         <span
-                                          className="absolute h-3 w-3 shrink-0 rounded-full"
+                                          className="absolute shrink-0 rounded-full"
                                           style={{
                                             left: `${meanPct}%`,
                                             top: "50%",
                                             transform: "translate(-50%, -50%)",
                                             backgroundColor: barColor,
+                                            width: SUMMARY_ERROR_BAR_DOT_SIZE_PX,
+                                            height: SUMMARY_ERROR_BAR_DOT_SIZE_PX,
                                           }}
                                         />
                                         {/* 왼쪽 꼬리: ci_low 위치 */}
                                         <span
-                                          className="absolute w-px shrink-0"
+                                          className="absolute shrink-0 rounded-full"
                                           style={{
                                             left: `${ciLowPct}%`,
                                             top: "50%",
-                                            transform: "translateY(-50%)",
-                                            height: 10,
+                                            transform: "translate(-50%, -50%)",
+                                            width: SUMMARY_ERROR_BAR_CAP_WIDTH_PX,
+                                            height: SUMMARY_ERROR_BAR_CAP_HEIGHT_PX,
                                             backgroundColor: barColor,
                                           }}
                                         />
                                         {/* 오른쪽 꼬리: ci_high 위치 */}
                                         <span
-                                          className="absolute w-px shrink-0"
+                                          className="absolute shrink-0 rounded-full"
                                           style={{
                                             left: `${ciHighPct}%`,
                                             top: "50%",
-                                            transform: "translateY(-50%)",
-                                            height: 10,
+                                            transform: "translate(-50%, -50%)",
+                                            width: SUMMARY_ERROR_BAR_CAP_WIDTH_PX,
+                                            height: SUMMARY_ERROR_BAR_CAP_HEIGHT_PX,
                                             backgroundColor: barColor,
                                           }}
                                         />
@@ -356,7 +365,7 @@ function TSISubgroupSelectionPageContent() {
                       <div className="flex min-w-0 flex-1 flex-col pt-0 pb-1 pl-2">
                         {/* 1) 축선 + 짧은 눈금(아래로) */}
                         <div className="flex w-full min-w-0 flex-col px-2">
-                          <div className="w-full border-b border-neutral-50" aria-hidden />
+                          <div className="w-full border-b-[1.5px] border-neutral-50" aria-hidden />
                           <div className="mt-0 flex w-full justify-between px-0">
                             {Array.from({ length: 9 }).map((_, i) => (
                               <span
