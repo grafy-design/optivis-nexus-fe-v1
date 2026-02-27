@@ -112,54 +112,45 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
   const hasColumns = !!summary.columns;
 
   return (
-    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 24, padding: 16, display: "flex", flexDirection: "column", gap: 42, minWidth: 0, flex: 1, overflow: "hidden" }}>
+    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 24, padding: 16, display: "flex", flexDirection: "column", gap: 12, minWidth: 0, flex: 1, overflow: "hidden" }}>
       {/* 헤더 */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
         <IconComplete />
         <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: "1" }}>{item.title}</span>
       </div>
 
-      {/* 내용 */}
-      <div style={{ display: "flex", flex: 1, gap: 8, overflow: "hidden" }}>
+      {/* 내용 — 스크롤 영역 */}
+      <div style={{ display: "flex", flex: 1, gap: 8, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
         {hasColumns ? (
           /* Multi-column: Each column gets its own identical white container */
           (summary.columns as any[]).map((col: any, ci: number) => (
-            <div key={ci} style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff", borderRadius: 16, padding: 14, gap: 12, minWidth: 0 }}>
+            <div key={ci} style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff", borderRadius: 16, padding: 14, gap: 12, minWidth: 0, minHeight: 0, overflowY: "auto" }}>
                {/* 컬럼 헤딩 */}
                <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: 1, flexShrink: 0 }}>
                 {col.heading}
               </div>
-              
-              <div style={{ display: "flex", gap: 8, flex: 1, minWidth: 0 }}>
-                {/* label 부모 (있을 경우만) */}
-                {col.rows.some((r: any) => r.label) && (
-                  <div style={{ flex: "0 0 auto", minWidth: "fit-content", display: "flex", flexDirection: "column", gap: 4 }}>
-                    {col.rows.map((row: any, ri: number) => (
-                      <div key={ri} style={{ height: 17, display: "flex", alignItems: "center" }}>
-                        <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.39px", lineHeight: 1, whiteSpace: "nowrap" }}>
-                          {row.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {/* value 행들 세로 나열 */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-                  {(col.rows as any[]).map((row: any, ri: number) => (
-                    <div key={ri} style={{ height: 17, display: "flex", alignItems: "center", flexShrink: 0 }}>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
+                {(col.rows as any[]).map((row: any, ri: number) => (
+                  <div key={ri} style={{ height: 17, display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                    {row.label && (
+                      <span style={{ flex: "0 0 auto", fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.39px", lineHeight: 1, whiteSpace: "nowrap" }}>
+                        {row.label}
+                      </span>
+                    )}
+                    {row.value && (
                       <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgb(72,70,70)", letterSpacing: "-0.39px", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {row.value}
                       </span>
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           ))
         ) : (
           /* 일반 단일 컨테이너: 헤딩 + 행 테이블 */
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, background: "#ffffff", borderRadius: 16, padding: 14, justifyContent: "flex-start", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, background: "#ffffff", borderRadius: 16, padding: 14, justifyContent: "flex-start", gap: 12, overflowY: "auto" }}>
             {summary.heading && (
               <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", flexShrink: 0 }}>
                 {summary.heading}
@@ -179,7 +170,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
         )}
       </div>
 
-      {/* 버튼 */}
+      {/* 버튼 — 하단 고정 */}
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, flexShrink: 0 }}>
         <button onClick={onReset} style={{ height: 36, paddingLeft: 20, paddingRight: 10, borderRadius: 36, background: "#8f8ac4", border: "none", cursor: "pointer", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           Reset
@@ -402,29 +393,80 @@ export default function DefaultSettingPage() {
     const mhIdx = items.findIndex(it => it.id === "medical-history");
     if (mhIdx !== -1) {
       const mhLabels: Record<string, string> = {
-        "ckd": "CKD",
+        "ckd": "CKD Stage",
         "ckd-1": "Stage 1 (eGFR >=90)",
         "ckd-2": "Stage 2 (eGFR >=60)",
         "ckd-3": "Stage 3 (eGFR >=30)",
         "ckd-4": "Stage 4 (eGFR >=15)",
         "ckd-5": "Stage 5 (eGFR <=90)",
+        "cardiac": "Cardiac disorders",
+        "vascular": "Vascular disorders",
+        "metabolism": "Metabolism & nutrition",
+        "renal": "Renal & urinary",
+        "nervous": "Nervous system",
+        "eye": "Eye disorders",
+        "hepato": "Hepatobiliary disorders",
         "cvd": "CVD History",
         "ascvd": "ASCVD",
         "hf": "HF",
         "stroke": "Stroke",
+        "lowbs": "Low Blood Sugar Severity",
+        "lowbs-1": "Step 1 ( < 70mg/dL)",
+        "lowbs-2": "Step 2 ( < 54mg/dL)",
+        "dm": "DM Duration",
+        "dm-1": "Early ( < 1 years)",
+        "dm-2": "Short ( < 10 years )",
+        "dm-3": "Long ( >= 10 years )",
       };
 
-      const baselineRows = ["ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5"]
+      // Baseline Status: CKD Stage + 하위, Comorbidity 항목들
+      const baselineRows: { label: string; value: string }[] = [];
+      if (medicalHistoryData["ckd"]) {
+        baselineRows.push({ label: mhLabels["ckd"], value: "" });
+        ["ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => baselineRows.push({ label: "", value: mhLabels[k] }));
+      } else {
+        ["ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => baselineRows.push({ label: "", value: mhLabels[k] }));
+      }
+      ["cardiac", "vascular", "metabolism", "renal", "nervous", "eye", "hepato"]
         .filter(k => medicalHistoryData[k])
-        .map(k => ({ label: "", value: mhLabels[k] }));
-      
-      const historyRows = ["ascvd", "hf", "stroke"]
-        .filter(k => medicalHistoryData[k])
-        .map(k => ({ label: "", value: mhLabels[k] }));
+        .forEach(k => baselineRows.push({ label: "", value: mhLabels[k] }));
 
-      // Handle the case where only parent is selected
-      const baselineLabel = medicalHistoryData["ckd"] ? "CKD Stage" : "";
-      const historyLabel = medicalHistoryData["cvd"] ? "CVD History" : "";
+      // Control Variables: CVD History + 하위, Low Blood Sugar + 하위, DM Duration + 하위
+      const controlRows: { label: string; value: string }[] = [];
+      if (medicalHistoryData["cvd"]) {
+        controlRows.push({ label: mhLabels["cvd"], value: "" });
+        ["ascvd", "hf", "stroke"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => controlRows.push({ label: "", value: mhLabels[k] }));
+      } else {
+        ["ascvd", "hf", "stroke"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => controlRows.push({ label: "", value: mhLabels[k] }));
+      }
+      if (medicalHistoryData["lowbs"]) {
+        controlRows.push({ label: mhLabels["lowbs"], value: "" });
+        ["lowbs-1", "lowbs-2"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => controlRows.push({ label: "", value: mhLabels[k] }));
+      } else {
+        ["lowbs-1", "lowbs-2"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => controlRows.push({ label: "", value: mhLabels[k] }));
+      }
+      if (medicalHistoryData["dm"]) {
+        controlRows.push({ label: mhLabels["dm"], value: "" });
+        ["dm-1", "dm-2", "dm-3"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => controlRows.push({ label: "", value: mhLabels[k] }));
+      } else {
+        ["dm-1", "dm-2", "dm-3"]
+          .filter(k => medicalHistoryData[k])
+          .forEach(k => controlRows.push({ label: "", value: mhLabels[k] }));
+      }
 
       items[mhIdx] = {
         ...items[mhIdx],
@@ -432,20 +474,14 @@ export default function DefaultSettingPage() {
           columns: [
             {
               heading: "Baseline Status",
-              rows: [
-                { label: baselineLabel || "Diagnosis", value: baselineRows[0]?.value || "-" },
-                ...baselineRows.slice(1)
-              ]
+              rows: baselineRows.length > 0 ? baselineRows : [{ label: "-", value: "" }],
             },
             {
               heading: "Medical History",
-              rows: [
-                { label: historyLabel || "Risk Factors", value: historyRows[0]?.value || "-" },
-                ...historyRows.slice(1)
-              ]
-            }
-          ]
-        }
+              rows: controlRows.length > 0 ? controlRows : [{ label: "-", value: "" }],
+            },
+          ],
+        },
       };
     }
 
@@ -737,7 +773,7 @@ export default function DefaultSettingPage() {
 
             {/* {설정 단계/Setup Steps} */}
             {/* Setup Steps 하단 영역 (Light Gray/Blue Glass Overlay) */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto overflow-x-hidden min-h-0">
               {setupSteps.map((step) => {
                 const isCompleted = completedItems[step.id as DefaultSettingId];
                 return (
@@ -745,7 +781,7 @@ export default function DefaultSettingPage() {
                     key={step.id}
                     onClick={() => router.push(stepRoutes[step.id])}
                     className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
-                    style={{ background: "transparent", height: 100, justifyContent: "center" }}
+                    style={{ background: "transparent", justifyContent: "center", height: 100 }}
                   >
                     <div className="flex items-center gap-[18px]">
                       {isCompleted ? (
@@ -787,7 +823,7 @@ export default function DefaultSettingPage() {
 
           {/* {2x2 그리드/2x2 Grid} */}
           {/* 2×2 그리드 */}
-          <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 12, minHeight: 0, paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}>
+          <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 12, minHeight: 0, overflow: "hidden" }}>
             {dynamicSettingItems.map((item) =>
               completedItems[item.id] ? (
                 <CompletedCard key={item.id} item={item} onReset={() => setCompleted(item.id, false)} onEdit={() => router.push(settingRoutes[item.id])} />

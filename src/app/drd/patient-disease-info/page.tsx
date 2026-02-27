@@ -195,7 +195,7 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
           transition: "color 0.12s",
         }}
       >
-        Test
+        Test Load
       </span>
     </div>
   );
@@ -330,7 +330,7 @@ export default function PatientDiseaseInfoPage() {
 
             {/* {설정 단계/Setup Steps} */}
             {/* Setup Steps 하단 영역 (Light Gray/Blue Glass Overlay) */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
               {setupSteps.map((step) => (
                 <button
                   key={step.id}

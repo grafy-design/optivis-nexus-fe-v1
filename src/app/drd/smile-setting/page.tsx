@@ -20,7 +20,7 @@ function IconSearch() {
 
 function IconClear() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
       <circle cx="8" cy="8" r="5.5" fill="#AAAAAD" />
       <path d="M6 6l4 4M10 6l-4 4" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
@@ -37,13 +37,13 @@ function IconExpand() {
 }
 
 
-function IconAddFile() {
+function IconDownloadFile() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M11.5 2H5a1.5 1.5 0 00-1.5 1.5v13A1.5 1.5 0 005 18h10a1.5 1.5 0 001.5-1.5V7l-5-5z" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points="11.5 2 11.5 7 16.5 7" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="10" y1="15" x2="10" y2="11" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" />
-      <line x1="8" y1="13" x2="12" y2="13" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M11.5 2H5a1.5 1.5 0 00-1.5 1.5v13A1.5 1.5 0 005 18h10a1.5 1.5 0 001.5-1.5V7l-5-5z" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="11.5 2 11.5 7 16.5 7" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="10" y1="10" x2="10" y2="15" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" />
+      <polyline points="7.5 12.5 10 15 12.5 12.5" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -51,9 +51,9 @@ function IconAddFile() {
 function IconAddFolder() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M18 15.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 15.5V5a1.5 1.5 0 011.5-1.5H7l2 2.5h7.5A1.5 1.5 0 0118 7.5z" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="10" y1="10" x2="10" y2="14" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" />
-      <line x1="8" y1="12" x2="12" y2="12" stroke="#484646" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M18 15.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 15.5V5a1.5 1.5 0 011.5-1.5H7l2 2.5h7.5A1.5 1.5 0 0118 7.5z" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="10" y1="10" x2="10" y2="14" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" />
+      <line x1="8" y1="12" x2="12" y2="12" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -118,7 +118,7 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
           transition: "color 0.12s",
         }}
       >
-        Test
+        Test Load
       </span>
     </div>
   );
@@ -128,34 +128,7 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
 
 function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => void; onSimCondClick: () => void }) {
   return (
-    <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
-      {/* Step 1 - Simulation Conditions (Inactive) */}
-      <button
-        onClick={onSimCondClick}
-        className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
-        style={{ background: "transparent", height: 96, justifyContent: "center" }}
-      >
-        <div className="flex items-center gap-[18px]">
-          <div className="shrink-0 flex items-center justify-center">
-            <Image
-              src="/icons/simulation-setting/state=not started, step=simulation, Select=Default, Size=24px.svg"
-              alt="Simulation Conditions"
-              width={24}
-              height={24}
-              style={{ flexShrink: 0 }}
-            />
-          </div>
-          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "rgb(72,70,70)" }}>
-            Simulation Conditions
-          </span>
-        </div>
-        <div className="pl-[42px] mt-0">
-          <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
-            Develop a plan to assess the subject&apos;s prognosis based on the entered information.
-          </p>
-        </div>
-      </button>
-
+    <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
       {/* Step 2 - SMILES Settings (Active) */}
       <button
         onClick={onSmilesClick}
@@ -182,6 +155,33 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
           </p>
         </div>
       </button>
+
+      {/* Step 1 - Simulation Conditions (Inactive) */}
+      <button
+        onClick={onSimCondClick}
+        className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
+        style={{ background: "transparent", height: 96, justifyContent: "center" }}
+      >
+        <div className="flex items-center gap-[18px]">
+          <div className="shrink-0 flex items-center justify-center">
+            <Image
+              src="/icons/simulation-setting/state=not started, step=simulation, Select=Default, Size=24px.svg"
+              alt="Simulation Conditions"
+              width={24}
+              height={24}
+              style={{ flexShrink: 0 }}
+            />
+          </div>
+          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "rgb(72,70,70)" }}>
+            Simulation Conditions
+          </span>
+        </div>
+        <div className="pl-[42px] mt-0">
+          <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
+            Develop a plan to assess the subject&apos;s prognosis based on the entered information.
+          </p>
+        </div>
+      </button>
     </div>
   );
 }
@@ -195,7 +195,10 @@ type DrugCardProps = {
   drugName: string;
   mf: string;
   mw: string;
+  smilesImage?: string;
   searchQuery?: string;
+  addedIndex?: number;
+  onClick?: () => void;
 };
 
 function MoleculeIcon() {
@@ -218,23 +221,45 @@ function MoleculeIcon() {
   );
 }
 
-function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: DrugCardProps) {
+function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQuery, addedIndex, onClick }: DrugCardProps) {
   const rowBorderBottom = "1px solid #AAAAAD";
   const labelRows = ["SMILES", "Drug name", "MF", "MW"];
   const dataRows = [smiles, drugName, mf, mw];
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
 
-  const isActive = !searchQuery || !searchQuery.trim()
-    ? true
-    : smiles.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      drugName.toLowerCase().includes(searchQuery.toLowerCase());
+  const isAdded = addedIndex !== undefined;
+
+  // Border state — 선택된 카드도 동일한 테두리
+  const cardBorder = "1px solid #e8e4ff";
+
+  // 카드 전체 배경색 — 호버: 0.8단계 어둡게, 액티브: 4단계 어둡게 (선택 여부 무관)
+  const leftBg = pressed
+    ? "#DDD4F8"
+    : hovered
+    ? "#FAF8FF"
+    : "white";
+
+  const labelBg = pressed
+    ? "#D5C8F5"
+    : hovered
+    ? "#F1EBFE"
+    : "#F3EEFF";
+
+  const dataBg = pressed
+    ? "#DDD4F8"
+    : hovered
+    ? "#FAF8FF"
+    : "white";
 
   const dataTextColor = (rowIdx: number) => {
     const hasSearch = !!searchQuery?.trim();
     if (rowIdx === 0) {
-      return isActive ? "#3A11D8" : "#C6C5C9";
+      if (!hasSearch) return "#1C1B1B";
+      return "#3A11D8";
     }
     if (!hasSearch) return "#1C1B1B";
-    return isActive ? "#787776" : "#C6C5C9";
+    return "#787776";
   };
 
   // Render SMILES text with highlighted matching segment
@@ -259,26 +284,34 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
 
   return (
     <div
+      onClick={!isAdded ? onClick : undefined}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setPressed(false); }}
+      onMouseDown={() => !isAdded && setPressed(true)}
+      onMouseUp={() => setPressed(false)}
       style={{
         display: "flex",
         width: "100%",
-        height: 196,
         flexShrink: 0,
         overflow: "hidden",
-        border: "1px solid #e8e4ff",
+        border: cardBorder,
         borderRadius: 18,
+        cursor: isAdded ? "default" : onClick ? "pointer" : "default",
+        transition: "border 0.12s",
+        boxShadow: pressed ? "0 0 0 3px rgba(58,17,216,0.10)" : "none",
       }}
     >
       {/* 왼쪽 - 분자 구조 카드 */}
       <div
         style={{
-          background: "white",
+          background: leftBg,
           width: 220,
           flexShrink: 0,
           padding: 12,
           display: "flex",
           flexDirection: "column",
           gap: 8,
+          transition: "background 0.12s",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -286,7 +319,7 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div
               style={{
-                background: "#AAA5E1",
+                background: isAdded ? "#F06600" : "#AAA5E1",
                 borderRadius: 8,
                 width: 60,
                 height: 26,
@@ -308,26 +341,28 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
                 {similarity}
               </span>
             </div>
-            <span
-              style={{
-                fontFamily: "Inter, sans-serif",
-                fontWeight: 600,
-                fontSize: 15,
-                color: "rgba(255,255,255,0.8)",
-                letterSpacing: "-0.75px",
-                background: "rgba(170,165,225,0.5)",
-                borderRadius: 8,
-                width: 22,
-                height: 22,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {index}
-            </span>
+            {isAdded && (
+              <span
+                style={{
+                  fontFamily: "Inter, sans-serif",
+                  fontWeight: 600,
+                  fontSize: 15,
+                  color: "white",
+                  letterSpacing: "-0.75px",
+                  background: "#F06600",
+                  borderRadius: 8,
+                  width: 22,
+                  height: 22,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {addedIndex}
+              </span>
+            )}
           </div>
-          <div style={{ cursor: "pointer", transform: "rotate(180deg)" }}>
+          <div style={{ cursor: "pointer", transform: "rotate(180deg)" }} onClick={(e) => e.stopPropagation()}>
             <IconExpand />
           </div>
         </div>
@@ -335,14 +370,17 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
         <div
           style={{
             flex: 1,
-            background: "linear-gradient(135deg, #f3eeff 0%, #e8e4ff 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             minHeight: 96,
           }}
         >
-          <MoleculeIcon />
+          {smilesImage ? (
+            <Image src={smilesImage} alt={drugName} width={160} height={120} style={{ objectFit: "contain", width: "100%", height: "100%" }} />
+          ) : (
+            <MoleculeIcon />
+          )}
         </div>
       </div>
 
@@ -352,14 +390,15 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
           <div
             key={label}
             style={{
-              background: "#F3EEFF",
+              background: labelBg,
               borderBottom: i < labelRows.length - 1 ? rowBorderBottom : undefined,
               width: "100%",
               flex: 1,
+              minHeight: 40,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: "0 10px",
+              padding: "8px 10px",
             }}
           >
             <span
@@ -385,14 +424,14 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
           <div
             key={i}
             style={{
-              background: "white",
+              background: dataBg,
               borderBottom: i < dataRows.length - 1 ? rowBorderBottom : undefined,
               flex: 1,
+              minHeight: 40,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: "0 10px",
-              overflow: "hidden",
+              padding: "8px 10px",
             }}
           >
             <span
@@ -402,16 +441,15 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
                 fontSize: 12,
                 color: dataTextColor(i),
                 letterSpacing: "-0.48px",
-                lineHeight: 1.1,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                lineHeight: 1.4,
+                whiteSpace: "normal",
+                wordBreak: "break-all",
                 textAlign: "center",
                 width: "100%",
                 transition: "color 0.15s",
               }}
             >
-              {i === 0 && isActive ? renderSmilesText(val) : val}
+              {i === 0 ? renderSmilesText(val) : val}
             </span>
           </div>
         ))}
@@ -425,9 +463,10 @@ function DrugCard({ index, similarity, smiles, drugName, mf, mw, searchQuery }: 
 type SavedDrugItemProps = {
   index: number;
   name: string;
+  smilesImage?: string;
 };
 
-function DrugTooltip({ name, anchorRect }: { name: string; anchorRect: DOMRect }) {
+function DrugTooltip({ name, anchorRect, smilesImage }: { name: string; anchorRect: DOMRect; smilesImage?: string }) {
   const rows = [
     { label: "SMILES", value: "COC1=C(C=C2C(=C1)CC(C2=O)(CC3CCN(CC3)CC4=CC=C(C=C4)OCC5=CC=CC=C5)F)OC" },
     { label: "Drug name", value: name },
@@ -458,10 +497,12 @@ function DrugTooltip({ name, anchorRect }: { name: string; anchorRect: DOMRect }
         width: tooltipWidth,
         pointerEvents: "none",
         padding: 12,
-        gap: 12,
         overflow: "hidden",
       }}
     >
+      <div style={{ display: "flex",  
+        borderRadius: 16,
+        overflow: "hidden",}}>
       {/* 글래스 오버레이 */}
       <div style={{ position: "absolute", inset: 0, background: "rgba(38,38,38,0.25)", mixBlendMode: "color-dodge", borderRadius: 36, pointerEvents: "none" }} />
       {/* 왼쪽: 분자 구조 */}
@@ -478,7 +519,12 @@ function DrugTooltip({ name, anchorRect }: { name: string; anchorRect: DOMRect }
           zIndex: 1,
         }}
       >
-        <MoleculeIcon />
+        {smilesImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={smilesImage} alt={name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+        ) : (
+          <MoleculeIcon />
+        )}
       </div>
       {/* 오른쪽: 테이블 */}
       <div
@@ -540,14 +586,14 @@ function DrugTooltip({ name, anchorRect }: { name: string; anchorRect: DOMRect }
           </div>
         ))}
       </div>
-    </div>
+    </div></div>
   );
 
   if (typeof document === "undefined") return null;
   return createPortal(content, document.body);
 }
 
-function SavedDrugItem({ index, name, onDelete }: SavedDrugItemProps & { onDelete: () => void }) {
+function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProps & { onDelete: () => void }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -632,7 +678,7 @@ function SavedDrugItem({ index, name, onDelete }: SavedDrugItemProps & { onDelet
           style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           <Image src="/icons/basics/Property 1=Data Table, Size=24.svg" alt="Data Table" width={24} height={24} />
-          {showTooltip && anchorRect && <DrugTooltip name={name} anchorRect={anchorRect} />}
+          {showTooltip && anchorRect && <DrugTooltip name={name} anchorRect={anchorRect} smilesImage={smilesImage} />}
         </div>
         <div onClick={onDelete} style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <Image src="/icons/basics/Property 1=Delete, Size=24.svg" alt="Delete" width={24} height={24} />
@@ -651,6 +697,7 @@ const drugData: Omit<DrugCardProps, "index">[] = [
     drugName: "Empagliflozin",
     mf: "C23H27ClO7",
     mw: "450.9 g/mol",
+    smilesImage: "/assets/smiles/Empagliflozin.svg",
   },
   {
     similarity: "95%",
@@ -658,6 +705,7 @@ const drugData: Omit<DrugCardProps, "index">[] = [
     drugName: "Dapagliflozin",
     mf: "C21H25ClO6",
     mw: "408.9 g/mol",
+    smilesImage: "/assets/smiles/Dapagliflozin.svg",
   },
   {
     similarity: "89%",
@@ -665,6 +713,7 @@ const drugData: Omit<DrugCardProps, "index">[] = [
     drugName: "Bexagliflozin",
     mf: "C24H29ClO7",
     mw: "464.9 g/mol",
+    smilesImage: "/assets/smiles/Bexagliflozin.svg",
   },
   {
     similarity: "85%",
@@ -672,6 +721,7 @@ const drugData: Omit<DrugCardProps, "index">[] = [
     drugName: "Dapagliflozin",
     mf: "C24H35ClO9",
     mw: "503.0 g/mol",
+    smilesImage: "/assets/smiles/Dapagliflozin02.svg",
   },
   {
     similarity: "85%",
@@ -679,12 +729,13 @@ const drugData: Omit<DrugCardProps, "index">[] = [
     drugName: "Dapagliflozin",
     mf: "C24H35ClO9",
     mw: "503.0 g/mol",
+    smilesImage: "/assets/smiles/Dapagliflozin02.svg",
   },
 ];
 
-const savedDrugs = [
-  { name: "Empagliflozin" },
-  { name: "Dapagliflozin" },
+const testLoadDrugs = [
+  { name: "Empagliflozin", dataIndex: 0 },
+  { name: "Dapagliflozin", dataIndex: 1 },
 ];
 
 // ─── 페이지 ──────────────────────────────────────────────────────────────────
@@ -692,6 +743,7 @@ const savedDrugs = [
 export default function SmileSettingPage() {
   const router = useRouter();
   const setSimSmilesCompleted = useSimulationStore((s) => s.setSimSmilesCompleted);
+  const setSmilesData = useSimulationStore((s) => s.setSmilesData);
   const [smilesValue, setSmilesValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -699,7 +751,17 @@ export default function SmileSettingPage() {
   const [sortOpen, setSortOpen] = useState(false);
   const [sortValue, setSortValue] = useState<"Relevance" | "Similarity">("Relevance");
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [savedDrugList, setSavedDrugList] = useState(savedDrugs);
+  const [savedDrugList, setSavedDrugList] = useState<{ name: string; smilesImage?: string }[]>([]);
+  // Maps drugData index → addition order (1-based)
+  const [addedCardMap, setAddedCardMap] = useState<Record<number, number>>({});
+
+  const handleTestLoad = () => {
+    const map: Record<number, number> = {};
+    testLoadDrugs.forEach((d, order) => { map[d.dataIndex] = order + 1; });
+    setAddedCardMap(map);
+    setSavedDrugList(testLoadDrugs.map((d) => ({ name: d.name, smilesImage: drugData[d.dataIndex]?.smilesImage })));
+    setSimilarityThreshold(95);
+  };
 
   useEffect(() => {
     if (!sortOpen) return;
@@ -800,9 +862,9 @@ export default function SmileSettingPage() {
                 SMILES Setting
               </span>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <GlassTestButton />
+                <GlassTestButton onClick={handleTestLoad} />
                 <GlassIconButton>
-                  <IconAddFile />
+                  <IconDownloadFile />
                 </GlassIconButton>
                 <GlassIconButton>
                   <IconAddFolder />
@@ -815,12 +877,24 @@ export default function SmileSettingPage() {
               style={{
                 flex: 1,
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: "row",
                 gap: 12,
                 minHeight: 0,
                 overflow: "hidden",
               }}
             >
+              {/* 왼쪽: 검색 바 + Similarity 결과 묶음 */}
+              <div
+                style={{
+                  flex: 4,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  minHeight: 0,
+                  minWidth: 0,
+                  overflow: "hidden",
+                }}
+              >
               {/* Chemical Structure 검색 바 */}
               <div
                 style={{
@@ -891,8 +965,8 @@ export default function SmileSettingPage() {
                 </div>
               </div>
 
-              {/* 결과 + 사이드 패널 */}
-              {smilesValue.trim() && <div
+              {/* Similarity 결과 (네이비 배경) — 항상 표시 */}
+              <div
                 style={{
                   display: "flex",
                   gap: 12,
@@ -1057,8 +1131,8 @@ export default function SmileSettingPage() {
                           style={{
                             position: "absolute",
                             top: "50%",
-                            left: 12,
-                            right: 12,
+                            left: 0,
+                            right: 0,
                             transform: "translateY(-50%)",
                             height: 10,
                             borderRadius: 6,
@@ -1135,22 +1209,65 @@ export default function SmileSettingPage() {
                       gap: 16,
                     }}
                   >
-                    {smilesValue.trim() && drugData
-                      .filter((drug) => {
-                        const pct = parseInt(drug.similarity);
-                        return pct >= similarityThreshold;
-                      })
-                      .map((drug, i) => (
-                        <DrugCard key={i} index={i + 1} {...drug} searchQuery={smilesValue} />
-                      ))}
+                    {(() => {
+                      const handleCardClick = (i: number, drugName: string) => {
+                        if (addedCardMap[i] !== undefined) return;
+                        const nextOrder = Object.keys(addedCardMap).length + 1;
+                        setAddedCardMap((prev) => ({ ...prev, [i]: nextOrder }));
+                        setSavedDrugList((prev) => [...prev, { name: drugName, smilesImage: drugData[i]?.smilesImage }]);
+                      };
+
+                      if (smilesValue.trim()) {
+                        return drugData
+                          .filter((drug) => parseInt(drug.similarity) >= similarityThreshold)
+                          .map((drug, i) => (
+                            <DrugCard
+                              key={i}
+                              index={i + 1}
+                              {...drug}
+                              searchQuery={smilesValue}
+                              addedIndex={addedCardMap[i]}
+                              onClick={() => handleCardClick(i, drug.drugName)}
+                            />
+                          ));
+                      }
+                      // 검색어 없을 때: 선택된 카드만 표시
+                      const selected = drugData
+                        .map((drug, i) => ({ drug, i }))
+                        .filter(({ i }) => addedCardMap[i] !== undefined)
+                        .sort((a, b) => addedCardMap[a.i] - addedCardMap[b.i]);
+
+                      if (selected.length === 0) {
+                        return (
+                          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.35)", letterSpacing: "-0.39px", lineHeight: 1.4, textAlign: "center" }}>
+                              Search a SMILES string above<br />to see similarity results here.
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      return selected.map(({ drug, i }) => (
+                        <DrugCard
+                          key={i}
+                          index={i + 1}
+                          {...drug}
+                          addedIndex={addedCardMap[i]}
+                          onClick={() => handleCardClick(i, drug.drugName)}
+                        />
+                      ));
+                    })()}
                   </div>
                 </div>
 
-                {/* 우: 저장된 약물 리스트 */}
+              </div>
+              </div>
+
+              {/* 우: 저장된 약물 리스트 — 항상 표시 */}
                 <div
                   style={{
-                    width: 376,
-                    flexShrink: 0,
+                    flex: 1,
+                    minWidth: 0,
                     background: "rgba(255,255,255,0.6)",
                     borderRadius: 24,
                     padding: "16px 15px",
@@ -1160,16 +1277,27 @@ export default function SmileSettingPage() {
                     overflowY: "auto",
                   }}
                 >
-                  {savedDrugList.map((drug, i) => (
+                  {savedDrugList.map((drug: { name: string; smilesImage?: string }, i: number) => (
                     <SavedDrugItem
                       key={i}
                       index={i + 1}
                       name={drug.name}
-                      onDelete={() => setSavedDrugList((prev) => prev.filter((_, idx) => idx !== i))}
+                      smilesImage={drug.smilesImage}
+                      onDelete={() => {
+                        const removedOrder = i + 1;
+                        setSavedDrugList((prev) => prev.filter((_: { name: string; smilesImage?: string }, idx: number) => idx !== i));
+                        setAddedCardMap((prev) => {
+                          const next: Record<number, number> = {};
+                          Object.entries(prev).forEach(([k, order]) => {
+                            if (order === removedOrder) return; // 삭제
+                            next[Number(k)] = order > removedOrder ? order - 1 : order;
+                          });
+                          return next;
+                        });
+                      }}
                     />
                   ))}
                 </div>
-              </div>}
             </div>
 
             {/* 하단 버튼 */}
@@ -1206,23 +1334,30 @@ export default function SmileSettingPage() {
                 Cancel
               </button>
               <button
-                onClick={() => { setSimSmilesCompleted(true); router.push("/drd/simulation-setting"); }}
+                disabled={savedDrugList.length === 0}
+                onClick={() => {
+                  if (savedDrugList.length === 0) return;
+                  setSmilesData(savedDrugList);
+                  setSimSmilesCompleted(true);
+                  router.push("/drd/simulation-setting");
+                }}
                 style={{
                   height: 42,
                   paddingLeft: 24,
                   paddingRight: 24,
                   borderRadius: 36,
-                  backgroundColor: "#F06600",
+                  backgroundColor: savedDrugList.length === 0 ? "#c6c5c9" : "#F06600",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: savedDrugList.length === 0 ? "not-allowed" : "pointer",
                   fontFamily: "Inter",
                   fontSize: 17,
                   fontWeight: 600,
-                  color: "#ffffff",
+                  color: savedDrugList.length === 0 ? "#e2e1e5" : "#ffffff",
                   letterSpacing: "-0.51px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  transition: "background 0.15s",
                 }}
               >
                 Confirm

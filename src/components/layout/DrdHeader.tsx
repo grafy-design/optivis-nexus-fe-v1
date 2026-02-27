@@ -23,7 +23,7 @@ export const DrdHeader = ({ step }: DrdHeaderProps) => {
   };
 
   return (
-    <header className="flex items-center justify-between px-[28px] py-[24px] h-[90px] w-full bg-[#E7E5E7] sticky top-0 z-[90] shrink-0">
+    <header className="flex items-center justify-between px-[28px] py-[17px] h-[90px] w-full bg-[#E7E5E7] sticky top-0 z-[90] shrink-0">
       {/* ── 왼쪽: 단계별 상태 ────────────────────────────────────────────────── */}
       <div className="flex items-center gap-[36px]">
         {/* Step 1: Default Settings */}
@@ -82,26 +82,26 @@ export const DrdHeader = ({ step }: DrdHeaderProps) => {
 
       {/* ── 오른쪽: 버튼 그룹 (Variant 3: Go Back + Help) — step 3에서 숨김 ── */}
       {step !== 3 && (
-        <div className="flex items-center gap-[12px]">
+        <div className="flex items-center gap-0">
           {/* Go Back 버튼 */}
           <button
             onClick={handleGoBack}
             title="Go Back"
-            className="relative w-[48px] h-[48px] flex items-center justify-center border-none cursor-pointer p-0 bg-transparent"
+            className="relative w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer p-0"
+            style={{ backgroundImage: "url('/assets/sidebar-folder-button.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
           >
-            <img src="/icons/drd-btn-bg.png" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="relative z-10">
-              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#484646" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#262255" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
 
           {/* Help 버튼 */}
           <button
             title="Help"
-            className="relative w-[48px] h-[48px] flex items-center justify-center border-none cursor-pointer p-0 bg-transparent"
+            className="relative w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer p-0"
+            style={{ backgroundImage: "url('/assets/sidebar-folder-button.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
           >
-            <img src="/icons/drd-btn-bg.png" alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
-            <span className="relative z-10 text-[#484646] font-bold text-[18px] leading-none">?</span>
+            <span className="relative z-10 text-[#262255] font-bold text-[22px] leading-none">?</span>
           </button>
         </div>
       )}

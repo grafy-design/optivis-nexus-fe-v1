@@ -236,7 +236,7 @@ function CategoryGroup({
 
 // ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
 
-function GlassTestButton({ disabled }: { disabled?: boolean }) {
+function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
@@ -246,7 +246,7 @@ function GlassTestButton({ disabled }: { disabled?: boolean }) {
       onMouseEnter={() => !disabled && setHovered(true)}
       onMouseLeave={() => { setHovered(false); setPressed(false); }}
       onMouseDown={() => !disabled && setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      onMouseUp={() => { setPressed(false); if (!disabled) onClick?.(); }}
       style={{
         position: "relative",
         height: 40,
@@ -279,7 +279,7 @@ function GlassTestButton({ disabled }: { disabled?: boolean }) {
           transition: "color 0.12s",
         }}
       >
-        Test
+        Test Load
       </span>
     </div>
   );
@@ -304,7 +304,22 @@ export default function MedicalHistoryPage() {
   const [checked, setChecked] = useState<Record<string, boolean>>(
     Object.keys(medicalHistoryData).length > 0 ? medicalHistoryData : initialChecked
   );
-  const toggle = (key: string) => setChecked(prev => ({ ...prev, [key]: !prev[key] }));
+  const parentToChildren: Record<string, string[]> = {
+    "ckd": ["ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5"],
+    "cvd": ["ascvd", "hf", "stroke"],
+    "lowbs": ["lowbs-1", "lowbs-2"],
+    "dm": ["dm-1", "dm-2", "dm-3"],
+  };
+
+  const toggle = (key: string) => setChecked(prev => {
+    const next = { ...prev, [key]: !prev[key] };
+    // 중분류 선택 시 소분류 모두 체크/해제
+    if (key in parentToChildren) {
+      const newVal = next[key];
+      parentToChildren[key].forEach(child => { next[child] = newVal; });
+    }
+    return next;
+  });
   const isDirty = Object.values(checked).some(Boolean);
   const handleReset = () => {
     setChecked(initialChecked);
@@ -411,7 +426,7 @@ export default function MedicalHistoryPage() {
 
             {/* {설정 단계/Setup Steps} */}
             {/* Setup Steps */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
               {setupSteps.map((step) => (
                 <button
                   key={step.id}
@@ -461,7 +476,11 @@ export default function MedicalHistoryPage() {
               </h2>
               <div className="flex items-center gap-[12px]">
                 {/* Test 버튼 */}
-                <GlassTestButton />
+                <GlassTestButton onClick={() => setChecked(prev => ({
+                  ...prev,
+                  "ckd": true, "ckd-1": true, "ckd-2": true, "ckd-3": true, "ckd-4": true, "ckd-5": true,
+                  "cvd": true, "ascvd": true, "hf": true, "stroke": true,
+                }))} />
                 {/* Reset 버튼 */}
                 <button
                   onClick={isDirty ? handleReset : undefined}
@@ -512,11 +531,11 @@ export default function MedicalHistoryPage() {
                   <CategoryGroup title="Diagnosis">
                     <CheckboxItem label="CKD Stage" checked={checked["ckd"]} onToggle={() => toggle("ckd")} />
                     <div className="flex flex-col gap-[12px] pl-[24px]">
-                      <CheckboxItem label="Stage 1 (eGFR >=90)" checked={checked["ckd-1"]} onToggle={() => toggle("ckd-1")} disabled={!checked["ckd"]} />
-                      <CheckboxItem label="Stage 2 (eGFR >=60)" checked={checked["ckd-2"]} onToggle={() => toggle("ckd-2")} disabled={!checked["ckd"]} />
-                      <CheckboxItem label="Stage 3 (eGFR >=30)" checked={checked["ckd-3"]} onToggle={() => toggle("ckd-3")} disabled={!checked["ckd"]} />
-                      <CheckboxItem label="Stage 4 (eGFR >=15)" checked={checked["ckd-4"]} onToggle={() => toggle("ckd-4")} disabled={!checked["ckd"]} />
-                      <CheckboxItem label="Stage 5 (eGFR <=90)" checked={checked["ckd-5"]} onToggle={() => toggle("ckd-5")} disabled={!checked["ckd"]} />
+                      <CheckboxItem label="Stage 1 (eGFR >=90)" checked={checked["ckd-1"]} onToggle={() => toggle("ckd-1")} />
+                      <CheckboxItem label="Stage 2 (eGFR >=60)" checked={checked["ckd-2"]} onToggle={() => toggle("ckd-2")} />
+                      <CheckboxItem label="Stage 3 (eGFR >=30)" checked={checked["ckd-3"]} onToggle={() => toggle("ckd-3")} />
+                      <CheckboxItem label="Stage 4 (eGFR >=15)" checked={checked["ckd-4"]} onToggle={() => toggle("ckd-4")} />
+                      <CheckboxItem label="Stage 5 (eGFR <=90)" checked={checked["ckd-5"]} onToggle={() => toggle("ckd-5")} />
                     </div>
                   </CategoryGroup>
 
@@ -546,20 +565,20 @@ export default function MedicalHistoryPage() {
                   <CategoryGroup title="Risk Factors">
                     <CheckboxItem label="CVD History" checked={checked["cvd"]} onToggle={() => toggle("cvd")} />
                     <div className="flex flex-col gap-[12px] pl-[24px]">
-                      <CheckboxItem label="ASCVD" checked={checked["ascvd"]} onToggle={() => toggle("ascvd")} disabled={!checked["cvd"]} />
-                      <CheckboxItem label="HF" checked={checked["hf"]} onToggle={() => toggle("hf")} disabled={!checked["cvd"]} />
-                      <CheckboxItem label="Stroke" checked={checked["stroke"]} onToggle={() => toggle("stroke")} disabled={!checked["cvd"]} />
+                      <CheckboxItem label="ASCVD" checked={checked["ascvd"]} onToggle={() => toggle("ascvd")} />
+                      <CheckboxItem label="HF" checked={checked["hf"]} onToggle={() => toggle("hf")} />
+                      <CheckboxItem label="Stroke" checked={checked["stroke"]} onToggle={() => toggle("stroke")} />
                     </div>
                     <CheckboxItem label="Low Blood Sugar Severity" checked={checked["lowbs"]} onToggle={() => toggle("lowbs")} />
                     <div className="flex flex-col gap-[12px] pl-[24px]">
-                      <CheckboxItem label="Step 1 ( < 70mg/dL)" checked={checked["lowbs-1"]} onToggle={() => toggle("lowbs-1")} disabled={!checked["lowbs"]} />
-                      <CheckboxItem label="Step 2 ( < 54mg/dL)" checked={checked["lowbs-2"]} onToggle={() => toggle("lowbs-2")} disabled={!checked["lowbs"]} />
+                      <CheckboxItem label="Step 1 ( < 70mg/dL)" checked={checked["lowbs-1"]} onToggle={() => toggle("lowbs-1")} />
+                      <CheckboxItem label="Step 2 ( < 54mg/dL)" checked={checked["lowbs-2"]} onToggle={() => toggle("lowbs-2")} />
                     </div>
                     <CheckboxItem label="DM Duration" checked={checked["dm"]} onToggle={() => toggle("dm")} />
                     <div className="flex flex-col gap-[12px] pl-[24px]">
-                      <CheckboxItem label="Early ( < 1 years)" checked={checked["dm-1"]} onToggle={() => toggle("dm-1")} disabled={!checked["dm"]} />
-                      <CheckboxItem label="Short ( < 10 years )" checked={checked["dm-2"]} onToggle={() => toggle("dm-2")} disabled={!checked["dm"]} />
-                      <CheckboxItem label="Long ( >= 10 years )" checked={checked["dm-3"]} onToggle={() => toggle("dm-3")} disabled={!checked["dm"]} />
+                      <CheckboxItem label="Early ( < 1 years)" checked={checked["dm-1"]} onToggle={() => toggle("dm-1")} />
+                      <CheckboxItem label="Short ( < 10 years )" checked={checked["dm-2"]} onToggle={() => toggle("dm-2")} />
+                      <CheckboxItem label="Long ( >= 10 years )" checked={checked["dm-3"]} onToggle={() => toggle("dm-3")} />
                     </div>
                   </CategoryGroup>
                 </div>

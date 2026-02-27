@@ -183,6 +183,7 @@ export default function HighRiskSubgroupPage() {
   };
   const [selectedSubRow, setSelectedSubRow] = useState<string>("ckd1-slow");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set(["ckd1"]));
+  const [showSubgroupModal, setShowSubgroupModal] = useState(false);
 
   // 선택된 서브행이 속한 부모 id를 반환
   const getSelectedParent = (sel: string) => {
@@ -310,7 +311,7 @@ export default function HighRiskSubgroupPage() {
 
             {/* {설정 단계/Setup Steps} */}
             {/* Setup Steps */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
               {setupSteps.map((step) => (
                 <button
                   key={step.id}
@@ -355,7 +356,7 @@ export default function HighRiskSubgroupPage() {
               <h2 className="font-['Inter'] font-semibold text-[24px] leading-[1.2] text-[#484646] tracking-[-0.72px] m-0">
                 Load Subgroup
               </h2>
-              <button className="flex items-center justify-center gap-[8px] h-[42px] px-[24px] rounded-[100px] border-none cursor-pointer relative overflow-hidden bg-transparent">
+              <button onClick={() => setShowSubgroupModal(true)} className="flex items-center justify-center gap-[8px] h-[42px] px-[24px] rounded-[100px] border-none cursor-pointer relative overflow-hidden bg-transparent">
                 <div className="absolute inset-0 bg-[#f06600] rounded-[36px]" />
                 <span className="relative z-10 font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px] whitespace-nowrap">
                   Go to Create Subgroup
@@ -365,12 +366,12 @@ export default function HighRiskSubgroupPage() {
 
             {/* {테이블 영역/Table Area} */}
             {/* 테이블 영역 */}
-            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 flex flex-col overflow-y-auto">
               <div className="bg-white rounded-[24px] flex flex-col overflow-hidden h-full">
 
                 {/* {테이블 헤더/Table Header} */}
                 {/* 테이블 헤더 */}
-                <div className="flex items-center h-[40px] shrink-0 border-b border-[#e2e1e5]">
+                <div className="flex items-center shrink-0 border-b border-[#e2e1e5]" style={{ padding: "12px 0" }}>
                   <div className="w-[7.63%] shrink-0" />
                   <div className="flex items-center px-[10px] w-[17.94%] h-full border-l border-[#e2e1e5] shrink-0">
                     <span className="font-['Inter'] font-semibold text-[12px] leading-[1.1] text-[#919092] tracking-[-0.36px]">Set Name</span>
@@ -402,43 +403,43 @@ export default function HighRiskSubgroupPage() {
                   {/* CKD 1 Stage */}
                   {(() => { const ckd1HasSel = ["ckd1-slow","ckd1-rapid"].includes(selectedSubRow ?? ""); const ckd1Open = expandedRows.has("ckd1"); return (
                   <div className={`flex flex-col shrink-0 ${ckd1HasSel || ckd1Open ? "border-solid" : "border-b border-[#919092] border-solid"}`} style={{ background: ckd1HasSel ? "rgba(243,238,255,0.6)" : ckd1Open ? "#fbfbfc" : "white", ...(ckd1HasSel ? { borderTop: "1px solid rgba(58,17,216,0.6)", borderBottom: "1px solid rgba(58,17,216,0.6)" } : ckd1Open ? { borderTop: "1px solid #919092", borderBottom: "1px solid #ADADAD" } : {}) }}>
-                    <div className={`flex items-center h-[56px] py-[14px] overflow-clip cursor-pointer${ckd1HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("ckd1")}>
-                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                    <div className={`flex items-stretch py-[6px] overflow-clip cursor-pointer${ckd1HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("ckd1")}>
+                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                         <div className="w-[20px] h-[20px] flex items-center justify-center">
                           <AccordionItem open={expandedRows.has("ckd1")} />
                         </div>
                       </div>
-                      <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[17.94%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">
                           CKD 1 Stage
                         </span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[20.04%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">
                           eGFR
                         </span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[14.31%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">
                           ≤ 90
                         </span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">
                           36
                         </span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">
                           2
                         </span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[17.18%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">
                           OK (n min=150)
                         </span>
                       </div>
-                      <div className="flex items-center px-[10px] flex-1 h-[28px] border-l border-[#e2e1e5]">
+                      <div className="flex items-center px-[10px] flex-1 border-l border-[#e2e1e5]">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">
                           2025/12/25 17:00:01
                         </span>
@@ -449,56 +450,56 @@ export default function HighRiskSubgroupPage() {
                       <>
                         {/* 서브 행 – Slow */}
                         {(() => { const isSel = selectedSubRow === "ckd1-slow"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${ckd1HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd1-slow")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${ckd1HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd1-slow")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("ckd1-slow")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Slow</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">eGFR</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">{`> 90`}</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">36</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">2</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">n=1,200</span>
                           </div>
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                         {/* 서브 행 – Rapid */}
                         {(() => { const isSel = selectedSubRow === "ckd1-rapid"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd1-rapid")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd1-rapid")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("ckd1-rapid")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Rapid</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">eGFR</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">≤ 90</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">36</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">2</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">n=360</span>
                           </div>
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                       </>
@@ -509,33 +510,33 @@ export default function HighRiskSubgroupPage() {
                   {/* CKD 2 Stage */}
                   {(() => { const ckd2HasSel = ["ckd2-slow","ckd2-rapid"].includes(selectedSubRow ?? ""); const ckd2Open = expandedRows.has("ckd2"); return (
                   <div className={`flex flex-col shrink-0 ${ckd2HasSel || ckd2Open ? "border-solid" : "border-b border-[#919092] border-solid"}`} style={{ background: ckd2HasSel ? "rgba(243,238,255,0.6)" : ckd2Open ? "#fbfbfc" : "white", ...(ckd2HasSel ? { borderTop: "1px solid rgba(58,17,216,0.6)", borderBottom: "1px solid rgba(58,17,216,0.6)" } : ckd2Open ? { borderTop: "1px solid #919092", borderBottom: "1px solid #ADADAD" } : {}) }}>
-                    <div className={`flex items-center h-[56px] py-[14px] overflow-clip cursor-pointer${ckd2HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("ckd2")}>
-                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                    <div className={`flex items-stretch py-[6px] overflow-clip cursor-pointer${ckd2HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("ckd2")}>
+                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                         <div className="w-[20px] h-[20px] flex items-center justify-center">
                           <AccordionItem open={expandedRows.has("ckd2")} />
                         </div>
                       </div>
-                      <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[17.94%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">CKD 2 Stage</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[20.04%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">eGFR</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[14.31%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">≤ 60 ≤ 90</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">36</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">3</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[17.18%] border-l border-[#e2e1e5] shrink-0">
                         <p className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] m-0">
                           <span className="text-[#f06600]">NG</span>{` (n min=150)`}
                         </p>
                       </div>
-                      <div className="flex items-center px-[10px] flex-1 h-[28px] border-l border-[#e2e1e5]">
+                      <div className="flex items-center px-[10px] flex-1 border-l border-[#e2e1e5]">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">2025/12/25 17:00:01</span>
                       </div>
                     </div>
@@ -543,56 +544,56 @@ export default function HighRiskSubgroupPage() {
                       <>
                         {/* 서브 행 – Slow */}
                         {(() => { const isSel = selectedSubRow === "ckd2-slow"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${ckd2HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd2-slow")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${ckd2HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd2-slow")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("ckd2-slow")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Slow</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">eGFR</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">{`> 60`}</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">36</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">3</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">n=1,200</span>
                           </div>
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                         {/* 서브 행 – Rapid */}
                         {(() => { const isSel = selectedSubRow === "ckd2-rapid"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd2-rapid")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("ckd2-rapid")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("ckd2-rapid")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Rapid</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">eGFR</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">≤ 60</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">36</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">3</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">n=360</span>
                           </div>
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                       </>
@@ -603,23 +604,23 @@ export default function HighRiskSubgroupPage() {
                   {/* Set 1 */}
                   {(() => { const set1HasSel = ["set1-slow","set1-rapid"].includes(selectedSubRow ?? ""); const set1Open = expandedRows.has("set1"); return (
                   <div className={`flex flex-col shrink-0 ${set1HasSel || set1Open ? "border-solid" : "border-b border-[#919092] border-solid"}`} style={{ background: set1HasSel ? "rgba(243,238,255,0.6)" : set1Open ? "#fbfbfc" : "white", ...(set1HasSel ? { borderTop: "1px solid rgba(58,17,216,0.6)", borderBottom: "1px solid rgba(58,17,216,0.6)" } : set1Open ? { borderTop: "1px solid #919092", borderBottom: "1px solid #ADADAD" } : {}) }}>
-                    <div className={`flex items-center h-[56px] py-[14px] overflow-clip cursor-pointer${set1HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("set1")}>
-                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                    <div className={`flex items-stretch py-[6px] overflow-clip cursor-pointer${set1HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("set1")}>
+                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                         <div className="w-[20px] h-[20px] flex items-center justify-center">
                           <AccordionItem open={expandedRows.has("set1")} />
                         </div>
                       </div>
-                      <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[17.94%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">Set 1</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[20.04%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">HbA1c</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] flex-1 h-[28px] border-l border-[#e2e1e5]">
+                      <div className="flex items-center px-[10px] w-[14.31%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] w-[17.18%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] flex-1 border-l border-[#e2e1e5]">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">2025/12/25 17:00:01</span>
                       </div>
                     </div>
@@ -627,40 +628,40 @@ export default function HighRiskSubgroupPage() {
                       <>
                         {/* 서브 행 – Slow */}
                         {(() => { const isSel = selectedSubRow === "set1-slow"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${set1HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set1-slow")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${set1HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set1-slow")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("set1-slow")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Slow</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">HbA1c</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                         {/* 서브 행 – Rapid */}
                         {(() => { const isSel = selectedSubRow === "set1-rapid"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set1-rapid")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set1-rapid")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("set1-rapid")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Rapid</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">HbA1c</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                       </>
@@ -671,23 +672,23 @@ export default function HighRiskSubgroupPage() {
                   {/* Set 4 */}
                   {(() => { const set4HasSel = ["set4-slow","set4-rapid"].includes(selectedSubRow ?? ""); const set4Open = expandedRows.has("set4"); return (
                   <div className={`flex flex-col shrink-0 ${set4HasSel || set4Open ? "border-solid" : "border-b border-[#919092] border-solid"}`} style={{ background: set4HasSel ? "rgba(243,238,255,0.6)" : set4Open ? "#fbfbfc" : "white", ...(set4HasSel ? { borderTop: "1px solid rgba(58,17,216,0.6)", borderBottom: "1px solid rgba(58,17,216,0.6)" } : set4Open ? { borderTop: "1px solid #919092", borderBottom: "1px solid #ADADAD" } : {}) }}>
-                    <div className={`flex items-center h-[56px] py-[14px] overflow-clip cursor-pointer${set4HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("set4")}>
-                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                    <div className={`flex items-stretch py-[6px] overflow-clip cursor-pointer${set4HasSel ? " [&_span]:text-[#313030]" : ""}`} onClick={() => toggleRow("set4")}>
+                      <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                         <div className="w-[20px] h-[20px] flex items-center justify-center">
                           <AccordionItem open={expandedRows.has("set4")} />
                         </div>
                       </div>
-                      <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[17.94%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">Set 4</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l border-[#e2e1e5] shrink-0">
+                      <div className="flex items-center px-[10px] w-[20.04%] border-l border-[#e2e1e5] shrink-0">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">HbA1c</span>
                       </div>
-                      <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l border-[#e2e1e5] shrink-0" />
-                      <div className="flex items-center px-[10px] flex-1 h-[28px] border-l border-[#e2e1e5]">
+                      <div className="flex items-center px-[10px] w-[14.31%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] w-[11.45%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] w-[17.18%] border-l border-[#e2e1e5] shrink-0" />
+                      <div className="flex items-center px-[10px] flex-1 border-l border-[#e2e1e5]">
                         <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">2025/12/25 17:00:01</span>
                       </div>
                     </div>
@@ -695,40 +696,40 @@ export default function HighRiskSubgroupPage() {
                       <>
                         {/* 서브 행 – Slow */}
                         {(() => { const isSel = selectedSubRow === "set4-slow"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${set4HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set4-slow")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: `1.5px solid ${set4HasSel ? "#3a11d8" : "#ADADAD"}`, background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set4-slow")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("set4-slow")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Slow</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">HbA1c</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                         {/* 서브 행 – Rapid */}
                         {(() => { const isSel = selectedSubRow === "set4-rapid"; return (
-                        <div className={`flex items-center h-[56px] py-[14px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set4-rapid")}>
-                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] h-[28px] shrink-0">
+                        <div className={`flex items-center py-[16px] overflow-clip border-solid cursor-pointer ${isSel ? "[&>div]:border-[#e2e1e5] [&_span]:text-[#313030]" : "[&>div]:border-[#e2e1e5]"}`} style={{ borderTop: "1.5px solid #D8D7D9", background: "transparent", opacity: 1 }} onClick={() => selectSubRow("set4-rapid")}>
+                          <div className="flex items-center justify-center pl-[12px] pr-[8px] w-[7.63%] shrink-0">
                             <RadioButton checked={isSel} onChange={() => selectSubRow("set4-rapid")} size={16} />
                           </div>
-                          <div className="flex items-center px-[10px] w-[17.94%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[17.94%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px] flex-1 min-w-0">Rapid</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[20.04%] h-[28px] border-l shrink-0">
+                          <div className="flex items-center px-[10px] w-[20.04%] border-l shrink-0">
                             <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-[#5f5e5e] tracking-[-0.75px]">HbA1c</span>
                           </div>
-                          <div className="flex items-center px-[10px] w-[14.31%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[11.45%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] w-[17.18%] h-[28px] border-l shrink-0" />
-                          <div className="flex items-center px-[10px] flex-1 h-[28px] border-l" />
+                          <div className="flex items-center px-[10px] w-[14.31%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[11.45%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] w-[17.18%] border-l shrink-0" />
+                          <div className="flex items-center px-[10px] flex-1 border-l" />
                         </div>
                         ); })()}
                       </>
@@ -761,6 +762,42 @@ export default function HighRiskSubgroupPage() {
           </div>
         </div>
       </div>
+      {showSubgroupModal && (
+        <div
+          style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+          onClick={() => setShowSubgroupModal(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ position: "relative", width: 380, borderRadius: 20, padding: "20px 20px 20px", display: "flex", flexDirection: "column", gap: 36, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+          >
+            {/* 글래스 배경 */}
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: 24, pointerEvents: "none" }}>
+              <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "rgba(255,255,255,0.88)" }} />
+              <div style={{ position: "absolute", inset: 0, borderRadius: 24, background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
+            </div>
+
+            {/* 콘텐츠 */}
+            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
+              <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: 19, color: "#250d0dff", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>Go to Create Subgroup</p>
+              <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: 15, color: "#484646", letterSpacing: "-0.42px", lineHeight: 1.35, margin: 0 }}>
+                If you create a new subgroup, you will leave this page and all unsaved data will be lost. Do you want to continue?
+              </p>
+            </div>
+
+            {/* 버튼 */}
+            <div style={{ position: "relative", zIndex: 1, display: "flex", gap: 8, justifyContent: "center" }}>
+              <button type="button" onClick={() => setShowSubgroupModal(false)} style={{ width: 112, height: 44, borderRadius: 36, border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: 15, color: "#262255", letterSpacing: "-0.45px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+                Cancel
+              </button>
+              <button type="button" onClick={() => { setShowSubgroupModal(false); router.push("/tsi"); }} style={{ width: 112, height: 44, borderRadius: 36, border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: 15, color: "#262255", letterSpacing: "-0.45px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }

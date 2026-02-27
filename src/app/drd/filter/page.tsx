@@ -79,11 +79,11 @@ function IconFileDownload({ size = 24 }: { size?: number }) {
   );
 }
 
-function IconFolderPlus({ size = 24 }: { size?: number }) {
+function IconFolderPlus({ size = 24, color = "#262255" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M3 7V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V9C21 7.9 20.1 7 19 7H11L9 5H5C3.9 5 3 5.9 3 7Z" stroke="#262255" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M12 11V17M15 14H9" stroke="#262255" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 7V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V9C21 7.9 20.1 7 19 7H11L9 5H5C3.9 5 3 5.9 3 7Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 11V17M15 14H9" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -162,7 +162,7 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
           transition: "color 0.12s",
         }}
       >
-        Test
+        Test Load
       </span>
     </div>
   );
@@ -839,6 +839,10 @@ export default function FilterPage() {
 
   const isDeleteEnabled = Object.values(checkedRows).some(Boolean);
 
+  const hasValidRow = (sections: Section[]) =>
+    sections.some(s => s.feature && s.op && s.value);
+  const isConfirmEnabled = hasValidRow(inclusionSections) || hasValidRow(exclusionSections);
+
   const deleteCheckedRows = () => {
     if (!isDeleteEnabled) return;
 
@@ -1018,7 +1022,7 @@ export default function FilterPage() {
 
             {/* {필터 설정 영역/Filter Settings Area} */}
             {/* Filter Settings Area */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
               {setupSteps.map((step) => (
                 <button
                   key={step.id}
@@ -1078,7 +1082,7 @@ export default function FilterPage() {
                 </div>
 
                 {/* 리스트 아코디언 + 검색 필드 */}
-                <div className="flex-1 bg-white rounded-[24px] flex flex-col overflow-hidden font-['Inter']">
+                <div className="flex-1 bg-white rounded-[24px] flex flex-col overflow-y-auto font-['Inter']">
                   {/* 검색 필드 */}
                   <div ref={searchContainerRef} className="relative shrink-0">
                     <div className="h-[48px] bg-white flex items-center px-[18px] gap-[8px]" style={{ borderBottom: "1px solid #c7c5c9" }}>
@@ -1249,7 +1253,7 @@ export default function FilterPage() {
 
               {/* {메인 설정 영역/Main Setting Area} */}
               {/* 메인 설정 영역 (오른쪽 컬럼) */}
-              <div className="flex-1 flex flex-col gap-[12px] rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden">
+              <div className="flex-1 flex flex-col gap-[12px] rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-y-auto">
                 
                 {/* 상단 탭 + 액션 버튼 */}
                 <div className="flex justify-between items-center shrink-0">
@@ -1277,10 +1281,10 @@ export default function FilterPage() {
                         <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
                         <IconFileDownload size={24} />
                       </div>
-                      {/* IconFolderPlus — 비활성화 상태 (3번과 동일) */}
-                      <div className="relative size-[48px] flex items-center justify-center cursor-pointer" style={{ flexShrink: 0 }}>
+                      {/* IconFolderPlus — 비활성화 상태 */}
+                      <div className="relative size-[48px] flex items-center justify-center" style={{ cursor: "default", flexShrink: 0 }}>
                         <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                        <div className="relative z-10"><IconFolderPlus size={24} /></div>
+                        <div className="relative z-10"><IconFolderPlus size={24} color="#c6c5c9" /></div>
                       </div>
                       {/* IconTrash — 비활성화: 현재 디자인, 활성화: 유리 스타일 */}
                       <div
@@ -1289,7 +1293,7 @@ export default function FilterPage() {
                         onClick={deleteCheckedRows}
                       >
                         <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                        <IconTrash size={24} color={isDeleteEnabled ? "#262255" : "#c6c5c9"} />
+                        <div className="relative z-10"><IconTrash size={24} color={isDeleteEnabled ? "#262255" : "#c6c5c9"} /></div>
                       </div>
                     </div>
                     {/* Add Section 버튼 */}
@@ -1483,12 +1487,18 @@ export default function FilterPage() {
                     <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px]">Cancel</span>
                   </button>
                   <button
+                    disabled={!isConfirmEnabled}
                     onClick={() => {
+                      if (!isConfirmEnabled) return;
                       setFilterData({ inclusion: inclusionSections, exclusion: exclusionSections });
                       setCompleted("filter", true);
                       router.push("/drd/default-setting");
                     }}
-                    className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] bg-[#f06600] border-none cursor-pointer"
+                    className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] border-none"
+                    style={{
+                      background: isConfirmEnabled ? "#f06600" : "#c7c5c9",
+                      cursor: isConfirmEnabled ? "pointer" : "not-allowed",
+                    }}
                   >
                     <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white text-center tracking-[-0.51px]">Confirm</span>
                   </button>

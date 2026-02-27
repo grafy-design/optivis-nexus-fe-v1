@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { useSimulationStore, type SimulationState } from "@/store/simulationStore";
+import { useSimulationStore, type SimulationState, type SimCondData } from "@/store/simulationStore";
 
 /* ─────────────────────────────────────────────
    ICONS
@@ -225,9 +225,7 @@ function StrategyCard({ label, color, drugs }: { label: string; color: string; d
       }}>
         {drugs.map((drug, i) => (
           <div key={i} style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>
-            <ol start={i + 1} style={{ margin: 0, paddingLeft: 18 }}>
-              <li>{drug}</li>
-            </ol>
+            {drug}
           </div>
         ))}
       </div>
@@ -238,7 +236,22 @@ function StrategyCard({ label, color, drugs }: { label: string; color: string; d
 /* ─────────────────────────────────────────────
    RIGHT PANEL — COMPLETED CARD (Simulation Conditions)
 ───────────────────────────────────────────── */
-function SimCondCompletedCard({ flex, onClick }: { flex?: number; onClick?: () => void }) {
+const VALUE_LABELS = ["BMI", "SBP", "HbA1c", "Fasting glucose"];
+const TREND_LABELS = ["Increase", "Stable", "Decrease"];
+const STRATEGY_COLORS = ["#3a11d8", "#f06600", "#24c6c9"];
+const STRATEGY_LABELS = ["Strategy A", "Strategy B", "Strategy C"];
+
+function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number; onClick?: () => void; onReset?: () => void; data: SimCondData }) {
+  const valueName = data.selectedValue !== null ? (VALUE_LABELS[data.selectedValue] ?? "") : "";
+
+  // "Increase (6m) / Stable (6m) / Decrease (3m)" 형태
+  const trendSummary = TREND_LABELS.map((label, i) => `${label} (${data.monthValues[i]}m)`).join(" / ");
+
+  // 전략별 약물 목록: checks[strategyIdx]가 true인 약물만
+  const strategyDrugs = [0, 1, 2].map((si) =>
+    data.drugList.filter((d) => d.checks[si]).map((d) => d.name)
+  );
+
   return (
     <div style={{
       flex: flex ?? 1,
@@ -256,64 +269,43 @@ function SimCondCompletedCard({ flex, onClick }: { flex?: number; onClick?: () =
         <div style={{ display: "flex", height: 40, alignItems: "center", paddingTop: 4, paddingBottom: 4, flexShrink: 0 }}>
           <SimCondIconCompleted />
         </div>
-        <span style={{ fontFamily: "Inter", fontSize: 24, fontWeight: 600, color: "#484646", letterSpacing: "-0.72px", lineHeight: "1.2", display: "flex", alignItems: "center", height: 40 }}>Simulation Conditions</span>
+        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#484646", letterSpacing: "-0.72px", lineHeight: "1.2", display: "flex", alignItems: "center", height: 40 }}>Simulation Conditions</span>
       </div>
 
       {/* Content + buttons (flex-1, justify-between) */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 0 }}>
-        {/* Top: summary table + strategy cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        {/* Top: summary table + strategy cards — 스크롤 영역 */}
+        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
           {/* Summary table */}
-          <div style={{ background: "white", borderRadius: 16, padding: "4px 16px" }}>
+          <div style={{ background: "white", borderRadius: 16, padding: "4px 16px", flexShrink: 0 }}>
             {/* Selected Value — 2행 구조 */}
             <div style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingTop: 10, paddingBottom: 10 }}>
               <div style={{ width: 120, flexShrink: 0 }}>
                 <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#787776", letterSpacing: "-0.39px", lineHeight: "1.18" }}>Selected Value</span>
               </div>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>HbA1c</span>
-                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "#919092", letterSpacing: "-0.39px", lineHeight: "1.18" }}>Increase (3m) / Stable (6m) / Decrease (3m)</span>
+                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>{valueName}</span>
+                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "#919092", letterSpacing: "-0.39px", lineHeight: "1.18" }}>{trendSummary}</span>
               </div>
             </div>
-            <TableRow label="Follow-up Window" value="12 months" />
+            <TableRow label="Follow-up Window" value={`${data.followUpMonths} months`} />
           </div>
 
-          {/* Strategy A */}
-          <StrategyCard
-            label="Strategy A"
-            color="#3a11d8"
-            drugs={[
-              "Metformin",
-              "SGLT2 inhibitors : Dapagliflozin, GLP-1 RA, Metformin",
-              "DPP-4 inhibitors : Linagliptin, Alogliptin",
-            ]}
-          />
-
-          {/* Strategy B */}
-          <StrategyCard
-            label="Strategy B"
-            color="#f06600"
-            drugs={[
-              "Metformin",
-              "SGLT2 inhibitors : Dapagliflozin, GLP-1 RA, Metformin",
-              "DPP-4 inhibitors : Linagliptin, Alogliptin",
-            ]}
-          />
-
-          {/* Strategy C */}
-          <StrategyCard
-            label="Strategy C"
-            color="#24c6c9"
-            drugs={[
-              "Metformin",
-              "SGLT2 inhibitors : Dapagliflozin, GLP-1 RA, Metformin",
-              "DPP-4 inhibitors : Linagliptin, Alogliptin",
-            ]}
-          />
+          {/* Strategy cards */}
+          {STRATEGY_LABELS.map((label, si) => (
+            <StrategyCard
+              key={si}
+              label={label}
+              color={STRATEGY_COLORS[si]}
+              drugs={strategyDrugs[si]}
+            />
+          ))}
         </div>
 
-        {/* Bottom: Reset + Edit */}
-        <ResetEditButtons onEdit={onClick} />
+        {/* Bottom: Reset + Edit — 하단 고정 */}
+        <div style={{ flexShrink: 0, paddingTop: 12 }}>
+          <ResetEditButtons onReset={onReset} onEdit={onClick} />
+        </div>
       </div>
     </div>
   );
@@ -322,7 +314,7 @@ function SimCondCompletedCard({ flex, onClick }: { flex?: number; onClick?: () =
 /* ─────────────────────────────────────────────
    RIGHT PANEL — COMPLETED CARD (SMILES Settings)
 ───────────────────────────────────────────── */
-function SmilesCompletedCard({ flex, onClick }: { flex?: number; onClick?: () => void }) {
+function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number; onClick?: () => void; onReset?: () => void; drugs: { name: string }[] }) {
   return (
     <div style={{
       flex: flex ?? 1,
@@ -340,25 +332,27 @@ function SmilesCompletedCard({ flex, onClick }: { flex?: number; onClick?: () =>
         <div style={{ display: "flex", height: 40, alignItems: "center", paddingTop: 4, paddingBottom: 4, flexShrink: 0 }}>
           <SmilesIconCompleted />
         </div>
-        <span style={{ fontFamily: "Inter", fontSize: 24, fontWeight: 600, color: "#484646", letterSpacing: "-0.72px", lineHeight: "1.2", display: "flex", alignItems: "center", height: 40 }}>SMILES Settings</span>
+        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#484646", letterSpacing: "-0.72px", lineHeight: "1.2", display: "flex", alignItems: "center", height: 40 }}>SMILES Settings</span>
       </div>
 
-      {/* Content + buttons (flex-1, justify-between) */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: 0 }}>
-        {/* Top: drug list */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {/* Content + buttons (flex-1) */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+        {/* Top: drug list — 스크롤 영역 */}
+        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
           {/* Drug list */}
-          <div style={{ background: "white", borderRadius: 16, padding: "16px", display: "flex", flexDirection: "column", gap: 8 }}>
-            {["Empagliflozin", "Dapagliflozin"].map((drug, i) => (
+          <div style={{ background: "white", borderRadius: 16, padding: "16px", display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+            {drugs.map((drug, i) => (
               <div key={i} style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>
-                <span>{i + 1} {drug}</span>
+                <span>{i + 1} {drug.name}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Bottom: Reset + Edit */}
-        <ResetEditButtons onEdit={onClick} />
+        {/* Bottom: Reset + Edit — 하단 고정 */}
+        <div style={{ flexShrink: 0, paddingTop: 12 }}>
+          <ResetEditButtons onReset={onReset} onEdit={onClick} />
+        </div>
       </div>
     </div>
   );
@@ -372,6 +366,11 @@ export default function SimulationSettingPage() {
   const router = useRouter();
   const simCondCompleted = useSimulationStore((s: SimulationState) => s.simCondCompleted);
   const simSmilesCompleted = useSimulationStore((s: SimulationState) => s.simSmilesCompleted);
+  const simCondData = useSimulationStore((s: SimulationState) => s.simCondData);
+  const setSimCondCompleted = useSimulationStore((s: SimulationState) => s.setSimCondCompleted);
+  const setSimSmilesCompleted = useSimulationStore((s: SimulationState) => s.setSimSmilesCompleted);
+  const setSimCondData = useSimulationStore((s: SimulationState) => s.setSimCondData);
+  const smilesData = useSimulationStore((s: SimulationState) => s.smilesData);
 
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">
@@ -405,28 +404,7 @@ export default function SimulationSettingPage() {
               borderColor: "transparent",
             }}
           >
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-hidden">
-
-              {/* Step 1: Simulation Conditions */}
-              <button
-                onClick={() => router.push("/drd/simulation-condition")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
-                style={{ background: "transparent", height: 96, justifyContent: "center" }}
-              >
-                <div className="flex items-center gap-[18px]">
-                  <div className="shrink-0 flex items-center justify-center">
-                    <SimCondIconLeft completed={simCondCompleted} />
-                  </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "#484646" }}>
-                    Simulation Conditions
-                  </span>
-                </div>
-                <div className="pl-[42px] mt-0">
-                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
-                    Develop a plan to assess the subject&apos;s prognosis based on the entered information.
-                  </p>
-                </div>
-              </button>
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
 
               {/* Step 2: SMILES Settings */}
               <button
@@ -448,6 +426,27 @@ export default function SimulationSettingPage() {
                   </p>
                 </div>
               </button>
+
+              {/* Step 1: Simulation Conditions */}
+              <button
+                onClick={() => router.push("/drd/simulation-condition")}
+                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
+                style={{ background: "transparent", height: 96, justifyContent: "center" }}
+              >
+                <div className="flex items-center gap-[18px]">
+                  <div className="shrink-0 flex items-center justify-center">
+                    <SimCondIconLeft completed={simCondCompleted} />
+                  </div>
+                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "#484646" }}>
+                    Simulation Conditions
+                  </span>
+                </div>
+                <div className="pl-[42px] mt-0">
+                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
+                    Develop a plan to assess the subject&apos;s prognosis based on the entered information.
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -456,10 +455,28 @@ export default function SimulationSettingPage() {
 
             {/* Cards row */}
             <div style={{ flex: 1, display: "flex", flexDirection: "row", gap: 12, minHeight: 0, paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}>
-              {simCondCompleted ? (
+              {simSmilesCompleted ? (
+                <SmilesCompletedCard
+                  flex={1}
+                  onClick={() => router.push("/drd/smile-setting")}
+                  onReset={() => setSimSmilesCompleted(false)}
+                  drugs={smilesData}
+                />
+              ) : (
+                <InitialCard
+                  step="Step 2"
+                  title="SMILES Settings"
+                  description="Add SMILES to define the chemical structures for simulation conditions."
+                  flex={1}
+                  onClick={() => router.push("/drd/smile-setting")}
+                />
+              )}
+              {simCondCompleted && simCondData ? (
                 <SimCondCompletedCard
                   flex={2.775}
                   onClick={() => router.push("/drd/simulation-condition")}
+                  onReset={() => { setSimCondCompleted(false); setSimCondData(null); }}
+                  data={simCondData}
                 />
               ) : (
                 <InitialCard
@@ -469,20 +486,6 @@ export default function SimulationSettingPage() {
                   description="Develop a plan to assess the subject's prognosis based on the entered information."
                   flex={2.775}
                   onClick={() => router.push("/drd/simulation-condition")}
-                />
-              )}
-              {simSmilesCompleted ? (
-                <SmilesCompletedCard
-                  flex={1}
-                  onClick={() => router.push("/drd/smile-setting")}
-                />
-              ) : (
-                <InitialCard
-                  step="Step 2"
-                  title="SMILES Settings"
-                  description="Add SMILES to define the chemical structures for simulation conditions."
-                  flex={1}
-                  onClick={() => router.push("/drd/smile-setting")}
                 />
               )}
             </div>

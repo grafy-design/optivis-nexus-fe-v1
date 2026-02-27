@@ -16,6 +16,28 @@ import type {
   Appendix,
 } from "@/services/studyService";
 
+/** Simulation Condition 저장 데이터 */
+export interface SimCondDrugEntry {
+  type: string;
+  name: string;
+  code: string;
+  checks: boolean[];
+  warning: boolean;
+  id: number;
+  pillPositions?: Array<{ leftPct: number; widthPct: number } | null>;
+}
+
+export interface SimCondData {
+  selectedCategory: number | null;
+  selectedDetail: number | null;
+  selectedValue: number | null;
+  followUpMonths: number;
+  inputValues: string[];
+  unitValues: string[];
+  monthValues: string[];
+  drugList: SimCondDrugEntry[];
+}
+
 /** Primary/Secondary 엔드포인트 1개 (최대 5개, Setting 루프용) */
 export interface EndpointItem {
   name: string;
@@ -26,12 +48,19 @@ export interface EndpointItem {
   threshold?: number | null;
 }
 
+export interface SmilesDrugEntry {
+  name: string;
+  smilesImage?: string;
+}
+
 export interface SimulationState {
   // UI 상태
   activeTab: "compare" | "reduction";
   isApplied: boolean;
   simCondCompleted: boolean;
   simSmilesCompleted: boolean;
+  simCondData: SimCondData | null;
+  smilesData: SmilesDrugEntry[];
   sampleSizeControl: number;
 
   // Simulation Setting states
@@ -86,6 +115,8 @@ export interface SimulationState {
   setIsApplied: (applied: boolean) => void;
   setSimCondCompleted: (completed: boolean) => void;
   setSimSmilesCompleted: (completed: boolean) => void;
+  setSimCondData: (data: SimCondData | null) => void;
+  setSmilesData: (data: SmilesDrugEntry[]) => void;
   setSampleSizeControl: (value: number) => void;
   setDisease: (disease: string) => void;
   setPrimaryEndpoints: (
@@ -140,6 +171,8 @@ const initialState = {
   isApplied: false,
   simCondCompleted: false,
   simSmilesCompleted: false,
+  simCondData: null as SimCondData | null,
+  smilesData: [] as SmilesDrugEntry[],
   sampleSizeControl: 0.8, // power 값 (0.6~0.95, 차트 하이라이트용)
   disease: "Alzheimer's disease",
   primaryEndpoints: [{ name: "ADAS Cog 11", effectSize: 3 }] as EndpointItem[],
@@ -170,6 +203,8 @@ export const useSimulationStore = create<SimulationState>()((set) => ({
   setIsApplied: (applied) => set({ isApplied: applied }),
   setSimCondCompleted: (completed) => set({ simCondCompleted: completed }),
   setSimSmilesCompleted: (completed) => set({ simSmilesCompleted: completed }),
+  setSimCondData: (data) => set({ simCondData: data }),
+  setSmilesData: (data) => set({ smilesData: data }),
   setSampleSizeControl: (value) => set({ sampleSizeControl: value }),
   setDisease: (disease) => set({ disease }),
   setPrimaryEndpoints: (arg) =>

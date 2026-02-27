@@ -21,10 +21,10 @@ function SpaghettiPlotChart() {
   const strategyA = [0, -0.1, -0.4, -0.9, -1.5, -2.0, -2.4, -2.6, -2.4];
   const strategyCyan = [0, 0.1, -0.1, -0.6, -1.0, -1.8, -2.2, -2.3, -2.2];
   const option = {
-    grid: { left: 72, right: 16, top: 12, bottom: 58 },
+    grid: { left: 72, right: 16, top: 24, bottom: 58 },
     xAxis: {
       type: "category" as const, data: months, boundaryGap: false,
-      axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false },
+      axisLine: { lineStyle: { color: _N30, width: 1 } }, axisTick: { show: false },
       axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 },
       splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.25, type: "solid" as const, width: 1 } },
       name: "Time since symptom onset (Months)", nameLocation: "middle" as const, nameGap: 28,
@@ -41,9 +41,8 @@ function SpaghettiPlotChart() {
     series: [
       { name: "B: Add-on", type: "line" as const, data: strategyB, smooth: true, symbol: "none", lineStyle: { color: _COLOR_A, width: 2.5 }, itemStyle: { color: _COLOR_A }, markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop" as const, formatter: "B: Add-on", color: _COLOR_A, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, lineStyle: { color: _COLOR_A, type: "dashed" as const, width: 1, opacity: 0.6 }, data: [{ xAxis: 9 }] } },
       { name: "A: Switch", type: "line" as const, data: strategyA, smooth: true, symbol: "none", lineStyle: { color: _COLOR_B, width: 2.5 }, itemStyle: { color: _COLOR_B }, markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop" as const, formatter: "A: Switch", color: _COLOR_B, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, lineStyle: { color: _COLOR_B, type: "dashed" as const, width: 1, opacity: 0.6 }, data: [{ xAxis: 15 }] } },
-      { name: "C", type: "line" as const, data: strategyCyan, smooth: true, symbol: "none", lineStyle: { color: _COLOR_C, width: 2.5 }, itemStyle: { color: _COLOR_C }, markLine: { silent: true, symbol: "none", label: { show: false }, lineStyle: { color: "#AAAAAD", type: "dotted" as const, width: 1.5 }, data: [{ yAxis: -1.0, name: "Target : -1.0% at Month 12" }] } },
+      { name: "C", type: "line" as const, data: strategyCyan, smooth: true, symbol: "none", lineStyle: { color: _COLOR_C, width: 2.5 }, itemStyle: { color: _COLOR_C }, markLine: { silent: true, symbol: "none", label: { show: true, position: "insideStartTop" as const, formatter: "Target : -1.0% at Month 12", color: "#AAAAAD", fontFamily: "Inter", fontSize: 9, fontWeight: 500, distance: [0, 4] }, lineStyle: { color: "#AAAAAD", type: "dotted" as const, width: 1.5 }, data: [{ yAxis: -1.0, name: "Target : -1.0% at Month 12" }] } },
     ],
-    graphic: [{ type: "text", left: 58, top: 28, style: { text: "Target : -1.0% at Month 12", fill: "#AAAAAD", font: "500 9px Inter", letterSpacing: -0.27 } }],
     legend: { show: true, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, data: [{ name: "B: Add-on", itemStyle: { color: _COLOR_A }, lineStyle: { color: _COLOR_A } }, { name: "A: Switch", itemStyle: { color: _COLOR_B }, lineStyle: { color: _COLOR_B } }], textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 } },
     tooltip: { show: false },
   };
@@ -86,9 +85,11 @@ function HistogramChart() {
     series: slots.map((slotData) => ({
       type: "bar" as const,
       data: slotData,
-      barWidth: "60%",
+      barWidth: "100%",
       barGap: "-100%",
+      barCategoryGap: "0%",
       emphasis: { disabled: true },
+      itemStyle: { opacity: 0.8 },
     })),
     legend: { show: true, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 8, data: [{ name: "Strategy A", itemStyle: { color: _COLOR_A } }, { name: "Strategy B", itemStyle: { color: _COLOR_B } }, { name: "Strategy C", itemStyle: { color: _COLOR_C } }], textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 } },
     tooltip: { show: false },
@@ -187,7 +188,7 @@ function StrategyInfoTooltip({ data, anchorRect }: { data: StrategyTooltipData; 
         overflow: "hidden",
         boxShadow: "0 8px 40px rgba(0,0,0,0.14)",
         background: "white",
-        padding: `${PADDING}px`,
+        padding: `${PADDING - 8}px ${PADDING}px ${PADDING}px`,
         display: "flex",
         flexDirection: "column",
         gap: 0,
@@ -321,7 +322,7 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
           style={{
             fontFamily: "Inter",
             fontWeight: 700,
-            fontSize: "clamp(14px, 1.4vw, 22px)",
+            fontSize: 17,
             color: nameColor,
             letterSpacing: "-0.66px",
             lineHeight: 1.2,
@@ -350,7 +351,7 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
           style={{
             fontFamily: "Inter",
             fontWeight: 500,
-            fontSize: "clamp(9px, 1vw, 15px)",
+            fontSize: "clamp(7px, 0.85vw, 13px)",
             color: COLOR_NEUTRAL_10,
             letterSpacing: "-0.5px",
             lineHeight: 1.1,
@@ -366,7 +367,7 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
               style={{
                 fontFamily: "Inter",
                 fontWeight: 500,
-                fontSize: "clamp(8px, 0.9vw, 13px)",
+                fontSize: "clamp(7px, 0.8vw, 11px)",
                 color: COLOR_NEUTRAL_40,
                 letterSpacing: "-0.42px",
                 lineHeight: 1.1,
@@ -387,7 +388,7 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
                 style={{
                   fontFamily: "Inter",
                   fontWeight: 500,
-                  fontSize: "clamp(8px, 0.9vw, 13px)",
+                  fontSize: "clamp(7px, 0.8vw, 11px)",
                   color: COLOR_NEUTRAL_40,
                   letterSpacing: "-0.42px",
                   margin: 0,
@@ -425,7 +426,8 @@ function PrimaryOutcomeTable() {
       style={{
         background: "#fff",
         borderRadius: "8px",
-        overflow: "hidden",
+        overflowY: "auto",
+        overflowX: "hidden",
         height: "100%",
         display: "grid",
         gridTemplateRows: "repeat(4, 1fr)",
@@ -501,7 +503,8 @@ function ResponseProbabilityTable() {
       style={{
         background: "#fff",
         borderRadius: "8px",
-        overflow: "hidden",
+        overflowY: "auto",
+        overflowX: "hidden",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -515,7 +518,7 @@ function ResponseProbabilityTable() {
           <col style={{ width: "22%" }} />
         </colgroup>
         <thead>
-          <tr style={{ borderBottom: "1px solid #e2e1e5" }}>
+          <tr style={{ borderBottom: `1px solid ${COLOR_NEUTRAL_60}`, height: "25%" }}>
             <th style={{ padding: "8px 6px 8px 12px", textAlign: "left", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 13px)", color: COLOR_PRIMARY, letterSpacing: "-0.42px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               Category
             </th>
@@ -549,7 +552,7 @@ function ResponseProbabilityTable() {
               key={row.label}
               style={{ borderTop: idx > 0 ? "1px solid #c6c5c9" : "none" }}
             >
-              <td style={{ padding: "0 6px 0 12px", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 12px)", color: COLOR_PRIMARY, letterSpacing: "-0.42px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <td style={{ padding: "0 6px 0 12px", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 12px)", color: "#787776", letterSpacing: "-0.42px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {row.label}
               </td>
               {[row.a, row.b, row.c].map(({ val, bold, color }, ci) => (
@@ -599,6 +602,7 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
         overflow: "hidden",
         flex: "1 1 0",
         minWidth: 0,
+        minHeight: "112px",
         display: "flex",
         flexDirection: "column",
       }}
@@ -609,7 +613,7 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
           style={{
             fontFamily: "Inter",
             fontWeight: 700,
-            fontSize: "clamp(12px, 1.3vw, 20px)",
+            fontSize: 17,
             color: nameColor,
             letterSpacing: "-0.6px",
             lineHeight: 1.2,
@@ -623,7 +627,7 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
       {/* 구분선 */}
       <div style={{ height: "1px", background: lineColor, margin: "8px 0 0" }} />
       {/* 테이블 */}
-      <div style={{ padding: "0", flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "0", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "Inter", height: "100%", tableLayout: "fixed" }}>
           <thead style={{ height: `${100 / (features.length + 1)}%` }}>
             <tr style={{ height: "100%" }}>
@@ -690,17 +694,17 @@ function EfficacyContent() {
         overflow: "hidden",
       }}
     >
-      {/* 상단: Primary Outcome 카드 + Response Probability 카드 */}
+      {/* 상단 행: Primary Outcome 카드 + Response Probability 카드 / Top Row: Primary Outcome Card + Response Probability Card */}
       <div
         style={{
           display: "flex",
           gap: 12,
           alignItems: "stretch",
-          flex: 3,
+          flex: 2.25,
           minHeight: 0,
         }}
       >
-        {/* Primary Outcome 移대뱶 */}
+        {/* Primary Outcome 카드 (평균/CI/NNT 통계 테이블) / Primary Outcome Card (Mean/CI/NNT Table) */}
         <div
           style={{
             flex: 1,
@@ -713,7 +717,7 @@ function EfficacyContent() {
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-start" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "flex-start", paddingTop: "4px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <h3
                 style={{
@@ -758,13 +762,13 @@ function EfficacyContent() {
             >
               *NNT to achieve HbA1c &lt; 7.0%
             </p>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
               <PrimaryOutcomeTable />
             </div>
           </div>
         </div>
 
-        {/* Response Probability 移대뱶 */}
+        {/* Response Probability 카드 (반응군 분류 확률 테이블) / Response Probability Card (Responder Classification Table) */}
         <div
           style={{
             flex: 1,
@@ -777,7 +781,7 @@ function EfficacyContent() {
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-start" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "flex-start", paddingTop: "4px" }}>
             <h3
               style={{
                 fontFamily: "Inter",
@@ -804,14 +808,14 @@ function EfficacyContent() {
               </div>
               <span style={{ fontFamily: "Inter", fontSize: "clamp(10px, 0.9vw, 13px)", color: COLOR_NEUTRAL_10 }}>High Score</span>
             </div>
-            <div style={{ flex: 1, minHeight: 0 }}>
+            <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
               <ResponseProbabilityTable />
             </div>
           </div>
         </div>
       </div>
 
-      {/* 하단: Simulated Trajectory + Counterfactual Comparison */}
+      {/* 하단 행: Simulated Trajectory + Counterfactual Comparison / Bottom Row: Trajectory Chart + Histogram Chart */}
       <div
         style={{
           background: COLOR_PRIMARY,
@@ -820,11 +824,11 @@ function EfficacyContent() {
           display: "flex",
           gap: "clamp(10px, 1vw, 16px)",
           alignItems: "stretch",
-          flex: 4.5,
+          flex: 3,
           minHeight: 0,
         }}
       >
-        {/* Simulated Trajectory */}
+        {/* 시뮬레이션 궤적 차트 카드 (스파게티 플롯) / Simulated Trajectory Chart Card (Spaghetti Plot) */}
         <div
           style={{
             flex: 1,
@@ -858,7 +862,7 @@ function EfficacyContent() {
           </div>
         </div>
 
-        {/* Counterfactual Comparison */}
+        {/* 반사실 비교 차트 카드 (히스토그램) / Counterfactual Comparison Chart Card (Histogram) */}
         <div
           style={{
             flex: 1,
@@ -918,17 +922,17 @@ function AERiskContent() {
         overflow: "hidden",
       }}
     >
-      {/* 상단: Safety Trade-off + AE Risk */}
+      {/* 상단 행: Safety Trade-off 버블차트 + AE Risk 계단 꺾은선 차트 / Top Row: Safety Trade-off Bubble Chart + AE Risk Step Line Chart */}
       <div
         style={{
           display: "flex",
           gap: "16px",
           alignItems: "stretch",
-          flex: 2.5,
+          flex: 3,
           minHeight: 0,
         }}
       >
-        {/* Safety Trade-off chart */}
+        {/* Safety Trade-off 카드 (버블 차트: HbA1c 감소 vs AE 확률) / Safety Trade-off Card (Bubble Chart: △HbA1c vs AE Probability) */}
         <div
           style={{
             flex: "1 1 48%",
@@ -971,7 +975,7 @@ function AERiskContent() {
           </div>
         </div>
 
-        {/* AE Risk 移대뱶 */}
+        {/* AE Risk 카드 (계단 꺾은선 차트 + 유형 드롭다운) / AE Risk Card (Step Line Chart + AE Type Dropdown) */}
         <div
           style={{
             flex: "1 1 48%",
@@ -1081,7 +1085,7 @@ function AERiskContent() {
         </div>
       </div>
 
-      {/* 하단: Non responder Identification */}
+      {/* 하단 행: Non responder Identification (전략별 비반응자 특성 피처 테이블) / Bottom Row: Non-responder Identification Feature Tables per Strategy */}
       <div
         style={{
           background: "rgba(255,255,255,0.6)",
@@ -1090,7 +1094,7 @@ function AERiskContent() {
           display: "flex",
           flexDirection: "column",
           gap: "24px",
-          flex: 1.5,
+          flex: 2.25,
           minHeight: 0,
         }}
       >
@@ -1199,7 +1203,7 @@ export default function SimulationResultPage() {
   return (
     <AppLayout headerType="drd" drdStep={3} scaleMode="none">
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 0, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
-      {/* ??댄? */}
+        {/* 전체 페이지 래퍼 / Full Page Wrapper */}
       {/* 콘텐츠 영역 전체 컨테이너 (제목 + 좌우 패널) */}
       <div
         style={{
@@ -1212,6 +1216,7 @@ export default function SimulationResultPage() {
           
         }}
       >
+        {/* 페이지 제목 / Page Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 onClick={() => router.push("/drd/simulation-result")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
             Drug Response Prediction Dashboard
@@ -1227,7 +1232,7 @@ export default function SimulationResultPage() {
           gap: "0px",
         }}
       >
-        {/* ?? ?????⑤꼸 ?????????????????????????????????????????????????? */}
+        {/* 좌우 패널 전체 래퍼 / Left-Right Panel Wrapper */}
         <div
           style={{
             display: "flex",
@@ -1237,7 +1242,7 @@ export default function SimulationResultPage() {
             minHeight: 0,
           }}
         >
-          {/* ?? ?쇱そ ?⑤꼸: Simulation Strategies ???????????????????????? */}
+          {/* 왼쪽 패널: 시뮬레이션 전략 목록 / Left Panel: Simulation Strategies */}
           <div
             className="w-[380px] flex-shrink-0 rounded-[36px] gap-[28px] overflow-hidden flex flex-col"
             style={{
@@ -1252,7 +1257,7 @@ export default function SimulationResultPage() {
             paddingBottom: "4px"
             }}
           >
-            {/* Simulation Strategies 헤더 */}
+            {/* 전략 목록 헤더 타이틀 / Strategies Section Title */}
             <div
               style={{
                 borderRadius: "18px",
@@ -1272,7 +1277,7 @@ export default function SimulationResultPage() {
                   zIndex: 1,
                   fontFamily: "Inter",
                   fontWeight: 700,
-                  fontSize: "clamp(14px, 1.6vw, 26px)",
+                  fontSize: 24,
                   color: "#262255",
                   letterSpacing: "-1px",
                   lineHeight: 1,
@@ -1282,7 +1287,7 @@ export default function SimulationResultPage() {
               </span>
             </div>
 
-            {/* 전략 카드 목록 */}
+            {/* 전략 카드 목록 (Strategy A/B/C 카드 + Primary Outcome + Population) / Strategy Cards List */}
             <div
               style={{
                 flex: 1,
@@ -1290,7 +1295,8 @@ export default function SimulationResultPage() {
                 flexDirection: "column",
                 gap: "14px",
                 padding: "0px",
-                overflow: "hidden",
+                overflowY: "auto",
+                overflowX: "hidden",
                 minHeight: 0,
               }}
             >
@@ -1298,7 +1304,7 @@ export default function SimulationResultPage() {
                 <StrategyCard key={s.name} {...s} />
               ))}
 
-              {/* Primary Outcome + Population */}
+              {/* Primary Outcome 선택 라디오 + Population/Follow-up 정보 / Primary Outcome Radio Selector + Population Info */}
               <div
                 style={{
                   background: "#fff",
@@ -1347,7 +1353,7 @@ export default function SimulationResultPage() {
                 })}
               </div>
 
-              {/* Population / Follow-up */}
+              {/* 환자 집단 및 추적 관찰 기간 정보 / Population & Follow-up Info */}
               <div
                 style={{
                   background: "#fff",
@@ -1366,7 +1372,7 @@ export default function SimulationResultPage() {
               </div>
             </div>
 
-            {/* Edit Condition 버튼 */}
+            {/* 조건 편집 이동 버튼 / Edit Condition Navigation Button */}
             <div style={{ flexShrink: 0, display: "flex", justifyContent: "right" }}>
               <button
                 type="button"
@@ -1396,7 +1402,7 @@ export default function SimulationResultPage() {
             </div>
           </div>
 
-          {/* ?? ?ㅻⅨ履??⑤꼸: ???꾪솚 ??????????????????????????????????????? */}
+           {/* 오른쪽 패널: 요약 및 차트 영역 / Right Panel: Summary & Charts */}
            <div
             className="drd-left-panel flex-1 min-w-[280px] min-h-0 flex flex-col"
             style={{
@@ -1408,15 +1414,16 @@ export default function SimulationResultPage() {
               borderRightWidth: "24px",
               borderColor: "transparent",
               gap: "24px",
+              marginLeft: "-6px",
             }}
           >
-            {/* Summary */}
+            {/* 요약 텍스트 영역 / Summary Text Area */}
             <div style={{ flexShrink: 0, padding: 6, display: "flex", flexDirection: "column", gap: 24 }}>
               <h2
                 style={{
                   fontFamily: "Inter",
                   fontWeight: 700,
-                  fontSize: "clamp(14px, 1.8vw, 30px)",
+                  fontSize: 24,
                   color: COLOR_PRIMARY,
                   letterSpacing: "-0.9px",
                   lineHeight: 1,
@@ -1442,7 +1449,7 @@ export default function SimulationResultPage() {
               </p>
             </div>
 
-            {/* 탭 + 콘텐츠 묶음 */}
+            {/* 탭 + 탭 콘텐츠 영역 (Efficacy / AE risk) / Tab + Tab Content Area */}
             <div
               style={{
                 flex: 1,
@@ -1452,7 +1459,7 @@ export default function SimulationResultPage() {
                 gap: "12px",
               }}
             >
-              {/* 탭 */}
+              {/* Efficacy / AE risk 탭 전환 버튼 / Tab Switch Buttons */}
               <div
                 style={{
                   background: "#fff",
@@ -1505,7 +1512,7 @@ export default function SimulationResultPage() {
                 })}
               </div>
 
-              {/* 탭 콘텐츠 */}
+              {/* 선택된 탭의 콘텐츠 (EfficacyContent / AERiskContent) / Selected Tab Content */}
               {activeTab === "efficacy" ? <EfficacyContent /> : <AERiskContent />}
             </div>
           </div>
@@ -1513,7 +1520,7 @@ export default function SimulationResultPage() {
       </div>
       </div>
 
-      {/* Save Simulation 버튼 — 좌우 패널 컨테이너 밖, 0px gap */}
+      {/* 시뮬레이션 저장 버튼 영역 / Save Simulation Button Area */}
       <div style={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", paddingBottom: "24px" }}>
         <button
           type="button"
@@ -1543,7 +1550,7 @@ export default function SimulationResultPage() {
         </button>
       </div>
 
-      {/* ?? Save Simulation 紐⑤떖 ???????????????????????????????????????? */}
+      {/* Save Simulation 모달 / Save Simulation Modal */}
       {showSaveModal && (
         <div
           style={{
@@ -1572,21 +1579,21 @@ export default function SimulationResultPage() {
               boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
             }}
           >
-            {/* 湲?섏뒪 諛곌꼍 */}
+            {/* 유리 배경 레이어 / Glassmorphism Background Layer */}
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: "20px", pointerEvents: "none" }}>
               <div style={{ position: "absolute", inset: 0, borderRadius: "20px", background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
               <div style={{ position: "absolute", inset: 0, borderRadius: "20px", background: "rgba(255,255,255,0.88)" }} />
               <div style={{ position: "absolute", inset: 0, borderRadius: "20px", background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
             </div>
 
-            {/* 콘텐츠 */}
+            {/* 모달 콘텐츠 영역 / Modal Content Area */}
             <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
-              {/* 제목 */}
+              {/* 모달 제목 / Modal Title */}
               <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "18px", color: "#484646", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>
                 Save Simulation
               </p>
 
-              {/* 입력 필드 */}
+              {/* 시뮬레이션 이름 및 설명 입력 필드 / Simulation Name & Description Input Fields */}
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {/* Simulation Name */}
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -1645,9 +1652,9 @@ export default function SimulationResultPage() {
               </div>
             </div>
 
-            {/* 버튼 */}
+            {/* 모달 하단 버튼 영역 / Modal Bottom Button Area */}
             <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "8px", justifyContent: "center"}}>
-              {/* Close */}
+              {/* 닫기 버튼 / Close Button */}
               <button
                 type="button"
                 onClick={() => setShowSaveModal(false)}
@@ -1670,7 +1677,7 @@ export default function SimulationResultPage() {
                 Close
               </button>
 
-              {/* Save */}
+              {/* 저장 버튼 / Save Button */}
               <button
                 type="button"
                 onClick={() => setShowSaveModal(false)}

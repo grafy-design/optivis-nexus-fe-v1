@@ -1,3 +1,6 @@
+/* 데모시연 미진행 페이지 -> 개발 진행하지 않음 */
+
+
 "use client";
 
 import { useState } from "react";
@@ -132,21 +135,22 @@ export default function TSIPage() {
 
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", gap: 24, overflow: "hidden" }}>
-        <div className="w-[1772px] h-[980px] flex-shrink-0 mx-auto flex flex-col gap-3">
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+        <div className="flex flex-col gap-3 flex-1 min-h-0">
           {/* Main Card with Glass Background */}
           <div
-            className="relative rounded-[36px] overflow-hidden"
+            className="flex flex-col gap-6 flex-1 min-h-0"
             style={{
-              width: "1772px",
-              backgroundImage: "url(/assets/tsi/default-setting-bg.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
+              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
+              borderStyle: "solid",
+              borderTopWidth: "20px",
+              borderBottomWidth: "28px",
+              borderLeftWidth: "24px",
+              borderRightWidth: "24px",
+              borderColor: "transparent",
             }}
           >
-            <div className="relative p-6 flex flex-col gap-6">
+            <div className="flex flex-col gap-6 h-full">
               {/* Data Template Download & File Upload Section */}
               <div className="flex gap-6 mb-[22px]">
                 {/* Data Template Download Card */}
@@ -449,7 +453,8 @@ export default function TSIPage() {
               Use Data
             </Button>
           </div>
-        </div></div>
+        </div>
+      </div>
     </AppLayout>
   );
 }
