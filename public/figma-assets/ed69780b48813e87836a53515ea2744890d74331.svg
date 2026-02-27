@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 26.25 26.25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="ClockCounterClockwise" clip-path="url(#clip0_121_3651)">
+<g id="Vector">
+</g>
+<path id="Vector_2" d="M13.125 8.20312V13.125L17.2266 15.5859" stroke="var(--stroke-0, white)" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M7.38281 10.6641H3.28125V6.5625" stroke="var(--stroke-0, white)" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M6.93164 19.6879C8.22155 20.9051 9.84154 21.7151 11.5892 22.0169C13.3369 22.3186 15.1347 22.0987 16.7581 21.3845C18.3814 20.6703 19.7584 19.4936 20.7168 18.0014C21.6752 16.5091 22.1726 14.7675 22.1469 12.9942C22.1212 11.2209 21.5735 9.49443 20.5722 8.0306C19.5709 6.56677 18.1605 5.43046 16.5171 4.76365C14.8737 4.09683 13.0703 3.92909 11.3321 4.28137C9.5939 4.63365 7.99808 5.49034 6.74399 6.74439C5.53711 7.96666 4.54043 9.1192 3.28125 10.6645" stroke="var(--stroke-0, white)" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_121_3651">
+<rect width="26.25" height="26.25" fill="white"/>
+</clipPath>
+</defs>
+</svg>

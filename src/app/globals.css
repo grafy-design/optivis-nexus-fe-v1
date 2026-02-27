@@ -1,0 +1,686 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "katex/dist/katex.min.css";
+
+/* KaTeX 폰트 커스터마이징 - 프로젝트 기본 폰트에 맞춤 */
+.katex {
+  font-family: "Inter" !important;
+  font-size: 1em !important;
+}
+
+.katex .mathnormal {
+  font-family: "Inter" !important;
+  font-style: normal !important;
+}
+
+/* 수식 내 이탤릭 폰트 (변수용) - Inter Medium Italic */
+.katex .mathit {
+  font-family: "Inter" !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+}
+
+/* 수식 내 작은 이탤릭 폰트 (아래첨자용) - Inter Semi Bold Italic */
+.katex .mathdefault {
+  font-family: "Inter" !important;
+  font-style: italic !important;
+  font-weight: 600 !important;
+}
+
+/* Used Values와 Definitions의 기호 부분 폰트 */
+.katex-display-inline {
+  font-family: "Inter" !important;
+}
+
+.katex-display-inline .katex {
+  font-family: "Inter" !important;
+}
+
+.katex-display-inline .katex .mathnormal,
+.katex-display-inline .katex .mathit,
+.katex-display-inline .katex .mathdefault {
+  font-family: "Inter" !important;
+  font-style: normal !important;
+  font-weight: 500 !important; /* Inter Medium */
+}
+
+/* 슬라이더 드래그 중 텍스트 선택 완전 차단 */
+.no-select,
+.no-select * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+:root {
+  /* Primary Colors (Purple) */
+  --primary-100: #ffffff;
+  --primary-99: #fffbff;
+  --primary-98: #fcf8ff;
+  --primary-95: #f3eeff;
+  --primary-90: #e3dfff;
+  --primary-80: #c5c0fe;
+  --primary-70: #aaa5e1;
+  --primary-60: #8f8ac4;
+  --primary-50: #7571a9;
+  --primary-40: #5c588e;
+  --primary-35: #504c82;
+  --primary-30: #444075;
+  --primary-25: #393569;
+  --primary-20: #2d2a5d;
+  --primary-15: #262255;
+  --primary-10: #181347;
+  --primary-5: #0d063c;
+  --primary-0: #000000;
+
+  /* Secondary Colors (Orange) */
+  --secondary-100: #ffffff;
+  --secondary-99: #fffbff;
+  --secondary-98: #fff8f6;
+  --secondary-95: #ffede6;
+  --secondary-90: #ffdbcb;
+  --secondary-80: #ffb692;
+  --secondary-70: #ff8d4f;
+  --secondary-60: #f06600;
+  --secondary-50: #d55200;
+  --secondary-40: #9f4200;
+  --secondary-35: #8c3900;
+  --secondary-30: #793000;
+  --secondary-25: #672800;
+  --secondary-20: #562000;
+  --secondary-15: #451800;
+  --secondary-10: #341100;
+  --secondary-5: #230900;
+  --secondary-0: #000000;
+
+  /* Tertiary Colors (Purple) */
+  --tertiary-100: #ffffff;
+  --tertiary-99: #fdfcfc;
+  --tertiary-98: #faf9f9;
+  --tertiary-95: #bfb0f8;
+  --tertiary-90: #a297cc;
+  --tertiary-80: #a18af4;
+  --tertiary-70: #a18af4;
+  --tertiary-60: #7654f0;
+  --tertiary-50: #5230cd;
+  --tertiary-40: #3a11d8;
+  --tertiary-35: #2e09bb;
+  --tertiary-30: #3609a1;
+  --tertiary-25: #8f8ba9;
+  --tertiary-20: #575166;
+  --tertiary-15: #231368;
+  --tertiary-10: #150d35;
+  --tertiary-5: #1a1226;
+  --tertiary-0: #000000;
+
+  /* Neutral Colors (Gray) */
+  --neutral-100: #ffffff;
+  --neutral-99: #f6f7ff;
+  --neutral-98: #f9f8fc;
+  --neutral-95: #efeff4;
+  --neutral-90: #e3e1e5;
+  --neutral-80: #c7c5c9;
+  --neutral-70: #acaaad;
+  --neutral-60: #919092;
+  --neutral-50: #787776;
+  --neutral-40: #5f5e5e;
+  --neutral-35: #535252;
+  --neutral-30: #484646;
+  --neutral-25: #3c3b3b;
+  --neutral-20: #313030;
+  --neutral-15: #262625;
+  --neutral-10: #1c1b1b;
+  --neutral-5: #111111;
+  --neutral-0: #000000;
+
+  /* Error Colors (Red) */
+  --error-100: #ffffff;
+  --error-99: #fffbff;
+  --error-98: #fff8f7;
+  --error-95: #ffedea;
+  --error-90: #ffdad6;
+  --error-80: #ffb4ab;
+  --error-70: #ff897d;
+  --error-60: #ff5449;
+  --error-50: #de3730;
+  --error-40: #ba1a1a;
+  --error-35: #a80710;
+  --error-30: #93000a;
+  --error-25: #7e0007;
+  --error-20: #690005;
+  --error-15: #540003;
+  --error-10: #410002;
+  --error-5: #2d0001;
+  --error-0: #000000;
+
+  /* Key Colors */
+  --white: #ffffff;
+  --black: #000000;
+  --primary: #262255;
+  --secondary: #f46904;
+  --background: #e7e5e7;
+  --BG: linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%);
+}
+
+/* Tailwind Theme - CSS 변수를 Tailwind 클래스로 사용 가능하게 함 */
+@theme {
+  /* Primary Colors */
+  --color-primary-100: var(--primary-100);
+  --color-primary-99: var(--primary-99);
+  --color-primary-98: var(--primary-98);
+  --color-primary-95: var(--primary-95);
+  --color-primary-90: var(--primary-90);
+  --color-primary-80: var(--primary-80);
+  --color-primary-70: var(--primary-70);
+  --color-primary-60: var(--primary-60);
+  --color-primary-50: var(--primary-50);
+  --color-primary-40: var(--primary-40);
+  --color-primary-35: var(--primary-35);
+  --color-primary-30: var(--primary-30);
+  --color-primary-25: var(--primary-25);
+  --color-primary-20: var(--primary-20);
+  --color-primary-15: var(--primary-15);
+  --color-primary-10: var(--primary-10);
+  --color-primary-5: var(--primary-5);
+  --color-primary-0: var(--primary-0);
+
+  /* Secondary Colors */
+  --color-secondary-100: var(--secondary-100);
+  --color-secondary-99: var(--secondary-99);
+  --color-secondary-98: var(--secondary-98);
+  --color-secondary-95: var(--secondary-95);
+  --color-secondary-90: var(--secondary-90);
+  --color-secondary-80: var(--secondary-80);
+  --color-secondary-70: var(--secondary-70);
+  --color-secondary-60: var(--secondary-60);
+  --color-secondary-50: var(--secondary-50);
+  --color-secondary-40: var(--secondary-40);
+  --color-secondary-35: var(--secondary-35);
+  --color-secondary-30: var(--secondary-30);
+  --color-secondary-25: var(--secondary-25);
+  --color-secondary-20: var(--secondary-20);
+  --color-secondary-15: var(--secondary-15);
+  --color-secondary-10: var(--secondary-10);
+  --color-secondary-5: var(--secondary-5);
+  --color-secondary-0: var(--secondary-0);
+
+  /* Tertiary Colors */
+  --color-tertiary-100: var(--tertiary-100);
+  --color-tertiary-99: var(--tertiary-99);
+  --color-tertiary-98: var(--tertiary-98);
+  --color-tertiary-95: var(--tertiary-95);
+  --color-tertiary-90: var(--tertiary-90);
+  --color-tertiary-80: var(--tertiary-80);
+  --color-tertiary-70: var(--tertiary-70);
+  --color-tertiary-60: var(--tertiary-60);
+  --color-tertiary-50: var(--tertiary-50);
+  --color-tertiary-40: var(--tertiary-40);
+  --color-tertiary-35: var(--tertiary-35);
+  --color-tertiary-30: var(--tertiary-30);
+  --color-tertiary-25: var(--tertiary-25);
+  --color-tertiary-20: var(--tertiary-20);
+  --color-tertiary-15: var(--tertiary-15);
+  --color-tertiary-10: var(--tertiary-10);
+  --color-tertiary-5: var(--tertiary-5);
+  --color-tertiary-0: var(--tertiary-0);
+
+  /* Neutral Colors */
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-99: var(--neutral-99);
+  --color-neutral-98: var(--neutral-98);
+  --color-neutral-95: var(--neutral-95);
+  --color-neutral-90: var(--neutral-90);
+  --color-neutral-80: var(--neutral-80);
+  --color-neutral-70: var(--neutral-70);
+  --color-neutral-60: var(--neutral-60);
+  --color-neutral-50: var(--neutral-50);
+  --color-neutral-40: var(--neutral-40);
+  --color-neutral-35: var(--neutral-35);
+  --color-neutral-30: var(--neutral-30);
+  --color-neutral-25: var(--neutral-25);
+  --color-neutral-20: var(--neutral-20);
+  --color-neutral-15: var(--neutral-15);
+  --color-neutral-10: var(--neutral-10);
+  --color-neutral-5: var(--neutral-5);
+  --color-neutral-0: var(--neutral-0);
+
+  /* Error Colors */
+  --color-error-100: var(--error-100);
+  --color-error-99: var(--error-99);
+  --color-error-98: var(--error-98);
+  --color-error-95: var(--error-95);
+  --color-error-90: var(--error-90);
+  --color-error-80: var(--error-80);
+  --color-error-70: var(--error-70);
+  --color-error-60: var(--error-60);
+  --color-error-50: var(--error-50);
+  --color-error-40: var(--error-40);
+  --color-error-35: var(--error-35);
+  --color-error-30: var(--error-30);
+  --color-error-25: var(--error-25);
+  --color-error-20: var(--error-20);
+  --color-error-15: var(--error-15);
+  --color-error-10: var(--error-10);
+  --color-error-5: var(--error-5);
+  --color-error-0: var(--error-0);
+
+  /* Key Colors */
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-background: var(--background);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    outline: none;
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  *:focus-visible {
+    outline: none;
+  }
+
+  /* 피그마 디자인 기준: tertiary/50 (#4013EE) 커서 색상 전역 적용 */
+  input,
+  textarea,
+  [contenteditable] {
+    caret-color: #4013ee;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--BG, linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%));
+    outline: none;
+  }
+
+  body {
+    font-family: "Inter";
+    background: var(--BG, linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%));
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    outline: none;
+  }
+
+  main {
+    outline: none;
+  }
+
+  /* SimpleBar Custom Styles */
+  .simplebar-scrollbar::before {
+    background: #787776 !important;
+    border-radius: 3px !important;
+    opacity: 1 !important;
+    top: 8px !important;
+    bottom: 16px !important;
+  }
+
+  .simplebar-scrollbar {
+    width: 12px !important;
+    background: transparent !important;
+  }
+
+  .simplebar-track.simplebar-vertical {
+    width: 12px !important;
+    background: transparent !important;
+    padding: 8px 0 !important;
+  }
+
+  .simplebar-track {
+    background: transparent !important;
+  }
+
+  /* Horizontal Scrollbar Styles - Match SimpleBar vertical scrollbar */
+  .simplebar-track.simplebar-horizontal {
+    height: 12px !important;
+    background: transparent !important;
+    padding: 0 8px !important;
+  }
+
+  .simplebar-scrollbar.simplebar-horizontal::before {
+    background: #787776 !important;
+    border-radius: 3px !important;
+    opacity: 1 !important;
+    left: 8px !important;
+    right: 16px !important;
+    height: 12px !important;
+  }
+
+  /* Global Scrollbar - 앱 전체 동일 스타일 (thin, 화살표 없음) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #787776 transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #787776;
+    border-radius: 3px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #787776;
+  }
+  *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Select dropdown scrollbar - 배경을 셀렉트바와 맞춤 (neutral-90) */
+  .select-dropdown-options {
+    scrollbar-width: thin;
+    scrollbar-color: var(--neutral-70) var(--neutral-90);
+  }
+  .select-dropdown-options::-webkit-scrollbar {
+    width: 6px;
+  }
+  .select-dropdown-options::-webkit-scrollbar-track {
+    background: var(--neutral-90);
+  }
+  .select-dropdown-options::-webkit-scrollbar-thumb {
+    background: var(--neutral-70);
+    border-radius: 3px;
+  }
+}
+
+.figma-nine-slice {
+  position: relative;
+}
+
+.figma-nine-slice::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-style: solid;
+  border-color: transparent;
+  border-image-repeat: stretch;
+}
+
+.figma-nine-slice > * {
+  position: relative;
+  z-index: 1;
+}
+
+.figma-home-panel-left::before {
+  border-width: 20px 50px 70px 50px;
+  border-image-source: url("/assets/figma/home/frame-panel-left.png");
+  border-image-slice: 40 100 140 100 fill;
+  border-image-width: 20px 50px 70px 50px;
+}
+
+.figma-home-panel-middle::before {
+  border-width: 20px 50px 70px 50px;
+  border-image-source: url("/assets/figma/home/frame-panel-middle.png");
+  border-image-slice: 40 100 140 100 fill;
+  border-image-width: 20px 50px 70px 50px;
+}
+
+.figma-home-panel-right::before {
+  border-width: 20px 50px 70px 50px;
+  border-image-source: url("/assets/figma/home/frame-panel-right.png");
+  border-image-slice: 40 100 140 100 fill;
+  border-image-width: 20px 50px 70px 50px;
+}
+
+.figma-header-btn-template::before {
+  inset: -2px;
+  border-style: none;
+  border-width: 0;
+  border-image: none;
+  background: url("/assets/figma/home/header-btn-template-frame.png") center / 100% 100% no-repeat;
+}
+
+.figma-header-btn-setting::before {
+  inset: -2px;
+  border-style: none;
+  border-width: 0;
+  border-image: none;
+  background: url("/assets/figma/home/header-btn-setting-frame.png") center / 100% 100% no-repeat;
+}
+
+.figma-header-btn-help::before {
+  inset: -2px;
+  border-style: none;
+  border-width: 0;
+  border-image: none;
+  background: url("/assets/figma/home/header-help-frame.png") center / 100% 100% no-repeat;
+}
+
+@layer utilities {
+  /* Typography - H0 (Inter Medium 60px) */
+  .text-h0 {
+    font-size: 60px;
+    font-weight: 500;
+    line-height: 60px;
+    letter-spacing: -3.6px;
+  }
+
+  /* Typography - Title (Inter SemiBold 48px) */
+  .text-title {
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 48px;
+    letter-spacing: -2.4px;
+  }
+
+  /* Typography - Logo (Inter SemiBold 34.81px) */
+  .text-logo {
+    font-size: 34.81px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -1.044px;
+  }
+
+  /* Typography - H1 (Inter Semibold 48px) */
+  .text-h1 {
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 46.08px;
+    letter-spacing: -0.96px;
+  }
+
+  /* Typography - H2 (Inter Medium 40px) */
+  .text-h2 {
+    font-family: Inter;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 100%; /* 40px */
+    letter-spacing: -1.2px;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: 'liga' off, 'clig' off;
+  }
+
+  /* Typography - H3 (Inter Semibold 36px) */
+  .text-h3 {
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 36px;
+    letter-spacing: -0.72px;
+  }
+
+  /* Typography - H4 (Inter Semibold 28px) */
+  .text-h4 {
+    font-family: Inter;
+    font-size: 28px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%; /* 28px */
+    letter-spacing: -0.84px;
+  }
+
+  /* Typography - Body1 (Inter Semibold 24px) */
+  .text-body1 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 28.8px;
+    letter-spacing: -0.72px;
+  }
+
+  /* Typography - Body1m (Inter Medium 24px, different letter-spacing) */
+  .text-body1m {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 28.8px;
+    letter-spacing: -0.64px;
+  }
+
+  /* Typography - Body2 (Inter Semibold 19.5px) */
+  .text-body2 {
+    font-size: 19.5px;
+    font-weight: 600;
+    line-height: 23.4px;
+    letter-spacing: -0.78px;
+  }
+
+  /* Typography - Body2m (Inter Medium 19.5px) */
+  .text-body2m {
+    font-size: 19.5px;
+    font-weight: 500;
+    line-height: 23.4px;
+    letter-spacing: -0.585px;
+  }
+
+  /* Typography - Body3 (Inter Semibold 17px) */
+  .text-body3 {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+
+  /* Typography - Body3m (Inter Medium 17px) */
+  .text-body3m {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+
+  /* Typography - Body4 (Inter Semibold 15px) */
+  .text-body4 {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 16.5px;
+    letter-spacing: -0.75px;
+  }
+
+  /* Typography - Body4m (Inter Medium 15px) */
+  .text-body4m {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 16.5px;
+    letter-spacing: -0.45px;
+  }
+
+  /* Typography - Body5 (Inter Semibold 12px) */
+  .text-body5 {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 13.2px;
+    letter-spacing: -0.36px;
+  }
+
+  /* Typography - Body5m (Inter Medium 12px) */
+  .text-body5m {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 13.2px;
+    letter-spacing: -0.48px;
+  }
+
+  /* Typography - Small1 (Inter Medium 10.5px) */
+  .text-small1 {
+    font-size: 10.5px;
+    font-weight: 500;
+    line-height: 11.025px;
+    letter-spacing: -0.525px;
+  }
+
+  /* Typography - Small2 (Inter Semibold 9px) */
+  .text-small2 {
+    font-size: 9px;
+    font-weight: 590;
+    line-height: 10.74px;
+    letter-spacing: -0.27px;
+  }
+
+  /* Typography - Feature List Title (Inter Semi Bold 600, 19.5px) */
+  .text-feature-title {
+    font-size: 19.5px;
+    font-weight: 600;
+    line-height: 23.4px;
+    letter-spacing: -0.78px;
+  }
+
+  /* Typography - Feature Search Placeholder (Inter Semi Bold 600, 17px) */
+  .text-feature-search {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+
+  /* Typography - Feature Item Text (Inter Medium 500, 17px) */
+  .text-feature-item {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+
+  /* Liquid Glass Effect - Based on Figma Design */
+  .liquid-glass {
+    position: relative;
+    border-radius: 1000px;
+    overflow: hidden;
+  }
+
+  .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 1000px;
+    background: rgba(0, 0, 0, 0.04);
+    filter: blur(8px);
+    mix-blend-mode: hard-light;
+  }
+
+  .liquid-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 1000px;
+    background: linear-gradient(180deg, #242424 0%, #242424 100%);
+    mix-blend-mode: linear-dodge;
+  }
+
+  /* Firefox Fallback for backdrop-filter */
+  @supports not (backdrop-filter: blur(10px)) {
+    .glass-effect-layer {
+      background: rgba(36, 36, 36, 0.5) !important;
+    }
+  }
+}
