@@ -35,40 +35,27 @@ npm run build
 npm start
 ```
 
-## Docker tar 배포 (Windows/macOS/Linux)
+## Docker tar 배포 (macOS/Linux)
 
 플랫폼(아키텍처) mismatch를 피하려면 `platform`을 명시해서 빌드/실행하세요.
 
 - 기본 권장: `linux/amd64`
 - ARM 서버 대상: `linux/arm64`
 
-macOS/Linux에서 tar 생성:
+tar 생성:
 
 ```bash
 ./create-tar.sh linux/amd64
 ```
 
-Windows에서 tar 생성:
-
-```bat
-create-tar.bat linux/amd64
-```
-
-macOS/Linux에서 배포:
+배포:
 
 ```bash
 ./load.sh optivis-nexus-fe_YYYYMMDD_HHMMSS.tar linux/amd64
 ```
 
-Windows에서 배포:
-
-```bat
-load.bat optivis-nexus-fe_YYYYMMDD_HHMMSS.tar linux/amd64
-```
-
 스크립트 파일:
-- `create-tar.sh`, `load.sh`: macOS/Linux
-- `create-tar.bat`, `load.bat`: Windows
+- `create-tar.sh`, `load.sh`
 
 ## 프로젝트 구조
 
@@ -88,6 +75,5 @@ src/
 ## 라이선스
 
 Private
-
 
 
