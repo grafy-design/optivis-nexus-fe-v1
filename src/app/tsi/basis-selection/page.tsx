@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -67,7 +67,7 @@ function ChevronRightIcon({ className }: { className?: string }) {
   );
 }
 
-export default function TSIBasisSelectionPage() {
+function TSIBasisSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId");
@@ -184,5 +184,13 @@ export default function TSIBasisSelectionPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function TSIBasisSelectionPage() {
+  return (
+    <Suspense fallback={null}>
+      <TSIBasisSelectionPageContent />
+    </Suspense>
   );
 }

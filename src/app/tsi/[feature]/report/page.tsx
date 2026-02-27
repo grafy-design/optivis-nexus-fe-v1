@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
@@ -439,7 +439,7 @@ const decodeFeature = (value: string): string => {
   }
 };
 
-export default function TSIReportPage() {
+function TSIReportPageContent() {
   const routeParams = useParams<{ feature?: string }>();
   const featureParam = routeParams?.feature;
   const featureName = decodeFeature(featureParam ?? "").trim();
@@ -972,5 +972,13 @@ export default function TSIReportPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function TSIReportPage() {
+  return (
+    <Suspense fallback={null}>
+      <TSIReportPageContent />
+    </Suspense>
   );
 }

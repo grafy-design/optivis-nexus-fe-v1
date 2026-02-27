@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { ATSHeader } from "./ATSHeader";
@@ -15,6 +15,18 @@ interface AppLayoutProps {
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children, headerType = "default" }) => {
+  const header = (() => {
+    if (headerType === "ats") return <ATSHeader />;
+    if (headerType === "tsi") {
+      return (
+        <Suspense fallback={<div className="h-[76px] w-full" />}>
+          <TSIHeader />
+        </Suspense>
+      );
+    }
+    return <Header />;
+  })();
+
   return (
     <div className="relative h-screen w-full overflow-hidden">
       <Sidebar />
@@ -22,7 +34,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, headerType = "de
         className="flex h-screen min-w-0 flex-col overflow-hidden"
         style={{ width: "calc(100% - 96px)", marginLeft: "96px" }}
       >
-        {headerType === "ats" ? <ATSHeader /> : headerType === "tsi" ? <TSIHeader /> : <Header />}
+        {header}
         <div className="min-w-0 flex-1 overflow-auto">
           <MainContainer>{children}</MainContainer>
         </div>

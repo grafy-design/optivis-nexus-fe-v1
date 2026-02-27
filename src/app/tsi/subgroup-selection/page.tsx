@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment, useEffect } from "react";
+import { Suspense, useState, Fragment, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as RadioGroup from "@radix-ui/react-radio-group";
@@ -55,7 +55,7 @@ const TABLE_INNER_DIV_LEFT = "w-full h-[28px] flex items-center border-l border-
 const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full h-[28px] flex items-center justify-center";
 const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-[28px] flex items-center";
 
-export default function TSISubgroupSelectionPage() {
+function TSISubgroupSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId") ?? "";
@@ -1558,5 +1558,13 @@ export default function TSISubgroupSelectionPage() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+export default function TSISubgroupSelectionPage() {
+  return (
+    <Suspense fallback={null}>
+      <TSISubgroupSelectionPageContent />
+    </Suspense>
   );
 }
