@@ -33,8 +33,12 @@ interface RightPanelContent {
   title: string;
   description: string;
   imageUrl: string;
+  videoUrl?: string; // 영상 URL 필드 추가
+  videoStartOffsetSeconds?: number;
+  videoPlaybackRate?: number;
+  videoScale?: number;
+  videoReverseLoop?: boolean;
 }
-
 // Mock data - Package와 Service 관계 정의
 const packages: Package[] = [
   {
@@ -100,23 +104,34 @@ const packages: Package[] = [
 // Service ID와 오른쪽 패널 콘텐츠 매핑 (구조 동일, 문구·히어로 이미지만 서비스별로 다름)
 const serviceContentMap: Record<string, RightPanelContent> = {
   "4": {
-    title: "Adaptive Trial Simulation",
+    title: "Adaptive Trial\nSimulation",
     description:
       "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
     imageUrl: "/assets/main/adaptive-trial.png",
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/oprimed/2-1%20ATS.webm",
+    videoPlaybackRate: 0.8,
+    videoScale: 1.06,
+    videoReverseLoop: true,
   },
   "5": {
-    title: "Target Subgroup Identification",
+    title: "Target Subgroup\nIdentification",
     description:
       "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
-    // 히어로 패널 이미지: 추후 전달 예정. 같은 구조로 교체만 하면 됨.
     imageUrl: "/assets/main/target-subgroup-identification.png",
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/oprimed/2-2%20TSI.webm",
+    videoPlaybackRate: 0.8,
+    videoScale: 1.06,
+    videoReverseLoop: true,
   },
   "6": {
-    title: "Conditional Drug Response Prediction",
+    title: "Conditional Drug\nResponse Prediction",
     description:
       "Drug level simulation based on patient baseline information and Simulation Settings, with support for multiple conditions per scenario",
     imageUrl: "/assets/main/conditional-drug.png",
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/oprimed/2-3%20DRD.webm",
+    videoPlaybackRate: 0.8,
+    videoScale: 1.06,
+    videoReverseLoop: true,
   },
 };
 
@@ -199,6 +214,10 @@ export default function HomePage() {
                 description={rightPanelContent.description}
                 imageUrl={rightPanelContent.imageUrl}
                 serviceId={selectedServiceId}
+                videoUrl={rightPanelContent.videoUrl}
+                videoPlaybackRate={rightPanelContent.videoPlaybackRate}
+                videoScale={rightPanelContent.videoScale}
+                videoReverseLoop={rightPanelContent.videoReverseLoop}
               />
               <div className="flex flex-col gap-[20px]">
                 <SimulationSearch keyword={keyword} onChangeKeyword={onChangeKeyword} />
