@@ -14,6 +14,7 @@ import { RefineCutoffChartEditor } from "./components/RefineCutoffChartEditor";
 import {
   getIdentificationFeatureInfo,
   getIdentificationSetInfo,
+  saveSubgroupIdentification,
   type IdentificationFeatureInfoData,
   type IdentificationFeatureInfoRow,
   type IdentificationSetInfoData,
@@ -889,8 +890,7 @@ function TSIRefineCutoffsPageContent() {
   // 슬라이더 값 계산 (feature/info의 month_min ~ month_max 범위)
   const monthRange = Math.max(maxMonth - minMonth, 1);
   const monthPercentage = ((effectivePendingStratificationMonth - minMonth) / monthRange) * 100;
-  const isMonthDirty =
-    effectivePendingStratificationMonth !== effectiveAppliedStratificationMonth;
+  const isMonthDirty = effectivePendingStratificationMonth !== effectiveAppliedStratificationMonth;
 
   const handleClickApplyCriteria = () => {
     if (!taskId || !subgroupId) {
@@ -930,6 +930,54 @@ function TSIRefineCutoffsPageContent() {
       setSetInfoData(response.data);
     } catch (_error) {
       setSetInfoData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOnSaveRefineCutoff = async () => {
+    if (!subgroupId) {
+      return;
+    }
+
+    const parsedSubgroupId = Number.parseInt(subgroupId, 10);
+    if (!Number.isFinite(parsedSubgroupId)) {
+      return;
+    }
+
+    const parsedCutoffRawVersion = Number.parseInt(featureInfoData?.cutoff_raw_json?.[0] ?? "", 10);
+    const cutoffRawVersion = Number.isFinite(parsedCutoffRawVersion)
+      ? parsedCutoffRawVersion
+      : 1;
+
+    const requestParams = {
+      subgroupId: parsedSubgroupId,
+      cutoffAxisType,
+      cutoffRawVersion,
+      cutoffX: cutoffXValues,
+      cutoffY: cutoffYValues,
+    };
+    const requestBody = {
+      subgroup_id: requestParams.subgroupId,
+      cutoff_axis_type: requestParams.cutoffAxisType,
+      cutoff_raw_version: requestParams.cutoffRawVersion,
+      cutoff_x: requestParams.cutoffX,
+      cutoff_y: requestParams.cutoffY,
+    };
+
+    // 저장 이벤트 연결 전에 파라미터를 먼저 콘솔로 확인한다.
+    console.log("[handleOnSaveRefineCutoff] requestBody", requestBody);
+
+    setIsLoading(true);
+
+    try {
+      await saveSubgroupIdentification(
+        requestParams.subgroupId,
+        requestParams.cutoffAxisType,
+        requestParams.cutoffRawVersion,
+        requestParams.cutoffX,
+        requestParams.cutoffY
+      );
     } finally {
       setIsLoading(false);
     }
@@ -1305,6 +1353,7 @@ function TSIRefineCutoffsPageContent() {
                 <button
                   className="text-body4 h-[42px] rounded-full px-6 font-semibold text-white"
                   style={{ backgroundColor: "#C7C5C9" }}
+                  onClick={handleOnSaveRefineCutoff}
                 >
                   Save
                 </button>

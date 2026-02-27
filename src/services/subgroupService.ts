@@ -495,9 +495,9 @@ export const getIdentificationSetInfo = async (
 };
 
 export const saveSubgroupIdentification = async (
-  subgroupId: string,
+  subgroupId: number,
   cutoffAxisType: "x_value" | "y_percent",
-  cutoffRawVersion: string,
+  cutoffRawVersion: number,
   cutoffX: string[],
   cutoffY: string[]
 ) => {
@@ -506,12 +506,15 @@ export const saveSubgroupIdentification = async (
     "PUT",
     "Subgroup Identification Cutoff 저장에 실패했습니다.",
     {
+      headers: {
+        "content-type": "application/json",
+      },
       body: {
         subgroup_id: subgroupId,
         cutoff_axis_type: cutoffAxisType,
-        cutoffRawVersion: cutoffRawVersion,
-        cutoffX: cutoffX.toString(),
-        cutoffY: cutoffY.toString(),
+        cutoff_raw_version: cutoffRawVersion,
+        cutoff_x: cutoffX,
+        cutoff_y: cutoffY,
       },
     }
   );
