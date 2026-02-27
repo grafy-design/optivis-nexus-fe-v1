@@ -55,6 +55,13 @@ const TABLE_INNER_DIV_LEFT = "w-full h-[28px] flex items-center border-l border-
 const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full h-[28px] flex items-center justify-center";
 const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-[28px] flex items-center";
 
+const getCiText = (varianceDecomposition: ResultTableItem["variance_decomposition"]) => {
+  if (!varianceDecomposition) return "";
+  const listItem = varianceDecomposition[varianceDecomposition.length - 1];
+  return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci})
+  η²=${listItem.eta_square}, ω²=${listItem.omega} `;
+};
+
 function TSISubgroupSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -133,8 +140,6 @@ function TSISubgroupSelectionPageContent() {
       router.push(`/tsi/subgroup-explain?${query.toString()}`);
     }
   };
-
-  console.log(resultTableData);
 
   return (
     <AppLayout headerType="tsi">
@@ -1181,25 +1186,47 @@ function TSISubgroupSelectionPageContent() {
                                                     {/* Variance decomposition */}
                                                     <div className="flex h-[306px] w-[350px] flex-col overflow-hidden rounded-[12px] bg-white">
                                                       {/* 텍스트 영역 (패딩 있음) */}
-                                                      <div className="flex-shrink-0 p-4">
-                                                        <h3 className="text-body4 mb-4 tracking-[-0.75px] text-[#1c1b1b]">
-                                                          Variance decomposition
-                                                        </h3>
-                                                        <div className="mb-4 flex gap-5">
-                                                          <div>
-                                                            <div className="text-body5 mb-1 font-semibold text-[#f06600]">
-                                                              Variance
+                                                      <div className="flex justify-between">
+                                                        <div className="flex-shrink-0 p-4">
+                                                          <h3 className="text-body4 mb-4 tracking-[-0.75px] text-[#1c1b1b]">
+                                                            Variance decomposition
+                                                          </h3>
+                                                          <div className="mb-4 flex gap-5">
+                                                            <div>
+                                                              <div className="text-body5 mb-1 font-semibold text-[#f06600]">
+                                                                Variance
+                                                              </div>
+                                                              <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
+                                                                {totalVariance.toFixed(2)}
+                                                              </div>
                                                             </div>
-                                                            <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
-                                                              {totalVariance.toFixed(2)}
+                                                            <div>
+                                                              <div className="text-body5 mb-1 font-semibold text-[#f06600]">
+                                                                VR
+                                                              </div>
+                                                              <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
+                                                                {totalVR.toFixed(3)}
+                                                              </div>
                                                             </div>
                                                           </div>
-                                                          <div>
-                                                            <div className="text-body5 mb-1 font-semibold text-[#f06600]">
-                                                              VR
+                                                        </div>
+                                                        <div className="gap-1 p-4">
+                                                          <div className="flex gap-[5px] font-medium">
+                                                            <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#231F52]" />
+                                                            <div className="w-[60px] text-[10.5px]">
+                                                              <p>Within</p>
+                                                              <p className="-mt-1 text-[#939090]">
+                                                                pooled
+                                                              </p>
                                                             </div>
-                                                            <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
-                                                              {totalVR.toFixed(3)}
+                                                          </div>
+                                                          <div className="flex gap-[5px] font-medium">
+                                                            <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#AAA5E1]" />
+                                                            <div className="w-[60px] text-[10.5px]">
+                                                              <p>Explained</p>
+                                                              <p className="-mt-1 text-[#939090]">
+                                                                Total Within
+                                                              </p>
                                                             </div>
                                                           </div>
                                                         </div>
@@ -1213,22 +1240,29 @@ function TSISubgroupSelectionPageContent() {
                                                             // Variance decomposition 차트 데이터 준비
                                                             const decompositionData =
                                                               detailData.variance_decomposition;
-                                                            // 총 variance는 첫 번째 항목의 variance 사용 (모든 그룹이 같은 total_var를 가짐)
+                                                            // 총 variance는 첫 번째 항목의 variance 사용
                                                             const totalVarianceValue =
                                                               decompositionData[0]?.variance || 0;
-                                                            // Within pooled는 첫 번째 그룹의 variance
-                                                            const withinPooled =
-                                                              decompositionData[0]?.variance || 0;
-                                                            // Explained Total Within은 나머지 그룹들의 variance 합
+                                                            // VR을 비율로 해석해 total variance를 within/explained로 분해
+                                                            // (stack 합이 totalVarianceValue가 되도록 유지)
+                                                            const vrRatio = Math.max(
+                                                              0,
+                                                              Math.min(
+                                                                1,
+                                                                decompositionData[0]?.vr ?? 0
+                                                              )
+                                                            );
                                                             const explainedTotal =
-                                                              decompositionData.length > 1
-                                                                ? decompositionData
-                                                                    .slice(1)
-                                                                    .reduce(
-                                                                      (sum, d) => sum + d.variance,
-                                                                      0
-                                                                    )
-                                                                : 0;
+                                                              totalVarianceValue * vrRatio;
+                                                            const withinPooled = Math.max(
+                                                              0,
+                                                              totalVarianceValue - explainedTotal
+                                                            );
+                                                            const varianceMax = Math.max(
+                                                              totalVarianceValue,
+                                                              0
+                                                            );
+                                                            const varianceBarWidth = "82%";
 
                                                             const chartOption = {
                                                               animation: false,
@@ -1264,7 +1298,7 @@ function TSISubgroupSelectionPageContent() {
                                                                 name: "Variance",
                                                                 nameLocation: "middle",
                                                                 nameGap: 20,
-                                                                max: totalVarianceValue * 1.2,
+                                                                max: varianceMax * 1.5,
                                                                 splitNumber: 5,
                                                                 nameTextStyle: {
                                                                   fontSize: 9,
@@ -1311,7 +1345,7 @@ function TSISubgroupSelectionPageContent() {
                                                                     color: "#231F52",
                                                                     borderRadius: [8, 8, 8, 8],
                                                                   },
-                                                                  barWidth: "60%",
+                                                                  barWidth: varianceBarWidth,
                                                                 },
                                                                 {
                                                                   name: "Explained Total Within",
@@ -1322,18 +1356,30 @@ function TSISubgroupSelectionPageContent() {
                                                                     color: "#AAA5E1",
                                                                     borderRadius: [8, 8, 8, 8],
                                                                   },
+                                                                  barWidth: varianceBarWidth,
                                                                 },
                                                               ],
                                                             };
 
                                                             return (
-                                                              <ReactECharts
-                                                                option={chartOption}
-                                                                style={{
-                                                                  height: "100%",
-                                                                  width: "100%",
-                                                                }}
-                                                              />
+                                                              <div className="relative h-full w-full">
+                                                                <ReactECharts
+                                                                  option={chartOption}
+                                                                  style={{
+                                                                    height: "100%",
+                                                                    width: "100%",
+                                                                  }}
+                                                                />
+                                                                <div className="pointer-events-none absolute top-[8px] right-[14px] left-[34px] h-[40px] px-3">
+                                                                  <div className="rounded-[8px] border border-[#D1CFD8] p-[6px]">
+                                                                    <p className="text-[10.5px] font-medium text-[#787776]">
+                                                                      {getCiText(
+                                                                        detailData.variance_decomposition
+                                                                      )}
+                                                                    </p>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
                                                             );
                                                           })()
                                                         ) : (
@@ -1470,6 +1516,10 @@ function TSISubgroupSelectionPageContent() {
                                                                   type: "bar" as const,
                                                                   data: sortedVariance.map((v) => ({
                                                                     value: v.variance,
+                                                                    sampleN:
+                                                                      typeof v.number === "number"
+                                                                        ? Math.round(v.number)
+                                                                        : null,
                                                                     itemStyle: {
                                                                       color: getGroupColor(
                                                                         v.classification
@@ -1479,7 +1529,28 @@ function TSISubgroupSelectionPageContent() {
                                                                   })),
                                                                   barWidth: "50%",
                                                                   label: {
-                                                                    show: false,
+                                                                    show: true,
+                                                                    position: "insideBottom",
+                                                                    distance: 8,
+                                                                    formatter: (params: {
+                                                                      data?: {
+                                                                        sampleN?: number | null;
+                                                                      };
+                                                                    }) => {
+                                                                      const sampleN =
+                                                                        params.data?.sampleN;
+                                                                      if (
+                                                                        typeof sampleN !== "number"
+                                                                      ) {
+                                                                        return "";
+                                                                      }
+                                                                      return `n=${sampleN}`;
+                                                                    },
+                                                                    color: "#FFFFFF",
+                                                                    fontFamily: "Inter, sans-serif",
+                                                                    fontSize: 12,
+                                                                    fontWeight: 600,
+                                                                    lineHeight: 13.2,
                                                                   },
                                                                   markLine: {
                                                                     silent: true,
