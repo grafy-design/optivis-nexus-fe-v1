@@ -80,7 +80,7 @@ export function TSIModelDiseaseProgressionPanel({
                   style={{ backgroundColor: color }}
                 />
               </div>
-              <span className="text-body1 text-neutral-40">{label}</span>
+              <span className="text-neutral-10 text-[10.5px] font-medium">{label}</span>
             </div>
           );
         })}

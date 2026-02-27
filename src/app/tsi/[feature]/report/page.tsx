@@ -723,7 +723,7 @@ function TSIReportPageContent() {
                                         backgroundColor: modelComparisonData.stack.withinColor,
                                       }}
                                     />
-                                    <span className="text-body2m text-neutral-20">Within</span>
+                                    <span className="text-small1 text-[#1C1B1C]">Within</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span
@@ -732,7 +732,7 @@ function TSIReportPageContent() {
                                         backgroundColor: modelComparisonData.stack.explainedColor,
                                       }}
                                     />
-                                    <span className="text-body2m text-neutral-20">Explained</span>
+                                    <span className="text-small1 text-[#1C1B1C]">Explained</span>
                                   </div>
                                 </div>
                               </div>
@@ -781,7 +781,7 @@ function TSIReportPageContent() {
                                         backgroundColor: featureComparisonData.stack.withinColor,
                                       }}
                                     />
-                                    <span className="text-body2m text-neutral-20">Within</span>
+                                    <span className="text-small1 text-[#1C1B1C]">Within</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span
@@ -790,7 +790,7 @@ function TSIReportPageContent() {
                                         backgroundColor: featureComparisonData.stack.explainedColor,
                                       }}
                                     />
-                                    <span className="text-body2m text-neutral-20">Explained</span>
+                                    <span className="text-small1 text-[#1C1B1C]">Explained</span>
                                   </div>
                                 </div>
                               </div>
@@ -849,7 +849,7 @@ function TSIReportPageContent() {
                                 {setData.rows.map((row) => (
                                   <div
                                     key={`${setData.setName}-${row.groupLabel}`}
-                                    className="text-body1 text-neutral-20 flex h-7 items-center"
+                                    className="text-neutral-30 flex h-7 items-center text-[15px] font-medium"
                                   >
                                     {row.groupLabel}
                                   </div>
