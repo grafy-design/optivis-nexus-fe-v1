@@ -428,6 +428,9 @@ function TSIRefineCutoffsPageContent() {
   })();
   const router = useRouter();
   const [stratificationMonth, setStratificationMonth] = useState<number>(initialMonthFromQuery);
+  const [appliedStratificationMonth, setAppliedStratificationMonth] =
+    useState<number>(initialMonthFromQuery);
+  const [applyCriteriaVersion, setApplyCriteriaVersion] = useState(0);
 
   const [additionalSliders, setAdditionalSliders] = useState<number[]>([]);
   const [featureInfoData, setFeatureInfoData] = useState<IdentificationFeatureInfoData | null>(
@@ -452,9 +455,13 @@ function TSIRefineCutoffsPageContent() {
     return Math.max(parsed, minMonth);
   }, [featureInfoData?.month_max, minMonth]);
   const monthMarks = useMemo(() => buildMonthMarks(minMonth, maxMonth), [maxMonth, minMonth]);
-  const effectiveStratificationMonth = useMemo(
+  const effectivePendingStratificationMonth = useMemo(
     () => findClosestMonthMark(stratificationMonth, monthMarks),
     [monthMarks, stratificationMonth]
+  );
+  const effectiveAppliedStratificationMonth = useMemo(
+    () => findClosestMonthMark(appliedStratificationMonth, monthMarks),
+    [appliedStratificationMonth, monthMarks]
   );
   const initialStratificationMonth = useMemo(
     () => findClosestMonthMark(initialMonthFromQuery, monthMarks),
@@ -462,10 +469,16 @@ function TSIRefineCutoffsPageContent() {
   );
 
   useEffect(() => {
-    if (effectiveStratificationMonth !== stratificationMonth) {
-      setStratificationMonth(effectiveStratificationMonth);
+    if (effectivePendingStratificationMonth !== stratificationMonth) {
+      setStratificationMonth(effectivePendingStratificationMonth);
     }
-  }, [effectiveStratificationMonth, stratificationMonth]);
+  }, [effectivePendingStratificationMonth, stratificationMonth]);
+
+  useEffect(() => {
+    if (effectiveAppliedStratificationMonth !== appliedStratificationMonth) {
+      setAppliedStratificationMonth(effectiveAppliedStratificationMonth);
+    }
+  }, [appliedStratificationMonth, effectiveAppliedStratificationMonth]);
 
   const cutoffAxisType = useMemo(() => resolveAxisType(featureInfoData), [featureInfoData]);
 
@@ -474,9 +487,9 @@ function TSIRefineCutoffsPageContent() {
       buildCdfData(
         featureInfoData?.rows ?? [],
         featureInfoData?.outcome,
-        effectiveStratificationMonth
+        effectiveAppliedStratificationMonth
       ),
-    [effectiveStratificationMonth, featureInfoData]
+    [effectiveAppliedStratificationMonth, featureInfoData]
   );
 
   const sortedCutoffY = useMemo(
@@ -500,8 +513,8 @@ function TSIRefineCutoffsPageContent() {
     if (Number.isFinite(monthFromSetInfo) && monthFromSetInfo > 0) {
       return monthFromSetInfo;
     }
-    return effectiveStratificationMonth;
-  }, [effectiveStratificationMonth, setInfoData?.month]);
+    return effectiveAppliedStratificationMonth;
+  }, [effectiveAppliedStratificationMonth, setInfoData?.month]);
   const diseaseXAxisMax = useMemo(
     () => Math.max(3, Math.ceil(diseaseDisplayMonth / 3) * 3),
     [diseaseDisplayMonth]
@@ -527,10 +540,10 @@ function TSIRefineCutoffsPageContent() {
       buildSetOneChartData(
         featureInfoData?.rows ?? [],
         featureInfoData?.outcome,
-        effectiveStratificationMonth,
+        effectiveAppliedStratificationMonth,
         cutoffXNumbers
       ),
-    [cutoffXNumbers, effectiveStratificationMonth, featureInfoData]
+    [cutoffXNumbers, effectiveAppliedStratificationMonth, featureInfoData]
   );
 
   const setInfoGroupMeta = useMemo<GroupMeta[]>(() => {
@@ -769,7 +782,7 @@ function TSIRefineCutoffsPageContent() {
         } | null = null;
 
         try {
-          const requestedMonth = effectiveStratificationMonth;
+          const requestedMonth = effectiveAppliedStratificationMonth;
           const res = await getIdentificationFeatureInfo(
             taskId,
             subgroupId,
@@ -782,6 +795,7 @@ function TSIRefineCutoffsPageContent() {
           const responseMonthMarks = buildMonthMarks(res.data.month_min, res.data.month_max);
           const resolvedMonth = findClosestMonthMark(requestedMonth, responseMonthMarks);
           if (resolvedMonth !== requestedMonth) {
+            setAppliedStratificationMonth(resolvedMonth);
             setStratificationMonth(resolvedMonth);
             return;
           }
@@ -849,7 +863,7 @@ function TSIRefineCutoffsPageContent() {
     return () => {
       isCancelled = true;
     };
-  }, [effectiveStratificationMonth, subgroupId, taskId]);
+  }, [applyCriteriaVersion, effectiveAppliedStratificationMonth, subgroupId, taskId]);
 
   // 뒤로가기 버튼을 눌렀을 때 Subgroup Selection으로 이동하도록 처리
   useEffect(() => {
@@ -874,7 +888,18 @@ function TSIRefineCutoffsPageContent() {
 
   // 슬라이더 값 계산 (feature/info의 month_min ~ month_max 범위)
   const monthRange = Math.max(maxMonth - minMonth, 1);
-  const monthPercentage = ((effectiveStratificationMonth - minMonth) / monthRange) * 100;
+  const monthPercentage = ((effectivePendingStratificationMonth - minMonth) / monthRange) * 100;
+  const isMonthDirty =
+    effectivePendingStratificationMonth !== effectiveAppliedStratificationMonth;
+
+  const handleClickApplyCriteria = () => {
+    if (!taskId || !subgroupId) {
+      return;
+    }
+
+    setAppliedStratificationMonth(effectivePendingStratificationMonth);
+    setApplyCriteriaVersion((prev) => prev + 1);
+  };
 
   const handleClickGenerateSubGroup = async () => {
     if (!taskId || !subgroupId) {
@@ -884,7 +909,7 @@ function TSIRefineCutoffsPageContent() {
     const requestParams = {
       task_id: taskId,
       subgroup_id: subgroupId,
-      month: effectiveStratificationMonth.toString(),
+      month: effectiveAppliedStratificationMonth.toString(),
       axis_type: cutoffAxisType,
       cutoff_x: cutoffXValues,
       cutoff_y: cutoffYValues,
@@ -1102,7 +1127,7 @@ function TSIRefineCutoffsPageContent() {
                     {/* 드롭다운 - 우측 정렬, 같은 선상 */}
                     <div className="flex-shrink-0">
                       <Select
-                        value={effectiveStratificationMonth.toString()}
+                        value={effectivePendingStratificationMonth.toString()}
                         options={monthMarks.map((month) => month.toString())}
                         onChange={(value) =>
                           setStratificationMonth(
@@ -1116,7 +1141,11 @@ function TSIRefineCutoffsPageContent() {
                 </div>
 
                 {/* Apply Criteria 버튼 */}
-                <button className="bg-neutral-70 text-body5 mt-auto ml-auto flex h-[30px] w-[124px] items-center justify-center rounded-full font-semibold text-white">
+                <button
+                  className="text-body5 mt-auto ml-auto flex h-[30px] w-[124px] items-center justify-center rounded-full font-semibold text-white"
+                  style={{ backgroundColor: isMonthDirty ? "#f06600" : "#919092" }}
+                  onClick={handleClickApplyCriteria}
+                >
                   Apply Criteria
                 </button>
               </div>
@@ -1132,14 +1161,15 @@ function TSIRefineCutoffsPageContent() {
               maxAdditionalSliders={1}
               rows={featureInfoData?.rows}
               outcomeKey={featureInfoData?.outcome}
-              selectedMonth={effectiveStratificationMonth}
+              selectedMonth={effectiveAppliedStratificationMonth}
             />
             {/* Generate Subgroups 버튼 */}
             <button
               className="text-body4 mt-auto ml-auto flex h-[42px] w-[236px] items-center justify-center gap-2 rounded-full px-6 py-[6px] font-semibold text-white"
               style={{
                 backgroundColor:
-                  effectiveStratificationMonth !== initialStratificationMonth || isCutoffDirty
+                  effectiveAppliedStratificationMonth !== initialStratificationMonth ||
+                  isCutoffDirty
                     ? "#f06600"
                     : "#919092",
               }}
