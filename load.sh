@@ -49,6 +49,7 @@ echo -e "${GREEN}📦 배포 파일: ${TAR_FILE}${NC}"
 echo -e "${GREEN}1/5: 기존 컨테이너 중지...${NC}"
 docker stop "${CONTAINER_NAME}" >/dev/null 2>&1 || true
 docker rm "${CONTAINER_NAME}" >/dev/null 2>&1 || true
+docker tag localhost/optivis-nexus-fe:latest optivis-nexus-fe:latest
 
 echo -e "${GREEN}2/5: Docker 이미지 import 중...${NC}"
 LOAD_OUTPUT="$(docker load -i "${TAR_FILE}" 2>&1)" || {
