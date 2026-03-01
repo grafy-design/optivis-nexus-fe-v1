@@ -39,6 +39,7 @@ const SUMMARY_ERROR_BAR_LINE_HEIGHT_PX = 4;
 const SUMMARY_ERROR_BAR_CAP_WIDTH_PX = 4;
 const SUMMARY_ERROR_BAR_CAP_HEIGHT_PX = 12;
 const SUMMARY_ERROR_BAR_DOT_SIZE_PX = 16;
+const MAX_GROUP_DISPLAY_COUNT = 3;
 
 /** 테이블 공통 스타일: 높이 52px */
 const TABLE_CELL_BASE = "h-[52px] border-b align-middle";
@@ -64,6 +65,30 @@ const getCiText = (varianceDecomposition: ResultTableItem["variance_decompositio
   const listItem = varianceDecomposition[varianceDecomposition.length - 1];
   return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci})
   η²=${listItem.eta_square}, ω²=${listItem.omega} `;
+};
+
+const getDisplayGroupCount = (
+  requestedCount: number | null | undefined,
+  fallbackCount: number
+): number => {
+  const requested = Number.isFinite(requestedCount) ? Math.floor(requestedCount) : 0;
+  const fallback = Math.max(Math.floor(fallbackCount), 0);
+
+  if (requested > 0) {
+    return Math.min(requested, MAX_GROUP_DISPLAY_COUNT);
+  }
+
+  return Math.min(fallback, MAX_GROUP_DISPLAY_COUNT);
+};
+
+const clampGroupArray = <T,>(
+  items: T[],
+  requestedCount: number | null | undefined,
+  fallbackCount: number
+): T[] => {
+  const limit = getDisplayGroupCount(requestedCount, fallbackCount);
+  if (limit <= 0) return [];
+  return items.slice(0, limit);
 };
 
 function TSISubgroupSelectionPageContent() {
@@ -208,6 +233,8 @@ function TSISubgroupSelectionPageContent() {
                           ? String(tableItem.no).padStart(2, "0")
                           : String(index + 1).padStart(2, "0");
                         const isSelected = selectedSetNo === setNo;
+                        const summaryLimit = getDisplayGroupCount(tableItem?.of_group, set.groups.length);
+                        const displayGroups = set.groups.slice(0, summaryLimit);
 
                         return (
                           <div
@@ -237,7 +264,7 @@ function TSISubgroupSelectionPageContent() {
                                   />
                                 )}
                               </div>
-                              {set.groups.map((g, groupIndex) => {
+                              {displayGroups.map((g, groupIndex) => {
                                 // group1 -> Group 1 형식으로 변환
                                 const groupNum = g.group.replace("group", "");
                                 const groupName = `Group ${groupNum}`;
@@ -267,9 +294,9 @@ function TSISubgroupSelectionPageContent() {
                                   />
                                 ))}
                               </div>
-                              {(() => {
+                                {(() => {
                                 // 현재 Set의 개별 min/max 계산 (각 Set마다 독립적인 스케일)
-                                const setValues = set.groups.flatMap((g) => [
+                                const setValues = displayGroups.flatMap((g) => [
                                   g.ci_low,
                                   g.ci_high,
                                   g.mean,
@@ -284,7 +311,7 @@ function TSISubgroupSelectionPageContent() {
                                   return ((value - setMinValue) / setRange) * 100;
                                 };
 
-                                return set.groups.map((g, i) => {
+                                return displayGroups.map((g, i) => {
                                   const barColor = GROUP_BAR_COLORS[i % GROUP_BAR_COLORS.length];
 
                                   // 각 Set의 개별 min/max 범위로 정규화 (독립적인 스케일)
@@ -689,15 +716,22 @@ function TSISubgroupSelectionPageContent() {
                                         if (classification === "low") return "#AAA5E1";
                                         return "#231F52";
                                       };
+                                      const detailGroupLimit = getDisplayGroupCount(
+                                        detailData?.of_group,
+                                        detailData.number_or_patient?.length ??
+                                          detailData.within_group_variance_by_subgroup?.length ??
+                                          0
+                                      );
 
                                       // number_or_patient 데이터 정렬 (high -> middle -> low 순서)
-                                      const sortedPatients = detailData.number_or_patient
-                                        ? [...detailData.number_or_patient].sort((a, b) => {
-                                            const order = {
-                                              high: 0,
-                                              middle: 1,
-                                              low: 2,
-                                            };
+                                      const sortedPatients = clampGroupArray(
+                                        detailData.number_or_patient
+                                          ? [...detailData.number_or_patient].sort((a, b) => {
+                                              const order = {
+                                                high: 0,
+                                                middle: 1,
+                                                low: 2,
+                                              };
                                             const aClass =
                                               detailData.within_group_variance_by_subgroup?.find(
                                                 (v) => v.group === a.group
@@ -707,11 +741,14 @@ function TSISubgroupSelectionPageContent() {
                                                 (v) => v.group === b.group
                                               )?.classification || "";
                                             return (
-                                              (order[aClass as keyof typeof order] ?? 99) -
-                                              (order[bClass as keyof typeof order] ?? 99)
-                                            );
-                                          })
-                                        : [];
+                                                (order[aClass as keyof typeof order] ?? 99) -
+                                                (order[bClass as keyof typeof order] ?? 99)
+                                              );
+                                            })
+                                          : [],
+                                        detailGroupLimit,
+                                        0
+                                      );
 
                                       // 최소 환자 수 계산 (low 그룹 기준)
                                       const lowGroupPatient = sortedPatients.find((p) => {
@@ -730,7 +767,7 @@ function TSISubgroupSelectionPageContent() {
                                         detailData.variance_decomposition?.[0]?.vr || 0;
 
                                       // Within-group variance 데이터 정렬
-                                      const sortedVariance =
+                                      const sortedVariance = clampGroupArray(
                                         detailData.within_group_variance_by_subgroup
                                           ? [...detailData.within_group_variance_by_subgroup].sort(
                                               (a, b) => {
@@ -747,7 +784,10 @@ function TSISubgroupSelectionPageContent() {
                                                 );
                                               }
                                             )
-                                          : [];
+                                          : [],
+                                        detailGroupLimit,
+                                        0
+                                      );
 
                                       const totalVarValue =
                                         sortedVariance.length > 0 ? sortedVariance[0].total_var : 0;
@@ -763,6 +803,38 @@ function TSISubgroupSelectionPageContent() {
                                         : sortedVariance.find((v) => v.classification === "high")
                                           ? "High Risk"
                                           : "patient group";
+                                      const progressionGroupSet =
+                                        detailData.disease_progression_by_subgroup
+                                          ? new Set(
+                                              detailData.disease_progression_by_subgroup.map(
+                                                (d) => d.group
+                                              )
+                                            )
+                                          : new Set<string>();
+                                      const orderedProgressionGroups = sortedVariance
+                                        .map((variance) => variance.group)
+                                        .filter((group) => progressionGroupSet.has(group));
+                                      const diseaseProgressionGroups = detailData.disease_progression_by_subgroup
+                                        ? Array.from(
+                                            new Set(
+                                              detailData.disease_progression_by_subgroup
+                                                .map((d) => d.group)
+                                                .sort()
+                                            )
+                                          )
+                                        : [];
+                                      const displayedProgressionGroups = clampGroupArray(
+                                        orderedProgressionGroups.length > 0
+                                          ? orderedProgressionGroups
+                                          : diseaseProgressionGroups,
+                                        detailData?.of_group,
+                                        detailData?.disease_progression_by_subgroup?.length ??
+                                          detailData?.number_or_patient?.length ??
+                                          detailData.within_group_variance_by_subgroup?.length ??
+                                          0
+                                      );
+                                      const displayedProgressionGroupSet =
+                                        new Set(displayedProgressionGroups);
 
                                       return (
                                         <tr className="bg-[#efeff4]">
@@ -785,16 +857,15 @@ function TSISubgroupSelectionPageContent() {
                                                         .length > 0 ? (
                                                         (() => {
                                                           // 그룹별로 데이터 분리
-                                                          const groups = Array.from(
-                                                            new Set(
-                                                              detailData.disease_progression_by_subgroup.map(
-                                                                (d) => d.group
-                                                              )
-                                                            )
-                                                          ).sort();
+                                                          const filteredProgressionData =
+                                                            detailData.disease_progression_by_subgroup.filter(
+                                                              (d) =>
+                                                                displayedProgressionGroupSet.has(d.group)
+                                                            );
+                                                          const groups = displayedProgressionGroups;
                                                           const months = Array.from(
                                                             new Set(
-                                                              detailData.disease_progression_by_subgroup.map(
+                                                              filteredProgressionData.map(
                                                                 (d) => d.month
                                                               )
                                                             )
@@ -804,7 +875,7 @@ function TSISubgroupSelectionPageContent() {
                                                           const series = groups.map(
                                                             (group, groupIdx) => {
                                                               const groupData =
-                                                                detailData.disease_progression_by_subgroup!.filter(
+                                                                filteredProgressionData.filter(
                                                                   (d) => d.group === group
                                                                 );
                                                               const varianceData =
@@ -849,7 +920,7 @@ function TSISubgroupSelectionPageContent() {
                                                           const errorBarSeries = groups.map(
                                                             (group, groupIdx) => {
                                                               const groupData =
-                                                                detailData.disease_progression_by_subgroup!.filter(
+                                                                filteredProgressionData.filter(
                                                                   (d) => d.group === group
                                                                 );
                                                               const varianceData =
@@ -963,13 +1034,12 @@ function TSISubgroupSelectionPageContent() {
 
                                                           // Y축 범위 계산 (에러바가 잘리지 않도록 더 넓은 padding)
                                                           const allMeans =
-                                                            detailData.disease_progression_by_subgroup.map(
-                                                              (d) => d.mean
-                                                            );
+                                                            filteredProgressionData.map((d) => d.mean);
                                                           const allCis =
-                                                            detailData.disease_progression_by_subgroup.flatMap(
-                                                              (d) => [d.ci_low, d.ci_high]
-                                                            );
+                                                            filteredProgressionData.flatMap((d) => [
+                                                              d.ci_low,
+                                                              d.ci_high,
+                                                            ]);
                                                           const yMin = Math.min(
                                                             ...allMeans,
                                                             ...allCis
@@ -1316,12 +1386,8 @@ function TSISubgroupSelectionPageContent() {
                                                                 axisLabel: {
                                                                   fontSize: 9,
                                                                   color: "#484646",
-                                                                  formatter: (value: number) => {
-                                                                    // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
-                                                                    return value % 1 === 0
-                                                                      ? value.toString()
-                                                                      : value.toFixed(1);
-                                                                  },
+                                                                  formatter: (value: number) =>
+                                                                    value.toFixed(2),
                                                                 },
                                                                 axisLine: {
                                                                   show: true,
@@ -1492,12 +1558,8 @@ function TSISubgroupSelectionPageContent() {
                                                                 axisLabel: {
                                                                   fontSize: 9,
                                                                   color: "#484646",
-                                                                  formatter: (value: number) => {
-                                                                    // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
-                                                                    return value % 1 === 0
-                                                                      ? value.toString()
-                                                                      : value.toFixed(1);
-                                                                  },
+                                                                  formatter: (value: number) =>
+                                                                    value.toFixed(2),
                                                                 },
                                                                 axisLine: {
                                                                   show: true,
