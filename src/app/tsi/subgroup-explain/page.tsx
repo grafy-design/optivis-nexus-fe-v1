@@ -11,6 +11,7 @@ import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
 import { Loading } from "@/components/common/Loading";
 import { useRouter, useSearchParams } from "next/navigation";
+import Button from "@/components/ui/button";
 import {
   ExplainExpectedTherapeuticGainItem,
   ExplainListData,
@@ -386,7 +387,8 @@ function TSISubgroupExplainPageContent() {
               >
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   {featureList.map((feature, index) => (
-                    <button
+                    <Button
+                      unstyled
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
                       className={`text-body4 flex h-[59px] w-full items-center gap-[10px] self-stretch px-[12px] py-[18px] transition-colors ${
@@ -398,7 +400,7 @@ function TSISubgroupExplainPageContent() {
                       }`}
                     >
                       {feature}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -469,7 +471,8 @@ function TSISubgroupExplainPageContent() {
 
         {/* 버튼: 카드 밖 아래 */}
         <div className="mx-auto mt-4 flex w-[1772px] flex-shrink-0 items-center justify-end gap-4 pb-2">
-          <button
+          <Button
+            unstyled
             type="button"
             className="inline-flex h-[48px] cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-opacity hover:opacity-90"
             aria-label="Save Progress"
@@ -481,8 +484,9 @@ function TSISubgroupExplainPageContent() {
               height={48}
               className="h-[48px] w-auto object-contain"
             />
-          </button>
-          <button
+          </Button>
+          <Button
+            unstyled
             type="button"
             className="text-body3 text-neutral-30 inline-flex h-[48px] w-[179px] shrink-0 cursor-pointer items-center justify-center rounded-[100px] border-0 bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
             style={{ backgroundImage: "url(/assets/tsi/btn.png)" }}
@@ -490,7 +494,7 @@ function TSISubgroupExplainPageContent() {
             onClick={handleClickViewReport}
           >
             View Report
-          </button>
+          </Button>
         </div>
       </div>
     </AppLayout>

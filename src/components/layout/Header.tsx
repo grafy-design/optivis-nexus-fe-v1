@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import IconButton from "@/components/ui/icon-button";
+import Button from "@/components/ui/button";
 
 export const Header = () => {
   return (
@@ -16,7 +17,10 @@ export const Header = () => {
             {/* Buttons */}
             <div className="flex items-center gap-[12px]">
               {/* Data template button */}
-              <button className="relative inline-flex h-[48px] w-[182px] cursor-pointer items-center justify-center transition-opacity hover:opacity-90 active:opacity-80">
+              <Button
+                unstyled
+                className="relative inline-flex h-[48px] w-[182px] cursor-pointer items-center justify-center transition-opacity hover:opacity-90 active:opacity-80"
+              >
                 <Image
                   src="/button.png"
                   alt=""
@@ -34,10 +38,13 @@ export const Header = () => {
                   />
                   <span className="text-body3 text-[rgba(0,0,0,0.85)]">Data template</span>
                 </div>
-              </button>
+              </Button>
 
               {/* Data setting button */}
-              <button className="relative inline-flex h-[48px] w-[182px] cursor-pointer items-center justify-center transition-opacity hover:opacity-90 active:opacity-80">
+              <Button
+                unstyled
+                className="relative inline-flex h-[48px] w-[182px] cursor-pointer items-center justify-center transition-opacity hover:opacity-90 active:opacity-80"
+              >
                 <Image
                   src="/button.png"
                   alt=""
@@ -55,7 +62,7 @@ export const Header = () => {
                   />
                   <span className="text-body3 text-[rgba(0,0,0,0.85)]">Data setting</span>
                 </div>
-              </button>
+              </Button>
             </div>
 
             {/* Help Button */}

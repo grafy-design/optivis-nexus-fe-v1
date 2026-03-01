@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import IconButton from "@/components/ui/icon-button";
+import Button from "@/components/ui/button";
 
 /** TSI 브레드크럼 스텝 (기존 ATS 헤더와 동일한 원형·화살표 스타일, 숫자 1~6) */
 const TSI_BREADCRUMB_STEPS = [
@@ -105,7 +106,8 @@ export const TSIHeader = () => {
                     />
                   </svg>
                 )}
-                <button
+                <Button
+                  unstyled
                   onClick={() => router.push(withTaskId(step.path, taskId))}
                   className={`flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer ${textColor}`}
                 >
@@ -138,7 +140,7 @@ export const TSIHeader = () => {
                   <span className="text-body2 whitespace-nowrap">
                     {step.label}
                   </span>
-                </button>
+                </Button>
               </React.Fragment>
             );
           })}
@@ -146,7 +148,8 @@ export const TSIHeader = () => {
 
         {/* Right - 뒤로가기(전단계), 도움말 */}
         <div className="flex items-center gap-4">
-          <button
+          <IconButton
+            aria-label="Go to previous TSI step"
             onClick={() => {
               const prevPath = getTSIPreviousStepPath(pathname);
               if (prevPath) {
@@ -164,7 +167,7 @@ export const TSIHeader = () => {
               height={48}
               className="flex-shrink-0 w-full h-full object-contain"
             />
-          </button>
+          </IconButton>
           <IconButton icon="/assets/header/help.png" alt="Help" />
         </div>
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Button from "@/components/ui/button";
+import IconButton from "@/components/ui/icon-button";
 import Input from "@/components/ui/input";
 import Image from "next/image";
 
@@ -74,7 +75,8 @@ function FeatureItemComponent({
           width: isSelected ? "calc(100% + 36px)" : "100%",
         }}
       >
-        <button
+        <Button
+          unstyled
           onClick={() => {
             // level 0 (depth1)은 펼치기/접기와 선택 모두 가능
             if (level === 0) {
@@ -105,7 +107,7 @@ function FeatureItemComponent({
           >
             {item.label}
           </span>
-        </button>
+        </Button>
       </div>
 
       {hasChildren && isExpanded && (
@@ -227,7 +229,11 @@ export default function TSIFilterPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   {/* Save Simulation Button */}
-                  <button className="bg-neutral-70 text-body3 flex cursor-pointer items-center gap-2 rounded-[100px] px-5 py-2.5 text-white transition-opacity hover:opacity-90">
+                  <Button
+                    variant="neutral"
+                    size="md"
+                    className="text-body3 h-auto rounded-[100px] px-5 py-2.5 text-white transition-opacity hover:opacity-90"
+                  >
                     <Image
                       src="/assets/header/download.svg"
                       alt=""
@@ -236,7 +242,7 @@ export default function TSIFilterPage() {
                       className="object-contain brightness-0 invert"
                     />
                     Save Simulation
-                  </button>
+                  </Button>
                   {/* Go to Simulation Button */}
                   <Button
                     variant="orange"
@@ -303,7 +309,8 @@ export default function TSIFilterPage() {
                       {/* Tab Bar */}
                       <div className="rounded-full bg-white p-1">
                         <div className="flex items-center gap-2">
-                          <button
+                          <Button
+                            unstyled
                             onClick={() => setActiveTab("inclusion")}
                             className={`cursor-pointer rounded-full px-[18px] py-[10px] transition-all ${
                               activeTab === "inclusion"
@@ -312,8 +319,9 @@ export default function TSIFilterPage() {
                             }`}
                           >
                             Inclusion
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            unstyled
                             onClick={() => setActiveTab("exclusion")}
                             className={`cursor-pointer rounded-full px-[18px] py-[10px] transition-all ${
                               activeTab === "exclusion"
@@ -322,13 +330,16 @@ export default function TSIFilterPage() {
                             }`}
                           >
                             Exclusion
-                          </button>
+                          </Button>
                         </div>
                       </div>
                       {/* Action Buttons */}
                       <div className="flex items-center gap-2">
                         {/* Import Button - Liquid Glass */}
-                        <button className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80">
+                        <IconButton
+                          aria-label="Import filter section"
+                          className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80"
+                        >
                           <div
                             className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
@@ -372,9 +383,12 @@ export default function TSIFilterPage() {
                             height={18}
                             className="relative z-10 object-contain"
                           />
-                        </button>
+                        </IconButton>
                         {/* Save Button - Liquid Glass */}
-                        <button className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80">
+                        <IconButton
+                          aria-label="Save filter section"
+                          className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80"
+                        >
                           <div
                             className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
@@ -427,9 +441,12 @@ export default function TSIFilterPage() {
                               strokeLinejoin="round"
                             />
                           </svg>
-                        </button>
+                        </IconButton>
                         {/* Delete Button - Liquid Glass */}
-                        <button className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80">
+                        <IconButton
+                          aria-label="Delete filter section"
+                          className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80"
+                        >
                           <div
                             className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
@@ -473,10 +490,12 @@ export default function TSIFilterPage() {
                             height={22}
                             className="relative z-10 object-contain"
                           />
-                        </button>
+                        </IconButton>
                         {/* Add Section Button - Liquid Glass */}
-                        <button
-                          className="relative flex h-12 items-center gap-2 overflow-hidden rounded-[100px] px-4 transition-opacity hover:opacity-80"
+                        <Button
+                          variant="ghost"
+                          size="md"
+                          className="relative h-12 items-center justify-start gap-2 overflow-hidden rounded-[100px] px-4 text-black font-normal transition-opacity hover:opacity-80 hover:bg-transparent"
                           style={{ width: "178px" }}
                         >
                           <div
@@ -515,7 +534,7 @@ export default function TSIFilterPage() {
                               background: "rgba(0, 0, 0, 0.004)",
                             }}
                           />
-                          <span className="text-body3 text-primary-10 relative z-10">
+                          <span className="text-body3 !text-primary-10 relative z-10">
                             Add Section
                           </span>
                           <Image
@@ -525,7 +544,7 @@ export default function TSIFilterPage() {
                             height={24}
                             className="relative z-10 object-contain"
                           />
-                        </button>
+                        </Button>
                       </div>
                     </div>
 

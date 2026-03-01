@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { AppLayout } from "@/components/layout/AppLayout";
+import Button from "@/components/ui/button";
+import IconButton from "@/components/ui/icon-button";
 import {
   getSubgroupSummaryList,
   type SubgroupSetSummary,
@@ -516,7 +518,8 @@ function TSISubgroupSelectionPageContent() {
                                   <tr className={isExpanded ? "bg-[#efeff4]" : ""}>
                                     <td className={`${TABLE_BODY_CELL_BASE_NO_BORDER} text-center`}>
                                       <div className={TABLE_INNER_DIV_CENTER_NO_BORDER}>
-                                        <button
+                                        <IconButton
+                                          aria-label={isExpanded ? `Collapse set ${rowNo}` : `Expand set ${rowNo}`}
                                           type="button"
                                           onClick={() => toggleRowExpansion(rowNo)}
                                           className="text-neutral-40 inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-transform duration-200"
@@ -537,7 +540,7 @@ function TSISubgroupSelectionPageContent() {
                                               fill="currentColor"
                                             />
                                           </svg>
-                                        </button>
+                                        </IconButton>
                                       </div>
                                     </td>
                                     <td
@@ -630,7 +633,8 @@ function TSISubgroupSelectionPageContent() {
                                       className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
                                     >
                                       <div className={TABLE_INNER_DIV_CENTER}>
-                                        <button
+                                        <IconButton
+                                          aria-label={`Refine cutoffs for set ${rowNo}`}
                                           type="button"
                                           className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
                                           title="Refine Cutoffs"
@@ -674,26 +678,12 @@ function TSISubgroupSelectionPageContent() {
                                               />
                                             </g>
                                           </svg>
-                                        </button>
+                                        </IconButton>
                                       </div>
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_LAST} text-center`}>
                                       <div className={TABLE_INNER_DIV_CENTER}>
                                         {/* TODO(ui): Re-enable Delete action icon when policy is finalized. */}
-                                        {/*
-                                        <button
-                                          type="button"
-                                          className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
-                                          title="Delete"
-                                        >
-                                          <Image
-                                            src="/assets/icons/trash.svg"
-                                            alt="Delete"
-                                            width={24}
-                                            height={24}
-                                          />
-                                        </button>
-                                        */}
                                       </div>
                                     </td>
                                   </tr>
@@ -1692,7 +1682,8 @@ function TSISubgroupSelectionPageContent() {
         </div>
         {/* 버튼: 카드 밖 아래 */}
         <div className="mx-auto mt-4 flex w-[1772px] flex-shrink-0 items-center justify-end gap-4 pb-2">
-          <button
+          <Button
+            unstyled
             type="button"
             className="inline-flex h-[48px] cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-opacity hover:opacity-90"
             aria-label="Save Progress"
@@ -1704,8 +1695,9 @@ function TSISubgroupSelectionPageContent() {
               height={48}
               className="h-[48px] w-auto object-contain"
             />
-          </button>
-          <button
+          </Button>
+          <Button
+            unstyled
             type="button"
             onClick={handleSubgroupExplain}
             className="text-body3 text-neutral-30 inline-flex h-[48px] w-[179px] shrink-0 cursor-pointer items-center justify-center rounded-[100px] border-0 bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
@@ -1713,7 +1705,7 @@ function TSISubgroupSelectionPageContent() {
             aria-label="Subgroup Explain"
           >
             Subgroup Explain
-          </button>
+          </Button>
         </div>
       </div>
     </AppLayout>

@@ -8,6 +8,8 @@ import { SingleBarChart } from "@/components/charts/SingleBarChart";
 import { ComparisonBarChart } from "@/components/charts/ComparisonBarChart";
 import ArrowIcon from "@/components/ui/arrow-icon";
 import FullscreenIcon from "@/components/ui/fullscreen-icon";
+import IconButton from "@/components/ui/icon-button";
+import Button from "@/components/ui/button";
 import InfoIcon from "@/components/ui/info-icon";
 import { FormulaTooltip } from "@/components/math/FormulaTooltip";
 import FullscreenChartModal from "@/components/ui/fullscreen-chart-modal";
@@ -266,7 +268,8 @@ export function RightPanel({
             {/* Tab Bar */}
             <div className="bg-white rounded-full p-1">
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  unstyled
                   onClick={() => setActiveTab("compare")}
                   className={`px-[18px] py-[10px] rounded-full transition-all cursor-pointer ${
                     activeTab === "compare"
@@ -275,8 +278,9 @@ export function RightPanel({
                   }`}
                 >
                   Compare View
-                </button>
-                <button
+                </Button>
+                <Button
+                  unstyled
                   onClick={() => setActiveTab("reduction")}
                   disabled={!isApplied}
                   className={`px-[18px] py-[10px] rounded-full transition-all ${
@@ -288,7 +292,7 @@ export function RightPanel({
                   }`}
                 >
                   Reduction View
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -381,11 +385,13 @@ export function RightPanel({
                         )}
                       </div>
                       {isApplied && (
-                        <button
+                        <IconButton
+                          aria-label="Open smaller sample chart fullscreen"
+                          className="w-auto h-auto"
                           onClick={() => handleFullscreenClick("smallerSample")}
                         >
                           <FullscreenIcon backgroundColor="#1c1942" />
-                        </button>
+                        </IconButton>
                       )}
                     </div>
                     {/* Chart Area */}
@@ -509,7 +515,9 @@ export function RightPanel({
                                       </span>
                                     </div>
                                   </div>
-                                  <button
+                                  <IconButton
+                                    aria-label="Open sample size comparison chart fullscreen"
+                                    className="w-auto h-auto"
                                     onClick={() =>
                                       handleBarChartFullscreenClick(
                                         chart.label,
@@ -522,7 +530,7 @@ export function RightPanel({
                                     }
                                   >
                                     <FullscreenIcon />
-                                  </button>
+                                  </IconButton>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                   {/* Sample Size - OPTIVIS */}
@@ -589,7 +597,9 @@ export function RightPanel({
                                       </span>
                                     </div>
                                   </div>
-                                  <button
+                                  <IconButton
+                                    aria-label="Open power comparison chart fullscreen"
+                                    className="w-auto h-auto"
                                     onClick={() =>
                                       handleBarChartFullscreenClick(
                                         chart.label,
@@ -602,7 +612,7 @@ export function RightPanel({
                                     }
                                   >
                                     <FullscreenIcon />
-                                  </button>
+                                  </IconButton>
                                 </div>
                                 <div className="grid grid-cols-2 gap-2">
                                   {/* Power - OPTIVIS */}
@@ -688,13 +698,15 @@ export function RightPanel({
                             )}
                           </div>
                           {isApplied && (
-                            <button
+                            <IconButton
+                              aria-label="Open smaller N to screen chart fullscreen"
+                              className="w-auto h-auto"
                               onClick={() =>
                                 handleFullscreenClick("smallerNToScreen")
                               }
                             >
                               <FullscreenIcon />
-                            </button>
+                            </IconButton>
                           )}
                         </>
                       ) : isApplied && simulationData?.reductionView?.charts ? (
@@ -720,7 +732,9 @@ export function RightPanel({
                                 </div>
                               </div>
                               {isApplied && (
-                                <button
+                                <IconButton
+                                  aria-label="Open enrollment time comparison chart fullscreen"
+                                  className="w-auto h-auto"
                                   onClick={() => {
                                     const chart =
                                       simulationData?.reductionView?.charts?.find(
@@ -739,7 +753,7 @@ export function RightPanel({
                                   }}
                                 >
                                   <FullscreenIcon />
-                                </button>
+                                </IconButton>
                               )}
                             </>
                           ) : null;
@@ -850,11 +864,13 @@ export function RightPanel({
                             )}
                           </div>
                           {isApplied && (
-                            <button
+                            <IconButton
+                              aria-label="Open lower cost chart fullscreen"
+                              className="w-auto h-auto"
                               onClick={() => handleFullscreenClick("lowerCost")}
                             >
                               <FullscreenIcon />
-                            </button>
+                            </IconButton>
                           )}
                         </>
                       ) : isApplied && simulationData?.reductionView?.charts ? (
@@ -880,7 +896,9 @@ export function RightPanel({
                                 </div>
                               </div>
                               {isApplied && (
-                                <button
+                                <IconButton
+                                  aria-label="Open cost comparison chart fullscreen"
+                                  className="w-auto h-auto"
                                   onClick={() => {
                                     const chart =
                                       simulationData?.reductionView?.charts?.find(
@@ -900,7 +918,7 @@ export function RightPanel({
                                   }}
                                 >
                                   <FullscreenIcon />
-                                </button>
+                                </IconButton>
                               )}
                             </>
                           ) : null;
@@ -1000,12 +1018,15 @@ export function RightPanel({
                           side="left"
                           align="start"
                           trigger={
-                            <button className="flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-70 transition-opacity">
+                            <IconButton
+                              aria-label="Show OPTIVIS formula details"
+                              className="w-auto h-auto flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-70 transition-opacity"
+                            >
                               <InfoIcon
                                 className="flex-shrink-0"
                                 color="#f06600"
                               />
-                            </button>
+                            </IconButton>
                           }
                         />
                       </div>
@@ -1018,12 +1039,15 @@ export function RightPanel({
                           side="left"
                           align="start"
                           trigger={
-                            <button className="flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-70 transition-opacity">
+                            <IconButton
+                              aria-label="Show Traditional formula details"
+                              className="w-auto h-auto flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-70 transition-opacity"
+                            >
                               <InfoIcon
                                 className="flex-shrink-0"
                                 color="#231f52"
                               />
-                            </button>
+                            </IconButton>
                           }
                         />
                       </div>
@@ -1310,7 +1334,9 @@ export function RightPanel({
                                     </span>
                                   </div>
                                 </div>
-                                <button
+                                <IconButton
+                                  aria-label={`Open ${chart.label} comparison chart fullscreen`}
+                                  className="w-auto h-auto"
                                   onClick={() => {
                                     const formatter =
                                       chart.label === "Cost"
@@ -1328,7 +1354,7 @@ export function RightPanel({
                                   }}
                                 >
                                   <FullscreenIcon />
-                                </button>
+                                </IconButton>
                               </div>
                               <div style={{ height: "80px", width: "100%" }}>
                                 <ComparisonBarChart
@@ -1375,13 +1401,15 @@ export function RightPanel({
                                 </div>
                               )}
                             </div>
-                            <button
+                            <IconButton
+                              aria-label="Open smaller sample chart fullscreen"
+                              className="w-auto h-auto"
                               onClick={() =>
                                 handleFullscreenClick("smallerSample")
                               }
                             >
                               <FullscreenIcon />
-                            </button>
+                            </IconButton>
                           </div>
                           <div
                             className="bg-white rounded-[12px]"
@@ -1429,13 +1457,15 @@ export function RightPanel({
                                   </div>
                                 )}
                               </div>
-                              <button
+                              <IconButton
+                                aria-label="Open smaller N to screen chart fullscreen"
+                                className="w-auto h-auto"
                                 onClick={() =>
                                   handleFullscreenClick("smallerNToScreen")
                                 }
                               >
                                 <FullscreenIcon />
-                              </button>
+                              </IconButton>
                             </div>
                             <div
                               className="bg-white rounded-[12px]"
@@ -1482,13 +1512,15 @@ export function RightPanel({
                                   </div>
                                 )}
                               </div>
-                              <button
+                              <IconButton
+                                aria-label="Open lower cost chart fullscreen"
+                                className="w-auto h-auto"
                                 onClick={() =>
                                   handleFullscreenClick("lowerCost")
                                 }
                               >
                                 <FullscreenIcon />
-                              </button>
+                              </IconButton>
                             </div>
                             <div
                               className="bg-white rounded-[12px]"

@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import Button from "@/components/ui/button";
 
 /**
  * TSI Step 3: Basis Selection
@@ -125,7 +126,8 @@ function TSIBasisSelectionPageContent() {
                     const isSelected = selectedBasis === opt.id;
                     const isDisabled = opt.disabled === true;
                     return (
-                      <button
+                      <Button
+                        unstyled
                         key={opt.id}
                         type="button"
                         disabled={isDisabled}
@@ -148,13 +150,14 @@ function TSIBasisSelectionPageContent() {
                             }
                           />
                         )}
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
 
                 {/* 오른쪽 카드: 문구+차트 영역 클릭 시 Subgroup Selection으로 이동 */}
-                <button
+                <Button
+                  unstyled
                   type="button"
                   onClick={handleGoToSubgroupSelection}
                   className="bg-primary-15 flex min-w-0 flex-1 cursor-pointer overflow-hidden rounded-[24px] text-left transition-opacity hover:opacity-95"
@@ -177,7 +180,7 @@ function TSIBasisSelectionPageContent() {
                       </>
                     );
                   })()}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

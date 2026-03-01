@@ -103,8 +103,10 @@ export default function TSIPatientsSummaryPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   {/* Save Simulation Button - 왼쪽 */}
-                  <button
-                    className="text-primary-15 text-body3 flex h-[48px] w-[202px] cursor-pointer items-center justify-center gap-2 rounded-[100px] bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    className="text-body3 !text-primary-15 h-[48px] w-[202px] rounded-[100px] bg-transparent bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90 hover:bg-transparent"
                     style={{
                       backgroundImage: "url(/assets/tsi/save-btn.png)",
                     }}
@@ -117,7 +119,7 @@ export default function TSIPatientsSummaryPage() {
                       height={24}
                       className="object-contain"
                     />
-                  </button>
+                  </Button>
                   {/* Identify Subgroup Button - 오른쪽 */}
                   <Button
                     variant="orange"

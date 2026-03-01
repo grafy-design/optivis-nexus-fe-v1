@@ -7,6 +7,7 @@ import Select from "@/components/ui/select";
 import Slider from "@/components/ui/slider";
 import InfoIcon from "@/components/ui/info-icon";
 import Button from "@/components/ui/button";
+import IconButton from "@/components/ui/icon-button";
 import HypothesisTypeModal from "@/components/ui/hypothesis-type-modal";
 import AddEndpointsModal, {
   type AddEndpointsSaveData,
@@ -279,7 +280,8 @@ export function LeftPanel({
                         <span className="text-body4 text-neutral-5">
                           Endpoints Design
                         </span>
-                        <button
+                        <IconButton
+                          aria-label="Open endpoints design modal"
                           onClick={() => setIsAddEndpointsModalOpen(true)}
                           className="w-6 h-6 rounded-[8px] flex items-center justify-center cursor-pointer flex-shrink-0"
                         >
@@ -299,7 +301,7 @@ export function LeftPanel({
                               fill="white"
                             />
                           </svg>
-                        </button>
+                        </IconButton>
                       </div>
                       <div className="bg-white rounded-[12px] p-4 flex flex-col gap-2">
                         {primaryEndpoints.map((ep, i) => (
@@ -487,12 +489,13 @@ export function LeftPanel({
                                 *
                               </span>
                             </div>
-                            <button
+                            <IconButton
+                              aria-label="Open hypothesis type help"
                               onClick={() => setIsHypothesisModalOpen(true)}
-                              className="cursor-pointer hover:opacity-80 transition-opacity"
+                              className="w-auto h-auto cursor-pointer hover:opacity-80 transition-opacity"
                             >
                               <InfoIcon />
-                            </button>
+                            </IconButton>
                           </div>
                           <Select
                             value={hypothesisType}
@@ -621,7 +624,7 @@ export function LeftPanel({
                   iconPosition="right"
                   onClick={onApply}
                   disabled={isLoading}
-                  className="self-end h-[30px] text-body4"
+                  className="self-end h-[30px] text-body4 !text-white"
                 >
                   {isLoading ? "Loading..." : "Apply"}
                 </Button>

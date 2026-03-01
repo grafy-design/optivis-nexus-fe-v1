@@ -1,6 +1,8 @@
 "use client";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Button from "@/components/ui/button";
+import IconButton from "@/components/ui/icon-button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -268,7 +270,7 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                   {row.last_updated}
                 </div>
                 <div className="flex items-center justify-end gap-1">
-                  <button
+                  <IconButton
                     className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#484646]"
                     aria-label={`Play ${row.simulation_name}`}
                     onClick={(event) => handlePlaySimulation(event, row.simulation_name)}
@@ -288,7 +290,7 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                         strokeLinejoin="round"
                       />
                     </svg>
-                  </button>
+                  </IconButton>
                   <Popover
                     open={openedActionMenuKey === rowActionKey}
                     onOpenChange={(open) => {
@@ -296,7 +298,7 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                     }}
                   >
                     <PopoverTrigger asChild>
-                      <button
+                      <IconButton
                         className="inline-flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-[6px] text-[#484646]"
                         aria-label={`More_Action ${row.simulation_name}`}
                       >
@@ -312,7 +314,7 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                             fill="#ADAAAA"
                           />
                         </svg>
-                      </button>
+                      </IconButton>
                     </PopoverTrigger>
                     <PopoverContent
                       side="left"
@@ -321,7 +323,8 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                       className="w-[220px] rounded-[22px] border border-[#c5c5c5] bg-[#d9d9d9] p-2 shadow-[0_12px_28px_rgba(0,0,0,0.2)]"
                     >
                       <div className="flex flex-col gap-1">
-                        <button
+                        <Button
+                          unstyled
                           className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
                           onClick={() => handleRowActionClick("rename", row.simulation_name)}
                         >
@@ -348,8 +351,9 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                             />
                           </svg>
                           Rename
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          unstyled
                           className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
                           onClick={() => handleRowActionClick("duplicate", row.simulation_name)}
                         >
@@ -380,8 +384,9 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                             />
                           </svg>
                           Duplicate
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          unstyled
                           className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
                           onClick={() => handleRowActionClick("favorite", row.simulation_name)}
                         >
@@ -401,8 +406,9 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                             />
                           </svg>
                           Favorites
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          unstyled
                           className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left text-[15px] font-medium text-[#484646] hover:bg-[#c8c8c8]"
                           onClick={() => handleRowActionClick("delete", row.simulation_name)}
                         >
@@ -448,7 +454,7 @@ export default function SimulationTable({ serviceId, keyword }: SimulationTableP
                             />
                           </svg>
                           Delete
-                        </button>
+                        </Button>
                       </div>
                     </PopoverContent>
                   </Popover>

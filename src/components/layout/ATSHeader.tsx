@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import IconButton from "@/components/ui/icon-button";
+import Button from "@/components/ui/button";
 import { useSimulationStore } from "@/store/simulationStore";
 
 export const ATSHeader = () => {
@@ -28,7 +29,8 @@ export const ATSHeader = () => {
         {/* Left - Breadcrumb */}
         <div className="flex items-center gap-9">
           {/* Breadcrumb Item 1 */}
-          <button
+          <Button
+            unstyled
             onClick={() => router.push(simulationBasePath)}
             className="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
           >
@@ -49,7 +51,7 @@ export const ATSHeader = () => {
             <span className="text-body2 text-[#2d1067]">
               Study Design Optimization
             </span>
-          </button>
+          </Button>
           <svg
             width="16"
             height="16"
@@ -65,7 +67,8 @@ export const ATSHeader = () => {
             />
           </svg>
           {/* Breadcrumb Item 2 */}
-          <button
+          <Button
+            unstyled
             onClick={() => {
               if (isApplied) {
                 router.push(reportPath);
@@ -102,13 +105,14 @@ export const ATSHeader = () => {
             >
               Report
             </span>
-          </button>
+          </Button>
         </div>
 
         {/* Right - Actions */}
         <div className="flex items-center gap-4">
           {!isReportPage && (
-            <button
+            <Button
+              unstyled
               onClick={handleMakeReport}
               disabled={!isApplied}
               className={`px-5 py-2.5 rounded-[100px] text-body3 transition-opacity flex items-center gap-2 ${
@@ -125,11 +129,12 @@ export const ATSHeader = () => {
                 height={24}
                 className="flex-shrink-0"
               />
-            </button>
+            </Button>
           )}
 
           <div className="flex items-center gap-4">
-            <button
+            <IconButton
+              aria-label={isReportPage ? "Back to simulation" : "Back to main"}
               onClick={() => {
                 if (isReportPage) {
                   router.push(simulationBasePath);
@@ -146,8 +151,9 @@ export const ATSHeader = () => {
                 height={48}
                 className="flex-shrink-0 w-full h-full object-contain"
               />
-            </button>
-            <button
+            </IconButton>
+            <IconButton
+              aria-label="Forward to report"
               onClick={() => {
                 if (isApplied) {
                   router.push(reportPath);
@@ -167,7 +173,7 @@ export const ATSHeader = () => {
                 height={48}
                 className="flex-shrink-0 w-full h-full object-contain"
               />
-            </button>
+            </IconButton>
           </div>
 
           <IconButton icon="/assets/header/help.png" alt="Help" />

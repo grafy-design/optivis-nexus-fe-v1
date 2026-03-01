@@ -4,6 +4,7 @@ import React from "react";
 import * as Popover from "@radix-ui/react-popover";
 import { FormulaCard } from "./FormulaCard";
 import InfoIcon from "@/components/ui/info-icon";
+import IconButton from "@/components/ui/icon-button";
 
 type PopoverSide = "top" | "right" | "bottom" | "left";
 type PopoverAlign = "start" | "center" | "end";
@@ -30,9 +31,12 @@ export function FormulaTooltip({
   align = "start",
 }: FormulaTooltipProps) {
   const defaultTrigger = (
-    <button className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
+    <IconButton
+      aria-label="Open formula tooltip"
+      className="w-auto h-auto flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity"
+    >
       <InfoIcon />
-    </button>
+    </IconButton>
   );
 
   return (

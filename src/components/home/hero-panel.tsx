@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Button from "@/components/ui/button";
 
 interface HeroPanelProps {
   title: string;
@@ -180,7 +181,8 @@ export default function HeroPanel({
         </div>
 
         {/* New Simulation 버튼: Figma 218×48px, bg #FF6B00 r=32, padding 28px 24px */}
-        <button
+        <Button
+          unstyled
           onClick={handleNewSimulation}
           disabled={isDisabled}
           className="flex items-center justify-center transition-opacity hover:opacity-90 active:opacity-80"
@@ -231,7 +233,7 @@ export default function HeroPanel({
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </Button>
       </div>
 
       {/* Right - 이미지 또는 비디오: Figma 675×400px r=24 (58% 비율) */}

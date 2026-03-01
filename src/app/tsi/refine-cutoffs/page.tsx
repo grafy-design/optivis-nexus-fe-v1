@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
+import Button from "@/components/ui/button";
 import Select from "@/components/ui/select";
 import {
   MultiLineWithErrorBar,
@@ -1183,13 +1184,14 @@ function TSIRefineCutoffsPageContent() {
                 </div>
 
                 {/* Apply Criteria 버튼 */}
-                <button
+                <Button
+                  unstyled
                   className="text-body5 mt-auto ml-auto flex h-[30px] w-[124px] items-center justify-center rounded-full font-semibold text-white"
                   style={{ backgroundColor: isMonthDirty ? "#f06600" : "#919092" }}
                   onClick={handleClickApplyCriteria}
                 >
                   Apply Criteria
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -1206,7 +1208,8 @@ function TSIRefineCutoffsPageContent() {
               selectedMonth={effectiveAppliedStratificationMonth}
             />
             {/* Generate Subgroups 버튼 */}
-            <button
+            <Button
+              unstyled
               className="text-body4 mt-auto ml-auto flex h-[42px] w-[236px] items-center justify-center gap-2 rounded-full px-6 py-[6px] font-semibold text-white"
               style={{
                 backgroundColor:
@@ -1231,7 +1234,7 @@ function TSIRefineCutoffsPageContent() {
                   fill="white"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
 
           {/* 오른쪽 카드 */}
@@ -1358,19 +1361,21 @@ function TSIRefineCutoffsPageContent() {
               </div>
               {/* 버튼들 */}
               <div className="flex flex-shrink-0 justify-end gap-2">
-                <button
+                <Button
+                  unstyled
                   className="text-body4 h-[42px] rounded-full px-6 font-semibold text-white"
                   style={{ backgroundColor: "#C7C5C9" }}
                   onClick={handleOnSaveRefineCutoff}
                 >
                   Save
-                </button>
-                <button
+                </Button>
+                <Button
+                  unstyled
                   className="text-body4 h-[42px] rounded-full px-6 font-semibold text-white"
                   style={{ backgroundColor: "#C7C5C9" }}
                 >
                   Save As
-                </button>
+                </Button>
               </div>
             </div>
           </div>

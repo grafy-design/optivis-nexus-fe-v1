@@ -41,9 +41,9 @@ function StepCard({
       <div className="h-[132px] w-full flex flex-col flex-shrink-0 mb-[76px]">
         {/* Step 버튼 */}
         <div className="mb-3">
-          <button className="px-3 py-1 bg-[#f06600] rounded-[8px] text-body5m text-white h-6">
+          <span className="inline-flex px-3 py-1 bg-[#f06600] rounded-[8px] text-body5m text-white h-6 items-center">
             Step {stepNumber}
-          </button>
+          </span>
         </div>
         {/* 타이틀 + Description 영역 */}
         <div className="flex flex-col w-[700px] flex-1">
@@ -379,13 +379,15 @@ export default function ReportPage() {
                     {currentDate}
                   </p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
+                  size="md"
                   onClick={handleDownloadPDF}
                   disabled={isDownloadingPDF}
-                  className="px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="h-auto px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed hover:bg-[#aaaaad]"
                 >
                   Save as PDF
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -1167,12 +1169,14 @@ export default function ReportPage() {
                         <h2 className="text-h2 text-[#2d1067]">
                           {(apiData as any).appendix.title}
                         </h2>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="md"
                           onClick={handleDownloadPDFFromBackend}
-                          className="px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer"
+                          className="h-auto px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity hover:bg-[#aaaaad]"
                         >
                           Save as PDF
-                        </button>
+                        </Button>
                       </div>
 
                       {/* 카드 1개 */}
@@ -1199,7 +1203,11 @@ export default function ReportPage() {
               <div className="flex items-center justify-between py-4">
                 <div className="text-body5 text-neutral-40"></div>
                 <div className="flex gap-4">
-                  <button className="px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="md"
+                    className="h-auto px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity hover:bg-[#aaaaad]"
+                  >
                     <Image
                       src="/assets/header/download.svg"
                       alt=""
@@ -1208,7 +1216,7 @@ export default function ReportPage() {
                       className="object-contain brightness-0 invert"
                     />
                     Save Simulation
-                  </button>
+                  </Button>
                   <Button
                     variant="orange"
                     size="md"

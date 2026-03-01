@@ -84,6 +84,7 @@ interface ButtonProps
   extends React.ComponentProps<"button">,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  unstyled?: boolean;
   icon?: IconType;
   iconPosition?: "left" | "right";
 }
@@ -108,12 +109,18 @@ function Button({
   variant = "primary",
   size = "md",
   asChild = false,
+  unstyled = false,
   icon,
   iconPosition = "right",
   children,
   ...props
 }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
+  const resolvedClassName = unstyled
+    ? typeof className === "string"
+      ? className
+      : undefined
+    : cn(buttonVariants({ variant, size, className }));
 
   if (asChild) {
     return (
@@ -121,7 +128,7 @@ function Button({
         data-slot="button"
         data-variant={variant}
         data-size={size}
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={resolvedClassName}
         {...props}
       >
         {children}
@@ -134,13 +141,13 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={resolvedClassName}
       {...props}
     >
       {icon && iconPosition === "left" && (
         <span className="shrink-0 text-inherit">{renderIcon(icon)}</span>
       )}
-      <span className="text-inherit">{children}</span>
+      {icon ? <span className="text-inherit">{children}</span> : children}
       {icon && iconPosition === "right" && (
         <span className="shrink-0 text-inherit">{renderIcon(icon)}</span>
       )}
@@ -150,4 +157,3 @@ function Button({
 
 export { Button, buttonVariants, buttonSizes };
 export default Button;
-

@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
+import Button from "@/components/ui/button";
 import type { ErrorBarGroup, ErrorBarPoint } from "@/components/charts/MultiLineWithErrorBar";
 import {
   TSIDiseaseProgressionPanel,
@@ -573,7 +574,8 @@ function TSIReportPageContent() {
                 </div>
                 <p className="text-body2m text-left text-neutral-50">Analysis Summary</p>
               </div>
-              <button
+              <Button
+                unstyled
                 type="button"
                 onClick={() => {
                   console.log("[TSI][Report] Save as PDF clicked");
@@ -595,7 +597,7 @@ function TSIReportPageContent() {
                     fill="white"
                   />
                 </svg>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -903,7 +905,8 @@ function TSIReportPageContent() {
         {/* 하단 우측 CTA */}
         <div className="mt-[32px] mb-[28px] flex w-[1772px] max-w-[calc(100vw-100px)] justify-end pr-[38px]">
           <div className="flex items-center gap-3">
-            <button
+            <Button
+              unstyled
               type="button"
               onClick={() => {
                 console.log("[TSI][Report] Save Progress clicked");
@@ -942,9 +945,10 @@ function TSIReportPageContent() {
                 />
               </svg>
               <span>Save Progress</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
+              unstyled
               type="button"
               onClick={() => {
                 console.log("[TSI][Report] Add Basis clicked");
@@ -976,7 +980,7 @@ function TSIReportPageContent() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
       </div>
