@@ -638,6 +638,7 @@ function TSISubgroupSelectionPageContent() {
                                             const query = new URLSearchParams({
                                               subgroupId: String(row.subgroup_id),
                                               month: String(row.month),
+                                              setName: row.set_name,
                                             });
                                             if (taskId) {
                                               query.set("taskId", taskId);

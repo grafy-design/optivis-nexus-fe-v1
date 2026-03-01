@@ -422,6 +422,7 @@ function TSIRefineCutoffsPageContent() {
 
   const taskId = searchParams.get("taskId") ?? "";
   const subgroupId = searchParams.get("subgroupId");
+  const setNameFromQuery = searchParams.get("setName") ?? "Set 1";
   const initialMonthFromQuery = (() => {
     const parsed = Number.parseInt(searchParams.get("month") || "", 10);
     return Number.isFinite(parsed) ? parsed : DEFAULT_INITIAL_MONTH;
@@ -1247,7 +1248,7 @@ function TSIRefineCutoffsPageContent() {
             <div className="flex h-full w-full flex-col gap-0">
               {/* Set 1 타이틀 */}
               <div className="m-3 flex-shrink-0">
-                <h3 className="text-body2 text-primary-15">Set 1</h3>
+                <h3 className="text-body2 text-primary-15">{setNameFromQuery}</h3>
               </div>
 
               {/* 차트 2개 */}
