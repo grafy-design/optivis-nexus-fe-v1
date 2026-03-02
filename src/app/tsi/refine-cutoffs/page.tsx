@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
 import Button from "@/components/ui/button";
@@ -428,7 +428,6 @@ function TSIRefineCutoffsPageContent() {
     const parsed = Number.parseInt(searchParams.get("month") || "", 10);
     return Number.isFinite(parsed) ? parsed : DEFAULT_INITIAL_MONTH;
   })();
-  const router = useRouter();
   const [stratificationMonth, setStratificationMonth] = useState<number>(initialMonthFromQuery);
   const [appliedStratificationMonth, setAppliedStratificationMonth] =
     useState<number>(initialMonthFromQuery);
@@ -862,27 +861,6 @@ function TSIRefineCutoffsPageContent() {
       isCancelled = true;
     };
   }, [applyCriteriaVersion, effectiveAppliedStratificationMonth, subgroupId, taskId]);
-
-  // 뒤로가기 버튼을 눌렀을 때 Subgroup Selection으로 이동하도록 처리
-  useEffect(() => {
-    // 현재 페이지를 history에 추가하고, 이전 페이지를 Subgroup Selection으로 교체
-    window.history.pushState(null, "", window.location.href);
-
-    const handlePopState = () => {
-      if (!taskId) {
-        router.push("/tsi/subgroup-selection");
-        return;
-      }
-      const query = new URLSearchParams({ taskId });
-      router.push(`/tsi/subgroup-selection?${query.toString()}`);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [router, taskId]);
 
   // 슬라이더 값 계산 (feature/info의 month_min ~ month_max 범위)
   const monthRange = Math.max(maxMonth - minMonth, 1);
