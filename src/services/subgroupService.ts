@@ -502,7 +502,7 @@ export const saveSubgroupIdentification = async (
   cutoffY: string[]
 ) => {
   return await fetcher(
-    `api/nexus/subgroup/identification/save`,
+    `api/nexus/subgroup/identification/save/`,
     "PUT",
     "Subgroup Identification Cutoff 저장에 실패했습니다.",
     {
