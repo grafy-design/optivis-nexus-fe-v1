@@ -1085,18 +1085,18 @@ function TSIRefineCutoffsPageContent() {
                                 document.removeEventListener("selectstart", preventSelect);
                                 document.removeEventListener("select", preventSelect);
                                 document.removeEventListener("dragstart", preventDrag);
-                                const bodyStyle = document.body.style as any;
-                                bodyStyle.userSelect = "";
-                                bodyStyle.webkitUserSelect = "";
-                                bodyStyle.mozUserSelect = "";
-                                bodyStyle.msUserSelect = "";
+                                const bodyStyle = document.body.style;
+                                bodyStyle.removeProperty("user-select");
+                                bodyStyle.removeProperty("-webkit-user-select");
+                                bodyStyle.removeProperty("-moz-user-select");
+                                bodyStyle.removeProperty("-ms-user-select");
                                 document.body.classList.remove("no-select");
                               };
-                              const bodyStyle = document.body.style as any;
-                              bodyStyle.userSelect = "none";
-                              bodyStyle.webkitUserSelect = "none";
-                              bodyStyle.mozUserSelect = "none";
-                              bodyStyle.msUserSelect = "none";
+                              const bodyStyle = document.body.style;
+                              bodyStyle.setProperty("user-select", "none");
+                              bodyStyle.setProperty("-webkit-user-select", "none");
+                              bodyStyle.setProperty("-moz-user-select", "none");
+                              bodyStyle.setProperty("-ms-user-select", "none");
                               document.body.classList.add("no-select");
                               document.addEventListener("mousemove", handleMouseMove, {
                                 passive: false,
