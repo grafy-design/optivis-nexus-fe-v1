@@ -278,7 +278,7 @@ export const saveDrdSimulationCondition = async (
   body?: unknown,
   query?: DRDQuery
 ): Promise<unknown> => {
-  const url = withQuery("api/nexus/drd/simulation-condition/save/", query);
+  const url = withQuery("api/nexus/group-manage/drd/simulation-condition/save/", query);
   if (body === undefined) {
     return await fetcher<unknown>(url, "PUT", "DRD 시뮬레이션 조건 저장에 실패했습니다.");
   }
@@ -294,7 +294,7 @@ export const clearDrdSimulationCondition = async (
   body?: unknown,
   query?: DRDQuery
 ): Promise<unknown> => {
-  const url = withQuery("api/nexus/drd/simulation-condition/clear/", query);
+  const url = withQuery("api/nexus/group-manage/drd/simulation-condition/clear/", query);
   if (body === undefined) {
     return await fetcher<unknown>(url, "PATCH", "DRD 시뮬레이션 조건 비활성화에 실패했습니다.");
   }
@@ -308,7 +308,7 @@ export const clearDrdSimulationCondition = async (
 
 export const getDrdSimulationConditionInfo = async (query?: DRDQuery): Promise<unknown> => {
   return await fetcher<unknown>(
-    withQuery("api/nexus/drd/simulation-condition/info/", query),
+    withQuery("api/nexus/group-manage/drd/simulation-condition/info/", query),
     "GET",
     "DRD 시뮬레이션 조건 조회에 실패했습니다."
   );
