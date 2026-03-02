@@ -1226,17 +1226,17 @@ function TSIRefineCutoffsPageContent() {
               boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <div className="flex h-full w-full flex-col gap-0">
+            <div className="flex h-full w-full flex-col gap-3">
               {/* Set 1 타이틀 */}
-              <div className="m-3 flex-shrink-0">
+              <div className="flex-shrink-0 p-[4.5px]">
                 <h3 className="text-body2 text-primary-15">{setNameFromQuery}</h3>
               </div>
 
               {/* 차트 2개 */}
-              <div className="mb-3 flex flex-shrink-0 gap-3">
+              <div className="flex flex-shrink-0 gap-3">
                 {/* Disease Progression by Group */}
                 <div
-                  className="bg-primary-15 flex h-[432px] flex-1 flex-col overflow-hidden rounded-[24px] p-5"
+                  className="bg-primary-15 flex h-[420px] flex-1 flex-col overflow-hidden rounded-[24px] p-3"
                   style={{
                     boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                   }}
@@ -1275,7 +1275,7 @@ function TSIRefineCutoffsPageContent() {
 
                 {/* rHTE distribution */}
                 <div
-                  className="bg-primary-15 flex h-[432px] flex-1 flex-col overflow-hidden rounded-[24px] p-5"
+                  className="bg-primary-15 flex h-[420px] flex-1 flex-col overflow-hidden rounded-[24px] p-3"
                   style={{
                     boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                   }}
@@ -1291,12 +1291,12 @@ function TSIRefineCutoffsPageContent() {
 
               {/* 테이블 */}
               <div
-                className="mb-3 flex flex-1 flex-col rounded-[24px] bg-white"
+                className="flex flex-1 flex-col rounded-[24px] bg-white"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <div className="flex flex-col px-8 py-5">
+                <div className="flex flex-col px-8 py-4">
                   {/* 테이블 헤더 */}
                   <div className="border-neutral-80 flex h-[39px] flex-shrink-0 items-center gap-4 border-b">
                     <div className="text-body2 text-neutral-30 w-[80px] font-semibold">no.</div>
