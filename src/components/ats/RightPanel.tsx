@@ -14,7 +14,7 @@ import InfoIcon from "@/components/ui/info-icon";
 import { FormulaTooltip } from "@/components/math/FormulaTooltip";
 import FullscreenChartModal from "@/components/ui/fullscreen-chart-modal";
 import FullscreenBarChartModal from "@/components/ui/fullscreen-bar-chart-modal";
-import type { TrialDesignConditionsSummary } from "@/services/studyService";
+import type { TrialDesignConditionsSummary } from "@/services/study-service";
 
 interface ChartData {
   optivis: number[][];

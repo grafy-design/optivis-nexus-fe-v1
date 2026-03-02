@@ -17,7 +17,7 @@ import {
   ExplainListData,
   ExplainOverviewDescriptionItem,
   getExplainList,
-} from "@/services/subgroupService";
+} from "@/services/subgroup-service";
 
 type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
 type BaselineBinRatioMock = Record<string, BinRatioItem[]>;

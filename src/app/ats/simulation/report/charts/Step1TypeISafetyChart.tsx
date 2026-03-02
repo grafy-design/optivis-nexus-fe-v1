@@ -9,7 +9,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import type { TypeSafetyResult } from "@/services/studyService";
+import type { TypeSafetyResult } from "@/services/study-service";
 
 export interface Step1TypeISafetyChartProps {
   apiData: { result_type_safety?: TypeSafetyResult[] } | null;

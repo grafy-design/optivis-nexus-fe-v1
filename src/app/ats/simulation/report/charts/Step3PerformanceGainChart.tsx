@@ -8,7 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import type { RobustnessProofResult } from "@/services/studyService";
+import type { RobustnessProofResult } from "@/services/study-service";
 
 export interface Step3PerformanceGainChartProps {
   apiData: {

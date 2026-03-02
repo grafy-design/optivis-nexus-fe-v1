@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Button from "@/components/ui/button";
 import Image from "next/image";
-import { getPatientSummary, type PatientSummaryData } from "@/services/subgroupService";
+import { getPatientSummary, type PatientSummaryData } from "@/services/subgroup-service";
 
 /**
  * TSI Step 2: Patients Summary

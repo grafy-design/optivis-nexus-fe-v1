@@ -19,14 +19,14 @@ import {
   type VarianceBarsChartData,
   type VarianceStackChartData,
 } from "@/components/charts/tsi-report";
-import { getReportByFeature } from "@/services/subgroupService";
+import { getReportByFeature } from "@/services/subgroup-service";
 import type {
   ReportByFeatureResponse,
   ReportRiskResponseAssessmentItem,
   ReportStratificationStrategyItem,
   ReportVarianceDecompositionItem,
   ReportWithinGroupVarianceItem,
-} from "@/services/subgroupService";
+} from "@/services/subgroup-service";
 
 /**
  * TSI (Target Subgroup Identification) Report 페이지.

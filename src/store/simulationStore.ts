@@ -15,7 +15,7 @@ import type {
   GraphAccModel,
   ResultPrecModel,
   Appendix,
-} from "@/services/studyService";
+} from "@/services/study-service";
 
 /** Primary/Secondary 엔드포인트 1개 (최대 5개, Setting 루프용) */
 export interface EndpointItem {

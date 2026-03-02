@@ -8,7 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import type { EstimatedTreatmentEffectResult } from "@/services/studyService";
+import type { EstimatedTreatmentEffectResult } from "@/services/study-service";
 
 export interface Step2BoxplotChartProps {
   apiData: {

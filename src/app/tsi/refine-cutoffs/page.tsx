@@ -19,7 +19,7 @@ import {
   type IdentificationFeatureInfoData,
   type IdentificationFeatureInfoRow,
   type IdentificationSetInfoData,
-} from "@/services/subgroupService";
+} from "@/services/subgroup-service";
 
 const MONTH_STEP = 3;
 const DEFAULT_MONTH_MIN = 3;

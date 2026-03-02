@@ -9,7 +9,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import type { AbsolutePerformanceItem } from "@/services/studyService";
+import type { AbsolutePerformanceItem } from "@/services/study-service";
 
 export interface Step3AbsolutePerformanceChartProps {
   apiData: {

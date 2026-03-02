@@ -11,7 +11,7 @@ import {
   getSubgroupSummaryList,
   type SubgroupSetSummary,
   type ResultTableItem,
-} from "@/services/subgroupService";
+} from "@/services/subgroup-service";
 import ReactECharts from "echarts-for-react";
 import { Loading } from "@/components/common/Loading";
 

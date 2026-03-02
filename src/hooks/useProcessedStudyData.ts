@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { StudyResult } from "@/services/studyService";
+import type { StudyResult } from "@/services/study-service";
 
 const MIN_POWER = 0.6; // 최소 power 60%
 const DEFAULT_POWER = 0.8; // 디폴트 power 80%

@@ -5,7 +5,7 @@ import { Loading } from "@/components/common/Loading";
 import { AppLayout } from "@/components/layout/AppLayout";
 import ArrowIcon from "@/components/ui/arrow-icon";
 import Button from "@/components/ui/button";
-import { downloadReportFile } from "@/services/studyService";
+import { downloadReportFile } from "@/services/study-service";
 import { useSimulationStore } from "@/store/simulationStore";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";

@@ -11,7 +11,7 @@ import {
   type PrimaryEndpointData,
   type SecondaryEndpointData,
   type StudyParameters,
-} from "@/services/studyService";
+} from "@/services/study-service";
 import { useSimulationStore } from "@/store/simulationStore";
 import { useMemo } from "react";
 import "simplebar-react/dist/simplebar.min.css";
