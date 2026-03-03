@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, Suspense } from "react";
-import Image from "next/image";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import PrognosticChart from "./charts/PrognosticChart";
+import DrugResponsivenessChart from "./charts/DrugResponsivenessChart";
+import SafetyChart from "./charts/SafetyChart";
 
 /**
  * TSI Step 3: Basis Selection
@@ -20,32 +22,29 @@ const BASIS_OPTIONS: Array<{
   { id: "multiple-conditions", label: "Multiple Conditions", disabled: true },
 ];
 
-const BASIS_CONTENT: Record<
-  string,
-  { title: string; description: string; chartSrc: string }
-> = {
+const BASIS_CONTENT: Record<string, { title: string; description: string; chart: React.ReactNode }> = {
   prognostic: {
     title: "Stratify patients based on predicted disease progression metrics",
     description:
       "Patients are divided into rapid progressors and slow or stable progressors using predicted progression scores and progression slopes, reducing heterogeneity and improving trial design and analysis efficiency.",
-    chartSrc: "/assets/tsi/chart-prognostic.png",
+    chart: <PrognosticChart />,
   },
   "drug-responsiveness": {
     title: "Stratify patients based on treatment effect responsiveness",
     description:
       "Patients are divided into high responders and low or non-responders using the rHTE score, reducing overlap between treatment and control outcome distributions and making the treatment effect more detectable.",
-    chartSrc: "/assets/tsi/chart-drug-responsiveness.png",
+    chart: <DrugResponsivenessChart />,
   },
   safety: {
     title: "Stratify patients based on safety and dropout risk",
     description:
       "Patients are divided into high-risk and low-risk groups using safety risk and dropout risk scores, reducing attrition risk and operational bias and improving overall trial robustness.",
-    chartSrc: "/assets/tsi/chart-safety.png",
+    chart: <SafetyChart />,
   },
   "multiple-conditions": {
     title: "Multiple Conditions",
     description: "설명 추후 전달 예정.",
-    chartSrc: "/assets/tsi/chart-prognostic.png",
+    chart: <PrognosticChart />,
   },
 };
 
@@ -70,11 +69,13 @@ function ChevronRightIcon({ className }: { className?: string }) {
   );
 }
 
-function TSIBasisSelectionContent() {
+function TSIBasisSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId");
-  const [selectedBasis, setSelectedBasis] = useState<string>("prognostic");
+  const [selectedBasis, setSelectedBasis] = useState<string | null>(null);
+  const [hoveredBasis, setHoveredBasis] = useState<string | null>(null);
+  const previewBasis = hoveredBasis ?? selectedBasis ?? "prognostic";
 
   const handleGoToSubgroupSelection = () => {
     if (!taskId) {
@@ -87,44 +88,27 @@ function TSIBasisSelectionContent() {
   };
 
   return (
-    <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center">
-        {/* 타이틀: ATS처럼 카드 밖 (배경 카드와 형제) */}
-        <div className="w-full flex justify-center mb-2 max-w-full">
-          <div className="w-[1772px] max-w-full flex-shrink-0 mx-auto">
-            <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-              <div className="text-title text-neutral-5 text-left mb-2">
-                Target Subgroup Identification
-              </div>
-              <p className="text-body2m text-neutral-50 text-left">
-                Select a subgroup basis
-              </p>
-            </div>
-          </div>
+    <AppLayout headerType="tsi" scaleMode="none">
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+        {/* Title */}
+        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+            Target Subgroup Identification
+          </h1>
+          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            Select a subgroup basis
+          </span>
         </div>
 
         {/* 메인 카드 영역 (배경 이미지 카드) */}
-        <div className="w-[1772px] min-h-[750px] flex-shrink-0 mx-auto">
-          <div
-            className="relative rounded-[36px] overflow-hidden w-full min-h-[642px]"
-            style={{
-              backgroundImage: "url(/assets/tsi/default-setting-bg.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <div className="relative p-6 flex flex-col h-full">
-              <div className="flex gap-4 flex-1 min-h-0">
+        <div className="rounded-[36px] overflow-hidden flex flex-1 min-h-0" style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}>
+              <div className="flex w-full h-full gap-4">
                 {/* 왼쪽 카드: Select a subgroup basis - 흰색 배경 */}
                 <div
-                  className="w-[462px] flex-shrink-0 rounded-[16px] overflow-hidden bg-white flex flex-col"
-                  style={{
-                    boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-                  }}
+                  className="flex w-[520px] flex-shrink-0 flex-col overflow-hidden rounded-[16px] bg-white self-start"
+                  style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                 >
-                  {BASIS_OPTIONS.map((opt, index) => {
+                  {BASIS_OPTIONS.map((opt) => {
                     const isSelected = selectedBasis === opt.id;
                     const isDisabled = opt.disabled === true;
                     return (
@@ -132,23 +116,21 @@ function TSIBasisSelectionContent() {
                         key={opt.id}
                         type="button"
                         disabled={isDisabled}
-                        onClick={() => !isDisabled && setSelectedBasis(opt.id)}
-                        className={`w-full h-[54px] flex items-center justify-between px-4 text-left border-b border-neutral-80 last:border-b-0 ${
+                        onClick={() => !isDisabled && setSelectedBasis(opt.id === selectedBasis ? null : opt.id)}
+                        onMouseEnter={() => !isDisabled && setHoveredBasis(opt.id)}
+                        onMouseLeave={() => setHoveredBasis(null)}
+                        className={`border-neutral-80 flex h-[54px] w-full items-center justify-between border-b px-4 text-left last:border-b-0 ${
                           isDisabled
                             ? "bg-neutral-95 text-neutral-60 cursor-not-allowed opacity-60"
                             : isSelected
-                              ? "bg-primary-15 text-white"
-                              : "bg-white text-neutral-30"
+                              ? "bg-primary-15 text-white hover:bg-[#2e2a66]"
+                              : "text-neutral-30 bg-white hover:bg-[#efeff4]"
                         }`}
                       >
-                        <span className="text-body2m">{opt.label}</span>
+                        <span className="text-body2">{opt.label}</span>
                         {!isDisabled && (
                           <ChevronRightIcon
-                            className={
-                              isSelected
-                                ? "text-white flex-shrink-0"
-                                : "text-neutral-60 flex-shrink-0"
-                            }
+                            className={isSelected ? "flex-shrink-0 text-white" : "text-neutral-60 flex-shrink-0"}
                           />
                         )}
                       </button>
@@ -157,51 +139,41 @@ function TSIBasisSelectionContent() {
                 </div>
 
                 {/* 오른쪽 카드: 문구+차트 영역 클릭 시 Subgroup Selection으로 이동 */}
-                <button
-                  type="button"
-                  onClick={handleGoToSubgroupSelection}
-                  className="flex-1 min-w-0 flex rounded-[24px] overflow-hidden bg-primary-15 cursor-pointer hover:opacity-95 transition-opacity text-left"
-                >
-                  {(() => {
-                    const content =
-                      BASIS_CONTENT[selectedBasis] ?? BASIS_CONTENT.prognostic;
-                    return (
-                      <>
-                        <div className="w-[398px] flex-shrink-0 p-6 flex flex-col justify-start">
-                          <h2 className="text-h3 text-white mb-4">
-                            {content.title}
-                          </h2>
-                          <p className="text-body3m text-white leading-[17.85px]">
-                            {content.description}
-                          </p>
-                        </div>
-                        <div className="flex-1 min-w-0 p-4 flex items-center justify-center">
-                          <div className="w-full max-w-[816px] h-[586px] bg-white rounded-[12px] overflow-hidden relative">
-                            <Image
-                              src={content.chartSrc}
-                              alt=""
-                              fill
-                              className="object-contain"
-                            />
+                {(() => {
+                  const content = BASIS_CONTENT[previewBasis] ?? BASIS_CONTENT.prognostic;
+                  return (
+                    <button
+                      type="button"
+                      onClick={handleGoToSubgroupSelection}
+                      className="bg-primary-15 flex flex-col flex-1 min-w-0 h-full cursor-pointer overflow-hidden rounded-[24px] text-left transition-opacity hover:opacity-95"
+                    >
+                      <div className="flex flex-shrink-0 flex-col justify-start p-6" style={{ paddingBottom: 0 }}>
+                        <h2 className="text-h4 mb-4 text-white">{content.title}</h2>
+                        <p className="text-body4m leading-[17.85px] text-white w-3/4">
+                          {content.description}
+                        </p>
+                      </div>
+                      <div className="flex flex-1 min-h-0 w-full p-6" style={{ marginTop: 60 }}>
+                        <div className="relative w-full h-full overflow-auto rounded-[12px] bg-white p-6" style={{ display: "flex" }}>
+                          <div style={{ flex: 1, minWidth: 360, minHeight: 260 }}>
+                            {content.chart}
                           </div>
                         </div>
-                      </>
-                    );
-                  })()}
-                </button>
+                      </div>
+                    </button>
+                  );
+                })()}
               </div>
-            </div>
           </div>
         </div>
-      </div>
     </AppLayout>
   );
 }
 
 export default function TSIBasisSelectionPage() {
   return (
-    <Suspense>
-      <TSIBasisSelectionContent />
+    <Suspense fallback={null}>
+      <TSIBasisSelectionPageContent />
     </Suspense>
   );
 }

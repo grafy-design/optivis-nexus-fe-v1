@@ -6,11 +6,12 @@ import Image from "next/image";
 type IconType = "play" | "plus" | string; // "play", "plus" 또는 이미지 경로
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "ghost" | "outline" | "glass" | "orange";
+  variant?: "primary" | "ghost" | "outline" | "glass" | "orange" | "neutral";
   size?: "sm" | "md" | "lg";
   icon?: IconType;
   iconPosition?: "left" | "right";
   disabled?: boolean;
+  unstyled?: boolean;
   children: React.ReactNode;
 }
 
@@ -58,6 +59,7 @@ export default function Button({
   icon,
   iconPosition = "right",
   disabled = false,
+  unstyled = false,
   children,
   className,
   ...props
@@ -70,6 +72,7 @@ export default function Button({
     outline: "border border-gray-300 bg-transparent hover:bg-gray-50",
     glass: "bg-[rgba(36,36,36,0.3)] backdrop-blur-[10px] text-[black] hover:bg-[rgba(36,36,36,0.4)]",
     orange: "bg-[#f16600] text-white hover:bg-[#d85a00] disabled:opacity-50 disabled:hover:bg-[#f16600]",
+    neutral: "bg-neutral-70 text-white hover:bg-neutral-60",
   };
 
   const sizes = {
@@ -104,13 +107,17 @@ export default function Button({
 
   return (
     <button
-      className={cn(
-        baseStyles,
-        variants[variant],
-        sizes[size],
-        disabled && "opacity-50 cursor-not-allowed",
-        className
-      )}
+      className={
+        unstyled
+          ? className
+          : cn(
+              baseStyles,
+              variants[variant],
+              sizes[size],
+              disabled && "opacity-50 cursor-not-allowed",
+              className
+            )
+      }
       disabled={disabled}
       style={{
         ...(variant === "orange" && { color: "#ffffff" }),

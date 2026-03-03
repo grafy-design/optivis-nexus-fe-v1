@@ -64,7 +64,7 @@ export default function SimulationSearch({ value, onChange }: SimulationSearchPr
         placeholder="Search"
         style={{
           fontFamily: "Inter",
-          fontSize: "19.5px",
+          fontSize: "17.5px",
           fontWeight: 600,
           lineHeight: "100%",
           letterSpacing: "-0.585px",

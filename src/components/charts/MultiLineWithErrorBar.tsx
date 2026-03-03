@@ -30,7 +30,12 @@ interface MultiLineWithErrorBarProps {
   dataGroup: ErrorBarGroup[];
   seriesLabels?: string[];
   colors?: string[];
-  height?: number;
+  filledSymbol?: boolean;
+  lineWidth?: number;
+  symbolSize?: number;
+  errorBarLineWidth?: number;
+  errorBarCapHalfWidth?: number;
+  height?: number | string;
   xAxis?: AxisConfig;
   yAxis?: AxisConfig;
   guideLineX?: number | null;
@@ -53,6 +58,11 @@ export const MultiLineWithErrorBar = ({
   dataGroup,
   seriesLabels,
   colors,
+  filledSymbol = false,
+  lineWidth = 2,
+  symbolSize = 5,
+  errorBarLineWidth = 1.2,
+  errorBarCapHalfWidth = 5,
   height = 220,
   xAxis,
   yAxis,
@@ -87,9 +97,10 @@ export const MultiLineWithErrorBar = ({
         data: group.map(([x, y]) => [x, y]),
         smooth: false,
         showSymbol: true,
-        symbolSize: 5,
-        itemStyle: { color },
-        lineStyle: { width: 1.8, color },
+        symbol: filledSymbol ? "circle" : "emptyCircle",
+        symbolSize,
+        itemStyle: filledSymbol ? { color, borderColor: color, borderWidth: 1 } : { color },
+        lineStyle: { width: lineWidth, color },
       },
       {
         name: `${groupName} Error`,
@@ -115,27 +126,27 @@ export const MultiLineWithErrorBar = ({
                   x2: coord[0],
                   y2: yBottom[1],
                 },
-                style: api.style({ stroke: color, lineWidth: 1.2 }),
+                style: api.style({ stroke: color, lineWidth: errorBarLineWidth }),
               },
               {
                 type: "line",
                 shape: {
-                  x1: coord[0] - 5,
+                  x1: coord[0] - errorBarCapHalfWidth,
                   y1: yTop[1],
-                  x2: coord[0] + 5,
+                  x2: coord[0] + errorBarCapHalfWidth,
                   y2: yTop[1],
                 },
-                style: api.style({ stroke: color, lineWidth: 1.2 }),
+                style: api.style({ stroke: color, lineWidth: errorBarLineWidth }),
               },
               {
                 type: "line",
                 shape: {
-                  x1: coord[0] - 5,
+                  x1: coord[0] - errorBarCapHalfWidth,
                   y1: yBottom[1],
-                  x2: coord[0] + 5,
+                  x2: coord[0] + errorBarCapHalfWidth,
                   y2: yBottom[1],
                 },
-                style: api.style({ stroke: color, lineWidth: 1.2 }),
+                style: api.style({ stroke: color, lineWidth: errorBarLineWidth }),
               },
             ],
           };

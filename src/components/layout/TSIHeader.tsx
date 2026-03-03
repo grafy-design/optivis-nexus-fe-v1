@@ -2,8 +2,6 @@
 
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
-import IconButton from "@/components/ui/icon-button";
 
 /** TSI 브레드크럼 스텝 (기존 ATS 헤더와 동일한 원형·화살표 스타일, 숫자 1~6) */
 const TSI_BREADCRUMB_STEPS = [
@@ -65,15 +63,14 @@ export const TSIHeader = () => {
 
   return (
     <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#e7e5e7]">
-      <div className="w-full h-[76px] px-10 flex justify-between items-center">
-        {/* Left - Breadcrumb (ATS와 동일한 gap-9, 구조) */}
-        <div className="flex items-center gap-9">
+      <div className="w-full h-[90px] px-[28px] py-[17px] flex justify-between items-center">
+        {/* Left - Breadcrumb */}
+        <div className="flex items-center gap-[36px]">
           {/* 재생 아이콘 (ATS와 동일 - dark purple, 클릭 시 첫 스텝으로) */}
 
           {TSI_BREADCRUMB_STEPS.map((step, index) => {
             const isActive = activeStepIndex === index;
             const circleFill = isActive ? "#2D1067" : "#939090";
-            const textColor = isActive ? "text-[#2d1067]" : "text-[#797676]";
 
             return (
               <React.Fragment key={step.key}>
@@ -96,7 +93,7 @@ export const TSIHeader = () => {
                 )}
                 <button
                   onClick={() => router.push(step.path)}
-                  className={`flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer ${textColor}`}
+                  className="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
                 >
                   {/* ATS와 동일: 16x16 원형, 흰색 숫자 */}
                   <svg
@@ -124,7 +121,7 @@ export const TSIHeader = () => {
                       {index + 1}
                     </text>
                   </svg>
-                  <span className="text-body2 whitespace-nowrap">
+                  <span className={`text-[19.5px] font-semibold tracking-[-0.78px] whitespace-nowrap ${isActive ? "text-[#2D1067]" : "text-[#787776]"}`}>
                     {step.label}
                   </span>
                 </button>
@@ -134,7 +131,7 @@ export const TSIHeader = () => {
         </div>
 
         {/* Right - 뒤로가기(전단계), 도움말 */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-0">
           <button
             onClick={() => {
               const prevPath = getTSIPreviousStepPath(pathname);
@@ -144,17 +141,20 @@ export const TSIHeader = () => {
                 router.push("/");
               }
             }}
-            className="w-12 h-12 flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer rounded-full overflow-hidden"
+            className="relative w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer p-0 hover:opacity-70 transition-opacity"
+            style={{ backgroundImage: "url('/assets/sidebar-folder-button.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
           >
-            <Image
-              src="/assets/simulation/back.png"
-              alt="Back"
-              width={48}
-              height={48}
-              className="flex-shrink-0 w-full h-full object-contain"
-            />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="relative z-10">
+              <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="#262255" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
-          <IconButton icon="/assets/header/help.png" alt="Help" />
+          <button
+            title="Help"
+            className="relative w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer p-0"
+            style={{ backgroundImage: "url('/assets/sidebar-folder-button.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat" }}
+          >
+            <span className="relative z-10 text-[#262255] font-bold text-[22px] leading-none">?</span>
+          </button>
         </div>
       </div>
     </header>

@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, Fragment, useEffect, Suspense } from "react";
+import { Suspense, useState, Fragment, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { AppLayout } from "@/components/layout/AppLayout";
+import IconButton from "@/components/ui/icon-button";
 import {
   getSubgroupSummaryList,
   type SubgroupSetSummary,
   type ResultTableItem,
-} from "@/services/subgroupService";
+} from "@/services/subgroup-service";
 import ReactECharts from "echarts-for-react";
+import { Loading } from "@/components/common/Loading";
 
 /**
  * TSI Step 4: Subgroup Selection
@@ -34,25 +36,62 @@ interface SetData {
 
 /** 그룹별 에러바 색상 (Group 1, 2, 3 각각 구분) */
 const GROUP_BAR_COLORS = ["#AAA5E1", "#7571A9", "#231F52"];
+const SUMMARY_ERROR_BAR_LINE_HEIGHT_PX = 2;
+const SUMMARY_ERROR_BAR_CAP_WIDTH_PX = 2;
+const SUMMARY_ERROR_BAR_CAP_HEIGHT_PX = 6;
+const SUMMARY_ERROR_BAR_DOT_SIZE_PX = 8;
+const MAX_GROUP_DISPLAY_COUNT = 3;
 
-/** 테이블 공통 스타일: 높이 52px */
+/** 테이블 공통 스타일 */
 const TABLE_CELL_BASE = "h-[52px] border-b align-middle";
+const TABLE_HEADER_CELL_BASE = "border-b align-middle py-1";
 /** border-l이 없는 셀: 오른쪽 padding만 8px */
-const TABLE_HEADER_CELL_BASE_NO_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-30 text-body3 text-neutral-30 font-semibold whitespace-nowrap`;
-const TABLE_BODY_CELL_BASE_NO_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body4 text-neutral-40`;
+const TABLE_HEADER_CELL_BASE_NO_BORDER = `${TABLE_HEADER_CELL_BASE} pr-2 border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
+const TABLE_BODY_CELL_BASE_NO_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5 text-neutral-40`;
 /** border-l이 있는 셀: 오른쪽 padding만 8px, 왼쪽은 margin으로 처리 */
-const TABLE_HEADER_CELL_BASE_WITH_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-30 text-body3 text-neutral-30 font-semibold whitespace-nowrap`;
-const TABLE_BODY_CELL_BASE_WITH_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body4 text-neutral-40`;
+const TABLE_HEADER_CELL_BASE_WITH_BORDER = `${TABLE_HEADER_CELL_BASE} pr-2 border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
+const TABLE_BODY_CELL_BASE_WITH_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5 text-neutral-40`;
 /** 마지막 컬럼: border-l은 있지만 padding 없음 */
-const TABLE_HEADER_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-30 text-body3 text-neutral-30 font-semibold whitespace-nowrap`;
-const TABLE_BODY_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-80 text-body4 text-neutral-40`;
+const TABLE_HEADER_CELL_BASE_LAST = `${TABLE_HEADER_CELL_BASE} border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
+const TABLE_BODY_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-80 text-body5 text-neutral-40`;
 
 /** 내부 div: 셀과 같은 너비, 더 작은 높이(36px), 세로선 포함 */
 const TABLE_INNER_DIV_CENTER =
-  "w-full h-[28px] flex items-center justify-center border-l border-neutral-80 pl-2";
-const TABLE_INNER_DIV_LEFT = "w-full h-[28px] flex items-center border-l border-neutral-80 pl-2";
-const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full h-[28px] flex items-center justify-center";
-const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-[28px] flex items-center";
+  "w-full min-h-[28px] flex items-center justify-center border-l border-neutral-80 pl-2";
+const TABLE_INNER_DIV_LEFT = "w-full min-h-[28px] flex items-center border-l border-neutral-80 pl-2";
+const TABLE_INNER_DIV_CENTER_NO_BORDER = "w-full min-h-[28px] flex items-center justify-center";
+const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full min-h-[28px] flex items-center";
+
+const getCiText = (varianceDecomposition: ResultTableItem["variance_decomposition"]) => {
+  if (!varianceDecomposition) return "";
+  const listItem = varianceDecomposition[varianceDecomposition.length - 1];
+  return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci})
+  η²=${listItem.eta_square}, ω²=${listItem.omega} `;
+};
+
+const getDisplayGroupCount = (
+  requestedCount: number | null | undefined,
+  fallbackCount: number
+): number => {
+  const requested = typeof requestedCount === "number" && Number.isFinite(requestedCount) ? Math.floor(requestedCount) : 0;
+  const fallback = Math.max(Math.floor(fallbackCount), 0);
+
+  if (requested > 0) {
+    return Math.min(requested, MAX_GROUP_DISPLAY_COUNT);
+  }
+
+  return Math.min(fallback, MAX_GROUP_DISPLAY_COUNT);
+};
+
+const clampGroupArray = <T,>(
+  items: T[],
+  requestedCount: number | null | undefined,
+  fallbackCount: number
+): T[] => {
+  const limit = getDisplayGroupCount(requestedCount, fallbackCount);
+  if (limit <= 0) return [];
+  return items.slice(0, limit);
+};
 
 function TSISubgroupSelectionPageContent() {
   const router = useRouter();
@@ -73,7 +112,7 @@ function TSISubgroupSelectionPageContent() {
       setSummaryData([]);
       setResultTableData([]);
       setSelectedSetNo("");
-      setError("taskId 쿼리 파라미터가 없습니다.");
+      setError("taskId 쿼리 파라미터가 없습니다. 필수 정보가 확인되지 않아 요청을 진행할 수 없습니다. 이전 단계부터 다시 진행해 주세요.");
       setIsLoading(false);
       return;
     }
@@ -90,10 +129,7 @@ function TSISubgroupSelectionPageContent() {
         // 오른쪽 테이블용: result_table 저장
         setResultTableData(response.data.result_table);
 
-        // 첫 번째 Set을 기본 선택 (result_table의 no 사용)
-        if (response.data.result_table.length > 0) {
-          setSelectedSetNo(String(response.data.result_table[0].no).padStart(2, "0"));
-        }
+        // 초기 선택 없음 (체크박스 미선택 상태)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Subgroup Summary 조회에 실패했습니다.");
         console.error("Subgroup Summary API 호출 실패:", err);
@@ -134,30 +170,26 @@ function TSISubgroupSelectionPageContent() {
   };
 
   return (
-    <AppLayout headerType="tsi">
-      <div className="flex w-full flex-col items-center">
-        {/* 타이틀: 카드 밖 */}
-        <div className="mb-2 flex w-full max-w-full justify-center">
-          <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
-            <div className="flex flex-shrink-0 flex-col items-start gap-1">
-              <div className="text-title text-neutral-5 mb-2 text-left">Subgroup Selection</div>
-              <p className="text-body2m text-left text-neutral-50">Prognostic</p>
-            </div>
-          </div>
+    <AppLayout headerType="tsi" scaleMode="none">
+      <Loading isLoading={isLoading} />
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+        {/* Title */}
+        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+            Target Subgroup Identification
+          </h1>
+          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            Subgroup Selection
+          </span>
         </div>
 
         {/* 메인: 상위 배경 카드 2개 나란히 (좌 selection-left, 우 selection-bg) */}
-        <div className="mx-auto flex w-[1772px] flex-shrink-0 flex-row flex-nowrap items-stretch gap-4">
+        <div className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0" style={{ minWidth: 0 }}>
           {/* 왼쪽 상위 배경 카드: selection-left.png (Figma 536x614, radius 36) */}
           <div
-            className="flex h-[614px] w-[536px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] p-3"
-            style={{
-              backgroundImage: "url(/assets/tsi/selection-left.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-            }}
+            className="flex min-h-0 flex-[30] min-w-0 flex-col overflow-hidden rounded-[36px] p-0"
+           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+
           >
             {/* 남색 카드: Figma Frame 1618872954 512x590, radius 24, set 추가 시 스크롤 */}
             <div
@@ -168,24 +200,30 @@ function TSISubgroupSelectionPageContent() {
             >
               {/* 헤더: Figma 16,16 → 480x32, 카드와 간격 100px */}
               <div className="mb-[60px] flex-shrink-0 px-4 pt-4 pb-3">
-                <h2 className="text-body2 text-white">Subgroup Sets Summary</h2>
+                <h2 className="text-body1 text-white">Subgroup Sets Summary</h2>
               </div>
               {/* 흰 패널: Set 목록 + 구간 차트 + Disease Progression 축 */}
               <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
                 <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] border bg-white px-4 py-2">
                   {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
                     {isLoading ? (
                       <div className="flex h-full items-center justify-center">
-                        <div className="text-body2 text-white">Loading...</div>
+                        <div className="text-body3 text-white">Loading...</div>
                       </div>
                     ) : error ? (
-                      <div className="flex h-full items-center justify-center">
-                        <div className="text-body2 text-red-300">Error: {error}</div>
+                      <div className="flex flex-1 items-center justify-center">
+                        <div className="flex flex-col items-center gap-1 text-center">
+                          <div className="text-body4 text-red-500">Error: {error.split(". ")[0]}.</div>
+                          {error.split(". ").slice(1).join(". ") && (
+                            <div className="text-body5m text-neutral-400">{error.split(". ").slice(1).join(". ")}</div>
+                          )}
+                        </div>
                       </div>
                     ) : summaryData.length === 0 ? (
                       <div className="flex h-full items-center justify-center">
-                        <div className="text-body2 text-white">No data available</div>
+                        <div className="text-body3 text-white">No data available</div>
                       </div>
                     ) : (
                       summaryData.map((set, index) => {
@@ -194,12 +232,13 @@ function TSISubgroupSelectionPageContent() {
                         const setNo = tableItem
                           ? String(tableItem.no).padStart(2, "0")
                           : String(index + 1).padStart(2, "0");
-                        const isSelected = selectedSetNo === setNo;
+                        const summaryLimit = getDisplayGroupCount(tableItem?.of_group, set.groups.length);
+                        const displayGroups = set.groups.slice(0, summaryLimit);
 
                         return (
                           <div
                             key={`${set.set_name}_${index}`}
-                            className="border-neutral-80 flex min-h-0 border-b last:border-b-0"
+                            className="border-neutral-80 flex min-h-0 flex-1 border-b last:border-b-0"
                           >
                             {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
                             <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2">
@@ -208,30 +247,30 @@ function TSISubgroupSelectionPageContent() {
                                   className="bg-primary-10 text-body5m box-border flex shrink-0 items-center justify-center gap-1 rounded-full text-white"
                                   style={{
                                     width: 72,
-                                    height: 18,
+                                    height: 20,
                                     padding: "0 6px",
                                   }}
                                 >
                                   {set.set_name}
                                 </span>
-                                {isSelected && (
+                                {tableItem?.variance_benefit_label && (
                                   <Image
                                     src="/assets/tsi/set-check.svg"
                                     alt=""
                                     width={18}
-                                    height={18}
+                                    height={20}
                                     className="flex-shrink-0"
                                   />
                                 )}
                               </div>
-                              {set.groups.map((g, groupIndex) => {
+                              {displayGroups.map((g, groupIndex) => {
                                 // group1 -> Group 1 형식으로 변환
                                 const groupNum = g.group.replace("group", "");
                                 const groupName = `Group ${groupNum}`;
                                 return (
                                   <div
                                     key={`${set.set_name}-group-${groupIndex}`}
-                                    className="text-body4m text-neutral-30 flex h-7 flex-shrink-0 items-center pr-1 pl-2"
+                                    className="text-body5m text-neutral-30 flex min-h-0 flex-1 items-center pr-1 pl-2"
                                   >
                                     {groupName}
                                   </div>
@@ -239,12 +278,13 @@ function TSISubgroupSelectionPageContent() {
                               })}
                             </div>
                             {/* 오른쪽 셀: 왼쪽 기준 맞춤 (스페이서=Set행, 행높이=그룹 h-7) */}
-                            <div className="relative flex min-w-0 flex-1 flex-col py-2 pr-4 pl-2">
+                            <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden py-2 pr-4 pl-2">
                               {/* 왼쪽 Set 행과 동일: h-[22px] + mb-1 */}
                               <div className="mb-1 h-[22px] flex-shrink-0" aria-hidden />
-                              {/* 눈금선: 엄청 연하게 (패딩=셀과 동일) */}
+                              {/* 눈금선: 차트 행 영역에만 표시 (Set 행 spacer 아래부터) */}
                               <div
-                                className="pointer-events-none absolute inset-0 flex justify-between py-2 pr-4 pl-2"
+                                className="pointer-events-none absolute right-0 bottom-0 left-0 flex justify-between pb-2 pr-4 pl-2"
+                                style={{ top: 34 }}
                                 aria-hidden
                               >
                                 {Array.from({ length: 9 }).map((_, i) => (
@@ -254,9 +294,9 @@ function TSISubgroupSelectionPageContent() {
                                   />
                                 ))}
                               </div>
-                              {(() => {
+                                {(() => {
                                 // 현재 Set의 개별 min/max 계산 (각 Set마다 독립적인 스케일)
-                                const setValues = set.groups.flatMap((g) => [
+                                const setValues = displayGroups.flatMap((g) => [
                                   g.ci_low,
                                   g.ci_high,
                                   g.mean,
@@ -271,7 +311,7 @@ function TSISubgroupSelectionPageContent() {
                                   return ((value - setMinValue) / setRange) * 100;
                                 };
 
-                                return set.groups.map((g, i) => {
+                                return displayGroups.map((g, i) => {
                                   const barColor = GROUP_BAR_COLORS[i % GROUP_BAR_COLORS.length];
 
                                   // 각 Set의 개별 min/max 범위로 정규화 (독립적인 스케일)
@@ -282,7 +322,7 @@ function TSISubgroupSelectionPageContent() {
                                   return (
                                     <div
                                       key={`${set.set_name}-chart-${i}`}
-                                      className="relative z-[1] flex h-7 flex-shrink-0 items-center"
+                                      className="relative z-[1] flex min-h-0 flex-1 items-center"
                                     >
                                       <div
                                         className="relative flex h-2 w-full items-center"
@@ -290,44 +330,49 @@ function TSISubgroupSelectionPageContent() {
                                       >
                                         {/* 가로선: ci_low ~ ci_high 범위 */}
                                         <div
-                                          className="absolute h-px rounded-none"
+                                          className="absolute rounded-full"
                                           style={{
                                             left: `${ciLowPct}%`,
                                             right: `${100 - ciHighPct}%`,
                                             top: "50%",
                                             transform: "translateY(-50%)",
                                             backgroundColor: barColor,
+                                            height: SUMMARY_ERROR_BAR_LINE_HEIGHT_PX,
                                           }}
                                         />
                                         {/* 심볼: mean 위치 */}
                                         <span
-                                          className="absolute h-3 w-3 shrink-0 rounded-full"
+                                          className="absolute shrink-0 rounded-full"
                                           style={{
                                             left: `${meanPct}%`,
                                             top: "50%",
                                             transform: "translate(-50%, -50%)",
                                             backgroundColor: barColor,
+                                            width: SUMMARY_ERROR_BAR_DOT_SIZE_PX,
+                                            height: SUMMARY_ERROR_BAR_DOT_SIZE_PX,
                                           }}
                                         />
                                         {/* 왼쪽 꼬리: ci_low 위치 */}
                                         <span
-                                          className="absolute w-px shrink-0"
+                                          className="absolute shrink-0 rounded-full"
                                           style={{
                                             left: `${ciLowPct}%`,
                                             top: "50%",
-                                            transform: "translateY(-50%)",
-                                            height: 10,
+                                            transform: "translate(-50%, -50%)",
+                                            width: SUMMARY_ERROR_BAR_CAP_WIDTH_PX,
+                                            height: SUMMARY_ERROR_BAR_CAP_HEIGHT_PX,
                                             backgroundColor: barColor,
                                           }}
                                         />
                                         {/* 오른쪽 꼬리: ci_high 위치 */}
                                         <span
-                                          className="absolute w-px shrink-0"
+                                          className="absolute shrink-0 rounded-full"
                                           style={{
                                             left: `${ciHighPct}%`,
                                             top: "50%",
-                                            transform: "translateY(-50%)",
-                                            height: 10,
+                                            transform: "translate(-50%, -50%)",
+                                            width: SUMMARY_ERROR_BAR_CAP_WIDTH_PX,
+                                            height: SUMMARY_ERROR_BAR_CAP_HEIGHT_PX,
                                             backgroundColor: barColor,
                                           }}
                                         />
@@ -341,13 +386,14 @@ function TSISubgroupSelectionPageContent() {
                         );
                       })
                     )}
+                  </div>{/* overflow-y-auto */}
                     {/* X축 행: 왼쪽 빈 칸 + 오른쪽에만 Slow/Rapid (위쪽 선은 마지막 Set 행 border-b로만 표시) */}
-                    <div className="flex flex-shrink-0">
+                    <div className={`flex flex-shrink-0 ${error ? "invisible" : ""}`}>
                       <div className="border-neutral-80 w-[112px] flex-shrink-0" aria-hidden />
                       <div className="flex min-w-0 flex-1 flex-col pt-0 pb-1 pl-2">
                         {/* 1) 축선 + 짧은 눈금(아래로) */}
                         <div className="flex w-full min-w-0 flex-col px-2">
-                          <div className="w-full border-b border-neutral-50" aria-hidden />
+                          <div className="w-full border-b-[1.5px] border-neutral-50" aria-hidden />
                           <div className="mt-0 flex w-full justify-between px-0">
                             {Array.from({ length: 9 }).map((_, i) => (
                               <span
@@ -365,7 +411,7 @@ function TSISubgroupSelectionPageContent() {
                           <span className="shrink-0">Rapid</span>
                         </div>
                         {/* 3) Disease Progression */}
-                        <div className="text-body4m text-neutral-30 mt-0.5 w-full text-center">
+                        <div className="text-body5m text-neutral-30 mt-0.5 w-full text-center">
                           Disease Progression
                         </div>
                       </div>
@@ -377,13 +423,9 @@ function TSISubgroupSelectionPageContent() {
           </div>
           {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
           <div
-            className="flex min-h-[796px] min-w-0 flex-1 flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-3"
-            style={{
-              backgroundImage: "url(/assets/tsi/selection-bg.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
+            className="flex min-h-0 min-w-0 flex-[70] flex-col overflow-hidden rounded-[24px] p-0"
+            style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+
           >
             <div className="relative flex min-h-0 flex-1 flex-col p-0">
               {/* 안에 테이블 카드 (흰색) */}
@@ -398,10 +440,26 @@ function TSISubgroupSelectionPageContent() {
                     {/* 전통적인 HTML 테이블: 좌우 padding 8px 고정, 헤더 컬럼 auto */}
                     <RadioGroup.Root
                       value={selectedSetNo}
-                      onValueChange={setSelectedSetNo}
+                      onValueChange={(value) => {
+                        setSelectedSetNo(value);
+                      }}
                       className="w-full"
                     >
-                      <table className="w-full border-collapse">
+                      <table className="w-full table-fixed border-collapse">
+                        <colgroup>
+                          <col style={{ width: "5%" }} />
+                          <col style={{ width: "6%" }} />
+                          <col style={{ width: "5%" }} />
+                          <col style={{ width: "14%" }} />
+                          <col style={{ width: "10%" }} />
+                          <col style={{ width: "8%" }} />
+                          <col style={{ width: "7%" }} />
+                          <col style={{ width: "8%" }} />
+                          <col style={{ width: "13%" }} />
+                          <col style={{ width: "10%" }} />
+                          <col style={{ width: "10%" }} />
+                          <col style={{ width: "4%" }} />
+                        </colgroup>
                         <thead>
                           <tr className="border-neutral-30 border-b">
                             <th className={`${TABLE_HEADER_CELL_BASE_NO_BORDER} text-center`}>
@@ -446,19 +504,24 @@ function TSISubgroupSelectionPageContent() {
                           {isLoading ? (
                             <tr>
                               <td colSpan={12} className="h-[200px] text-center">
-                                <div className="text-body2 text-neutral-50">Loading...</div>
+                                <div className="text-body3 text-neutral-50">Loading...</div>
                               </td>
                             </tr>
                           ) : error ? (
                             <tr>
-                              <td colSpan={12} className="h-[200px] text-center">
-                                <div className="text-body2 text-red-500">Error: {error}</div>
+                              <td colSpan={12} className="h-[200px] text-center align-middle">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="text-body4 text-red-500">Error: {error.split(". ")[0]}.</div>
+                                  {error.split(". ").slice(1).join(". ") && (
+                                    <div className="text-body5m text-neutral-400">{error.split(". ").slice(1).join(". ")}</div>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           ) : resultTableData.length === 0 ? (
                             <tr>
                               <td colSpan={12} className="h-[200px] text-center">
-                                <div className="text-body2 text-neutral-50">No data available</div>
+                                <div className="text-body3 text-neutral-50">No data available</div>
                               </td>
                             </tr>
                           ) : (
@@ -468,12 +531,21 @@ function TSISubgroupSelectionPageContent() {
                               const isExpanded = expandedRows.has(rowNo);
                               return (
                                 <Fragment key={row.subgroup_id}>
-                                  <tr className={isExpanded ? "bg-[#efeff4]" : ""}>
+                                  <tr
+                                    className={`cursor-pointer ${isExpanded ? "bg-[#efeff4]" : ""}`}
+                                    onClick={() => {
+                                      toggleRowExpansion(rowNo);
+                                    }}
+                                  >
                                     <td className={`${TABLE_BODY_CELL_BASE_NO_BORDER} text-center`}>
                                       <div className={TABLE_INNER_DIV_CENTER_NO_BORDER}>
-                                        <button
+                                        <IconButton
+                                          aria-label={isExpanded ? `Collapse set ${rowNo}` : `Expand set ${rowNo}`}
                                           type="button"
-                                          onClick={() => toggleRowExpansion(rowNo)}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleRowExpansion(rowNo);
+                                          }}
                                           className="text-neutral-40 inline-flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-transform duration-200"
                                           title={isExpanded ? "접기" : "펼치기"}
                                         >
@@ -492,7 +564,7 @@ function TSISubgroupSelectionPageContent() {
                                               fill="currentColor"
                                             />
                                           </svg>
-                                        </button>
+                                        </IconButton>
                                       </div>
                                     </td>
                                     <td
@@ -504,17 +576,16 @@ function TSISubgroupSelectionPageContent() {
                                           id={`radio-${rowNo}`}
                                           className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 outline-none focus:ring-0 focus:outline-none"
                                         >
-                                          <span
-                                            className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                                              isSelected
-                                                ? "border-neutral-60 bg-primary-15"
-                                                : "border-neutral-60"
-                                            }`}
-                                          >
-                                            <RadioGroup.Indicator className="flex h-full w-full items-center justify-center">
-                                              <span className="h-1.5 w-1.5 rounded-full bg-white" />
-                                            </RadioGroup.Indicator>
-                                          </span>
+                                          {isSelected ? (
+                                            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                                              <rect x="0.5" y="0.5" width="16" height="16" rx="3.5" fill="#3a11d8" stroke="#3a11d8" />
+                                              <path d="M4 8.5L7 11.5L13 5.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                          ) : (
+                                            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                                              <rect x="0.5" y="0.5" width="16" height="16" rx="3.5" fill="transparent" stroke="#c6c5c9" />
+                                            </svg>
+                                          )}
                                         </RadioGroup.Item>
                                       </div>
                                     </td>
@@ -527,7 +598,7 @@ function TSISubgroupSelectionPageContent() {
                                       <div className={TABLE_INNER_DIV_LEFT}>
                                         <span className="inline-flex min-w-0 items-center gap-1 truncate">
                                           <span className="truncate">{row.set_name}</span>
-                                          {isSelected && (
+                                          {row.variance_benefit_label && (
                                             <Image
                                               src="/assets/tsi/set-check.svg"
                                               alt=""
@@ -562,7 +633,10 @@ function TSISubgroupSelectionPageContent() {
                                       </div>
                                     </td>
                                     <td
-                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left ${row.variance_benefit_label.includes("Highest") ? "text-[#3A11D8]" : ""}`}
+                                      className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
+                                      style={{
+                                        color: row.variance_benefit_label ? "#3A11D8" : "",
+                                      }}
                                     >
                                       <div className={TABLE_INNER_DIV_LEFT}>
                                         <span className="block truncate">
@@ -582,14 +656,17 @@ function TSISubgroupSelectionPageContent() {
                                       className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
                                     >
                                       <div className={TABLE_INNER_DIV_CENTER}>
-                                        <button
+                                        <IconButton
+                                          aria-label={`Refine cutoffs for set ${rowNo}`}
                                           type="button"
                                           className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
                                           title="Refine Cutoffs"
-                                          onClick={() => {
+                                          onClick={(e) => {
+                                            e.stopPropagation();
                                             const query = new URLSearchParams({
                                               subgroupId: String(row.subgroup_id),
                                               month: String(row.month),
+                                              setName: row.set_name,
                                             });
                                             if (taskId) {
                                               query.set("taskId", taskId);
@@ -625,23 +702,12 @@ function TSISubgroupSelectionPageContent() {
                                               />
                                             </g>
                                           </svg>
-                                        </button>
+                                        </IconButton>
                                       </div>
                                     </td>
                                     <td className={`${TABLE_BODY_CELL_BASE_LAST} text-center`}>
                                       <div className={TABLE_INNER_DIV_CENTER}>
-                                        <button
-                                          type="button"
-                                          className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer border-0 bg-transparent p-1"
-                                          title="Delete"
-                                        >
-                                          <Image
-                                            src="/assets/icons/trash.svg"
-                                            alt="Delete"
-                                            width={24}
-                                            height={24}
-                                          />
-                                        </button>
+                                        {/* TODO(ui): Re-enable Delete action icon when policy is finalized. */}
                                       </div>
                                     </td>
                                   </tr>
@@ -665,15 +731,22 @@ function TSISubgroupSelectionPageContent() {
                                         if (classification === "low") return "#AAA5E1";
                                         return "#231F52";
                                       };
+                                      const detailGroupLimit = getDisplayGroupCount(
+                                        detailData?.of_group,
+                                        detailData.number_or_patient?.length ??
+                                          detailData.within_group_variance_by_subgroup?.length ??
+                                          0
+                                      );
 
                                       // number_or_patient 데이터 정렬 (high -> middle -> low 순서)
-                                      const sortedPatients = detailData.number_or_patient
-                                        ? [...detailData.number_or_patient].sort((a, b) => {
-                                            const order = {
-                                              high: 0,
-                                              middle: 1,
-                                              low: 2,
-                                            };
+                                      const sortedPatients = clampGroupArray(
+                                        detailData.number_or_patient
+                                          ? [...detailData.number_or_patient].sort((a, b) => {
+                                              const order = {
+                                                high: 0,
+                                                middle: 1,
+                                                low: 2,
+                                              };
                                             const aClass =
                                               detailData.within_group_variance_by_subgroup?.find(
                                                 (v) => v.group === a.group
@@ -683,11 +756,14 @@ function TSISubgroupSelectionPageContent() {
                                                 (v) => v.group === b.group
                                               )?.classification || "";
                                             return (
-                                              (order[aClass as keyof typeof order] ?? 99) -
-                                              (order[bClass as keyof typeof order] ?? 99)
-                                            );
-                                          })
-                                        : [];
+                                                (order[aClass as keyof typeof order] ?? 99) -
+                                                (order[bClass as keyof typeof order] ?? 99)
+                                              );
+                                            })
+                                          : [],
+                                        detailGroupLimit,
+                                        0
+                                      );
 
                                       // 최소 환자 수 계산 (low 그룹 기준)
                                       const lowGroupPatient = sortedPatients.find((p) => {
@@ -706,7 +782,7 @@ function TSISubgroupSelectionPageContent() {
                                         detailData.variance_decomposition?.[0]?.vr || 0;
 
                                       // Within-group variance 데이터 정렬
-                                      const sortedVariance =
+                                      const sortedVariance = clampGroupArray(
                                         detailData.within_group_variance_by_subgroup
                                           ? [...detailData.within_group_variance_by_subgroup].sort(
                                               (a, b) => {
@@ -723,7 +799,10 @@ function TSISubgroupSelectionPageContent() {
                                                 );
                                               }
                                             )
-                                          : [];
+                                          : [],
+                                        detailGroupLimit,
+                                        0
+                                      );
 
                                       const totalVarValue =
                                         sortedVariance.length > 0 ? sortedVariance[0].total_var : 0;
@@ -739,6 +818,38 @@ function TSISubgroupSelectionPageContent() {
                                         : sortedVariance.find((v) => v.classification === "high")
                                           ? "High Risk"
                                           : "patient group";
+                                      const progressionGroupSet =
+                                        detailData.disease_progression_by_subgroup
+                                          ? new Set(
+                                              detailData.disease_progression_by_subgroup.map(
+                                                (d) => d.group
+                                              )
+                                            )
+                                          : new Set<string>();
+                                      const orderedProgressionGroups = sortedVariance
+                                        .map((variance) => variance.group)
+                                        .filter((group) => progressionGroupSet.has(group));
+                                      const diseaseProgressionGroups = detailData.disease_progression_by_subgroup
+                                        ? Array.from(
+                                            new Set(
+                                              detailData.disease_progression_by_subgroup
+                                                .map((d) => d.group)
+                                                .sort()
+                                            )
+                                          )
+                                        : [];
+                                      const displayedProgressionGroups = clampGroupArray(
+                                        orderedProgressionGroups.length > 0
+                                          ? orderedProgressionGroups
+                                          : diseaseProgressionGroups,
+                                        detailData?.of_group,
+                                        detailData?.disease_progression_by_subgroup?.length ??
+                                          detailData?.number_or_patient?.length ??
+                                          detailData.within_group_variance_by_subgroup?.length ??
+                                          0
+                                      );
+                                      const displayedProgressionGroupSet =
+                                        new Set(displayedProgressionGroups);
 
                                       return (
                                         <tr className="bg-[#efeff4]">
@@ -752,25 +863,24 @@ function TSISubgroupSelectionPageContent() {
                                                 <div className="flex w-[372px] flex-col gap-3">
                                                   {/* Disease Progression by Subgroup */}
                                                   <div className="flex h-[252px] flex-col rounded-[18px] bg-white/60 p-4">
-                                                    <h3 className="text-body3 mb-4 flex-shrink-0 font-semibold text-[#1c1b1b]">
+                                                    <h3 className="text-body4 mb-4 flex-shrink-0 font-semibold text-[#1c1b1b]">
                                                       Disease Progression by Subgroup
                                                     </h3>
-                                                    <div className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white">
+                                                    <div className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white" style={{ height: "100%" }}>
                                                       {detailData.disease_progression_by_subgroup &&
                                                       detailData.disease_progression_by_subgroup
                                                         .length > 0 ? (
                                                         (() => {
                                                           // 그룹별로 데이터 분리
-                                                          const groups = Array.from(
-                                                            new Set(
-                                                              detailData.disease_progression_by_subgroup.map(
-                                                                (d) => d.group
-                                                              )
-                                                            )
-                                                          ).sort();
+                                                          const filteredProgressionData =
+                                                            detailData.disease_progression_by_subgroup.filter(
+                                                              (d) =>
+                                                                displayedProgressionGroupSet.has(d.group)
+                                                            );
+                                                          const groups = displayedProgressionGroups;
                                                           const months = Array.from(
                                                             new Set(
-                                                              detailData.disease_progression_by_subgroup.map(
+                                                              filteredProgressionData.map(
                                                                 (d) => d.month
                                                               )
                                                             )
@@ -780,7 +890,7 @@ function TSISubgroupSelectionPageContent() {
                                                           const series = groups.map(
                                                             (group, groupIdx) => {
                                                               const groupData =
-                                                                detailData.disease_progression_by_subgroup!.filter(
+                                                                filteredProgressionData.filter(
                                                                   (d) => d.group === group
                                                                 );
                                                               const varianceData =
@@ -825,7 +935,7 @@ function TSISubgroupSelectionPageContent() {
                                                           const errorBarSeries = groups.map(
                                                             (group, groupIdx) => {
                                                               const groupData =
-                                                                detailData.disease_progression_by_subgroup!.filter(
+                                                                filteredProgressionData.filter(
                                                                   (d) => d.group === group
                                                                 );
                                                               const varianceData =
@@ -939,13 +1049,12 @@ function TSISubgroupSelectionPageContent() {
 
                                                           // Y축 범위 계산 (에러바가 잘리지 않도록 더 넓은 padding)
                                                           const allMeans =
-                                                            detailData.disease_progression_by_subgroup.map(
-                                                              (d) => d.mean
-                                                            );
+                                                            filteredProgressionData.map((d) => d.mean);
                                                           const allCis =
-                                                            detailData.disease_progression_by_subgroup.flatMap(
-                                                              (d) => [d.ci_low, d.ci_high]
-                                                            );
+                                                            filteredProgressionData.flatMap((d) => [
+                                                              d.ci_low,
+                                                              d.ci_high,
+                                                            ]);
                                                           const yMin = Math.min(
                                                             ...allMeans,
                                                             ...allCis
@@ -1078,7 +1187,7 @@ function TSISubgroupSelectionPageContent() {
                                                   </div>
                                                   {/* Number of patients */}
                                                   <div className="flex h-[196px] flex-col rounded-[18px] bg-white/60 p-4">
-                                                    <h3 className="text-body3 mb-0 flex-shrink-0 font-semibold text-[#1c1b1b]">
+                                                    <h3 className="text-body4 mb-0 flex-shrink-0 font-semibold text-[#1c1b1b]">
                                                       Number of patients
                                                     </h3>
                                                     <p className="mb-0 flex-shrink-0 text-sm text-[#605e5e]">
@@ -1086,12 +1195,18 @@ function TSISubgroupSelectionPageContent() {
                                                       recommended.
                                                     </p>
                                                     <div className="mt-auto">
-                                                      <div className="h-[110px] space-y-0 overflow-auto rounded-[8px] bg-white p-3">
+                                                      <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3">
                                                         <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-0 text-sm font-semibold text-[#231f52]">
-                                                          <span>Group</span>
-                                                          <span className="ml-auto">
-                                                            Number of patients
-                                                          </span>
+                                                          <div className="w-[142px]">
+                                                            <p className="text-sm font-semibold text-[#231F52]">
+                                                              Group
+                                                            </p>
+                                                          </div>
+                                                          <div>
+                                                            <p className="text-sm font-semibold text-[#231F52]">
+                                                              Number of patients
+                                                            </p>
+                                                          </div>
                                                         </div>
                                                         {sortedPatients.map((patient, idx) => {
                                                           const varianceData =
@@ -1114,16 +1229,24 @@ function TSISubgroupSelectionPageContent() {
                                                                   : ""
                                                               }`}
                                                             >
-                                                              <div
-                                                                className="h-3 w-3 rounded-full"
-                                                                style={{
-                                                                  backgroundColor: groupColor,
-                                                                }}
-                                                              ></div>
-                                                              <span>{groupName}</span>
-                                                              <span className="ml-auto">
-                                                                {patient.number.toLocaleString()}
-                                                              </span>
+                                                              <div className="flex w-[142px] items-center gap-[6px]">
+                                                                <div
+                                                                  className="h-3 w-3 rounded-full"
+                                                                  style={{
+                                                                    backgroundColor: groupColor,
+                                                                  }}
+                                                                />
+                                                                <div>
+                                                                  <p className="text-sm font-semibold text-[#1C1B1B]">
+                                                                    {groupName}
+                                                                  </p>
+                                                                </div>
+                                                              </div>
+                                                              <div>
+                                                                <p className="text-sm font-semibold text-[#1C1B1B]">
+                                                                  {patient.number.toLocaleString()}
+                                                                </p>
+                                                              </div>
                                                             </div>
                                                           );
                                                         })}
@@ -1132,13 +1255,13 @@ function TSISubgroupSelectionPageContent() {
                                                   </div>
                                                 </div>
                                                 {/* Right Column */}
-                                                <div className="bg-primary-15 flex h-[468px] w-[746px] flex-col gap-3 rounded-[18px] px-4 py-6">
+                                                <div className="bg-primary-15 flex h-[468px] flex-1 min-w-0 flex-col gap-3 rounded-[18px] p-4">
                                                   {/* Variance Reduction Explained */}
                                                   <div>
                                                     <h3 className="text-feature-title mb-4 text-white">
                                                       Variance Reduction Explained
                                                     </h3>
-                                                    <p className="text-body5 leading-relaxed font-semibold text-white">
+                                                    <p className="text-caption leading-relaxed font-semibold text-white">
                                                       Subgroup stratification reduced the overall
                                                       variance by {variancePercent}%. The observed
                                                       variance reduction was primarily driven by the{" "}
@@ -1155,33 +1278,55 @@ function TSISubgroupSelectionPageContent() {
                                                   {/* Two cards in one row */}
                                                   <div className="mt-auto grid grid-cols-2 gap-3">
                                                     {/* Variance decomposition */}
-                                                    <div className="flex h-[306px] w-[350px] flex-col overflow-hidden rounded-[12px] bg-white">
-                                                      {/* 텍스트 영역 (패딩 있음) */}
-                                                      <div className="flex-shrink-0 p-4">
-                                                        <h3 className="text-body4 mb-4 tracking-[-0.75px] text-[#1c1b1b]">
-                                                          Variance decomposition
-                                                        </h3>
-                                                        <div className="mb-4 flex gap-5">
-                                                          <div>
-                                                            <div className="text-body5 mb-1 font-semibold text-[#f06600]">
-                                                              Variance
+                                                    <div className="flex h-[306px] flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-4">
+                                                      {/* 텍스트 영역 (패딩 없음) */}
+                                                      <div className="flex justify-between">
+                                                        <div className="flex-shrink-0">
+                                                          <h3 className="text-body5 mb-4 tracking-[-0.75px] text-[#1c1b1b]">
+                                                            Variance decomposition
+                                                          </h3>
+                                                          <div className="mb-4 flex gap-5">
+                                                            <div>
+                                                              <div className="text-body5 -mb-1 font-semibold text-[#f06600]">
+                                                                Variance
+                                                              </div>
+                                                              <div className="text-[28px] leading-relaxed font-semibold tracking-[-0.84px] text-[#f06600]">
+                                                                {totalVariance.toFixed(2)}
+                                                              </div>
                                                             </div>
-                                                            <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
-                                                              {totalVariance.toFixed(2)}
+                                                            <div>
+                                                              <div className="text-body5 -mb-1 font-semibold text-[#f06600]">
+                                                                VR
+                                                              </div>
+                                                              <div className="text-[28px] leading-relaxed font-semibold tracking-[-0.84px] text-[#f06600]">
+                                                                {totalVR.toFixed(3)}
+                                                              </div>
                                                             </div>
                                                           </div>
-                                                          <div>
-                                                            <div className="text-body5 mb-1 font-semibold text-[#f06600]">
-                                                              VR
+                                                        </div>
+                                                        <div className="gap-1">
+                                                          <div className="flex gap-[5px] font-medium">
+                                                            <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#231F52]" />
+                                                            <div className="w-[60px] text-[10.5px]">
+                                                              <p>Within</p>
+                                                              <p className="-mt-1 text-[#939090]">
+                                                                pooled
+                                                              </p>
                                                             </div>
-                                                            <div className="text-[28px] leading-[28px] font-semibold tracking-[-0.84px] text-[#f06600]">
-                                                              {totalVR.toFixed(3)}
+                                                          </div>
+                                                          <div className="flex gap-[5px] font-medium">
+                                                            <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#AAA5E1]" />
+                                                            <div className="w-[60px] text-[10.5px]">
+                                                              <p>Explained</p>
+                                                              <p className="-mt-1 text-[#939090]">
+                                                                Total Within
+                                                              </p>
                                                             </div>
                                                           </div>
                                                         </div>
                                                       </div>
                                                       {/* 그래프 영역 (패딩 없음) */}
-                                                      <div className="min-h-0 flex-1 overflow-hidden bg-white">
+                                                      <div className="min-h-0 flex-1 overflow-hidden bg-white" style={{ height: "100%" }}>
                                                         {detailData.variance_decomposition &&
                                                         detailData.variance_decomposition.length >
                                                           0 ? (
@@ -1189,30 +1334,38 @@ function TSISubgroupSelectionPageContent() {
                                                             // Variance decomposition 차트 데이터 준비
                                                             const decompositionData =
                                                               detailData.variance_decomposition;
-                                                            // 총 variance는 첫 번째 항목의 variance 사용 (모든 그룹이 같은 total_var를 가짐)
+                                                            // 총 variance는 첫 번째 항목의 variance 사용
                                                             const totalVarianceValue =
                                                               decompositionData[0]?.variance || 0;
-                                                            // Within pooled는 첫 번째 그룹의 variance
-                                                            const withinPooled =
-                                                              decompositionData[0]?.variance || 0;
-                                                            // Explained Total Within은 나머지 그룹들의 variance 합
+                                                            // VR을 비율로 해석해 total variance를 within/explained로 분해
+                                                            // (stack 합이 totalVarianceValue가 되도록 유지)
+                                                            const vrRatio = Math.max(
+                                                              0,
+                                                              Math.min(
+                                                                1,
+                                                                decompositionData[0]?.vr ?? 0
+                                                              )
+                                                            );
                                                             const explainedTotal =
-                                                              decompositionData.length > 1
-                                                                ? decompositionData
-                                                                    .slice(1)
-                                                                    .reduce(
-                                                                      (sum, d) => sum + d.variance,
-                                                                      0
-                                                                    )
-                                                                : 0;
+                                                              totalVarianceValue * vrRatio;
+                                                            const withinPooled = Math.max(
+                                                              0,
+                                                              totalVarianceValue - explainedTotal
+                                                            );
+                                                            const varianceMax = Math.max(
+                                                              totalVarianceValue,
+                                                              0
+                                                            );
+                                                            const varianceBarWidth = "82%";
 
                                                             const chartOption = {
                                                               animation: false,
                                                               grid: {
-                                                                left: "10%",
+                                                                left: "4px",
                                                                 right: "5%",
                                                                 top: "5%",
                                                                 bottom: "15%",
+                                                                containLabel: true,
                                                               },
                                                               xAxis: {
                                                                 type: "category" as const,
@@ -1239,8 +1392,8 @@ function TSISubgroupSelectionPageContent() {
                                                                 type: "value" as const,
                                                                 name: "Variance",
                                                                 nameLocation: "middle",
-                                                                nameGap: 20,
-                                                                max: totalVarianceValue * 1.2,
+                                                                nameGap: 36,
+                                                                max: varianceMax * 1.5,
                                                                 splitNumber: 5,
                                                                 nameTextStyle: {
                                                                   fontSize: 9,
@@ -1249,12 +1402,9 @@ function TSISubgroupSelectionPageContent() {
                                                                 axisLabel: {
                                                                   fontSize: 9,
                                                                   color: "#484646",
-                                                                  formatter: (value: number) => {
-                                                                    // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
-                                                                    return value % 1 === 0
-                                                                      ? value.toString()
-                                                                      : value.toFixed(1);
-                                                                  },
+                                                                  margin: 4,
+                                                                  formatter: (value: number) =>
+                                                                    value.toFixed(2),
                                                                 },
                                                                 axisLine: {
                                                                   show: true,
@@ -1287,7 +1437,7 @@ function TSISubgroupSelectionPageContent() {
                                                                     color: "#231F52",
                                                                     borderRadius: [8, 8, 8, 8],
                                                                   },
-                                                                  barWidth: "60%",
+                                                                  barWidth: varianceBarWidth,
                                                                 },
                                                                 {
                                                                   name: "Explained Total Within",
@@ -1298,18 +1448,30 @@ function TSISubgroupSelectionPageContent() {
                                                                     color: "#AAA5E1",
                                                                     borderRadius: [8, 8, 8, 8],
                                                                   },
+                                                                  barWidth: varianceBarWidth,
                                                                 },
                                                               ],
                                                             };
 
                                                             return (
-                                                              <ReactECharts
-                                                                option={chartOption}
-                                                                style={{
-                                                                  height: "100%",
-                                                                  width: "100%",
-                                                                }}
-                                                              />
+                                                              <div className="relative h-full w-full">
+                                                                <ReactECharts
+                                                                  option={chartOption}
+                                                                  style={{
+                                                                    height: "100%",
+                                                                    width: "100%",
+                                                                  }}
+                                                                />
+                                                                <div className="pointer-events-none absolute top-[8px] right-[14px] left-[34px] h-[40px] px-3">
+                                                                  <div className="rounded-[8px] border border-[#D1CFD8] p-[6px]">
+                                                                    <p className="text-[10.5px] font-medium text-[#787776]">
+                                                                      {getCiText(
+                                                                        detailData.variance_decomposition
+                                                                      )}
+                                                                    </p>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
                                                             );
                                                           })()
                                                         ) : (
@@ -1322,9 +1484,9 @@ function TSISubgroupSelectionPageContent() {
                                                       </div>
                                                     </div>
                                                     {/* Within-group variance by subgroup */}
-                                                    <div className="flex h-[306px] w-[350px] flex-col overflow-hidden rounded-[12px] bg-white">
-                                                      {/* 텍스트 영역 (패딩 있음) */}
-                                                      <div className="flex-shrink-0 p-4">
+                                                    <div className="flex h-[306px] flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-4">
+                                                      {/* 텍스트 영역 (패딩 없음) */}
+                                                      <div className="flex-shrink-0">
                                                         <h3 className="mb-4 text-[15px] font-semibold text-[#262625]">
                                                           Within-group variance by subgroup
                                                         </h3>
@@ -1338,7 +1500,7 @@ function TSISubgroupSelectionPageContent() {
                                                                   : "Low";
                                                             return (
                                                               <div key={v.group}>
-                                                                <div className="mb-1 text-xs font-semibold text-[#f06600]">
+                                                                <div className="-mb-1 text-xs font-semibold text-[#f06600]">
                                                                   {displayName}
                                                                 </div>
                                                                 <div className="text-[28px] font-semibold text-[#f06600]">
@@ -1350,7 +1512,7 @@ function TSISubgroupSelectionPageContent() {
                                                         </div>
                                                       </div>
                                                       {/* 그래프 영역 (패딩 없음) */}
-                                                      <div className="min-h-0 flex-1 overflow-hidden bg-white">
+                                                      <div className="min-h-0 flex-1 overflow-hidden bg-white" style={{ height: "100%" }}>
                                                         {sortedVariance.length > 0 ? (
                                                           (() => {
                                                             const maxVar = Math.max(
@@ -1366,10 +1528,11 @@ function TSISubgroupSelectionPageContent() {
                                                             const chartOption = {
                                                               animation: false,
                                                               grid: {
-                                                                left: "10%",
+                                                                left: "4px",
                                                                 right: "5%",
                                                                 top: "5%",
                                                                 bottom: "15%",
+                                                                containLabel: true,
                                                               },
                                                               xAxis: {
                                                                 type: "category" as const,
@@ -1403,7 +1566,7 @@ function TSISubgroupSelectionPageContent() {
                                                                 type: "value" as const,
                                                                 name: "Variance",
                                                                 nameLocation: "middle",
-                                                                nameGap: 20,
+                                                                nameGap: 36,
                                                                 max: maxVar * 1.2,
                                                                 splitNumber: 5,
                                                                 nameTextStyle: {
@@ -1413,12 +1576,9 @@ function TSISubgroupSelectionPageContent() {
                                                                 axisLabel: {
                                                                   fontSize: 9,
                                                                   color: "#484646",
-                                                                  formatter: (value: number) => {
-                                                                    // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
-                                                                    return value % 1 === 0
-                                                                      ? value.toString()
-                                                                      : value.toFixed(1);
-                                                                  },
+                                                                  margin: 4,
+                                                                  formatter: (value: number) =>
+                                                                    value.toFixed(2),
                                                                 },
                                                                 axisLine: {
                                                                   show: true,
@@ -1446,6 +1606,10 @@ function TSISubgroupSelectionPageContent() {
                                                                   type: "bar" as const,
                                                                   data: sortedVariance.map((v) => ({
                                                                     value: v.variance,
+                                                                    sampleN:
+                                                                      typeof v.number === "number"
+                                                                        ? Math.round(v.number)
+                                                                        : null,
                                                                     itemStyle: {
                                                                       color: getGroupColor(
                                                                         v.classification
@@ -1455,7 +1619,28 @@ function TSISubgroupSelectionPageContent() {
                                                                   })),
                                                                   barWidth: "50%",
                                                                   label: {
-                                                                    show: false,
+                                                                    show: true,
+                                                                    position: "insideBottom",
+                                                                    distance: 8,
+                                                                    formatter: (params: {
+                                                                      data?: {
+                                                                        sampleN?: number | null;
+                                                                      };
+                                                                    }) => {
+                                                                      const sampleN =
+                                                                        params.data?.sampleN;
+                                                                      if (
+                                                                        typeof sampleN !== "number"
+                                                                      ) {
+                                                                        return "";
+                                                                      }
+                                                                      return `n=${sampleN}`;
+                                                                    },
+                                                                    color: "#FFFFFF",
+                                                                    fontFamily: "Inter, sans-serif",
+                                                                    fontSize: 12,
+                                                                    fontWeight: 600,
+                                                                    lineHeight: 13.2,
                                                                   },
                                                                   markLine: {
                                                                     silent: true,
@@ -1524,28 +1709,32 @@ function TSISubgroupSelectionPageContent() {
           </div>
         </div>
         {/* 버튼: 카드 밖 아래 */}
-        <div className="mx-auto mt-4 flex w-[1772px] flex-shrink-0 items-center justify-end gap-4 pb-2">
+        <div className="mt-4 flex flex-shrink-0 items-center justify-end gap-4 pb-2">
           <button
             type="button"
-            className="inline-flex h-[48px] cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-opacity hover:opacity-90"
-            aria-label="Save Progress"
+            style={{
+              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+              background: "#787776", border: "none", cursor: "pointer",
+              fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+              letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center",
+            }}
           >
-            <Image
-              src="/assets/tsi/savebtn.png"
-              alt="Save Progress"
-              width={160}
-              height={48}
-              className="h-[48px] w-auto object-contain"
-            />
+            Save Progress
           </button>
           <button
             type="button"
             onClick={handleSubgroupExplain}
-            className="text-body3 text-neutral-30 inline-flex h-[48px] w-[179px] shrink-0 cursor-pointer items-center justify-center rounded-[100px] border-0 bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
-            style={{ backgroundImage: "url(/assets/tsi/btn.png)" }}
-            aria-label="Subgroup Explain"
+            style={{
+              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+              background: "#F06600", border: "none", cursor: "pointer",
+              fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+              letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}
           >
             Subgroup Explain
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+              <path d="M4 3L13 8L4 13V3Z" fill="white"/>
+            </svg>
           </button>
         </div>
       </div>
@@ -1553,10 +1742,9 @@ function TSISubgroupSelectionPageContent() {
   );
 }
 
-
 export default function TSISubgroupSelectionPage() {
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <TSISubgroupSelectionPageContent />
     </Suspense>
   );

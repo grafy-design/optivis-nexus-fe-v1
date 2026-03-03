@@ -80,13 +80,16 @@ export const SHAPSummaryPlotChart = ({
         left: 0,
         top: 0,
         textStyle: {
-          fontSize: 18,
-          fontWeight: 700,
+          fontSize: 24,
+          fontWeight: 600,
           color: "#231f52",
+          fontFamily: "Inter, sans-serif",
+          // @ts-ignore
+          letterSpacing: -0.72,
         },
       },
       grid: {
-        top: 52,
+        top: 64,
         left: 110,
         right: 56,
         bottom: 24,

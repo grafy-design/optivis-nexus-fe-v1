@@ -1,9 +1,12 @@
+/*데모 시연 미진행 범위,
+FE 미진행
+*/
+
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
-import Button from "@/components/ui/button";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import SimulationSearch from "@/components/home/simulation-search";
@@ -17,6 +20,7 @@ export default function TSIPage() {
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedData, setSelectedData] = useState<Set<number>>(new Set());
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   // Mock data
   const attachedData = [
@@ -125,35 +129,35 @@ export default function TSIPage() {
     }
   };
 
-  // 데이터를 8개씩 나누기
-  const leftTableData = attachedData.slice(0, 8);
-  const rightTableData = attachedData.slice(8);
+  // 데이터 검색 및 8개씩 나누기
+  const filteredData = attachedData.filter(d => 
+    d.name.toLowerCase().includes(searchKeyword.toLowerCase()) || 
+    d.disease.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+  const leftTableData = filteredData.slice(0, 8);
+  const rightTableData = filteredData.slice(8);
 
   return (
-    <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center">
-        <div className="w-[1772px] h-[980px] flex-shrink-0 mx-auto flex flex-col gap-3">
-          {/* Main Card with Glass Background */}
-          <div
-            className="relative rounded-[36px] overflow-hidden"
-            style={{
-              width: "1772px",
-              backgroundImage: "url(/assets/tsi/default-setting-bg.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-            }}
+    <AppLayout headerType="tsi" scaleMode="none">
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+
+        {/* Main Card with Glass Background */}
+        <div
+            className="relative rounded-[36px] overflow-hidden min-h-0 flex-1"
+           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', display: "flex", flexDirection: "column", gap: "60px", borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"
+           }}
           >
-            <div className="relative p-6 flex flex-col gap-6">
-              {/* Header */}
-              <div className="flex flex-col gap-[12px] mb-[22px]">
-                <h1 className="text-title text-neutral-5">Data Setting</h1>
-                <p className="text-body2m text-neutral-50 max-w-[600px]">
-                  Simulation templates are provided to show the required input
-                  structure. Please review before proceeding.
-                </p>
-              </div>
+            {/* Title */}
+        <div style={{ flexShrink: 0, padding: "0 4px" }}>
+          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+            Data Setting
+          </h1>
+          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            Simulation templates are provided to show the required input structure. Please review before proceeding.
+          </span>
+        </div>
+        <div className="flex-1 min-h-0 overflow-auto">
+            <div className="relative p- flex flex-col gap-6">
 
               {/* Data Template Download & File Upload Section */}
               <div className="flex gap-6 mb-[22px]">
@@ -218,17 +222,16 @@ export default function TSIPage() {
                       and examples for service analysis
                     </p>
                   </div>
-                  <Button
-                    variant="orange"
-                    size="md"
-                    className="w-full rounded-[16px]"
+                  <button
                     style={{
-                      backgroundColor: "#f06600",
-                      color: "#e3dfff",
+                      width: "100%", height: 40, borderRadius: 36, border: "none", cursor: "pointer",
+                      background: "#F06600", fontFamily: "Inter", fontSize: 15, fontWeight: 600,
+                      color: "#ffffff", letterSpacing: "-0.45px",
+                      display: "flex", alignItems: "center", justifyContent: "center",
                     }}
                   >
                     Download
-                  </Button>
+                  </button>
                 </div>
 
                 {/* File Upload Card - 상하 패딩 24/12, 갭: 아이콘~제목 16, 제목~파일정보 12, 파일정보~버튼 24, 버튼 아래 12 */}
@@ -271,17 +274,18 @@ export default function TSIPage() {
                     onDrop={handleDrop}
                     className="cursor-pointer flex justify-center"
                   >
-                    <Button
-                      variant="primary"
-                      size="md"
-                      className="w-[222px] rounded-[24px]"
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById("file-upload")?.click()}
                       style={{
-                        backgroundColor: "#3a11d8",
-                        color: "#e3dfff",
+                        width: 222, height: 40, borderRadius: 36, border: "none", cursor: "pointer",
+                        background: "#3a11d8", fontFamily: "Inter", fontSize: 15, fontWeight: 600,
+                        color: "#ffffff", letterSpacing: "-0.45px",
+                        display: "flex", alignItems: "center", justifyContent: "center",
                       }}
                     >
                       File Select
-                    </Button>
+                    </button>
                   </label>
                 </div>
               </div>
@@ -291,28 +295,36 @@ export default function TSIPage() {
                 {/* Section Header */}
                 <div className="flex items-center justify-between">
                   <h2 className="text-h3 text-neutral-10">Attached Data</h2>
-                  <SimulationSearch />
+                  <SimulationSearch value={searchKeyword} onChange={setSearchKeyword} />
                 </div>
 
                 {/* Data Table */}
                 <div className="flex flex-col gap-[8px]">
                   {/* Table Header - Single header like main page */}
                   <div className="rounded-[24px] h-[46px] bg-[#231f52] flex items-center">
-                    <div className="flex items-center gap-12 text-body5 text-white w-full">
-                      <div className="flex items-center gap-4 pl-[32px]">
-                        <div className="w-4" />
-                        <span className="w-[106px]">Data Name</span>
+                    <div className="flex text-white w-full" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                      {/* Left header */}
+                      <div className="flex items-center gap-12 flex-1 px-[32px]">
+                        <div className="flex items-center gap-4">
+                          <div className="w-4" />
+                          <span className="w-[106px]">Data Name</span>
+                        </div>
+                        <span className="w-[120px]">Patients (N)</span>
+                        <span className="w-[200px]">Disease</span>
+                        <span className="w-[206px]">Update date</span>
                       </div>
-                      <span className="w-[120px]">Patients (N)</span>
-                      <span className="w-[200px]">Disease</span>
-                      <span className="w-[206px]">Update date</span>
-                      <div className="flex items-center gap-4 pl-[7px]">
-                        <div className="w-4" />
-                        <span className="w-[106px]">Data Name</span>
+                      {/* Divider placeholder */}
+                      <div className="w-[2px] flex-shrink-0" />
+                      {/* Right header */}
+                      <div className="flex items-center gap-12 flex-1 px-[32px]">
+                        <div className="flex items-center gap-4">
+                          <div className="w-4" />
+                          <span className="w-[106px]">Data Name</span>
+                        </div>
+                        <span className="w-[120px]">Patients (N)</span>
+                        <span className="w-[200px]">Disease</span>
+                        <span className="w-[206px]">Update date</span>
                       </div>
-                      <span className="w-[120px]">Patients (N)</span>
-                      <span className="w-[200px]">Disease</span>
-                      <span className="w-[206px]">Update date</span>
                     </div>
                   </div>
 
@@ -343,17 +355,17 @@ export default function TSIPage() {
                                       }
                                     />
                                   </div>
-                                  <span className="w-[106px] text-body5 text-neutral-20">
+                                  <span className="w-[106px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                     {data.name}
                                   </span>
                                 </div>
-                                <span className="w-[120px] text-body5 text-neutral-20">
+                                <span className="w-[120px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.patients}
                                 </span>
-                                <span className="w-[200px] text-body5 text-neutral-20">
+                                <span className="w-[200px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.disease}
                                 </span>
-                                <span className="w-[206px] text-body5 text-neutral-20">
+                                <span className="w-[206px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.updateDate}
                                 </span>
                               </div>
@@ -397,17 +409,17 @@ export default function TSIPage() {
                                       }
                                     />
                                   </div>
-                                  <span className="w-[106px] text-body5 text-neutral-20">
+                                  <span className="w-[106px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                     {data.name}
                                   </span>
                                 </div>
-                                <span className="w-[120px] text-body5 text-neutral-20">
+                                <span className="w-[120px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.patients}
                                 </span>
-                                <span className="w-[200px] text-body5 text-neutral-20">
+                                <span className="w-[200px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.disease}
                                 </span>
-                                <span className="w-[206px] text-body5 text-neutral-20">
+                                <span className="w-[206px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.updateDate}
                                 </span>
                               </div>
@@ -427,27 +439,28 @@ export default function TSIPage() {
               </div>
             </div>
           </div>
-
-          {/* Use Data Button - Outside Card (시뮬레이션 버튼처럼 우측 화살표) */}
+          </div>
+          {/* Use Data Button - Outside Card */}
           <div className="flex justify-end">
-            <Button
-              variant="orange"
-              size="md"
-              icon="play"
-              iconPosition="right"
+            <button
               onClick={handleUseData}
               disabled={selectedData.size === 0}
-              className="rounded-[100px]"
               style={{
-                backgroundColor: "#f16600",
-                color: "#ffffff",
+                height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+                background: selectedData.size === 0 ? "#c6c5c9" : "#F06600",
+                border: "none", cursor: selectedData.size === 0 ? "not-allowed" : "pointer",
+                fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+                letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
               }}
             >
               Use Data
-            </Button>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <path d="M3 8L13 8M10 4L14 8L10 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
           </div>
+          
         </div>
-      </div>
     </AppLayout>
   );
 }

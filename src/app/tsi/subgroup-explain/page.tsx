@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import Image from "next/image";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MultiRankingBarChart } from "@/components/charts/MultiRankingBarChart";
 import { SHAPSummaryPlotChart } from "@/components/charts/SHAPSummaryPlotChart";
@@ -9,16 +8,31 @@ import { SHAPSummaryPlotChart } from "@/components/charts/SHAPSummaryPlotChart";
 import { BaselineDistributionHistogram } from "@/components/charts/BaselineDistributionHistogram";
 import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
+import { Loading } from "@/components/common/Loading";
 import { useRouter, useSearchParams } from "next/navigation";
+import Button from "@/components/ui/button";
 import {
   ExplainExpectedTherapeuticGainItem,
   ExplainListData,
   ExplainOverviewDescriptionItem,
   getExplainList,
-} from "@/services/subgroupService";
+} from "@/services/subgroup-service";
 
 type BinRatioItem = { range: number[]; [groupKey: string]: number[] | number | undefined };
 type BaselineBinRatioMock = Record<string, BinRatioItem[]>;
+
+const formatNumberMax2 = (value: number): string => {
+  if (!Number.isFinite(value)) return "-";
+  return value.toLocaleString("en-US", {
+    useGrouping: false,
+    maximumFractionDigits: 2,
+  });
+};
+
+const formatCutoffValues = (values: number[] | undefined): string => {
+  if (!Array.isArray(values) || values.length === 0) return "-";
+  return values.map((value) => formatNumberMax2(Number(value))).join(", ");
+};
 
 /**
  * TSI Step 5: Subgroup Explain
@@ -33,6 +47,8 @@ function TSISubgroupExplainPageContent() {
   const subgroupId = searchParams.get("subgroupId") ?? "";
   const taskId = searchParams.get("taskId") ?? "";
   const [resultData, setResultData] = useState<ExplainListData>();
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const router = useRouter();
   const baselineDistributionData =
@@ -58,20 +74,19 @@ function TSISubgroupExplainPageContent() {
     Object.values(baselineBinRatioMock)[0];
   const baselineDriverTop10Messages =
     overviewDescription?.baseline_driver_top10_msg?.filter(
-      (item: ExplainOverviewDescriptionItem) => item?.title?.trim() || item?.description?.trim()
+      (item) => item?.title?.trim() || item?.description?.trim()
     ) ?? [];
-  const featureMessages =
-    (overviewDescription?.[selectedFeature] ??
-      overviewDescription?.[defaultSelectedFeature] ??
-      overviewDescription?.ADDRECALL ??
-      overviewDescription?.ADRECOG ??
-      Object.entries(overviewDescription ?? {}).find(
-        ([key, value]) =>
-          key !== "baseline_driver_top10_msg" &&
-          Array.isArray(value) &&
-          value.some((item) => item?.title?.trim() || item?.description?.trim())
-      )?.[1] ??
-      []) as ExplainOverviewDescriptionItem[];
+  const featureMessages = (overviewDescription?.[selectedFeature] ??
+    overviewDescription?.[defaultSelectedFeature] ??
+    overviewDescription?.ADDRECALL ??
+    overviewDescription?.ADRECOG ??
+    Object.entries(overviewDescription ?? {}).find(
+      ([key, value]) =>
+        key !== "baseline_driver_top10_msg" &&
+        Array.isArray(value) &&
+        value.some((item) => item?.title?.trim() || item?.description?.trim())
+    )?.[1] ??
+    []) as ExplainOverviewDescriptionItem[];
   const baselineDriverMessageItems = baselineDriverTop10Messages;
   const featureMessageItems = featureMessages;
 
@@ -88,18 +103,41 @@ function TSISubgroupExplainPageContent() {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     if (!taskId || !subgroupId) {
       setResultData(undefined);
+      setFetchError(null);
+      setIsLoading(false);
       return;
     }
 
     const fetchData = async () => {
-      const res = await getExplainList(taskId, subgroupId);
+      setIsLoading(true);
+      setFetchError(null);
 
-      setResultData(res.data);
+      try {
+        const res = await getExplainList(taskId, subgroupId);
+        if (cancelled) return;
+        setResultData(res.data);
+      } catch (error) {
+        if (cancelled) return;
+        setResultData(undefined);
+        setFetchError(
+          error instanceof Error ? error.message : "Subgroup Explain 데이터 조회에 실패했습니다."
+        );
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
     };
 
     fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [subgroupId, taskId]);
 
   const convertExpectedTherapeuticGain = (
@@ -189,50 +227,50 @@ function TSISubgroupExplainPageContent() {
   const featureList = expectedTherapeuticGainData.map(({ feature_name }) => feature_name);
 
   return (
-    <AppLayout headerType="tsi">
-      <div className="flex w-full flex-col items-center">
-        {/* 타이틀: 카드 밖 */}
-        <div className="mb-2 flex w-full max-w-full justify-center">
-          <div className="mx-auto w-[1772px] max-w-full flex-shrink-0">
-            <div className="flex flex-shrink-0 flex-col items-start gap-1">
-              <div className="text-title text-neutral-5 mb-2 text-left">Subgroup Explain</div>
-              <p className="text-body2m text-left text-neutral-50">Drug Responsiveness</p>
-            </div>
-          </div>
+    <AppLayout headerType="tsi" scaleMode="none">
+      <Loading isLoading={isLoading} />
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+        {/* Title */}
+        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+            Target Subgroup Identification
+          </h1>
+          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            Subgroup Explain
+          </span>
         </div>
+        {fetchError && (
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-red-700">
+            {fetchError}
+          </div>
+        )}
 
         {/* 메인: 상위 배경 카드 2개 나란히 */}
-        <div className="mx-auto flex w-[1772px] flex-shrink-0 flex-row flex-nowrap items-stretch gap-2">
+        <div className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0" style={{ minWidth: 0 }}>
           {/* 왼쪽 상위 배경 카드 */}
           <div
-            className="flex h-[875px] w-[565px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
-            style={{
-              backgroundImage: "url(/assets/tsi/explain-left-bg.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-            }}
+            className="flex min-h-0 w-[570px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
+           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
           >
             {/* 파란색 그래프 카드: Expected Therapeutic Gain */}
             <div
-              className="bg-primary-15 mb-4 flex h-[549px] w-full flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-5"
+              className="bg-primary-15 flex min-h-0 w-full flex-[3] flex-col overflow-hidden rounded-[24px] p-3"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <h2 className="text-body2 mb-4 flex-shrink-0 text-white">
+              <h2 className="text-body2m mb-4 flex-shrink-0 text-white pl-[2px]">
                 Expected Therapeutic Gain
               </h2>
               {/* 그래프 영역 */}
-              <div className="mt-auto flex h-[452px] flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
+              <div className="flex min-h-0 flex-1 items-center justify-center rounded-[16px] bg-white">
                 <MultiRankingBarChart data={expectedTherapeuticGainData} />
               </div>
             </div>
 
             {/* 흰색 테이블 카드 */}
             <div
-              className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px] bg-white"
+              className="flex min-h-0 w-full flex-[2] flex-col overflow-hidden rounded-[24px] bg-white"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
@@ -240,19 +278,15 @@ function TSISubgroupExplainPageContent() {
               {/* 테이블 전체 컨테이너 */}
               <div className="flex min-h-0 flex-1 flex-col px-4">
                 {/* 테이블 헤더 */}
-                <div className="border-neutral-80 flex h-[64px] flex-shrink-0 items-center gap-4 border-b">
-                  <div className="text-body4 text-neutral-30 w-[60px]">Rank</div>
-                  <div className="text-body4 text-neutral-30 w-[140px]">Feature name</div>
-                  <div className="text-body4 text-neutral-30 w-[140px] leading-tight">
-                    Max Variance
-                    <br />
-                    Reduction(△▽)
+                <div className="border-neutral-80 flex min-h-[48px] flex-shrink-0 items-center border-b py-2">
+                  <div className="text-body4 text-neutral-30 flex-[3] min-w-0 shrink-0">Rank</div>
+                  <div className="text-body4 text-neutral-30 flex-[7] min-w-0 shrink-0">Feature name</div>
+                  <div className="text-body4 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
+                    Max Variance<br />Reduction(△▽)
                   </div>
-                  <div className="text-body4 text-neutral-30 w-[100px]">Contribution</div>
-                  <div className="text-body4 text-neutral-30 w-[140px] leading-tight">
-                    Cutoff
-                    <br />
-                    (Auto-derived)
+                  <div className="text-body4 text-neutral-30 flex-[5] min-w-0 shrink-0">Contribution</div>
+                  <div className="text-body4 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
+                    Cutoff<br />(Auto-derived)
                   </div>
                 </div>
 
@@ -261,17 +295,19 @@ function TSISubgroupExplainPageContent() {
                   {expectedTherapeuticGainData.map((row, index) => (
                     <div
                       key={`${row.rank}_${index}`}
-                      className="border-neutral-80 flex h-[52px] items-center gap-4 border-b"
+                      className="border-neutral-80 flex min-h-[44px] items-center border-b py-1"
                     >
-                      <div className="text-body4 text-neutral-40 w-[60px]">{row.rank}</div>
-                      <div className="text-body4 text-neutral-40 w-[140px]">{row.feature_name}</div>
-                      <div className="text-body4 text-neutral-40 w-[140px]">
-                        {row.variance_reduction}
+                      <div className="text-body4 text-neutral-40 flex-[3] min-w-0">{row.rank}</div>
+                      <div className="text-body4 text-neutral-40 flex-[7] min-w-0 truncate">{row.feature_name}</div>
+                      <div className="text-body4 text-neutral-40 flex-[7] min-w-0">
+                        {formatNumberMax2(Number(row.variance_reduction))}
                       </div>
-                      <div className="text-body4 text-neutral-40 w-[100px]">
-                        {row.relative_contribution.toFixed(2)}%
+                      <div className="text-body4 text-neutral-40 flex-[5] min-w-0">
+                        {formatNumberMax2(Number(row.relative_contribution))}%
                       </div>
-                      <div className="text-body4 text-neutral-40 w-[140px]">{row.cutoff}</div>
+                      <div className="text-body4 text-neutral-40 flex-[7] min-w-0">
+                        {formatCutoffValues(row.cutoff)}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -281,48 +317,47 @@ function TSISubgroupExplainPageContent() {
 
           {/* 오른쪽 상위 배경 카드 */}
           <div
-            className="flex h-[1075px] w-[1195px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] bg-white p-3"
-            style={{
-              backgroundImage: "url(/assets/tsi/explain-right-bg.png)",
-              backgroundSize: "100% 100%",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-            }}
+            className="flex min-h-0 flex-[45] min-w-0 flex-col overflow-hidden rounded-[36px] p-0"
+           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
           >
-            {/* 상단 행: 파란색 그래프 카드 + 설명 텍스트 */}
-            <div className="mb-[12px] flex flex-shrink-0 gap-4">
-              {/* 파란색 그래프 카드: Baseline driver Top 10 (전체 너비) */}
+            <div className="flex flex-col overflow-y-auto" style={{ height: "100%", minHeight: 0 }}>
+            <div style={{ minHeight: 1100, display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* 상단 행: 그래프 카드 + 설명 텍스트 */}
+            <div className="flex flex-shrink-0 gap-4">
+              {/* 파란색 그래프 카드 */}
               <div
-                className="bg-primary-15 flex h-[423px] flex-1 flex-shrink-0 flex-row gap-5 overflow-hidden rounded-[24px] p-4"
+                className="bg-primary-15 flex min-h-0 flex-1 flex-shrink-0 flex-col gap-3 overflow-hidden rounded-[24px] p-3"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                {/* 그래프 영역 */}
-                <div className="flex w-[659px] flex-shrink-0 flex-col">
-                  <h2 className="text-body2 mb-4 flex-shrink-0 text-white">
-                    Baseline driver Top 10
-                  </h2>
-                  <div className="mt-auto flex h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
-                    <SHAPSummaryPlotChart data={resultData?.explain_json.baseline_driver} />
+                <h2 className="text-body2m flex-shrink-0 text-white pl-[2px]">
+                  Baseline driver Top 10
+                </h2>
+                {/* 그래프 + 설명 텍스트 묶음 */}
+                <div className="flex min-h-0 flex-1 flex-row gap-5">
+                  {/* 그래프 영역 */}
+                  <div className="flex min-w-0 flex-[3] flex-col overflow-hidden">
+                    <div className="flex min-h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
+                      <SHAPSummaryPlotChart
+                        data={resultData?.explain_json.baseline_driver}
+                        title={`Baseline Features Explaining △${resultData?.outcome ?? "ADAS-Cog"}`}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {/* 설명 텍스트 */}
-                <div className="flex min-w-0 flex-1 flex-col justify-end">
-                  <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
-                    {baselineDriverMessageItems.map((item: ExplainOverviewDescriptionItem, index: number) => (
-                      <li
-                        key={`${item.no ?? index}-${item.title}`}
-                        className="break-words"
-                      >
-                        <span className="text-body1m">{item.title}</span>
-                        <br />
-                        <span className="text-body4m whitespace-pre-line">{item.description}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {/* 설명 텍스트 */}
+                  <div className="flex min-w-0 flex-[2] flex-col justify-start">
+                    <ul className="flex list-disc flex-col gap-[9px] pl-4 text-white">
+                      {baselineDriverMessageItems.map((item, index) => (
+                        <li key={`${item.no ?? index}-${item.title}`} className="break-words">
+                          <span className="text-body3m">{item.title}</span>
+                          <br />
+                          <span className="text-body5m whitespace-pre-line ">{item.description}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
@@ -331,14 +366,15 @@ function TSISubgroupExplainPageContent() {
             <div className="flex min-h-0 flex-1 gap-[12px]">
               {/* 왼쪽 흰색 카드: Feature 목록 */}
               <div
-                className="flex h-[616px] w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white py-3"
+                className="flex min-h-0 w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 <div className="min-h-0 flex-1 overflow-y-auto">
                   {featureList.map((feature, index) => (
-                    <button
+                    <Button
+                      unstyled
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
                       className={`text-body4 flex h-[59px] w-full items-center gap-[10px] self-stretch px-[12px] py-[18px] transition-colors ${
@@ -350,26 +386,26 @@ function TSISubgroupExplainPageContent() {
                       }`}
                     >
                       {feature}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
 
               {/* 파란색 카드: 흰색 그래프 카드 3개 + 설명 텍스트 (나머지 전체 너비) */}
               <div
-                className="bg-primary-15 flex h-[616px] flex-1 flex-shrink-0 flex-row gap-4 overflow-hidden rounded-[24px] p-4"
+                className="bg-primary-15 flex min-h-0 flex-1 flex-shrink-0 flex-row gap-3 overflow-hidden rounded-[24px] p-4"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {/* 그래프 카드 3개 세로 배치 */}
-                <div className="flex min-h-0 flex-1 flex-col gap-4">
+                <div className="flex min-h-0 min-w-0 flex-[1.45] flex-col gap-3">
                   {/* 그래프 카드 1: Baseline Distribution */}
-                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
-                    <h3 className="text-body4 text-neutral-40 mb-3">
+                  <div className="flex min-h-[200px] w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                    <h3 className="text-body4 text-neutral-40 mb-2">
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden">
                       <BaselineDistributionHistogram
                         histogramData={
                           baselineDistributionData ?? {
@@ -382,67 +418,67 @@ function TSISubgroupExplainPageContent() {
                   </div>
 
                   {/* 그래프 카드 2: ADAS Progression Slope */}
-                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
-                    <h3 className="text-body4 text-neutral-40 mb-3">
+                  <div className="flex min-h-[200px] w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                    <h3 className="text-body4 text-neutral-40 mb-2">
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden">
                       <ScatterSlopeChart data={baselineSlopeData ?? {}} />
                     </div>
                   </div>
 
                   {/* 그래프 카드 3: Subgroup Proportion */}
-                  <div className="flex min-h-0 w-[442px] flex-1 flex-col overflow-hidden rounded-[16px] bg-white p-4">
-                    <h3 className="text-body4 text-neutral-40 mb-3">
+                  <div className="flex min-h-[200px] w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                    <h3 className="text-body4 text-neutral-40 mb-2">
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 items-center justify-center rounded bg-white">
+                    <div className="flex min-h-0 flex-1 overflow-hidden">
                       <SubgroupProportionChart data={baselineBinRatioData ?? []} />
                     </div>
                   </div>
                 </div>
 
                 {/* 오른쪽 설명 텍스트 */}
-                <div className="flex min-w-0 flex-1 flex-col justify-start pt-4">
-                  <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
-                    {featureMessageItems.map((item: ExplainOverviewDescriptionItem, index: number) => (
-                      <li
-                        key={`${item.no ?? index}-${item.title}`}
-                        className="break-words"
-                      >
-                        <span className="text-body1m">{item.title}</span>
+                <div className="flex min-w-0 flex-[0.8] flex-col justify-start pt-3">
+                  <ul className="flex list-disc flex-col gap-[9px] pl-4 text-white">
+                    {featureMessageItems.map((item, index) => (
+                      <li key={`${item.no ?? index}-${item.title}`} className="break-words">
+                        <span className="text-body3m">{item.title}</span>
                         <br />
-                        <span className="text-body4m whitespace-pre-line">{item.description}</span>
+                        <span className="text-body5m whitespace-pre-line">{item.description}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
             </div>
+            </div>{/* minHeight wrapper */}
+            </div>{/* overflow-y-auto wrapper */}
           </div>
         </div>
 
         {/* 버튼: 카드 밖 아래 */}
-        <div className="mx-auto mt-4 flex w-[1772px] flex-shrink-0 items-center justify-end gap-4 pb-2">
+        <div className="mt-4 flex flex-shrink-0 items-center justify-end gap-4 pb-2">
           <button
             type="button"
-            className="inline-flex h-[48px] cursor-pointer items-center justify-center border-0 bg-transparent p-0 transition-opacity hover:opacity-90"
-            aria-label="Save Progress"
+            style={{
+              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+              background: "#787776", border: "none", cursor: "pointer",
+              fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+              letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center",
+            }}
           >
-            <Image
-              src="/assets/tsi/savebtn.png"
-              alt="Save Progress"
-              width={160}
-              height={48}
-              className="h-[48px] w-auto object-contain"
-            />
+            Save Progress
           </button>
           <button
             type="button"
-            className="text-body3 text-neutral-30 inline-flex h-[48px] w-[179px] shrink-0 cursor-pointer items-center justify-center rounded-[100px] border-0 bg-cover bg-center bg-no-repeat transition-opacity hover:opacity-90"
-            style={{ backgroundImage: "url(/assets/tsi/btn.png)" }}
-            aria-label="View Report"
             onClick={handleClickViewReport}
+            style={{
+              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+              background: "#F06600", border: "none", cursor: "pointer",
+              fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+              letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center",
+            }}
           >
             View Report
           </button>

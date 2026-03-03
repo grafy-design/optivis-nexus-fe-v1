@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Button from "@/components/ui/button";
+import IconButton from "@/components/ui/icon-button";
 import Input from "@/components/ui/input";
 import Image from "next/image";
 
@@ -44,7 +45,7 @@ function FeatureItemComponent({
       viewBox="0 0 12 7"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`transition-transform duration-200 flex-shrink-0 ${
+      className={`flex-shrink-0 transition-transform duration-200 ${
         isExpanded ? "rotate-180" : ""
       }`}
     >
@@ -61,7 +62,7 @@ function FeatureItemComponent({
   return (
     <div className="w-full">
       {/* 구분선 - 첫 번째 항목이 아닐 때만 표시 */}
-      {!isFirst && <div className="h-[1px] bg-neutral-80" />}
+      {!isFirst && <div className="bg-neutral-80 h-[1px]" />}
 
       {/* 선택된 항목의 전체 영역 (왼쪽 끝까지 채워짐) */}
       <div
@@ -74,7 +75,8 @@ function FeatureItemComponent({
           width: isSelected ? "calc(100% + 36px)" : "100%",
         }}
       >
-        <button
+        <Button
+          unstyled
           onClick={() => {
             // level 0 (depth1)은 펼치기/접기와 선택 모두 가능
             if (level === 0) {
@@ -86,7 +88,7 @@ function FeatureItemComponent({
               onSelect(item.id); // depth2 선택
             }
           }}
-          className="h-12 flex items-center gap-3 transition-all relative w-full"
+          className="relative flex h-12 w-full items-center gap-3 transition-all"
           style={{
             paddingLeft: level > 0 ? `${18 + level * 16}px` : "18px",
             paddingRight: "18px",
@@ -99,17 +101,13 @@ function FeatureItemComponent({
             <div className="relative z-10 w-3 flex-shrink-0" />
           ) : null}
           <span
-            className={`relative z-10 text-feature-item ${
-              isSelected
-                ? "text-white"
-                : level === 0
-                ? "text-neutral-30"
-                : "text-neutral-60"
+            className={`text-feature-item relative z-10 ${
+              isSelected ? "text-white" : level === 0 ? "text-neutral-30" : "text-neutral-60"
             }`}
           >
             {item.label}
           </span>
-        </button>
+        </Button>
       </div>
 
       {hasChildren && isExpanded && (
@@ -140,9 +138,7 @@ function FeatureItemComponent({
  */
 export default function TSIFilterPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"inclusion" | "exclusion">(
-    "inclusion"
-  );
+  const [activeTab, setActiveTab] = useState<"inclusion" | "exclusion">("inclusion");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [selectedItemId, setSelectedItemId] = useState<string>("");
@@ -184,21 +180,13 @@ export default function TSIFilterPage() {
     });
   };
 
-  const filterFeatures = (
-    items: FeatureItem[],
-    query: string
-  ): FeatureItem[] => {
+  const filterFeatures = (items: FeatureItem[], query: string): FeatureItem[] => {
     if (!query) return items;
     return items
       .map((item) => {
-        const matchesQuery = item.label
-          .toLowerCase()
-          .includes(query.toLowerCase());
-        const filteredChildren = item.children
-          ? filterFeatures(item.children, query)
-          : undefined;
-        const hasMatchingChildren =
-          filteredChildren && filteredChildren.length > 0;
+        const matchesQuery = item.label.toLowerCase().includes(query.toLowerCase());
+        const filteredChildren = item.children ? filterFeatures(item.children, query) : undefined;
+        const hasMatchingChildren = filteredChildren && filteredChildren.length > 0;
 
         if (matchesQuery || hasMatchingChildren) {
           return {
@@ -218,12 +206,20 @@ export default function TSIFilterPage() {
   };
 
   return (
-    <AppLayout headerType="tsi">
-      <div className="w-full flex flex-col items-center">
-        <div className="w-[1772px] h-[1094px] flex-shrink-0 mx-auto">
-          {/* Liquid Glass Main Container */}
-          <div
-            className="relative rounded-[36px] overflow-hidden w-full h-full"
+    <AppLayout headerType="tsi" scaleMode="none">
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+        {/* Title */}
+        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+            Target Subgroup Identification
+          </h1>
+          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            Cohort Filter Setup
+          </span>
+        </div>
+        {/* Liquid Glass Main Container */}
+        <div
+            className="relative overflow-hidden rounded-[36px] flex-1 min-h-0"
             style={{
               backgroundImage: "url(/assets/tsi/default-setting-bg.png)",
               backgroundSize: "100% 100%",
@@ -232,49 +228,45 @@ export default function TSIFilterPage() {
               boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
             }}
           >
-            <div className="relative p-6 flex flex-col h-full">
+            <div className="relative flex flex-col p-6">
               {/* Header Section */}
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex flex-col gap-2">
-                  <div className="text-title text-neutral-5">Filter</div>
-                  <div className="text-body2m text-neutral-50">
-                    Cohort Filter Setup
-                  </div>
-                </div>
+              <div className="mb-6 flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   {/* Save Simulation Button */}
-                  <button className="px-5 py-2.5 bg-neutral-70 text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2">
-                    <Image
-                      src="/assets/header/download.svg"
-                      alt=""
-                      width={22}
-                      height={22}
-                      className="object-contain brightness-0 invert"
-                    />
+                  <button
+                    style={{
+                      height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+                      background: "#787776", border: "none", cursor: "pointer",
+                      fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+                      letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
                     Save Simulation
                   </button>
                   {/* Go to Simulation Button */}
-                  <Button
-                    variant="orange"
-                    size="md"
+                  <button
                     onClick={handleGoToSimulation}
-                    className="rounded-[100px] w-[210px] bg-secondary-60 text-white"
-                    icon="play"
-                    iconPosition="right"
+                    style={{
+                      height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
+                      background: "#F06600", border: "none", cursor: "pointer",
+                      fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
+                      letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    }}
                   >
                     Go to Simulation
-                  </Button>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                      <path d="M3 8L13 8M10 4L14 8L10 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
               {/* Main Content Area */}
-              <div className="flex gap-6 flex-1 min-h-0">
+              <div className="flex min-h-0 flex-1 gap-6">
                 {/* Left Sidebar - Feature List */}
-                <div className="w-[360px] flex-shrink-0 flex flex-col">
-                  <div className="text-feature-title text-neutral-10 mb-4">
-                    Feature List
-                  </div>
-                  <div className="flex flex-col gap-3 flex-1 min-h-0">
+                <div className="flex w-[360px] flex-shrink-0 flex-col">
+                  <div className="text-feature-title text-neutral-10 mb-4">Feature List</div>
+                  <div className="flex min-h-0 flex-1 flex-col gap-3">
                     {/* Search Field */}
                     <Input
                       placeholder="Search features"
@@ -292,7 +284,7 @@ export default function TSIFilterPage() {
                       className="h-[42px]"
                     />
                     {/* Feature List */}
-                    <div className="bg-white rounded-[16px] flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto rounded-[16px] bg-white">
                       <div className="flex flex-col p-[18px]">
                         {filteredFeatures.map((feature, index) => (
                           <FeatureItemComponent
@@ -314,41 +306,46 @@ export default function TSIFilterPage() {
                 </div>
 
                 {/* Right Main Area - Filter Sections */}
-                <div className="flex-1 flex flex-col min-h-0">
-                  <div className="bg-white bg-opacity-60 rounded-[24px] flex-1 flex flex-col p-6 min-h-0">
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <div className="bg-opacity-60 flex min-h-0 flex-1 flex-col rounded-[24px] bg-white p-6">
                     {/* Tab Bar and Action Buttons */}
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="mb-6 flex items-center justify-between">
                       {/* Tab Bar */}
-                      <div className="bg-white rounded-full p-1">
+                      <div className="rounded-full bg-white p-1">
                         <div className="flex items-center gap-2">
-                          <button
+                          <Button
+                            unstyled
                             onClick={() => setActiveTab("inclusion")}
-                            className={`px-[18px] py-[10px] rounded-full transition-all cursor-pointer ${
+                            className={`cursor-pointer rounded-full px-[18px] py-[10px] transition-all ${
                               activeTab === "inclusion"
-                                ? "bg-primary-20 text-white text-body4m"
+                                ? "bg-primary-20 text-body4m text-white"
                                 : "text-neutral-30 text-body4"
                             }`}
                           >
                             Inclusion
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            unstyled
                             onClick={() => setActiveTab("exclusion")}
-                            className={`px-[18px] py-[10px] rounded-full transition-all cursor-pointer ${
+                            className={`cursor-pointer rounded-full px-[18px] py-[10px] transition-all ${
                               activeTab === "exclusion"
-                                ? "bg-primary-20 text-white text-body4m"
+                                ? "bg-primary-20 text-body4m text-white"
                                 : "text-neutral-30 text-body4"
                             }`}
                           >
                             Exclusion
-                          </button>
+                          </Button>
                         </div>
                       </div>
                       {/* Action Buttons */}
                       <div className="flex items-center gap-2">
                         {/* Import Button - Liquid Glass */}
-                        <button className="relative w-12 h-12 rounded-[20px] flex items-center justify-center hover:opacity-80 transition-opacity overflow-hidden">
+                        <IconButton
+                          aria-label="Import filter section"
+                          className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80"
+                        >
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
                           >
                             <div
@@ -372,13 +369,12 @@ export default function TSIFilterPage() {
                               style={{
                                 borderRadius: "100px",
                                 background: "#f7f7f7",
-                                mixBlendMode:
-                                  "linear-burn" as React.CSSProperties["mixBlendMode"],
+                                mixBlendMode: "linear-burn" as React.CSSProperties["mixBlendMode"],
                               }}
                             />
                           </div>
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{
                               borderRadius: "100px",
                               background: "rgba(0, 0, 0, 0.004)",
@@ -389,13 +385,16 @@ export default function TSIFilterPage() {
                             alt="Import"
                             width={18}
                             height={18}
-                            className="object-contain relative z-10"
+                            className="relative z-10 object-contain"
                           />
-                        </button>
+                        </IconButton>
                         {/* Save Button - Liquid Glass */}
-                        <button className="relative w-12 h-12 rounded-[20px] flex items-center justify-center hover:opacity-80 transition-opacity overflow-hidden">
+                        <IconButton
+                          aria-label="Save filter section"
+                          className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80"
+                        >
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
                           >
                             <div
@@ -419,13 +418,12 @@ export default function TSIFilterPage() {
                               style={{
                                 borderRadius: "100px",
                                 background: "#f7f7f7",
-                                mixBlendMode:
-                                  "linear-burn" as React.CSSProperties["mixBlendMode"],
+                                mixBlendMode: "linear-burn" as React.CSSProperties["mixBlendMode"],
                               }}
                             />
                           </div>
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{
                               borderRadius: "100px",
                               background: "rgba(0, 0, 0, 0.004)",
@@ -447,11 +445,14 @@ export default function TSIFilterPage() {
                               strokeLinejoin="round"
                             />
                           </svg>
-                        </button>
+                        </IconButton>
                         {/* Delete Button - Liquid Glass */}
-                        <button className="relative w-12 h-12 rounded-[20px] flex items-center justify-center hover:opacity-80 transition-opacity overflow-hidden">
+                        <IconButton
+                          aria-label="Delete filter section"
+                          className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-[20px] transition-opacity hover:opacity-80"
+                        >
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
                           >
                             <div
@@ -475,13 +476,12 @@ export default function TSIFilterPage() {
                               style={{
                                 borderRadius: "100px",
                                 background: "#f7f7f7",
-                                mixBlendMode:
-                                  "linear-burn" as React.CSSProperties["mixBlendMode"],
+                                mixBlendMode: "linear-burn" as React.CSSProperties["mixBlendMode"],
                               }}
                             />
                           </div>
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{
                               borderRadius: "100px",
                               background: "rgba(0, 0, 0, 0.004)",
@@ -492,16 +492,18 @@ export default function TSIFilterPage() {
                             alt="Delete"
                             width={20}
                             height={22}
-                            className="object-contain relative z-10"
+                            className="relative z-10 object-contain"
                           />
-                        </button>
+                        </IconButton>
                         {/* Add Section Button - Liquid Glass */}
-                        <button
-                          className="relative h-12 px-4 rounded-[100px] flex items-center gap-2 hover:opacity-80 transition-opacity overflow-hidden"
+                        <Button
+                          variant="ghost"
+                          size="md"
+                          className="relative h-12 items-center justify-start gap-2 overflow-hidden rounded-[100px] px-4 text-black font-normal transition-opacity hover:opacity-80 hover:bg-transparent"
                           style={{ width: "178px" }}
                         >
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{ borderRadius: "100px" }}
                           >
                             <div
@@ -525,19 +527,18 @@ export default function TSIFilterPage() {
                               style={{
                                 borderRadius: "100px",
                                 background: "#f7f7f7",
-                                mixBlendMode:
-                                  "linear-burn" as React.CSSProperties["mixBlendMode"],
+                                mixBlendMode: "linear-burn" as React.CSSProperties["mixBlendMode"],
                               }}
                             />
                           </div>
                           <div
-                            className="absolute inset-0 pointer-events-none"
+                            className="pointer-events-none absolute inset-0"
                             style={{
                               borderRadius: "100px",
                               background: "rgba(0, 0, 0, 0.004)",
                             }}
                           />
-                          <span className="relative z-10 text-body3 text-primary-10">
+                          <span className="text-body3 !text-primary-10 relative z-10">
                             Add Section
                           </span>
                           <Image
@@ -545,24 +546,24 @@ export default function TSIFilterPage() {
                             alt="Add"
                             width={24}
                             height={24}
-                            className="object-contain relative z-10"
+                            className="relative z-10 object-contain"
                           />
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
                     {/* Filter Sections */}
-                    <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-6">
+                    <div className="mb-6 flex flex-1 flex-col gap-4 overflow-y-auto">
                       {/* Filter Section 1 */}
-                      <div className="bg-white rounded-[8px] p-4 min-h-[96px]">
+                      <div className="min-h-[96px] rounded-[8px] bg-white p-4">
                         <div className="text-feature-item text-neutral-60"></div>
                       </div>
                       {/* Filter Section 2 */}
-                      <div className="bg-white rounded-[8px] p-4 min-h-[196px]">
+                      <div className="min-h-[196px] rounded-[8px] bg-white p-4">
                         <div className="text-feature-item text-neutral-60"></div>
                       </div>
                       {/* Filter Section 3 */}
-                      <div className="bg-white rounded-[8px] p-4 min-h-[96px]">
+                      <div className="min-h-[96px] rounded-[8px] bg-white p-4">
                         <div className="text-feature-item text-neutral-60">
                           Filter section content
                         </div>
@@ -570,7 +571,7 @@ export default function TSIFilterPage() {
                     </div>
 
                     {/* Summary Text Area */}
-                    <div className="bg-white rounded-[8px] p-4 min-h-[126px]">
+                    <div className="min-h-[126px] rounded-[8px] bg-white p-4">
                       <div className="text-feature-item text-neutral-60 whitespace-pre-line">
                         formula content
                       </div>
@@ -581,7 +582,6 @@ export default function TSIFilterPage() {
             </div>
           </div>
         </div>
-      </div>
     </AppLayout>
   );
 }

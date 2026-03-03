@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import type { IdentificationFeatureInfoRow } from "@/services/subgroupService";
+import type { IdentificationFeatureInfoRow } from "@/services/subgroup-service";
 
 interface RefineCutoffChartEditorProps {
   cumulativeProportion: number;

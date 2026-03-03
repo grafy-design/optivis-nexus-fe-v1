@@ -3,11 +3,12 @@
 import { cn } from "@/lib/cn";
 
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: string;
-  alt: string;
+  icon?: string;
+  alt?: string;
   size?: "sm" | "md" | "lg";
   variant?: "rounded" | "pill" | "special";
   isActive?: boolean;
+  children?: React.ReactNode;
 }
 
 export default function IconButton({
@@ -17,6 +18,7 @@ export default function IconButton({
   variant: _variant = "rounded",
   isActive: _isActive = false,
   className,
+  children,
   ...props
 }: IconButtonProps) {
   const sizeClasses = {
@@ -35,11 +37,13 @@ export default function IconButton({
       {...props}
     >
       {/* Icon - SVG with filters, use img tag for proper filter rendering */}
-      <img
-        src={icon}
-        alt={alt}
-        className="w-full h-full object-contain pointer-events-none"
-      />
+      {children ? children : (icon && (
+        <img
+          src={icon}
+          alt={alt || ""}
+          className="w-full h-full object-contain pointer-events-none"
+        />
+      ))}
     </button>
   );
 }
