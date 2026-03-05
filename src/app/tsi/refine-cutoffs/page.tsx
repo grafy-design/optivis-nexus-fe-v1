@@ -1016,7 +1016,7 @@ function TSIRefineCutoffsPageContent() {
                 <div className="flex w-full flex-col gap-2">
                   <span className="text-body3m text-white">Stratification month</span>
                   {/* 슬라이더와 드롭다운 - 같은 선상에 배치, 우측 정렬 */}
-                  <div className="flex w-full items-start justify-between">
+                  <div className="flex w-full items-start justify-between gap-2">
                     {/* 슬라이더 영역 */}
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                       {/* 슬라이더 */}
@@ -1172,8 +1172,6 @@ function TSIRefineCutoffsPageContent() {
               <RefineCutoffChartEditor
                 cumulativeProportion={cumulativeProportion}
                 additionalSliders={additionalSliders}
-                initialCumulativeProportion={initialCumulativeProportion}
-                initialAdditionalSliders={initialAdditionalSliders}
                 onCumulativeProportionChange={setCumulativeProportion}
                 onAdditionalSlidersChange={setAdditionalSliders}
                 maxAdditionalSliders={1}
@@ -1221,17 +1219,17 @@ function TSIRefineCutoffsPageContent() {
               <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
 
               {/* 차트 2개 */}
-              <div className="flex min-h-0 flex-shrink-0 gap-3" style={{ height: "320px" }}>
+              <div className="flex min-h-0 min-w-0 flex-shrink-0 gap-3 overflow-hidden" style={{ height: "320px" }}>
                 {/* Disease Progression by Group */}
                 <div
-                  className="flex min-h-0 flex-1 rounded-[24px] p-[8px]"
+                  className="flex w-0 min-w-0 flex-1 rounded-[24px] p-[8px]"
                   style={{ backgroundColor: "var(--primary-15)", boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                 >
-                  <div className="flex min-h-0 w-full flex-col">
-                    <h4 className="text-body1m mb-4 flex-shrink-0 text-white">
+                  <div className="flex min-h-0 w-full flex-col gap-6">
+                    <h4 className="text-body2m flex-shrink-0 text-white pt-[4px] pl-[4px]">
                       Disease Progression by Group
                     </h4>
-                    <div className="flex min-h-0 flex-1" style={{ height: "100%" }}>
+                    <div className="flex min-h-0 flex-1 rounded-[16px] bg-white p-3" style={{ height: "100%" }}>
                       <MultiLineWithErrorBar
                         dataGroup={diseaseChartData.dataGroup}
                         seriesLabels={diseaseChartData.labels}
@@ -1260,12 +1258,12 @@ function TSIRefineCutoffsPageContent() {
 
                 {/* rHTE distribution */}
                 <div
-                  className="flex min-h-0 flex-1 rounded-[24px] p-[8px]"
+                  className="flex w-0 min-w-0 flex-1 rounded-[24px] p-[8px]"
                   style={{ backgroundColor: "var(--primary-15)", boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                 >
-                  <div className="flex min-h-0 w-full flex-col">
-                    <h4 className="text-body1m mb-4 flex-shrink-0 text-white">Slope distribution</h4>
-                    <div className="flex min-h-0 flex-1 items-center justify-center">
+                  <div className="flex min-h-0 w-full flex-col gap-6">
+                    <h4 className="text-body2m flex-shrink-0 text-white pt-[4px] pl-[4px]">Slope distribution</h4>
+                    <div className="flex min-h-0 flex-1 items-center justify-center rounded-[16px] bg-white p-3">
                       <DensityChart segmented={densitySegmentedData ?? undefined} sizeVariant="M" />
                     </div>
                   </div>
