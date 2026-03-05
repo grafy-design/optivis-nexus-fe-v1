@@ -206,7 +206,7 @@ export default function TSIFilterPage() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="none">
+    <AppLayout headerType="tsi" scaleMode="fit">
       <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>

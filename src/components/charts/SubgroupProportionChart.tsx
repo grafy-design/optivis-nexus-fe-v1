@@ -83,5 +83,5 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
     })),
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 220 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

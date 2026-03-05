@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 /** TSI 브레드크럼 스텝 (기존 ATS 헤더와 동일한 원형·화살표 스타일, 숫자 1~6) */
@@ -60,12 +60,30 @@ export const TSIHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
   const activeStepIndex = getTSIActiveStepIndex(pathname);
+  const [compact, setCompact] = useState(0);
+
+  useEffect(() => {
+    const check = () => {
+      const w = window.innerWidth;
+      if (w < 1470) setCompact(2);
+      else if (w < 1688) setCompact(1);
+      else setCompact(0);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const iconSize = compact === 2 ? 14 : compact === 1 ? 15 : 16;
+  const fontSize = compact === 2 ? "15px" : compact === 1 ? "18.5px" : "19.5px";
+  const stepGap = compact === 2 ? "gap-[28px]" : compact === 1 ? "gap-[34px]" : "gap-[36px]";
+  const innerGap = compact === 2 ? "gap-1" : compact === 1 ? "gap-[6px]" : "gap-2";
 
   return (
     <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#e7e5e7]">
       <div className="w-full h-[90px] px-[28px] py-[17px] flex justify-between items-center">
         {/* Left - Breadcrumb */}
-        <div className="flex items-center gap-[36px]">
+        <div className={`flex items-center ${stepGap}`}>
           {/* 재생 아이콘 (ATS와 동일 - dark purple, 클릭 시 첫 스텝으로) */}
 
           {TSI_BREADCRUMB_STEPS.map((step, index) => {
@@ -77,8 +95,8 @@ export const TSIHeader = () => {
                 {/* ATS와 동일: 스텝 사이에 회색 화살표 (첫 번째 스텝 앞에는 없음) */}
                 {index > 0 && (
                   <svg
-                    width="16"
-                    height="16"
+                    width={iconSize}
+                    height={iconSize}
                     viewBox="0 0 16 16"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -93,12 +111,12 @@ export const TSIHeader = () => {
                 )}
                 <button
                   onClick={() => router.push(step.path)}
-                  className="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
+                  className={`flex items-center ${innerGap} hover:opacity-70 transition-opacity cursor-pointer`}
                 >
                   {/* ATS와 동일: 16x16 원형, 흰색 숫자 */}
                   <svg
-                    width="16"
-                    height="16"
+                    width={iconSize}
+                    height={iconSize}
                     viewBox="0 0 16 16"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +139,7 @@ export const TSIHeader = () => {
                       {index + 1}
                     </text>
                   </svg>
-                  <span className={`text-[19.5px] font-semibold tracking-[-0.78px] whitespace-nowrap ${isActive ? "text-[#2D1067]" : "text-[#787776]"}`}>
+                  <span className={`font-semibold tracking-[-0.78px] whitespace-nowrap ${isActive ? "text-[#2D1067]" : "text-[#787776]"}`} style={{ fontSize }}>
                     {step.label}
                   </span>
                 </button>

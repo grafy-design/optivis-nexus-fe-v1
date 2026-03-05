@@ -170,7 +170,7 @@ function TSISubgroupSelectionPageContent() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="none">
+    <AppLayout headerType="tsi" scaleMode="fit">
       <Loading isLoading={isLoading} />
       <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
         {/* Title */}
@@ -183,6 +183,8 @@ function TSISubgroupSelectionPageContent() {
           </span>
         </div>
 
+        {/* 메인+버튼 묶음 컨테이너 */}
+        <div className="flex flex-col flex-1 min-h-0" style={{ gap: 0 }}>
         {/* 메인: 상위 배경 카드 2개 나란히 (좌 selection-left, 우 selection-bg) */}
         <div className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0" style={{ minWidth: 0 }}>
           {/* 왼쪽 상위 배경 카드: selection-left.png (Figma 536x614, radius 36) */}
@@ -450,15 +452,15 @@ function TSISubgroupSelectionPageContent() {
                           <col style={{ width: "5%" }} />
                           <col style={{ width: "6%" }} />
                           <col style={{ width: "5%" }} />
-                          <col style={{ width: "14%" }} />
+                          <col style={{ width: "13%" }} />
                           <col style={{ width: "10%" }} />
                           <col style={{ width: "8%" }} />
                           <col style={{ width: "7%" }} />
                           <col style={{ width: "8%" }} />
-                          <col style={{ width: "13%" }} />
+                          <col style={{ width: "12%" }} />
                           <col style={{ width: "10%" }} />
-                          <col style={{ width: "10%" }} />
-                          <col style={{ width: "4%" }} />
+                          <col style={{ width: "8%" }} />
+                          <col style={{ width: "8%" }} />
                         </colgroup>
                         <thead>
                           <tr className="border-neutral-30 border-b">
@@ -493,7 +495,7 @@ function TSISubgroupSelectionPageContent() {
                               <div className={TABLE_INNER_DIV_LEFT}>Group balance</div>
                             </th>
                             <th className={`${TABLE_HEADER_CELL_BASE_WITH_BORDER} text-left`}>
-                              <div className={TABLE_INNER_DIV_LEFT}>Refine Cutoffs</div>
+                              <div className={TABLE_INNER_DIV_LEFT}>Refine<br />Cutoffs</div>
                             </th>
                             <th className={`${TABLE_HEADER_CELL_BASE_LAST} text-right`}>
                               <div className={TABLE_INNER_DIV_LEFT}>Delete</div>
@@ -1094,7 +1096,7 @@ function TSISubgroupSelectionPageContent() {
                                                                 show: true,
                                                                 onZero: false, // X축이 항상 하단에 표시되도록
                                                                 lineStyle: {
-                                                                  color: "#999", // X축 색상 (회색)
+                                                                  color: "#484646",
                                                                   width: 1,
                                                                 },
                                                               },
@@ -1137,7 +1139,7 @@ function TSISubgroupSelectionPageContent() {
                                                                 show: true,
                                                                 onZero: false, // Y축이 항상 왼쪽에 표시되도록
                                                                 lineStyle: {
-                                                                  color: "#666", // Y축 색상 (다른 회색)
+                                                                  color: "#484646",
                                                                   width: 1,
                                                                 },
                                                               },
@@ -1380,7 +1382,7 @@ function TSISubgroupSelectionPageContent() {
                                                                   show: true,
                                                                   onZero: false,
                                                                   lineStyle: {
-                                                                    color: "#999",
+                                                                    color: "#484646",
                                                                     width: 1,
                                                                   },
                                                                 },
@@ -1410,7 +1412,7 @@ function TSISubgroupSelectionPageContent() {
                                                                   show: true,
                                                                   onZero: false,
                                                                   lineStyle: {
-                                                                    color: "#666",
+                                                                    color: "#484646",
                                                                     width: 1,
                                                                   },
                                                                 },
@@ -1418,7 +1420,10 @@ function TSISubgroupSelectionPageContent() {
                                                                   show: false,
                                                                 },
                                                                 splitLine: {
-                                                                  show: false,
+                                                                  show: true,
+                                                                  lineStyle: {
+                                                                    color: "#efeff4",
+                                                                  },
                                                                 },
                                                               },
                                                               tooltip: {
@@ -1554,7 +1559,7 @@ function TSISubgroupSelectionPageContent() {
                                                                   show: true,
                                                                   onZero: false,
                                                                   lineStyle: {
-                                                                    color: "#999",
+                                                                    color: "#484646",
                                                                     width: 1,
                                                                   },
                                                                 },
@@ -1584,7 +1589,7 @@ function TSISubgroupSelectionPageContent() {
                                                                   show: true,
                                                                   onZero: false,
                                                                   lineStyle: {
-                                                                    color: "#666",
+                                                                    color: "#484646",
                                                                     width: 1,
                                                                   },
                                                                 },
@@ -1592,7 +1597,10 @@ function TSISubgroupSelectionPageContent() {
                                                                   show: false,
                                                                 },
                                                                 splitLine: {
-                                                                  show: false,
+                                                                  show: true,
+                                                                  lineStyle: {
+                                                                    color: "#efeff4",
+                                                                  },
                                                                 },
                                                               },
                                                               tooltip: {
@@ -1655,7 +1663,7 @@ function TSISubgroupSelectionPageContent() {
                                                                     },
                                                                     lineStyle: {
                                                                       type: "dashed",
-                                                                      color: "#999",
+                                                                      color: "#D2D2DA",
                                                                       width: 1,
                                                                     },
                                                                     data: [
@@ -1709,7 +1717,7 @@ function TSISubgroupSelectionPageContent() {
           </div>
         </div>
         {/* 버튼: 카드 밖 아래 */}
-        <div className="mt-4 flex flex-shrink-0 items-center justify-end gap-4 pb-2">
+        <div className="flex flex-shrink-0 items-center justify-end gap-4 pb-2">
           <button
             type="button"
             style={{
@@ -1736,6 +1744,7 @@ function TSISubgroupSelectionPageContent() {
               <path d="M4 3L13 8L4 13V3Z" fill="white"/>
             </svg>
           </button>
+        </div>
         </div>
       </div>
     </AppLayout>

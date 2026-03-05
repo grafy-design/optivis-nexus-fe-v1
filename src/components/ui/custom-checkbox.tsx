@@ -27,7 +27,7 @@ export default function CustomCheckbox({
       <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
         {checked && !disabled ? (
           <>
-            <rect width="20" height="20" rx="5" fill="#5B4EFF" />
+            <rect width="20" height="20" rx="5" fill="#3A11D8" />
             <path
               d="M5 10.5L8.5 14L15 7"
               stroke="white"

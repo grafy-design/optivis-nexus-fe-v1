@@ -5,9 +5,10 @@ import React from "react";
 interface MainContainerProps {
   children: React.ReactNode;
   extraPaddingBottom?: number;
+  noPadding?: boolean;
 }
 
-export const MainContainer: React.FC<MainContainerProps> = ({ children, extraPaddingBottom = 0 }) => {
+export const MainContainer: React.FC<MainContainerProps> = ({ children, extraPaddingBottom = 0, noPadding = false }) => {
   return (
     /*
      * Figma: 콘텐츠 영역
@@ -22,10 +23,10 @@ export const MainContainer: React.FC<MainContainerProps> = ({ children, extraPad
         minHeight: 0,
         display: "flex",
         flexDirection: "column",
-        paddingLeft: "5px",
-        paddingRight: "5px",
-        paddingTop: "5px",
-        paddingBottom: `${5 + extraPaddingBottom}px`,
+        paddingLeft: noPadding ? 0 : "5px",
+        paddingRight: noPadding ? 0 : "5px",
+        paddingTop: noPadding ? 0 : "5px",
+        paddingBottom: noPadding ? 0 : `${5 + extraPaddingBottom}px`,
         boxSizing: "border-box",
         overflow: "hidden",
       }}

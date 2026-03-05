@@ -1,6 +1,14 @@
 import React from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import type { ChartSizeVariant } from "./MultiLineWithErrorBar";
+
+const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, { labelFontSize: number; labelFontWeight: number; numberFontSize: number }> = {
+  XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9 },
+  S:  { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9 },
+  M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9 },
+  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9 },
+};
 
 const gaussianKernel = (x: number): number => (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
 
@@ -41,6 +49,7 @@ interface DensityChartProps {
   series?: DensitySeries[];
   segmented?: DensitySegmentedConfig;
   height?: number;
+  sizeVariant?: ChartSizeVariant;
 }
 
 const hexToRgba = (hexColor: string, alpha: number): string => {
@@ -111,7 +120,8 @@ const calculateBandwidth = (values: number[], minX: number, maxX: number): numbe
   return Math.max(silverman, span * 0.02, 0.02);
 };
 
-export const DensityChart = ({ data, series, segmented, height = 220 }: DensityChartProps) => {
+export const DensityChart = ({ data, series, segmented, height = 220, sizeVariant }: DensityChartProps) => {
+  const sz = sizeVariant ? DENSITY_SIZE_STYLES[sizeVariant] : null;
   const baseSeries =
     segmented && segmented.values.length > 0
       ? []
@@ -205,7 +215,7 @@ export const DensityChart = ({ data, series, segmented, height = 220 }: DensityC
       max: xMax,
       axisLine: { show: true, lineStyle: { color: "#9B9CA6", width: 1 } },
       axisTick: { show: false },
-      axisLabel: { show: false },
+      axisLabel: sz ? { show: true, color: "#333", fontSize: sz.numberFontSize, fontFamily: "Inter" } : { show: false },
       splitLine: { show: false },
     },
     yAxis: {
@@ -214,7 +224,7 @@ export const DensityChart = ({ data, series, segmented, height = 220 }: DensityC
       max: maxY > 0 ? maxY * 1.35 : 1,
       axisLine: { show: true, lineStyle: { color: "#9B9CA6", width: 1 } },
       axisTick: { show: false },
-      axisLabel: { show: false },
+      axisLabel: sz ? { show: true, color: "#333", fontSize: sz.numberFontSize, fontFamily: "Inter" } : { show: false },
       splitLine: { show: false },
     },
     series: densityBySeries.map((item) => ({

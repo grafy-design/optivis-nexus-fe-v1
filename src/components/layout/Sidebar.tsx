@@ -81,7 +81,7 @@ function LogoBtn() {
   return (
     <SidebarFrameButton
       href="/"
-      imageSrc="/assets/figma/home/sidebar-logo-button.png"
+      imageSrc="/assets/header/Logo.svg"
       imageWidth={52}
       imageHeight={52}
       alt="OPTIVIS"

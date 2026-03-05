@@ -5,13 +5,11 @@ import {
   type ErrorBarGroup,
 } from "@/components/charts/MultiLineWithErrorBar";
 import { buildProgressionYAxis } from "./buildProgressionYAxis";
-import type { TSISubgroupLegendRow } from "./types";
 
 export type TSIDiseaseProgressionPanelVariant = "model" | "feature";
 
 export type TSIDiseaseProgressionPanelBaseProps = {
   chartData: ErrorBarGroup[];
-  rows: TSISubgroupLegendRow[];
   seriesLabels: string[];
   seriesColors: string[];
 };
@@ -40,9 +38,9 @@ type VariantStyle = {
 const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = {
   model: {
     containerClassName:
-      "flex min-h-[656px] w-full flex-1 flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
+      "flex w-full flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
     separatorColor: "#B7B6BE",
-    chartMinHeightClassName: "min-h-[390px]",
+    chartMinHeightClassName: "h-[360px] [@media(max-width:1470px)]:h-[250px]",
     axisColor: "#CECDD6",
     lineWidth: 3,
     symbolSize: 12,
@@ -57,9 +55,9 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
   },
   feature: {
     containerClassName:
-      "flex min-h-[656px] w-full flex-1 flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
+      "flex w-full flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
     separatorColor: "#A9A8B2",
-    chartMinHeightClassName: "min-h-[430px]",
+    chartMinHeightClassName: "h-[360px] [@media(max-width:1470px)]:h-[250px]",
     axisColor: "#CBCAD3",
     lineWidth: 3,
     symbolSize: 12,
@@ -77,7 +75,6 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
 export function TSIDiseaseProgressionPanel({
   variant,
   chartData,
-  rows,
   seriesLabels,
   seriesColors,
 }: TSIDiseaseProgressionPanelProps) {
@@ -86,10 +83,14 @@ export function TSIDiseaseProgressionPanel({
 
   return (
     <div className={style.containerClassName}>
-      <h4 className="text-body2m text-neutral-20 flex-shrink-0">Disease Progression by Subgroup</h4>
-      <div className="mt-3 h-px flex-shrink-0" style={{ backgroundColor: style.separatorColor }} />
+      <h4
+        className="text-body2m text-neutral-20 flex-shrink-0 pb-3 border-b"
+        style={{ borderColor: style.separatorColor }}
+      >
+        Disease Progression by Subgroup
+      </h4>
 
-      <div className={`mt-3 flex-1 ${style.chartMinHeightClassName}`}>
+      <div className={`mt-3 flex-shrink-0 ${style.chartMinHeightClassName}`}>
         <MultiLineWithErrorBar
           dataGroup={chartData}
           seriesLabels={seriesLabels}
@@ -100,6 +101,7 @@ export function TSIDiseaseProgressionPanel({
           errorBarLineWidth={style.errorBarLineWidth}
           errorBarCapHalfWidth={style.errorBarCapHalfWidth}
           height="100%"
+          sizeVariant="M"
           xAxis={{
             min: 0,
             max: 24,
@@ -107,12 +109,11 @@ export function TSIDiseaseProgressionPanel({
             splitLine: true,
             splitLineColor: style.axisColor,
             axisLineColor: style.axisColor,
-            labelColor: "#4A4949",
-            fontSize: 11,
+            showLabels: true,
             name: "Month",
             nameColor: "#1B1B1B",
-            nameFontSize: 16,
-            nameGap: 30,
+            nameFontSize: 14,
+            nameGap: 44,
           }}
           yAxis={{
             min: yAxisRange.min,
@@ -123,8 +124,6 @@ export function TSIDiseaseProgressionPanel({
             splitLineColor: style.axisColor,
             axisLineColor: style.axisColor,
             showLabels: true,
-            labelColor: "#4A4949",
-            fontSize: 11,
             name: "ADAS-Cog",
             nameColor: "#1B1B1B",
             nameFontSize: 14,
@@ -160,31 +159,6 @@ export function TSIDiseaseProgressionPanel({
         })}
       </div>
 
-      <div
-        className={`${style.tableMarginTopClassName} border-t`}
-        style={{ borderColor: style.separatorColor }}
-      >
-        {rows.map((row, index) => (
-          <div
-            key={row.subgroupName}
-            className="flex border border-0 border-t"
-            style={{
-              borderColor: index === 0 ? "#AAAAAD" : "#E2E1E5",
-            }}
-          >
-            <div className="flex h-8 flex-1 items-center">
-              <span className="w-[120px] text-xs font-semibold text-[#AAAAAD]">
-                {row.subgroupName}
-              </span>
-              <span className="text-[17px] font-semibold text-[#484646]">{row.riskLabel}</span>
-            </div>
-            <div className="flex h-8 flex-1 items-center">
-              <span className="w-[56px] text-xs font-semibold text-[#AAAAAD]">Cutoff</span>
-              <span className="text-[17px] font-semibold text-[#484646]">{row.cutoff}</span>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

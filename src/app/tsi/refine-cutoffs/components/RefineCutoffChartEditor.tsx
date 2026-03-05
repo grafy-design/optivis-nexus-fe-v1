@@ -375,15 +375,16 @@ export function RefineCutoffChartEditor({
         axisTick: { show: false, alignWithLabel: false },
         minorTick: { show: false },
         axisLabel: {
-          color: "#666",
-          fontSize: 11,
+          color: "#333",
+          fontSize: 9,
           showMinLabel: true,
           showMaxLabel: true,
+          fontFamily: "Inter",
         },
         nameTextStyle: {
           color: "#333",
-          fontSize: 9,
-          fontWeight: 590,
+          fontSize: 15,
+          fontWeight: 600,
           fontFamily: "Inter",
         },
       },
@@ -404,11 +405,11 @@ export function RefineCutoffChartEditor({
           symbol: ["none", "arrow"],
           symbolSize: [0, 8],
         },
-        axisLabel: { color: "#666", fontSize: 11 },
+        axisLabel: { color: "#333", fontSize: 9, fontFamily: "Inter" },
         nameTextStyle: {
           color: "#333",
-          fontSize: 9,
-          fontWeight: 590,
+          fontSize: 15,
+          fontWeight: 600,
           fontFamily: "Inter",
         },
       },
@@ -630,13 +631,15 @@ export function RefineCutoffChartEditor({
 
   return (
     <div
-      className="flex h-[400px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white p-0"
-      style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
+      className="flex-shrink-0 rounded-[24px] p-[8px]"
+      style={{ backgroundColor: "#ffffff", boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
     >
-      <div className="flex h-full flex-col">
+      <div
+        className="flex h-[400px] flex-col"
+      >
         <div
           ref={chartContainerRef}
-          className="relative min-h-0 flex-1 rounded-[12px] bg-white"
+          className="relative min-h-0 flex-1 overflow-visible"
           onMouseMove={(event) => {
             if (additionalSliders.length >= maxAdditionalSliders) {
               setShowAddButton(false);

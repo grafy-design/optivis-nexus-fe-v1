@@ -69,7 +69,7 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
         series: normalizedData.map((item, index) => ({
           type: "bar",
           data: [item.value],
-          itemStyle: { color: index < 3 ? "#f06600" : "#AAAAAD", borderRadius: [8, 8, 8, 8] },
+          itemStyle: { color: index < 3 ? "#f06600" : index >= 7 ? "#C8C8CB" : "#AAAAAD", borderRadius: [8, 8, 8, 8] },
           barWidth: barWidth,
           barGap,
           label: {
@@ -77,9 +77,10 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
             formatter: item.label,
             position: "insideBottom",
             color: "#ffffff",
-            fontSize: 19.5,
-            fontWeight: 590,
-            letterSpacing: -0.585,
+            fontSize: 15,
+            font: "inter",
+            fontWeight: 500,
+            letterSpacing: -0.45,
           },
         })),
       }}

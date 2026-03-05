@@ -13,7 +13,6 @@ export type SHAPSummaryFeature = {
 
 interface SHAPSummaryPlotChartProps {
   data?: SHAPSummaryFeature[];
-  height?: number;
   title?: string;
 }
 
@@ -25,7 +24,6 @@ const jitterFromIndex = (i: number): number => {
 
 export const SHAPSummaryPlotChart = ({
   data = [],
-  height = 360,
   title = "Baseline driver Top 10",
 }: SHAPSummaryPlotChartProps) => {
   const { option } = useMemo(() => {
@@ -76,7 +74,7 @@ export const SHAPSummaryPlotChart = ({
     const baseOption: EChartsOption = {
       animation: false,
       title: {
-        text: title,
+        text: "",
         left: 0,
         top: 0,
         textStyle: {
@@ -89,7 +87,7 @@ export const SHAPSummaryPlotChart = ({
         },
       },
       grid: {
-        top: 64,
+        top: 8,
         left: 110,
         right: 56,
         bottom: 24,
@@ -141,10 +139,13 @@ export const SHAPSummaryPlotChart = ({
         dimension: 2,
         orient: "vertical",
         right: 0,
-        top: "middle",
+        top: 8,
+        bottom: 24,
+        itemWidth: 12,
+        // @ts-ignore
+        itemHeight: "400%",
         text: ["High", "Low"],
         calculable: false,
-        itemHeight: 140,
         textStyle: { color: "#5F6072", fontSize: 11 },
         inRange: {
           color: ["#D8D3FF", "#231F52"],
@@ -164,5 +165,5 @@ export const SHAPSummaryPlotChart = ({
     return { option: baseOption };
   }, [data, title]);
 
-  return <ReactECharts option={option} style={{ width: "100%", height }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

@@ -132,5 +132,5 @@ export const BaselineDistributionHistogram = ({
     };
   }, [histogramData, normalize]);
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 260 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

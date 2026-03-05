@@ -956,7 +956,7 @@ function TSIRefineCutoffsPageContent() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="none">
+    <AppLayout headerType="tsi" scaleMode="fit">
       <Loading isLoading={isLoading} />
       <style jsx global>{`
         input[type="number"]::-webkit-inner-spin-button,
@@ -968,7 +968,7 @@ function TSIRefineCutoffsPageContent() {
           -moz-appearance: textfield;
         }
       `}</style>
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px", paddingBottom: 18 }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
@@ -987,7 +987,7 @@ function TSIRefineCutoffsPageContent() {
           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', width: "520px", borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
 
           >
-            <div className="flex min-h-0 w-full flex-col gap-0">
+            <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto">
               {/* 남색 카드: Subgroup Creation */}
               <div
                 className="flex flex-shrink-0 flex-col items-start gap-4 rounded-[24px]"
@@ -999,14 +999,14 @@ function TSIRefineCutoffsPageContent() {
                 }}
               >
                 {/* 상단 라벨과 타이틀 */}
-                <div className="flex flex-col gap-2">
-                  <span className="text-body4m text-white/70">Prognostic</span>
-                  <h4 className="text-h4 text-white">Subgroup Creation</h4>
+                <div className="flex flex-col gap-1">
+                  <span className="text-body5 text-white/70">Prognostic</span>
+                  <h4 className="text-body1 text-white">Subgroup Creation</h4>
                 </div>
 
                 {/* Outcome */}
-                <div className="flex flex-col gap-0">
-                  <span className="text-body3m text-white">Outcome</span>
+                <div className="flex flex-col gap-1">
+                  <span className="text-body5 text-white/70">Outcome</span>
                   <span className="text-body2 font-semibold text-white">
                     {featureInfoData?.outcome ?? ""}
                   </span>
@@ -1018,7 +1018,7 @@ function TSIRefineCutoffsPageContent() {
                   {/* 슬라이더와 드롭다운 - 같은 선상에 배치, 우측 정렬 */}
                   <div className="flex w-full items-start justify-between">
                     {/* 슬라이더 영역 */}
-                    <div className="flex flex-shrink-0 flex-col gap-1" style={{ width: "400px" }}>
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
                       {/* 슬라이더 */}
                       <div
                         className="relative flex h-[24px] items-center select-none"
@@ -1169,25 +1169,25 @@ function TSIRefineCutoffsPageContent() {
                   Apply Criteria
                 </button>
               </div>
+              <RefineCutoffChartEditor
+                cumulativeProportion={cumulativeProportion}
+                additionalSliders={additionalSliders}
+                initialCumulativeProportion={initialCumulativeProportion}
+                initialAdditionalSliders={initialAdditionalSliders}
+                onCumulativeProportionChange={setCumulativeProportion}
+                onAdditionalSlidersChange={setAdditionalSliders}
+                maxAdditionalSliders={1}
+                rows={featureInfoData?.rows}
+                outcomeKey={featureInfoData?.outcome}
+                selectedMonth={effectiveAppliedStratificationMonth}
+              />
             </div>
 
-            <RefineCutoffChartEditor
-              cumulativeProportion={cumulativeProportion}
-              additionalSliders={additionalSliders}
-              initialCumulativeProportion={initialCumulativeProportion}
-              initialAdditionalSliders={initialAdditionalSliders}
-              onCumulativeProportionChange={setCumulativeProportion}
-              onAdditionalSlidersChange={setAdditionalSliders}
-              maxAdditionalSliders={1}
-              rows={featureInfoData?.rows}
-              outcomeKey={featureInfoData?.outcome}
-              selectedMonth={effectiveAppliedStratificationMonth}
-            />
-            {/* Generate Subgroups 버튼 */}
+            {/* Generate Subgroups 버튼 - 고정 */}
             <button
               onClick={handleClickGenerateSubGroup}
               style={{
-                marginTop: "auto", marginLeft: "auto",
+                flexShrink: 0, marginLeft: "auto",
                 height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36, border: "none",
                 background:
                   effectiveAppliedStratificationMonth !== initialStratificationMonth || isCutoffDirty
@@ -1217,57 +1217,57 @@ function TSIRefineCutoffsPageContent() {
                 <h3 className="text-body2 text-primary-15">{setNameFromQuery}</h3>
               </div>
 
+              {/* 스크롤 컨테이너: 차트 2개 + 테이블 */}
+              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+
               {/* 차트 2개 */}
-              <div className="flex min-h-0 flex-1 gap-3">
+              <div className="flex min-h-0 flex-shrink-0 gap-3" style={{ height: "320px" }}>
                 {/* Disease Progression by Group */}
                 <div
-                  className="bg-primary-15 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] p-3"
-                  style={{
-                    boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-                  }}
+                  className="flex min-h-0 flex-1 rounded-[24px] p-[8px]"
+                  style={{ backgroundColor: "var(--primary-15)", boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                 >
-                  <h4 className="text-body1m mb-4 flex-shrink-0 text-white">
-                    Disease Progression by Group
-                  </h4>
-                  <div className="flex min-h-0 flex-1 rounded-[12px] bg-white padding-[12px]" style={{ height: "100%" }}>
-                    <MultiLineWithErrorBar
-                      dataGroup={diseaseChartData.dataGroup}
-                      seriesLabels={diseaseChartData.labels}
-                      colors={diseaseChartData.colors}
-                      filledSymbol
-                      lineWidth={3}
-                      symbolSize={12}
-                      errorBarLineWidth={4}
-                      errorBarCapHalfWidth={6}
-                      height="100%"
-                      xAxis={{
-                        min: 0,
-                        max: diseaseXAxisMax,
-                        interval: 3,
-                        labelColor: "#4A4949",
-                        fontSize: 11,
-                      }}
-                      yAxis={{
-                        name: "Disease progression score",
-                        nameColor: "#4A4949",
-                        nameFontSize: 14,
-                        nameGap: 12,
-                      }}
-                      guideLineX={diseaseDisplayMonth}
-                    />
+                  <div className="flex min-h-0 w-full flex-col">
+                    <h4 className="text-body1m mb-4 flex-shrink-0 text-white">
+                      Disease Progression by Group
+                    </h4>
+                    <div className="flex min-h-0 flex-1" style={{ height: "100%" }}>
+                      <MultiLineWithErrorBar
+                        dataGroup={diseaseChartData.dataGroup}
+                        seriesLabels={diseaseChartData.labels}
+                        colors={diseaseChartData.colors}
+                        filledSymbol
+                        lineWidth={3}
+                        symbolSize={12}
+                        errorBarLineWidth={4}
+                        errorBarCapHalfWidth={6}
+                        height="100%"
+                        sizeVariant="M"
+                        xAxis={{
+                          min: 0,
+                          max: diseaseXAxisMax,
+                          interval: 3,
+                        }}
+                        yAxis={{
+                          name: "Disease progression score",
+                          nameGap: 12,
+                        }}
+                        guideLineX={diseaseDisplayMonth}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* rHTE distribution */}
                 <div
-                  className="bg-primary-15 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] p-3"
-                  style={{
-                    boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-                  }}
+                  className="flex min-h-0 flex-1 rounded-[24px] p-[8px]"
+                  style={{ backgroundColor: "var(--primary-15)", boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                 >
-                  <h4 className="text-body1m mb-4 flex-shrink-0 text-white">Slope distribution</h4>
-                  <div className="flex min-h-0 flex-1 items-center justify-center rounded-[12px] bg-white">
-                    <DensityChart segmented={densitySegmentedData ?? undefined} />
+                  <div className="flex min-h-0 w-full flex-col">
+                    <h4 className="text-body1m mb-4 flex-shrink-0 text-white">Slope distribution</h4>
+                    <div className="flex min-h-0 flex-1 items-center justify-center">
+                      <DensityChart segmented={densitySegmentedData ?? undefined} sizeVariant="M" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1283,16 +1283,16 @@ function TSIRefineCutoffsPageContent() {
               >
                 <div className="flex flex-col px-3 py-3">
                   {/* 테이블 헤더 */}
-                  <div className="border-neutral-80 flex h-wrap flex-shrink-0 items-center gap-4 border-b pb-[8px]">
-                    <div className="text-body3 text-neutral-30 flex-[8] font-semibold">no.</div>
-                    <div className="text-body3 text-neutral-30 flex-[24] font-semibold">Group</div>
-                    <div className="text-body3 text-neutral-30 flex-[18] font-semibold">
+                  <div className="border-neutral-80 flex h-wrap flex-shrink-0 items-center gap-4 border-b pb-[4px]">
+                    <div className="text-body4 text-neutral-30 flex-[8] font-semibold">no.</div>
+                    <div className="text-body4 text-neutral-30 flex-[24] font-semibold">Group</div>
+                    <div className="text-body4 text-neutral-30 flex-[18] font-semibold">
                       Patients N
                     </div>
-                    <div className="text-body3 text-neutral-30 flex-[29] font-semibold">
+                    <div className="text-body4 text-neutral-30 flex-[29] font-semibold">
                       △ Outcome (x)
                     </div>
-                    <div className="text-body3 text-neutral-30 flex-[21] font-semibold">
+                    <div className="text-body4 text-neutral-30 flex-[21] font-semibold">
                       cumulative proportion (y)
                     </div>
                   </div>
@@ -1306,22 +1306,25 @@ function TSIRefineCutoffsPageContent() {
                           index < activeTableRows.length - 1 ? "border-neutral-80 border-b" : ""
                         }`}
                       >
-                        <div className="text-body4m text-neutral-10 flex-[8]">{index + 1}</div>
+                        <div className="text-body5 text-neutral-50 flex-[8]">{index + 1}</div>
                         <div className="flex flex-[24] items-center gap-2">
                           <div
                             className="h-3 w-3 flex-shrink-0 rounded-full"
                             style={{ backgroundColor: row.color }}
                           ></div>
-                          <span className="text-body4m text-neutral-10">{row.groupName}</span>
+                          <span className="text-body5 text-neutral-50">{row.groupName}</span>
                         </div>
-                        <div className="text-body4m text-neutral-10 flex-[18]">{row.patientsN}</div>
-                        <div className="text-body4m text-neutral-10 flex-[29]">{row.xLabel}</div>
-                        <div className="text-body4m text-neutral-10 flex-[21]">{row.yLabel}</div>
+                        <div className="text-body5 text-neutral-50 flex-[18]">{row.patientsN}</div>
+                        <div className="text-body5 text-neutral-50 flex-[29]">{row.xLabel}</div>
+                        <div className="text-body5 text-neutral-50 flex-[21]">{row.yLabel}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
+
+              </div>{/* 스크롤 컨테이너 끝 */}
+
               {/* 버튼들 */}
               <div className="flex flex-shrink-0 justify-end gap-2">
                 <button

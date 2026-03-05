@@ -138,8 +138,8 @@ export default function TSIPage() {
   const rightTableData = filteredData.slice(8);
 
   return (
-    <AppLayout headerType="tsi" scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+    <AppLayout headerType="tsi" scaleMode="fit">
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 0, marginLeft: "8px", marginRight: "8px", paddingBottom:"18px" }}>
 
         {/* Main Card with Glass Background */}
         <div
@@ -148,7 +148,7 @@ export default function TSIPage() {
            }}
           >
             {/* Title */}
-        <div style={{ flexShrink: 0, padding: "0 4px" }}>
+        <div style={{ flexShrink: 0, padding: "4px 4px 0 8px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
             Data Setting
           </h1>
@@ -157,14 +157,14 @@ export default function TSIPage() {
           </span>
         </div>
         <div className="flex-1 min-h-0 overflow-auto">
-            <div className="relative p- flex flex-col gap-6">
+            <div className="relative flex flex-col gap-6" style={{ minHeight: 244, height: "100%" }}>
 
               {/* Data Template Download & File Upload Section */}
-              <div className="flex gap-6 mb-[22px]">
+              <div className="flex gap-4 flex-4" style={{ minHeight: 244 }}>
                 {/* Data Template Download Card */}
                 <div
-                  className="flex-shrink-0 w-[266px] h-[266px] rounded-[24px] p-4 pt-12 flex flex-col justify-between"
-                  style={{ backgroundColor: "#231f52" }}
+                  className="flex-shrink-0 w-[266px] rounded-[24px] p-4 pt-12 flex flex-col justify-between"
+                  style={{ backgroundColor: "#231f52", minHeight: 200 }}
                 >
                   <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-[17px] items-center">
@@ -222,20 +222,13 @@ export default function TSIPage() {
                       and examples for service analysis
                     </p>
                   </div>
-                  <button
-                    style={{
-                      width: "100%", height: 40, borderRadius: 36, border: "none", cursor: "pointer",
-                      background: "#F06600", fontFamily: "Inter", fontSize: 15, fontWeight: 600,
-                      color: "#ffffff", letterSpacing: "-0.45px",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}
-                  >
+                  <button className="btn-tsi btn-tsi-primary" style={{ width: "100%" }}>
                     Download
                   </button>
                 </div>
 
                 {/* File Upload Card - 상하 패딩 24/12, 갭: 아이콘~제목 16, 제목~파일정보 12, 파일정보~버튼 24, 버튼 아래 12 */}
-                <div className="flex-1 bg-white rounded-[24px] pt-6 pb-3 px-0 flex flex-col items-center justify-center h-[266px] gap-6">
+                <div className="flex-1 bg-white rounded-[24px] pt-6 pb-3 px-0 flex flex-col items-center justify-center gap-6" style={{ minHeight: 244 }}>
                   <div className="flex flex-col items-center justify-center">
                     <svg
                       width="32"
@@ -277,12 +270,8 @@ export default function TSIPage() {
                     <button
                       type="button"
                       onClick={() => document.getElementById("file-upload")?.click()}
-                      style={{
-                        width: 222, height: 40, borderRadius: 36, border: "none", cursor: "pointer",
-                        background: "#3a11d8", fontFamily: "Inter", fontSize: 15, fontWeight: 600,
-                        color: "#ffffff", letterSpacing: "-0.45px",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}
+                      className="btn-tsi btn-tsi-purple"
+                      style={{ width: 222 }}
                     >
                       File Select
                     </button>
@@ -291,54 +280,54 @@ export default function TSIPage() {
               </div>
 
               {/* Attached Data Section */}
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-7 min-h-0 flex-col gap-3">
                 {/* Section Header */}
-                <div className="flex items-center justify-between">
-                  <h2 className="text-h3 text-neutral-10">Attached Data</h2>
+                <div className="flex items-end justify-between">
+                  <h2 className="text-body1 text-neutral-10">Attached Data</h2>
                   <SimulationSearch value={searchKeyword} onChange={setSearchKeyword} />
                 </div>
 
                 {/* Data Table */}
-                <div className="flex flex-col gap-[8px]">
+                <div className="flex flex-1 min-h-0 flex-col gap-[8px]">
                   {/* Table Header - Single header like main page */}
-                  <div className="rounded-[24px] h-[46px] bg-[#231f52] flex items-center">
+                  <div className="rounded-[24px] h-wrap flex items-center py-[8px]" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
                     <div className="flex text-white w-full" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                       {/* Left header */}
-                      <div className="flex items-center gap-12 flex-1 px-[32px]">
-                        <div className="flex items-center gap-4">
-                          <div className="w-4" />
-                          <span className="w-[106px]">Data Name</span>
+                      <div className="flex items-center flex-1 min-w-0 px-[20px]">
+                        <div className="flex items-center gap-4 flex-[3] min-w-0">
+                          <div className="w-4 flex-shrink-0" />
+                          <span className="truncate">Data Name</span>
                         </div>
-                        <span className="w-[120px]">Patients (N)</span>
-                        <span className="w-[200px]">Disease</span>
-                        <span className="w-[206px]">Update date</span>
+                        <span className="flex-[2] min-w-0 truncate">Patients (N)</span>
+                        <span className="flex-[3] min-w-0 truncate">Disease</span>
+                        <span className="flex-[3] min-w-0 truncate">Update date</span>
                       </div>
                       {/* Divider placeholder */}
                       <div className="w-[2px] flex-shrink-0" />
                       {/* Right header */}
-                      <div className="flex items-center gap-12 flex-1 px-[32px]">
-                        <div className="flex items-center gap-4">
-                          <div className="w-4" />
-                          <span className="w-[106px]">Data Name</span>
+                      <div className="flex items-center flex-1 min-w-0 px-[20px]">
+                        <div className="flex items-center gap-4 flex-[3] min-w-0">
+                          <div className="w-4 flex-shrink-0" />
+                          <span className="truncate">Data Name</span>
                         </div>
-                        <span className="w-[120px]">Patients (N)</span>
-                        <span className="w-[200px]">Disease</span>
-                        <span className="w-[206px]">Update date</span>
+                        <span className="flex-[2] min-w-0 truncate">Patients (N)</span>
+                        <span className="flex-[3] min-w-0 truncate">Disease</span>
+                        <span className="flex-[3] min-w-0 truncate">Update date</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Table Body - Two Tables Side by Side */}
-                  <div className="flex gap-0 rounded-[18px] bg-white overflow-hidden min-h-[280px] flex-shrink-0">
+                  <div className="flex gap-0 rounded-[24px] bg-white overflow-hidden flex-1 min-h-[280px]">
                     {/* Left Table */}
-                    <div className="flex-1 overflow-hidden flex-shrink-0">
+                    <div className="flex-1 overflow-hidden flex-shrink-0 min-w-0">
                       {leftTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
-                          <div className="py-[20px] px-[32px] min-h-[280px]">
+                          <div className="p-[20px] min-h-[280px]">
                             {leftTableData.map((data, index) => (
                               <div
                                 key={data.id}
-                                className={`flex items-center gap-12 border-b-[1px] border-gray-200 last:border-0 ${
+                                className={`flex items-center border-b-[1px] border-gray-200 last:border-0 ${
                                   index === 0
                                     ? "pt-0 pb-2.5"
                                     : index === leftTableData.length - 1
@@ -346,26 +335,27 @@ export default function TSIPage() {
                                     : "py-2.5"
                                 }`}
                               >
-                                <div className="flex items-center gap-4">
-                                  <div className="w-4 flex items-center justify-center">
+                                <div className="flex items-center gap-4 flex-[3] min-w-0">
+                                  <div className="w-4 flex-shrink-0 flex items-center justify-center">
                                     <CustomCheckbox
                                       checked={selectedData.has(data.id)}
                                       onChange={() =>
                                         toggleDataSelection(data.id)
                                       }
+                                      size={16}
                                     />
                                   </div>
-                                  <span className="w-[106px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                  <span className="truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                     {data.name}
                                   </span>
                                 </div>
-                                <span className="w-[120px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[2] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.patients}
                                 </span>
-                                <span className="w-[200px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.disease}
                                 </span>
-                                <span className="w-[206px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.updateDate}
                                 </span>
                               </div>
@@ -385,14 +375,14 @@ export default function TSIPage() {
                     <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[26px] mb-[26px]" />
 
                     {/* Right Table */}
-                    <div className="flex-1 overflow-hidden flex-shrink-0">
+                    <div className="flex-1 overflow-hidden flex-shrink-0 min-w-0">
                       {rightTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
-                          <div className="py-[20px] px-[32px] min-h-[280px]">
+                          <div className="p-[20px] min-h-[280px]">
                             {rightTableData.map((data, index) => (
                               <div
                                 key={data.id}
-                                className={`flex items-center gap-12 border-b border-gray-200 last:border-0 ${
+                                className={`flex items-center border-b border-gray-200 last:border-0 ${
                                   index === 0
                                     ? "pt-0 pb-3"
                                     : index === rightTableData.length - 1
@@ -400,26 +390,27 @@ export default function TSIPage() {
                                     : "py-3"
                                 }`}
                               >
-                                <div className="flex items-center gap-4">
-                                  <div className="w-4 flex items-center justify-center">
+                                <div className="flex items-center gap-4 flex-[3] min-w-0">
+                                  <div className="w-4 flex-shrink-0 flex items-center justify-center">
                                     <CustomCheckbox
                                       checked={selectedData.has(data.id)}
                                       onChange={() =>
                                         toggleDataSelection(data.id)
                                       }
+                                      size={16}
                                     />
                                   </div>
-                                  <span className="w-[106px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                  <span className="truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                     {data.name}
                                   </span>
                                 </div>
-                                <span className="w-[120px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[2] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.patients}
                                 </span>
-                                <span className="w-[200px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.disease}
                                 </span>
-                                <span className="w-[206px] text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
                                   {data.updateDate}
                                 </span>
                               </div>
@@ -441,17 +432,12 @@ export default function TSIPage() {
           </div>
           </div>
           {/* Use Data Button - Outside Card */}
-          <div className="flex justify-end">
+          <div className="flex justify-end" style={{ paddingRight: 8 }}>
             <button
               onClick={handleUseData}
               disabled={selectedData.size === 0}
-              style={{
-                height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
-                background: selectedData.size === 0 ? "#c6c5c9" : "#F06600",
-                border: "none", cursor: selectedData.size === 0 ? "not-allowed" : "pointer",
-                fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
-                letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              }}
+              className="btn-tsi btn-tsi-primary"
+              style={{ gap: 8 }}
             >
               Use Data
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>

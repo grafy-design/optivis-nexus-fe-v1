@@ -64,6 +64,58 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     );
   }
 
+  // drd / tsi: 스케일 없음, 헤더/컨텐츠 모두 고정
+  if (headerType === "drd" || headerType === "tsi") {
+    const headerNode =
+      headerType === "drd" ? (
+        <DrdHeader step={drdStep as 1 | 2 | 3} />
+      ) : (
+        <TSIHeader />
+      );
+    return (
+      <div
+        style={{
+          position: "relative",
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "#E7E5E7",
+          overflow: "hidden",
+        }}
+      >
+        <Sidebar />
+        <div
+          style={{
+            marginLeft: 96,
+            width: "calc(100vw - 96px)",
+            height: "100vh",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ flexShrink: 0 }}>
+            {headerNode}
+          </div>
+          {/* 컨텐츠 */}
+          <div
+            className={headerType === "tsi" ? "tsi-page" : undefined}
+            style={{
+              flex: 1,
+              overflow: "hidden",
+              minWidth: 0,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0}>{children}</MainContainer>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     /*
      * Figma 전체 프레임: 2560×1314px
@@ -98,10 +150,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       >
         {headerType === "ats" ? (
           <ATSHeader />
-        ) : headerType === "tsi" ? (
-          <TSIHeader />
-        ) : headerType === "drd" ? (
-          <DrdHeader step={drdStep as 1 | 2 | 3} />
         ) : (
           <Header />
         )}
@@ -116,7 +164,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             flexDirection: "column",
           }}
         >
-          <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0}>{children}</MainContainer>
+          <MainContainer>{children}</MainContainer>
         </div>
       </div>
     </div>

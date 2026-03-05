@@ -537,7 +537,7 @@ function TSIReportPageContent() {
 
   if (!hasRequiredParams) {
     return (
-      <AppLayout headerType="tsi" scaleMode="none">
+      <AppLayout headerType="tsi" scaleMode="fit">
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
           <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
             Report 조회에 필요한 파라미터가 누락되었습니다. (`feature`, `taskId`, `subgroupId`)
@@ -549,7 +549,7 @@ function TSIReportPageContent() {
 
   if (isLoading) {
     return (
-      <AppLayout headerType="tsi" scaleMode="none">
+      <AppLayout headerType="tsi" scaleMode="fit">
         <Loading isLoading />
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
           <div className="rounded-[24px] border border-[#D9D8E2] bg-[#F6F6FA] p-6 text-[#6A687A]">
@@ -562,7 +562,7 @@ function TSIReportPageContent() {
 
   if (fetchError) {
     return (
-      <AppLayout headerType="tsi" scaleMode="none">
+      <AppLayout headerType="tsi" scaleMode="fit">
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
           <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
             {fetchError}
@@ -572,56 +572,56 @@ function TSIReportPageContent() {
     );
   }
   return (
-    <AppLayout headerType="tsi" scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px", overflowY: "auto" }}>
-        {/* Title */}
-        <div style={{ flexShrink: 0, padding: "0 12px", display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-          <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-            <div className="text-title text-neutral-5 text-left">
-              Target Subgroup Identification
-            </div>
-            <p className="text-body2m text-neutral-50 text-left">
-              {currentDate}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              console.log("[TSI][Report] Save as PDF clicked");
-            }}
-            style={{
-              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36, border: "none",
-              background: "#787776", cursor: "pointer", fontFamily: "Inter", fontSize: 15,
-              fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            }}
-          >
-            Save as PDF
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-              <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-
+    <AppLayout headerType="tsi" scaleMode="fit">
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "wrap-content", marginLeft: "8px", marginRight: "8px", overflowY: "auto", paddingBottom: 18 }}>
         {/* 리포트 배경 카드 */}
         <div
-          className="flex h-auto min-h-[2244px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] p-0"
-         style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+          className="flex h-wrap flex-shrink-0 flex-col overflow-hidden rounded-[36px]"
+          style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", padding: "4px 12px 24px" }}
         >
+          {/* Title */}
+          <div style={{ flexShrink: 0, padding: "0 4px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24 }}>
+            <div className="flex flex-col gap-1 flex-shrink-0 items-start">
+              <div className="text-title text-neutral-5 text-left">
+                Target Subgroup Identification
+              </div>
+              <p className="text-body2m text-neutral-50 text-left">
+                {currentDate}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("[TSI][Report] Save as PDF clicked");
+              }}
+              style={{
+                height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36, border: "none",
+                background: "#787776", cursor: "pointer", fontFamily: "Inter", fontSize: 15,
+                fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              }}
+            >
+              Save as PDF
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
           {/* 리포트 내용 영역 */}
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col h-wrap-content">
             {/* 첫 번째 섹션: Stratification Strategy Comparison (150px y부터, 1748px 너비, 962px 높이) */}
-            <div className="mx-auto mb-[100px] min-h-[962px] w-full max-w-full min-w-0 flex-shrink-0">
+            <div className="mx-auto mb-[24px] w-full max-w-full min-w-0 flex-shrink-0 ">
               <div className="flex h-full w-full flex-col">
                 {/* 섹션 제목 */}
-                <h2 className="flex w-full text-h4 text-[#2d1067] mb-[40px]  flex-shrink-0" style={{ paddingTop: "4px", paddingLeft: "4px" }}>
+                <h2 className="flex w-full text-h4 text-[#26225B] mb-[24px]  flex-shrink-0" style={{ paddingTop: "4px", paddingLeft: "4px" }}>
                   Stratification Strategy Comparison
                 </h2>
 
                 {/* 두 개의 파란색 카드 나란히 */}
                 <div className="flex w-full flex-shrink-0 flex-row gap-4">
                   {/* 왼쪽 카드: Executive Summary & Stratification Strategy */}
-                  <div className="bg-primary-15 flex min-h-[880px] flex-1 flex-col overflow-hidden rounded-[24px] p-5">
+                  <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-4">
                     {/* Model Based 라벨 */}
                     <div className="mb-4 flex-shrink-0">
                       <span className="text-body5 flex h-[24px] w-[104px] items-center justify-center gap-2 rounded-md bg-orange-500 font-medium text-white">
@@ -629,19 +629,18 @@ function TSIReportPageContent() {
                       </span>
                     </div>
                     <h4 className="text-body2m mb-6 flex-shrink-0 text-white">{modelOverview.title}</h4>
-                    <p className="text-body5 mt-auto mb-6 min-h-[130px] flex-shrink-0 whitespace-pre-line leading-[125%] text-white/90">
+                    <p className="text-body5 mt-auto mb-6 min-h-[90px] flex-shrink-0 whitespace-pre-line leading-[125%] text-white/90">
                       {modelOverview.description}
                     </p>
                     {hasModelBasedData ? (
                       <TSIDiseaseProgressionPanel
                         variant="model"
                         chartData={modelBasedPanelData.chartData}
-                        rows={modelBasedPanelData.rows}
                         seriesLabels={modelBasedPanelData.seriesLabels}
                         seriesColors={RISK_SERIES_COLORS}
                       />
                     ) : (
-                      <div className="flex min-h-[656px] w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
+                      <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
                         <p className="text-body2m text-neutral-50">
                           Model Based 데이터가 없습니다.
                         </p>
@@ -650,7 +649,7 @@ function TSIReportPageContent() {
                   </div>
 
                   {/* 오른쪽 카드: Feature-Based Decision Rules */}
-                  <div className="bg-primary-15 flex min-h-[880px] flex-1 flex-col overflow-hidden rounded-[24px] p-5">
+                  <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-4">
                     {/* Feature Based 라벨 */}
                     <div className="mb-4 flex-shrink-0">
                       <span className="text-body5 flex h-[24px] w-[104px] items-center justify-center gap-2 rounded-md bg-orange-500 font-medium text-white">
@@ -660,19 +659,18 @@ function TSIReportPageContent() {
                     <h4 className="text-body2m mb-6 flex-shrink-0 text-white">
                       {featureOverview.title}
                     </h4>
-                    <p className="text-body5 mt-auto mb-6 min-h-[130px] flex-shrink-0 whitespace-pre-line leading-[125%] text-white/90">
+                    <p className="text-body5 mt-auto mb-6 min-h-[90px] flex-shrink-0 whitespace-pre-line leading-[125%] text-white/90">
                       {featureOverview.description}
                     </p>
                     {hasFeatureBasedData ? (
                       <TSIDiseaseProgressionPanel
                         variant="feature"
                         chartData={featureBasedPanelData.chartData}
-                        rows={featureBasedPanelData.rows}
                         seriesLabels={featureBasedPanelData.seriesLabels}
                         seriesColors={FEATURE_BASED_RISK_SERIES_COLORS}
                       />
                     ) : (
-                      <div className="flex min-h-[656px] w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
+                      <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
                         <p className="text-body2m text-neutral-50">
                           Feature Based 데이터가 없습니다.
                         </p>
@@ -684,10 +682,10 @@ function TSIReportPageContent() {
             </div>
 
             {/* 두 번째 섹션: Stratification Strategy Comparison */}
-            <div className="mx-auto mb-[100px]  w-full max-w-full min-w-0 flex-shrink-0">
+            <div className="mx-auto mb-[24px]  w-full max-w-full min-w-0 flex-shrink-0">
               <div className="flex w-full flex-col">
                 {/* 섹션 제목 */}
-                <h2 className="text-h4 text-[#2d1067] mb-[40px] ml-[4px] flex-shrink-0">
+                <h2 className="text-h4 text-[#26225B] mb-[24px] ml-[4px] flex-shrink-0">
                   Stratification Strategy Comparison
                 </h2>
                 <div className="border-neutral-90 flex h-[562px] w-full flex-col rounded-[24px] border bg-white/60 p-4">
@@ -820,10 +818,10 @@ function TSIReportPageContent() {
             <div className="mx-auto w-full max-w-full min-w-0 flex-shrink-0">
               <div className="flex w-full flex-col">
                 {/* 섹션 제목 */}
-                <h2 className="text-h4 text-[#2d1067] mb-[40px] ml-[4px] flex-shrink-0">
+                <h2 className="text-h4 text-[#26225B] mb-[24px] ml-[4px] flex-shrink-0">
                   Risk & Response Assessment
                 </h2>
-                <div className="border-neutral-90 flex min-h-[322px] w-[1748px] gap-4 rounded-[24px] border bg-white/60 p-4">
+                <div className="border-neutral-90 flex min-h-[322px] w-full gap-4 rounded-[24px] border bg-white/60 p-4">
                   {/* 왼쪽: 타이틀 영역 */}
                   <div className="flex min-h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
                     <div className="flex w-full flex-col items-start gap-[24px]">

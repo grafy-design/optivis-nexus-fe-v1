@@ -20,13 +20,12 @@ export default function SimulationSearch({ value, onChange }: SimulationSearchPr
       className="flex items-center"
       style={{
         width: "min(408px, 100%)",
-        height: "48px",
         backgroundColor: "#FFFFFF",
         borderRadius: "30px",
-        paddingLeft: "24px",
-        paddingRight: "24px",
-        paddingTop: "12px",
-        paddingBottom: "12px",
+        paddingLeft: "12px",
+        paddingRight: "12px",
+        paddingTop: "8px",
+        paddingBottom: "8px",
         gap: "10.24px",
         flexShrink: 0,
       }}

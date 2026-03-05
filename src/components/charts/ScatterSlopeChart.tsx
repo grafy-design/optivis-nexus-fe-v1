@@ -76,5 +76,5 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
     series,
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: 260 }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
 };

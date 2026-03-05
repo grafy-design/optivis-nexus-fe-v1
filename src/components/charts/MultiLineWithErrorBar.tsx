@@ -17,6 +17,7 @@ interface AxisConfig {
   axisLineColor?: string;
   labelColor?: string;
   fontSize?: number;
+  fontFamily?: string;
   name?: string;
   nameColor?: string;
   nameFontSize?: number;
@@ -25,6 +26,27 @@ interface AxisConfig {
   inverse?: boolean;
   showLabels?: boolean;
 }
+
+export type ChartSizeVariant = "XS" | "S" | "M" | "L";
+
+const NEUTRAL_30 = "#484646";
+const NEUTRAL_95 = "#efeff4";
+
+type ChartSizeStyle = {
+  labelFontSize: number;
+  labelFontWeight: number;
+  numberFontSize: number;
+  axisColor: string;
+  axisWidth: number;
+  splitLineColor: string;
+};
+
+const CHART_SIZE_STYLES: Record<ChartSizeVariant, ChartSizeStyle> = {
+  XS: { labelFontSize: 9, labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  S:  { labelFontSize: 9, labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  M:  { labelFontSize: 15, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+};
 
 interface MultiLineWithErrorBarProps {
   dataGroup: ErrorBarGroup[];
@@ -42,6 +64,7 @@ interface MultiLineWithErrorBarProps {
   guideLineColor?: string;
   guideLineWidth?: number;
   guideLineType?: "solid" | "dashed" | "dotted";
+  sizeVariant?: ChartSizeVariant;
 }
 
 const DEFAULT_GROUP_COLORS = [
@@ -70,7 +93,9 @@ export const MultiLineWithErrorBar = ({
   guideLineColor = "#D2D2DA",
   guideLineWidth = 1,
   guideLineType = "dashed",
+  sizeVariant,
 }: MultiLineWithErrorBarProps) => {
+  const sz = sizeVariant ? CHART_SIZE_STYLES[sizeVariant] : null;
   const groups = dataGroup ?? [];
   const allPoints = groups.flat();
   const maxYWithError = allPoints.reduce((acc, [, y, error]) => Math.max(acc, y + error), 0);
@@ -189,19 +214,21 @@ export const MultiLineWithErrorBar = ({
       splitLine: {
         show: xAxis?.splitLine ?? false,
         lineStyle: {
-          color: xAxis?.splitLineColor ?? "#D8D7DF",
+          color: xAxis?.splitLineColor ?? sz?.splitLineColor ?? "#D8D7DF",
           width: 1,
         },
       },
-      axisLine: { show: true, lineStyle: { color: xAxis?.axisLineColor ?? "#9A9AA3", width: 1 } },
+      axisLine: { show: true, lineStyle: { color: xAxis?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
-      axisLabel: { color: xAxis?.labelColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? 9 },
+      axisLabel: { color: xAxis?.labelColor ?? sz?.axisColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? sz?.numberFontSize ?? 9, fontFamily: xAxis?.fontFamily ?? "Inter" },
       name: xAxis?.name,
       nameLocation: "middle",
       nameGap: xAxis?.nameGap ?? 24,
       nameTextStyle: {
-        color: xAxis?.nameColor ?? "#8A8A94",
-        fontSize: xAxis?.nameFontSize ?? 9,
+        color: xAxis?.nameColor ?? sz?.axisColor ?? "#8A8A94",
+        fontSize: xAxis?.nameFontSize ?? sz?.labelFontSize ?? 9,
+        fontWeight: xAxis?.nameFontSize ? undefined : sz?.labelFontWeight,
+        fontFamily: xAxis?.fontFamily ?? "Inter",
       },
     },
     yAxis: {
@@ -213,24 +240,27 @@ export const MultiLineWithErrorBar = ({
       splitLine: {
         show: yAxis?.splitLine ?? false,
         lineStyle: {
-          color: yAxis?.splitLineColor ?? "#D8D7DF",
+          color: yAxis?.splitLineColor ?? sz?.splitLineColor ?? "#D8D7DF",
           width: 1,
         },
       },
       axisTick: { show: false },
       axisLabel: {
         show: yAxis?.showLabels ?? false,
-        color: yAxis?.labelColor ?? "#8A8A94",
-        fontSize: yAxis?.fontSize ?? 9,
+        color: yAxis?.labelColor ?? sz?.axisColor ?? "#8A8A94",
+        fontSize: yAxis?.fontSize ?? sz?.numberFontSize ?? 9,
+        fontFamily: yAxis?.fontFamily ?? "Inter",
       },
-      axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? "#9A9AA3", width: 1 } },
+      axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       name: yAxis?.name ?? "change from baseline score mean",
       nameLocation: "middle",
       nameGap: yAxis?.nameGap ?? 28,
       nameRotate: yAxis?.nameRotate ?? 90,
       nameTextStyle: {
-        color: yAxis?.nameColor ?? "#8A8A94",
-        fontSize: yAxis?.nameFontSize ?? 8,
+        color: yAxis?.nameColor ?? sz?.axisColor ?? "#8A8A94",
+        fontSize: yAxis?.nameFontSize ?? sz?.labelFontSize ?? 8,
+        fontWeight: yAxis?.nameFontSize ? undefined : sz?.labelFontWeight,
+        fontFamily: yAxis?.fontFamily ?? "Inter",
         align: "center",
       },
     },

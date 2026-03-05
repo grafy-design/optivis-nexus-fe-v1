@@ -227,9 +227,9 @@ function TSISubgroupExplainPageContent() {
   const featureList = expectedTherapeuticGainData.map(({ feature_name }) => feature_name);
 
   return (
-    <AppLayout headerType="tsi" scaleMode="none">
+    <AppLayout headerType="tsi" scaleMode="fit">
       <Loading isLoading={isLoading} />
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px", paddingBottom: 18 }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
@@ -245,26 +245,30 @@ function TSISubgroupExplainPageContent() {
           </div>
         )}
 
+        {/* 메인 + 버튼 wrapper */}
+        <div className="flex flex-col flex-1 min-h-0 gap-0">
         {/* 메인: 상위 배경 카드 2개 나란히 */}
         <div className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0" style={{ minWidth: 0 }}>
           {/* 왼쪽 상위 배경 카드 */}
           <div
-            className="flex min-h-0 w-[570px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
-           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+            className="flex min-h-0 w-[520px] [@media(min-width:1441px)]:w-[570px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
+           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", }}
           >
             {/* 파란색 그래프 카드: Expected Therapeutic Gain */}
             <div
-              className="bg-primary-15 flex min-h-0 w-full flex-[3] flex-col overflow-hidden rounded-[24px] p-3"
+              className="bg-primary-15 flex min-h-0 w-full flex-[3] flex-col overflow-hidden rounded-[24px] p-3 gap-6"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <h2 className="text-body2m mb-4 flex-shrink-0 text-white pl-[2px]">
+              <h2 className="text-body2m flex-shrink-0 text-white pl-[2px]">
                 Expected Therapeutic Gain
               </h2>
               {/* 그래프 영역 */}
-              <div className="flex min-h-0 flex-1 items-center justify-center rounded-[16px] bg-white">
-                <MultiRankingBarChart data={expectedTherapeuticGainData} />
+              <div className="flex min-h-0 flex-1 flex-col rounded-[16px] bg-white p-3">
+                <div className="flex min-h-0 flex-1 rounded-[12px] bg-white">
+                  <MultiRankingBarChart data={expectedTherapeuticGainData} />
+                </div>
               </div>
             </div>
 
@@ -317,16 +321,15 @@ function TSISubgroupExplainPageContent() {
 
           {/* 오른쪽 상위 배경 카드 */}
           <div
-            className="flex min-h-0 flex-[45] min-w-0 flex-col overflow-hidden rounded-[36px] p-0"
-           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+            className="flex min-h-0 flex-1 min-w-0 flex-col overflow-hidden rounded-[36px] p-0 "
+           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", paddingBottom: 24}}
           >
-            <div className="flex flex-col overflow-y-auto" style={{ height: "100%", minHeight: 0 }}>
-            <div style={{ minHeight: 1100, display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col min-h-0 flex-1" style={{ gap: 12 }}>
             {/* 상단 행: 그래프 카드 + 설명 텍스트 */}
-            <div className="flex flex-shrink-0 gap-4">
+            <div className="flex flex-[2] [@media(min-width:1470px)]:min-h-[62vh]">
               {/* 파란색 그래프 카드 */}
               <div
-                className="bg-primary-15 flex min-h-0 flex-1 flex-shrink-0 flex-col gap-3 overflow-hidden rounded-[24px] p-3"
+                className="bg-primary-15 flex min-h-100 flex-1 flex-shrink-0 flex-col gap-6  overflow-hidden rounded-[24px] p-3"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
@@ -335,25 +338,31 @@ function TSISubgroupExplainPageContent() {
                   Baseline driver Top 10
                 </h2>
                 {/* 그래프 + 설명 텍스트 묶음 */}
-                <div className="flex min-h-0 flex-1 flex-row gap-5">
+                <div className="flex min-h-0 flex-1 flex-row gap-3">
                   {/* 그래프 영역 */}
-                  <div className="flex min-w-0 flex-[3] flex-col overflow-hidden">
-                    <div className="flex min-h-[322px] w-full flex-shrink-0 items-center justify-center rounded-[16px] bg-white">
-                      <SHAPSummaryPlotChart
-                        data={resultData?.explain_json.baseline_driver}
-                        title={`Baseline Features Explaining △${resultData?.outcome ?? "ADAS-Cog"}`}
-                      />
+                  <div className="flex min-w-0 min-h-0 flex-[7] flex-col overflow-hidden">
+                    <div
+                      className="flex w-full flex-1 min-h-0 flex-col rounded-[16px] bg-white p-3"
+                    >
+                      <h3 className="text-body4 text-neutral-40 mb-6 flex-shrink-0">
+                        {`Baseline Features Explaining △${resultData?.outcome ?? "ADAS-Cog"}`}
+                      </h3>
+                      <div className="flex flex-1 min-h-0 w-full rounded-[12px] bg-white" style={{ height: "100%" }}>
+                        <SHAPSummaryPlotChart
+                          data={resultData?.explain_json.baseline_driver}
+                        />
+                      </div>
                     </div>
                   </div>
 
                   {/* 설명 텍스트 */}
-                  <div className="flex min-w-0 flex-[2] flex-col justify-start">
+                  <div className="flex min-w-0 h-wrap flex-[3] flex-col justify-start">
                     <ul className="flex list-disc flex-col gap-[9px] pl-4 text-white">
                       {baselineDriverMessageItems.map((item, index) => (
-                        <li key={`${item.no ?? index}-${item.title}`} className="break-words">
+                        <li key={`${item.no ?? index}-${item.title}`} className="break-words leading-[1.2]">
                           <span className="text-body3m">{item.title}</span>
                           <br />
-                          <span className="text-body5m whitespace-pre-line ">{item.description}</span>
+                          <span className="text-body5m whitespace-pre-line leading-[1.2]">{item.description}</span>
                         </li>
                       ))}
                     </ul>
@@ -363,26 +372,26 @@ function TSISubgroupExplainPageContent() {
             </div>
 
             {/* 하단 행: 흰색 카드 + 파란색 카드(흰색 그래프 3개 + 설명) */}
-            <div className="flex min-h-0 flex-1 gap-[12px]">
+            <div className="flex flex-shrink-0 gap-3">
               {/* 왼쪽 흰색 카드: Feature 목록 */}
               <div
-                className="flex min-h-0 w-[200px] flex-shrink-0 flex-col overflow-hidden rounded-[24px] bg-white"
+                className="flex flex-[2] flex-col overflow-hidden rounded-[24px] bg-white"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {featureList.map((feature, index) => (
                     <Button
                       unstyled
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
-                      className={`text-body4 flex h-[59px] w-full items-center gap-[10px] self-stretch px-[12px] py-[18px] transition-colors ${
+                      className={`text-body5 flex h-[48px] w-full items-center gap-[10px] self-stretch px-[12px] py-[12px] transition-colors focus:outline-none ${
                         index < featureList.length - 1 ? "border-neutral-90 border-b" : ""
                       } ${
                         selectedFeature === feature
-                          ? "bg-primary-15 text-white"
-                          : "text-neutral-0 hover:bg-neutral-95"
+                          ? "bg-primary-15 text-white active:bg-primary-15"
+                          : "text-neutral-30 hover:bg-neutral-95 active:bg-neutral-95"
                       }`}
                     >
                       {feature}
@@ -393,96 +402,73 @@ function TSISubgroupExplainPageContent() {
 
               {/* 파란색 카드: 흰색 그래프 카드 3개 + 설명 텍스트 (나머지 전체 너비) */}
               <div
-                className="bg-primary-15 flex min-h-0 flex-1 flex-shrink-0 flex-row gap-3 overflow-hidden rounded-[24px] p-4"
+                className="bg-primary-15 flex flex-[8] flex-shrink-0 flex-row gap-3 rounded-[24px] p-3"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
                 {/* 그래프 카드 3개 세로 배치 */}
-                <div className="flex min-h-0 min-w-0 flex-[1.45] flex-col gap-3">
+                <div className="flex min-w-0 flex-[5] flex-col gap-3">
                   {/* 그래프 카드 1: Baseline Distribution */}
-                  <div className="flex min-h-[200px] w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                  <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2">
                     <h3 className="text-body4 text-neutral-40 mb-2">
                       Baseline Distribution of {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 overflow-hidden">
-                      <BaselineDistributionHistogram
-                        histogramData={
-                          baselineDistributionData ?? {
-                            bins: [],
-                            groups: {},
-                          }
+                    <BaselineDistributionHistogram
+                      histogramData={
+                        baselineDistributionData ?? {
+                          bins: [],
+                          groups: {},
                         }
-                      />
-                    </div>
+                      }
+                    />
                   </div>
 
                   {/* 그래프 카드 2: ADAS Progression Slope */}
-                  <div className="flex min-h-[200px] w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                  <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2">
                     <h3 className="text-body4 text-neutral-40 mb-2">
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 overflow-hidden">
-                      <ScatterSlopeChart data={baselineSlopeData ?? {}} />
-                    </div>
+                    <ScatterSlopeChart data={baselineSlopeData ?? {}} />
                   </div>
 
                   {/* 그래프 카드 3: Subgroup Proportion */}
-                  <div className="flex min-h-[200px] w-full flex-1 flex-col overflow-hidden rounded-[16px] bg-white px-3 pt-3 pb-2">
+                  <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2">
                     <h3 className="text-body4 text-neutral-40 mb-2">
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
-                    <div className="flex min-h-0 flex-1 overflow-hidden">
-                      <SubgroupProportionChart data={baselineBinRatioData ?? []} />
-                    </div>
+                    <SubgroupProportionChart data={baselineBinRatioData ?? []} />
                   </div>
                 </div>
 
                 {/* 오른쪽 설명 텍스트 */}
-                <div className="flex min-w-0 flex-[0.8] flex-col justify-start pt-3">
+                <div className="flex min-w-0 flex-[3] flex-col justify-start pt-3">
                   <ul className="flex list-disc flex-col gap-[9px] pl-4 text-white">
                     {featureMessageItems.map((item, index) => (
-                      <li key={`${item.no ?? index}-${item.title}`} className="break-words">
+                      <li key={`${item.no ?? index}-${item.title}`} className="break-words leading-[1.2]">
                         <span className="text-body3m">{item.title}</span>
                         <br />
-                        <span className="text-body5m whitespace-pre-line">{item.description}</span>
+                        <span className="text-body5m whitespace-pre-line leading-[1.2]">{item.description}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               </div>
             </div>
-            </div>{/* minHeight wrapper */}
-            </div>{/* overflow-y-auto wrapper */}
           </div>
+        </div>
         </div>
 
         {/* 버튼: 카드 밖 아래 */}
-        <div className="mt-4 flex flex-shrink-0 items-center justify-end gap-4 pb-2">
-          <button
-            type="button"
-            style={{
-              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
-              background: "#787776", border: "none", cursor: "pointer",
-              fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
-              letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
+        <div className="flex flex-shrink-0 items-center justify-end gap-4" style={{ paddingRight: 8 }}>
+          <button type="button" className="btn-tsi btn-tsi-secondary">
             Save Progress
           </button>
-          <button
-            type="button"
-            onClick={handleClickViewReport}
-            style={{
-              height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
-              background: "#F06600", border: "none", cursor: "pointer",
-              fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff",
-              letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center",
-            }}
-          >
+          <button type="button" onClick={handleClickViewReport} className="btn-tsi btn-tsi-primary">
             View Report
           </button>
         </div>
+        </div>{/* 메인 + 버튼 wrapper 닫기 */}
       </div>
     </AppLayout>
   );

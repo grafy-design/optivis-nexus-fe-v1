@@ -44,6 +44,46 @@
   font-weight: 500 !important; /* Inter Medium */
 }
 
+/* ── TSI 공통 버튼 ──────────────────────────────────────────── */
+.btn-tsi {
+  height: 40px;
+  padding-left: 24px;
+  padding-right: 24px;
+  border-radius: 36px;
+  border: none;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+  user-select: none;
+}
+
+/* Primary: #F06600 → hover -2단계 → active -4단계 */
+.btn-tsi-primary            { background-color: #F06600; }
+.btn-tsi-primary:hover      { background-color: #D45A00; }
+.btn-tsi-primary:active     { background-color: #B84E00; }
+
+/* Secondary (gray): #787776 → hover → active */
+.btn-tsi-secondary          { background-color: #787776; }
+.btn-tsi-secondary:hover    { background-color: #636161; }
+.btn-tsi-secondary:active   { background-color: #4F4E4E; }
+
+/* Purple: #3A11D8 → hover → active */
+.btn-tsi-purple             { background-color: #3A11D8; }
+.btn-tsi-purple:hover       { background-color: #2E0DAD; }
+.btn-tsi-purple:active      { background-color: #230A82; }
+
+/* Disabled (공통) */
+.btn-tsi:disabled           { background-color: #C6C5C9; cursor: not-allowed; }
+
+/* ────────────────────────────────────────────────────────────── */
+
 /* 슬라이더 드래그 중 텍스트 선택 완전 차단 */
 .no-select,
 .no-select * {
@@ -606,7 +646,7 @@
     font-size: 12px;
     font-weight: 500;
     line-height: 13.2px;
-    letter-spacing: -0.48px;
+    letter-spacing: -0.2.5px;
   }
 
   /* Typography - Small1 (Inter Medium 10.5px) */
@@ -682,5 +722,59 @@
     .glass-effect-layer {
       background: rgba(36, 36, 36, 0.5) !important;
     }
+  }
+}
+
+/* TSI: 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 */
+@media (max-width: 1470px) {
+  .tsi-page .text-body1 {
+    font-size: 19.5px;
+    line-height: 23.4px;
+    letter-spacing: -0.78px;
+  }
+  .tsi-page .text-body1m {
+    font-size: 19.5px;
+    line-height: 23.4px;
+    letter-spacing: -0.585px;
+  }
+  .tsi-page .text-body2 {
+    font-size: 17px;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+  .tsi-page .text-body2m {
+    font-size: 17px;
+    line-height: 17.85px;
+    letter-spacing: -0.51px;
+  }
+  .tsi-page .text-body3 {
+    font-size: 15px;
+    line-height: 16.5px;
+    letter-spacing: -0.75px;
+  }
+  .tsi-page .text-body3m {
+    font-size: 15px;
+    line-height: 16.5px;
+    letter-spacing: -0.45px;
+  }
+  .tsi-page .text-body4 {
+    font-size: 12px;
+    line-height: 13.2px;
+    letter-spacing: -0.36px;
+  }
+  .tsi-page .text-body4m {
+    font-size: 12px;
+    line-height: 13.2px;
+    letter-spacing: -0.2px;
+  }
+  .tsi-page .text-body5 {
+    font-size: 10.5px;
+    line-height: 11.025px;
+    letter-spacing: -0.315px;
+  }
+  .tsi-page .text-body5m {
+    font-size: 10.5px;
+    line-height: 11.025px;
+    letter-spacing: -0.21px;
   }
 }
