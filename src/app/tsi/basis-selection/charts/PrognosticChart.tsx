@@ -46,7 +46,8 @@ export default function PrognosticChart() {
   const gridCols = 6, gridRows = 6;
 
   // 화면 픽셀 r 고정 (1440px 기준 80%: outer=17.6, inner=8.448)
-  const roScreen = 17.6, riScreen = 8;
+  const scale = size.w >= 1470 ? 1.2 : 1;
+  const roScreen = 17.6 * scale, riScreen = 8 * scale;
   // viewBox 좌표로 역변환
   const rxOuter = roScreen * (W / size.w);
   const ryOuter = roScreen * (H / size.h);
@@ -82,14 +83,14 @@ export default function PrognosticChart() {
           <line key={`vc-${i}`}
             x1={(i / gridCols) * W} y1={0}
             x2={(i / gridCols) * W} y2={H}
-            stroke="#DDD9F5" strokeWidth="1"
+            stroke="#c7c5c9" strokeWidth="1"
           />
         ))}
         {Array.from({ length: gridRows + 1 }).map((_, i) => (
           <line key={`hr-${i}`}
             x1={0} y1={(i / gridRows) * H}
             x2={W} y2={(i / gridRows) * H}
-            stroke="#DDD9F5" strokeWidth="1"
+            stroke="#c7c5c9" strokeWidth="1"
           />
         ))}
         <g clipPath="url(#pg-clip)">

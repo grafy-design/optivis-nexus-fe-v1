@@ -139,23 +139,28 @@ export default function TSIPage() {
 
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 0, marginLeft: "8px", marginRight: "8px", paddingBottom:"18px" }}>
+      {/* 외부 래퍼 */}
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", marginLeft: "14px", marginRight: "14px", paddingBottom: "24px" }}>
 
-        {/* Main Card with Glass Background */}
-        <div
-            className="relative rounded-[36px] overflow-hidden min-h-0 flex-1"
-           style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', display: "flex", flexDirection: "column", gap: "60px", borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"
-           }}
-          >
-            {/* Title */}
-        <div style={{ flexShrink: 0, padding: "4px 4px 0 8px" }}>
-          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
-            Data Setting
-          </h1>
-          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
-            Simulation templates are provided to show the required input structure. Please review before proceeding.
-          </span>
-        </div>
+        {/* 메인 컨테이너 */}
+        <div className="relative overflow-hidden flex-1 min-h-0 flex flex-col gap-[24px]">
+
+          {/* 1. 타이틀 */}
+          <div style={{ flexShrink: 0, padding: "0px 12px 0 12px" }}>
+            <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+              Data Setting
+            </h1>
+            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+              Simulation templates are provided to show the required input structure. Please review before proceeding.
+            </span>
+          </div>
+
+          {/* 2. gap-0 컨테이너 */}
+          <div className="flex flex-1 min-h-0 flex-col gap-0">
+
+            {/* 2-1. 글래스 컨테이너 */}
+            <div className="flex flex-1 min-h-0 flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent" }}>
+
         <div className="flex-1 min-h-0 overflow-auto">
             <div className="relative flex flex-col gap-6" style={{ minHeight: 244, height: "100%" }}>
 
@@ -429,24 +434,29 @@ export default function TSIPage() {
                 </div>
               </div>
             </div>
-          </div>
-          </div>
-          {/* Use Data Button - Outside Card */}
-          <div className="flex justify-end" style={{ paddingRight: 8 }}>
-            <button
-              onClick={handleUseData}
-              disabled={selectedData.size === 0}
-              className="btn-tsi btn-tsi-primary"
-              style={{ gap: 8 }}
-            >
-              Use Data
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <path d="M3 8L13 8M10 4L14 8L10 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          </div>
-          
-        </div>
+            </div>
+            </div>{/* 2-1. 글래스 컨테이너 닫기 */}
+
+            {/* 2-2. 버튼 컨테이너 */}
+            <div className="flex flex-shrink-0 justify-end" style={{ paddingRight: 8 }}>
+              <button
+                onClick={handleUseData}
+                disabled={selectedData.size === 0}
+                className="btn-tsi btn-tsi-primary"
+                style={{ gap: 8 }}
+              >
+                Use Data
+                <svg width="11" height="13" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                  <path d="M0 11.2324V1.06641C0 0.700195 0.090332 0.431641 0.270996 0.260742C0.45166 0.0849609 0.666504 -0.00292969 0.915527 -0.00292969C1.13525 -0.00292969 1.35986 0.0605469 1.58936 0.1875L10.1221 5.17529C10.4248 5.35107 10.6348 5.50977 10.752 5.65137C10.874 5.78809 10.9351 5.9541 10.9351 6.14941C10.9351 6.33984 10.874 6.50586 10.752 6.64746C10.6348 6.78906 10.4248 6.94775 10.1221 7.12354L1.58936 12.1113C1.35986 12.2383 1.13525 12.3018 0.915527 12.3018C0.666504 12.3018 0.45166 12.2139 0.270996 12.0381C0.090332 11.8623 0 11.5938 0 11.2324Z" fill="white"/>
+                </svg>
+              </button>
+            </div>
+
+          </div>{/* 2. gap-0 컨테이너 닫기 */}
+
+        </div>{/* 메인 컨테이너 닫기 */}
+
+      </div>{/* 외부 래퍼 닫기 */}
     </AppLayout>
   );
 }

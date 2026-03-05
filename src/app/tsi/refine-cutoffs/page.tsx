@@ -432,6 +432,19 @@ function TSIRefineCutoffsPageContent() {
     useState<number>(initialMonthFromQuery);
   const [applyCriteriaVersion, setApplyCriteriaVersion] = useState(0);
 
+  const [windowWidth, setWindowWidth] = useState(() => typeof window !== "undefined" ? window.innerWidth : 1920);
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const leftPanelWidth = windowWidth < 1470 ? 520 * 0.75 : 520;
+  const isSmallScreen = windowWidth < 1470;
+  const chartSymbolSize = isSmallScreen ? 12 : 18;
+  const chartLineWidth = isSmallScreen ? 3 : 4.5;
+  const chartErrorBarLineWidth = isSmallScreen ? 4 : 6;
+  const chartErrorBarCapHalfWidth = isSmallScreen ? 6 : 9;
+
   const [additionalSliders, setAdditionalSliders] = useState<number[]>([]);
   const [featureInfoData, setFeatureInfoData] = useState<IdentificationFeatureInfoData | null>(
     null
@@ -968,7 +981,7 @@ function TSIRefineCutoffsPageContent() {
           -moz-appearance: textfield;
         }
       `}</style>
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px", paddingBottom: 18 }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", gap: 24, marginLeft: "14px", marginRight: "14px", paddingBottom: 24 }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
@@ -984,7 +997,7 @@ function TSIRefineCutoffsPageContent() {
           {/* 왼쪽 카드 */}
           <div
             className=" flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden rounded-[36px] p-0 "
-          style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', width: "520px", borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+          style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', width: `${leftPanelWidth}px`, borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
 
           >
             <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto">
@@ -1000,7 +1013,7 @@ function TSIRefineCutoffsPageContent() {
               >
                 {/* 상단 라벨과 타이틀 */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-body5 text-white/70">Prognostic</span>
+                  <span className="text-body5 text-white/70">{featureInfoData?.entity_type ?? "Prognostic"}</span>
                   <h4 className="text-body1 text-white">Subgroup Creation</h4>
                 </div>
 
@@ -1212,7 +1225,7 @@ function TSIRefineCutoffsPageContent() {
             <div className="flex h-full w-full flex-col gap-3">
               {/* Set 1 타이틀 */}
               <div className="flex-shrink-0 pl-[04px] pt-[04px]">
-                <h3 className="text-body2 text-primary-15">{setNameFromQuery}</h3>
+                <h3 className="text-body1 text-primary-15">{setNameFromQuery}</h3>
               </div>
 
               {/* 스크롤 컨테이너: 차트 2개 + 테이블 */}
@@ -1235,10 +1248,10 @@ function TSIRefineCutoffsPageContent() {
                         seriesLabels={diseaseChartData.labels}
                         colors={diseaseChartData.colors}
                         filledSymbol
-                        lineWidth={3}
-                        symbolSize={12}
-                        errorBarLineWidth={4}
-                        errorBarCapHalfWidth={6}
+                        lineWidth={chartLineWidth}
+                        symbolSize={chartSymbolSize}
+                        errorBarLineWidth={chartErrorBarLineWidth}
+                        errorBarCapHalfWidth={chartErrorBarCapHalfWidth}
                         height="100%"
                         sizeVariant="M"
                         xAxis={{

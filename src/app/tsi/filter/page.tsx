@@ -207,7 +207,7 @@ export default function TSIFilterPage() {
 
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", gap: 24, marginLeft: "14px", marginRight: "14px" }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>

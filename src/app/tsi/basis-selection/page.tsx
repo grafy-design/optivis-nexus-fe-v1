@@ -77,10 +77,16 @@ function TSIBasisSelectionPageContent() {
   const taskId = searchParams.get("taskId");
   const [selectedBasis, setSelectedBasis] = useState<string | null>(null);
   const [hoveredBasis, setHoveredBasis] = useState<string | null>(null);
-  const previewBasis = hoveredBasis ?? selectedBasis ?? "prognostic";
+  const [lastPreviewBasis, setLastPreviewBasis] = useState<string>("prognostic");
+  const previewBasis = hoveredBasis ?? selectedBasis ?? lastPreviewBasis;
+
+  const handleRightCardClick = () => {
+    // 우측 카드 클릭 시 현재 previewBasis를 선택으로 확정
+    setSelectedBasis(previewBasis);
+  };
 
   const handleGoToSubgroupSelection = () => {
-    const basis = previewBasis;
+    const basis = selectedBasis ?? previewBasis;
     setSelectedBasis(basis);
 
     if (!taskId) {
@@ -94,7 +100,7 @@ function TSIBasisSelectionPageContent() {
 
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px", paddingBottom: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", gap: 24, marginLeft: "14px", marginRight: "14px", paddingBottom: 12 }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
@@ -122,20 +128,20 @@ function TSIBasisSelectionPageContent() {
                         type="button"
                         disabled={isDisabled}
                         onClick={() => !isDisabled && setSelectedBasis(opt.id === selectedBasis ? null : opt.id)}
-                        onMouseEnter={() => !isDisabled && setHoveredBasis(opt.id)}
+                        onMouseEnter={() => { if (!isDisabled) { setHoveredBasis(opt.id); setLastPreviewBasis(opt.id); } }}
                         onMouseLeave={() => setHoveredBasis(null)}
                         className={`border-neutral-80 flex h-[54px] w-full items-center justify-between border-b px-4 text-left last:border-b-0 transition-colors duration-150 ${
                           isDisabled
                             ? "bg-neutral-95 text-neutral-60 cursor-not-allowed opacity-60"
                             : isSelected
                               ? "bg-primary-15 text-white"
-                              : "text-neutral-30 bg-white hover:bg-neutral-95 active:bg-neutral-95"
+                              : "text-neutral-30 bg-white hover:bg-primary-15 hover:text-white active:bg-primary-15 active:text-white"
                         }`}
                       >
                         <span className="font-semibold leading-[1.2] tracking-[-0.04em] text-[15px] [@media(min-width:1441px)]:text-[19.5px]">{opt.label}</span>
                         {!isDisabled && (
                           <ChevronRightIcon
-                            className={isSelected ? "flex-shrink-0 text-white" : "text-neutral-60 flex-shrink-0"}
+                            className={isSelected || hoveredBasis === opt.id ? "flex-shrink-0 text-white" : "text-neutral-60 flex-shrink-0"}
                           />
                         )}
                       </button>
@@ -149,7 +155,7 @@ function TSIBasisSelectionPageContent() {
                   return (
                     <button
                       type="button"
-                      onClick={handleGoToSubgroupSelection}
+                      onClick={selectedBasis === previewBasis ? handleGoToSubgroupSelection : handleRightCardClick}
                       className="bg-primary-15 flex flex-col flex-1 min-w-0 h-full cursor-pointer rounded-[24px] text-left transition-opacity hover:opacity-95 p-4"
                     >
                       <div className="flex flex-shrink-0 flex-col justify-start h-[120px]">

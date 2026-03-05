@@ -60,7 +60,7 @@ export function TSIForestMetricChart({
   const option: EChartsOption = {
     animation: false,
     tooltip: { show: false },
-    grid: { left: 4, right: 10, top: 2, bottom: showAxis ? 28 : 2 },
+    grid: { left: 4, right: 20, top: 2, bottom: showAxis ? 28 : 2 },
     xAxis: {
       type: "value",
       min: 0,

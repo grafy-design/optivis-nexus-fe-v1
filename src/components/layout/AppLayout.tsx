@@ -109,7 +109,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
               flexDirection: "column",
             }}
           >
-            <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0}>{children}</MainContainer>
+            <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0} noPadding={headerType === "tsi"}>{children}</MainContainer>
           </div>
         </div>
       </div>

@@ -3,11 +3,23 @@ import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { ChartSizeVariant } from "./MultiLineWithErrorBar";
 
-const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, { labelFontSize: number; labelFontWeight: number; numberFontSize: number }> = {
-  XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9 },
-  S:  { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9 },
-  M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9 },
-  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9 },
+const NEUTRAL_30 = "#484646";
+const NEUTRAL_95 = "#efeff4";
+
+type DensitySizeStyle = {
+  labelFontSize: number;
+  labelFontWeight: number;
+  numberFontSize: number;
+  axisColor: string;
+  axisWidth: number;
+  splitLineColor: string;
+};
+
+const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, DensitySizeStyle> = {
+  XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  S:  { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
 
 const gaussianKernel = (x: number): number => (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
@@ -213,19 +225,29 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       type: "value",
       min: xMin,
       max: xMax,
-      axisLine: { show: true, lineStyle: { color: "#9B9CA6", width: 1 } },
+      axisLine: { show: true, lineStyle: { color: sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
-      axisLabel: sz ? { show: true, color: "#333", fontSize: sz.numberFontSize, fontFamily: "Inter" } : { show: false },
-      splitLine: { show: false },
+      axisLabel: {
+        show: !!sz,
+        color: sz?.axisColor ?? "#8A8A94",
+        fontSize: sz?.numberFontSize ?? 9,
+        fontFamily: "Inter",
+      },
+      splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
     },
     yAxis: {
       type: "value",
       min: 0,
       max: maxY > 0 ? maxY * 1.35 : 1,
-      axisLine: { show: true, lineStyle: { color: "#9B9CA6", width: 1 } },
+      axisLine: { show: true, lineStyle: { color: sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
-      axisLabel: sz ? { show: true, color: "#333", fontSize: sz.numberFontSize, fontFamily: "Inter" } : { show: false },
-      splitLine: { show: false },
+      axisLabel: {
+        show: !!sz,
+        color: sz?.axisColor ?? "#8A8A94",
+        fontSize: sz?.numberFontSize ?? 9,
+        fontFamily: "Inter",
+      },
+      splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
     },
     series: densityBySeries.map((item) => ({
       name: item.name,

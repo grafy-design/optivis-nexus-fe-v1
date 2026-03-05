@@ -7,8 +7,6 @@ import type { IdentificationFeatureInfoRow } from "@/services/subgroup-service";
 interface RefineCutoffChartEditorProps {
   cumulativeProportion: number;
   additionalSliders: number[];
-  initialCumulativeProportion: number;
-  initialAdditionalSliders?: number[];
   onCumulativeProportionChange: (value: number) => void;
   onAdditionalSlidersChange: (values: number[]) => void;
   maxAdditionalSliders?: number;
@@ -195,8 +193,6 @@ const applyNonCrossingConstraint = (
 export function RefineCutoffChartEditor({
   cumulativeProportion,
   additionalSliders,
-  initialCumulativeProportion,
-  initialAdditionalSliders = [],
   onCumulativeProportionChange,
   onAdditionalSlidersChange,
   maxAdditionalSliders = 1,
@@ -206,10 +202,12 @@ export function RefineCutoffChartEditor({
 }: RefineCutoffChartEditorProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const yInputRef = useRef<HTMLInputElement>(null);
   const additionalSliderInputRef = useRef<HTMLInputElement>(null);
 
   const [chartWidth, setChartWidth] = useState(0);
+  const [wrapperHeight, setWrapperHeight] = useState(400);
   const [safetyScoreCutoff, setSafetyScoreCutoff] = useState(1.3);
   const [showAddButton, setShowAddButton] = useState(false);
   const [addButtonPosition, setAddButtonPosition] = useState<{
@@ -324,6 +322,18 @@ export function RefineCutoffChartEditor({
     updateChartWidth();
     window.addEventListener("resize", updateChartWidth);
     return () => window.removeEventListener("resize", updateChartWidth);
+  }, []);
+
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const h = entries[0]?.contentRect.height;
+      if (h && h > 0) setWrapperHeight(h);
+    });
+    ro.observe(el);
+    setWrapperHeight(el.offsetHeight);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
@@ -574,7 +584,7 @@ export function RefineCutoffChartEditor({
                 [score, 0],
                 [score, 100],
               ],
-              lineStyle: { type: "dashed", color: "#999", width: 1 },
+              lineStyle: { type: "dashed", color: "#E2E1E5", width: 1 },
               symbol: "none",
               z: 5,
             },
@@ -585,7 +595,7 @@ export function RefineCutoffChartEditor({
                 [xAxisBounds.min, proportion],
                 [xAxisBounds.max, proportion],
               ],
-              lineStyle: { type: "dashed", color: "#999", width: 1 },
+              lineStyle: { type: "dashed", color: "#E2E1E5", width: 1 },
               symbol: "none",
               z: 5,
             }
@@ -616,26 +626,15 @@ export function RefineCutoffChartEditor({
     setAddButtonPosition(null);
   };
 
-  const cardDirty = useMemo(() => {
-    if (Number(cumulativeProportion.toFixed(2)) !== Number(initialCumulativeProportion.toFixed(2))) {
-      return true;
-    }
-    if (additionalSliders.length !== initialAdditionalSliders.length) {
-      return true;
-    }
-    return additionalSliders.some(
-      (value, index) =>
-        Number(value.toFixed(2)) !== Number((initialAdditionalSliders[index] ?? 0).toFixed(2))
-    );
-  }, [additionalSliders, cumulativeProportion, initialAdditionalSliders, initialCumulativeProportion]);
-
   return (
     <div
-      className="flex-shrink-0 rounded-[24px] p-[8px]"
+      ref={wrapperRef}
+      className="min-h-0 flex-1 rounded-[24px] p-[8px]"
       style={{ backgroundColor: "#ffffff", boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
     >
       <div
-        className="flex h-[400px] flex-col"
+        className="flex flex-col"
+        style={{ height: wrapperHeight }}
       >
         <div
           ref={chartContainerRef}
@@ -720,7 +719,7 @@ export function RefineCutoffChartEditor({
             opts={{ renderer: "svg" }}
           />
 
-          <div className="pointer-events-none absolute top-[20px] bottom-[50px] left-[80px] z-10 flex flex-col items-center justify-center">
+          <div className="pointer-events-none absolute top-[20px] bottom-[50px] left-[72px] z-10 flex flex-col items-center justify-center">
             <div
               ref={sliderRef}
               className="pointer-events-auto relative flex h-full w-6 items-center justify-center"
@@ -765,26 +764,31 @@ export function RefineCutoffChartEditor({
               }}
             >
               <div className="absolute h-full w-0 rounded-full bg-white" />
+              {/* Primary slider handle - circle */}
               <div
-                className="slider-handle absolute z-100 h-[24px] w-[38px] cursor-grab rounded-full active:cursor-grabbing"
+                className="slider-handle absolute z-100 cursor-grab active:cursor-grabbing flex items-center justify-center"
                 style={{
                   bottom: `${cumulativeProportion}%`,
                   transform: "translateY(50%)",
-                  border: `1px solid ${cardDirty ? "#BFB0F8" : "#E2E1E5"}`,
-                  backgroundColor: cardDirty ? "#EBE6FD" : "#FFFFFF",
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #E2E1E5",
+                  boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
+                  flexShrink: 0,
                 }}
                 onClick={(e) => e.stopPropagation()}
-              />
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 2L9 5H3L6 2Z" fill="#929090"/>
+                  <path d="M6 10L3 7H9L6 10Z" fill="#929090"/>
+                </svg>
+              </div>
               {additionalSliders.slice(0, maxAdditionalSliders).map((proportion, index) => (
                 <div
                   key={`additional-slider-${proportion}-${index}`}
-                  className="slider-handle absolute z-100 h-[24px] w-[38px] cursor-grab rounded-full active:cursor-grabbing"
-                  style={{
-                    bottom: `${proportion}%`,
-                    transform: "translateY(50%)",
-                    border: "1px solid #BFB0F8",
-                    backgroundColor: "#EBE6FD",
-                  }}
+                  className="slider-handle absolute z-100 cursor-grab active:cursor-grabbing"
                   onClick={(e) => e.stopPropagation()}
                   onMouseDown={(e) => {
                     e.preventDefault();
@@ -831,7 +835,26 @@ export function RefineCutoffChartEditor({
                     bodyStyle.userSelect = "none";
                     bodyStyle.webkitUserSelect = "none";
                   }}
-                />
+                  style={{
+                    bottom: `${proportion}%`,
+                    transform: "translateY(50%)",
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    backgroundColor: "#EBE6FD",
+                    border: "1px solid #BFB0F8",
+                    boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 2L9 5H3L6 2Z" fill="#BFB0F8"/>
+                    <path d="M6 10L3 7H9L6 10Z" fill="#BFB0F8"/>
+                  </svg>
+                </div>
               ))}
             </div>
           </div>

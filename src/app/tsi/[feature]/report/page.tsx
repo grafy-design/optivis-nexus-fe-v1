@@ -573,14 +573,10 @@ function TSIReportPageContent() {
   }
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "wrap-content", marginLeft: "8px", marginRight: "8px", overflowY: "auto", paddingBottom: 18 }}>
-        {/* 리포트 배경 카드 */}
-        <div
-          className="flex h-wrap flex-shrink-0 flex-col overflow-hidden rounded-[36px]"
-          style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", padding: "4px 12px 24px" }}
-        >
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "wrap-content", marginLeft: "14px", marginRight: "14px", overflowY: "auto", paddingBottom: 24 }}>
+        
           {/* Title */}
-          <div style={{ flexShrink: 0, padding: "0 4px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24 }}>
+          <div style={{ flexShrink: 0, padding: "0 12px 4px 12px", display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24 }}>
             <div className="flex flex-col gap-1 flex-shrink-0 items-start">
               <div className="text-title text-neutral-5 text-left">
                 Target Subgroup Identification
@@ -607,7 +603,11 @@ function TSIReportPageContent() {
               </svg>
             </button>
           </div>
-
+      {/* 리포트 배경 카드 */}
+        <div
+          className="flex h-wrap flex-shrink-0 flex-col overflow-hidden rounded-[36px]"
+          style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", padding: "4px 12px 24px" }}
+        >
           {/* 리포트 내용 영역 */}
           <div className="flex flex-1 flex-col h-wrap-content">
             {/* 첫 번째 섹션: Stratification Strategy Comparison (150px y부터, 1748px 너비, 962px 높이) */}
@@ -638,6 +638,7 @@ function TSIReportPageContent() {
                         chartData={modelBasedPanelData.chartData}
                         seriesLabels={modelBasedPanelData.seriesLabels}
                         seriesColors={RISK_SERIES_COLORS}
+                        rows={modelBasedPanelData.rows}
                       />
                     ) : (
                       <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
@@ -668,6 +669,7 @@ function TSIReportPageContent() {
                         chartData={featureBasedPanelData.chartData}
                         seriesLabels={featureBasedPanelData.seriesLabels}
                         seriesColors={FEATURE_BASED_RISK_SERIES_COLORS}
+                        rows={featureBasedPanelData.rows}
                       />
                     ) : (
                       <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
@@ -835,7 +837,7 @@ function TSIReportPageContent() {
                   {/* 오른쪽: 포레스트 플롯 */}
                   <div className="flex min-w-0 flex-1">
                     {hasRiskResponseData ? (
-                      <div className="min-w-0 flex-1 rounded-[16px] border border-[#E5E4EA] bg-[#FFFFFF] p-4">
+                      <div className="min-w-0 w-full flex-1 overflow-hidden rounded-[16px] border border-[#E5E4EA] bg-[#FFFFFF] p-4">
                         <div className="flex min-h-0 w-full flex-col">
                           {riskResponseSets.map((setData, setIdx) => (
                             <div
@@ -896,7 +898,7 @@ function TSIReportPageContent() {
         </div>
 
         {/* 하단 우측 CTA */}
-        <div className="flex items-center justify-end py-6 flex-shrink-0 pr-[38px]">
+        <div className="flex items-center justify-end py-6 flex-shrink-0 pr-[12px]">
           <div className="flex gap-4">
             <button
               type="button"
@@ -921,7 +923,8 @@ function TSIReportPageContent() {
             >
               Add Basis
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <path d="M3 8L13 8M10 4L14 8L10 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2.33594 8.33594H14.3359" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M8.33594 2.33594V14.3359" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
           </div>

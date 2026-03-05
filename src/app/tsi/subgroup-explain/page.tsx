@@ -229,7 +229,7 @@ function TSISubgroupExplainPageContent() {
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
       <Loading isLoading={isLoading} />
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, marginLeft: "8px", marginRight: "8px", paddingBottom: 18 }}>
+      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", gap: 24, marginLeft: "14px", marginRight: "14px", paddingBottom: 24 }}>
         {/* Title */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
@@ -251,7 +251,7 @@ function TSISubgroupExplainPageContent() {
         <div className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0" style={{ minWidth: 0 }}>
           {/* 왼쪽 상위 배경 카드 */}
           <div
-            className="flex min-h-0 w-[520px] [@media(min-width:1441px)]:w-[570px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
+            className="flex min-h-0 w-[400px] [@media(min-width:1470px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
            style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", }}
           >
             {/* 파란색 그래프 카드: Expected Therapeutic Gain */}
@@ -321,7 +321,7 @@ function TSISubgroupExplainPageContent() {
 
           {/* 오른쪽 상위 배경 카드 */}
           <div
-            className="flex min-h-0 flex-1 min-w-0 flex-col overflow-hidden rounded-[36px] p-0 "
+            className="flex min-h-0 flex-1 min-w-0 flex-col overflow-y-auto rounded-[36px] p-0 "
            style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", paddingBottom: 24}}
           >
             <div className="flex flex-col min-h-0 flex-1" style={{ gap: 12 }}>
