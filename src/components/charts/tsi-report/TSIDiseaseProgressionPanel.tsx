@@ -105,6 +105,7 @@ export function TSIDiseaseProgressionPanel({
           errorBarCapHalfWidth={style.errorBarCapHalfWidth}
           height="100%"
           sizeVariant="M"
+          grid={{ left: 4, right: 0, top: 8, bottom: 16 }}
           xAxis={{
             min: 0,
             max: 24,

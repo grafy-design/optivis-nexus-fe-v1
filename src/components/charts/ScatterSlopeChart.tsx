@@ -53,7 +53,7 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 48, right: 4, top: 8, bottom: 4 },
+    grid: { left: 48, right: 4, top: 8, bottom: 16},
     tooltip: {
       trigger: "item",
       formatter: (p: any) => `Slope: ${p.value[0]}<br/>C Vision: ${p.value[1]}`,

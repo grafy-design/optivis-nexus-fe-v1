@@ -49,6 +49,15 @@ function TSISubgroupExplainPageContent() {
   const [resultData, setResultData] = useState<ExplainListData>();
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1920
+  );
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const router = useRouter();
   const baselineDistributionData =
@@ -249,7 +258,7 @@ function TSISubgroupExplainPageContent() {
         <div className="flex flex-col flex-1 min-h-0 gap-0">
         {/* 메인: 상위 배경 카드 2개 나란히 */}
         <div className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0" style={{ minWidth: 0 }}>
-          {/* 왼쪽 상위 배경 카드 */}
+          {/* 왼쪽 배경 카드 */}
           <div
             className="flex min-h-0 w-[400px] [@media(min-width:1470px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
            style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", }}
@@ -283,13 +292,13 @@ function TSISubgroupExplainPageContent() {
               <div className="flex min-h-0 flex-1 flex-col px-4">
                 {/* 테이블 헤더 */}
                 <div className="border-neutral-80 flex min-h-[48px] flex-shrink-0 items-center border-b py-2">
-                  <div className="text-body4 text-neutral-30 flex-[3] min-w-0 shrink-0">Rank</div>
-                  <div className="text-body4 text-neutral-30 flex-[7] min-w-0 shrink-0">Feature name</div>
-                  <div className="text-body4 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
+                  <div className="text-body5 text-neutral-30 flex-[3] min-w-0 shrink-0">Rank</div>
+                  <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0">Feature name</div>
+                  <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
                     Max Variance<br />Reduction(△▽)
                   </div>
-                  <div className="text-body4 text-neutral-30 flex-[5] min-w-0 shrink-0">Contribution</div>
-                  <div className="text-body4 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
+                  <div className="text-body5 text-neutral-30 flex-[5] min-w-0 shrink-0">Contribution</div>
+                  <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
                     Cutoff<br />(Auto-derived)
                   </div>
                 </div>
@@ -357,12 +366,11 @@ function TSISubgroupExplainPageContent() {
 
                   {/* 설명 텍스트 */}
                   <div className="flex min-w-0 h-wrap flex-[3] flex-col justify-start">
-                    <ul className="flex list-disc flex-col gap-[9px] pl-4 text-white">
+                    <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                       {baselineDriverMessageItems.map((item, index) => (
-                        <li key={`${item.no ?? index}-${item.title}`} className="break-words leading-[1.2]">
-                          <span className="text-body3m">{item.title}</span>
-                          <br />
-                          <span className="text-body5m whitespace-pre-line leading-[1.2]">{item.description}</span>
+                        <li key={`${item.no ?? index}-${item.title}`} className="flex flex-col" style={{ lineHeight: 1.2 }}>
+                          <span className="text-body3m mb-1">{item.title}</span>
+                          <span className="text-body5m whitespace-pre-line">{item.description}</span>
                         </li>
                       ))}
                     </ul>
@@ -386,7 +394,7 @@ function TSISubgroupExplainPageContent() {
                       unstyled
                       key={feature}
                       onClick={() => setSelectedFeature(feature)}
-                      className={`text-body5 flex h-[48px] w-full items-center gap-[10px] self-stretch px-[12px] py-[12px] transition-colors focus:outline-none ${
+                      className={`text-body4 flex h-[48px] w-full items-center gap-[10px] self-stretch px-[12px] py-[12px] transition-colors focus:outline-none ${
                         index < featureList.length - 1 ? "border-neutral-90 border-b" : ""
                       } ${
                         selectedFeature === feature
@@ -419,8 +427,8 @@ function TSISubgroupExplainPageContent() {
                         baselineDistributionData ?? {
                           bins: [],
                           groups: {},
-                        }
-                      }
+                        } 
+                      }height={windowWidth <= 1470 ? "200px" : "300px"}
                     />
                   </div>
 
@@ -429,7 +437,7 @@ function TSISubgroupExplainPageContent() {
                     <h3 className="text-body4 text-neutral-40 mb-2">
                       ADAS Progression Slope vs. {selectedFeature} (Baseline)
                     </h3>
-                    <ScatterSlopeChart data={baselineSlopeData ?? {}} />
+                    <ScatterSlopeChart data={baselineSlopeData ?? {}} height={windowWidth <= 1470 ? "200px" : "300px"} />
                   </div>
 
                   {/* 그래프 카드 3: Subgroup Proportion */}
@@ -437,18 +445,17 @@ function TSISubgroupExplainPageContent() {
                     <h3 className="text-body4 text-neutral-40 mb-2">
                       Subgroup Proportion by {selectedFeature} (Baseline)
                     </h3>
-                    <SubgroupProportionChart data={baselineBinRatioData ?? []} />
+                    <SubgroupProportionChart data={baselineBinRatioData ?? []} height={windowWidth <= 1470 ? "200px" : "300px"} />
                   </div>
                 </div>
 
                 {/* 오른쪽 설명 텍스트 */}
                 <div className="flex min-w-0 flex-[3] flex-col justify-start pt-3">
-                  <ul className="flex list-disc flex-col gap-[9px] pl-4 text-white">
+                  <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                     {featureMessageItems.map((item, index) => (
-                      <li key={`${item.no ?? index}-${item.title}`} className="break-words leading-[1.2]">
-                        <span className="text-body3m">{item.title}</span>
-                        <br />
-                        <span className="text-body5m whitespace-pre-line leading-[1.2]">{item.description}</span>
+                      <li key={`${item.no ?? index}-${item.title}`} className="flex flex-col" style={{ lineHeight: 1.2 }}>
+                        <span className="text-body3m mb-1">{item.title}</span>
+                        <span className="text-body5m whitespace-pre-line">{item.description}</span>
                       </li>
                     ))}
                   </ul>

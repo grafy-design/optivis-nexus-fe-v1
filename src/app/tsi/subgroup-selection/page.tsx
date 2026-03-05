@@ -100,6 +100,482 @@ const clampGroupArray = <T,>(
   return items.slice(0, limit);
 };
 
+const CLASSIFICATION_ORDER: Record<string, number> = { high: 0, middle: 1, low: 2 };
+
+const getGroupDisplayName = (classification: string): string => {
+  if (classification === "high") return "High Risk";
+  if (classification === "middle") return "Middle Risk";
+  if (classification === "low") return "Low";
+  return classification;
+};
+
+const getGroupColor = (classification: string): string => {
+  if (classification === "high") return "#231F52";
+  if (classification === "middle") return "#7571A9";
+  if (classification === "low") return "#AAA5E1";
+  return "#231F52";
+};
+
+const sortByClassification = <T extends { classification?: string; group?: string }>(
+  items: T[],
+  getClassification: (item: T) => string,
+): T[] =>
+  [...items].sort(
+    (a, b) =>
+      (CLASSIFICATION_ORDER[getClassification(a)] ?? 99) -
+      (CLASSIFICATION_ORDER[getClassification(b)] ?? 99),
+  );
+
+// ─── Chart option builders ────────────────────────────────────────────
+
+type EChartsRenderApi = {
+  value: (i: number) => number;
+  coord: (p: number[]) => number[];
+  style: (o: object) => object;
+};
+
+function buildDiseaseProgressionChartOption(
+  filteredProgressionData: NonNullable<ResultTableItem["disease_progression_by_subgroup"]>,
+  displayedProgressionGroups: string[],
+  withinGroupVariance: ResultTableItem["within_group_variance_by_subgroup"],
+  outcome: string,
+) {
+  const months = Array.from(
+    new Set(filteredProgressionData.map((d) => d.month)),
+  ).sort((a, b) => a - b);
+
+  const series = displayedProgressionGroups.map((group) => {
+    const groupData = filteredProgressionData.filter((d) => d.group === group);
+    const varianceData = withinGroupVariance?.find((v) => v.group === group);
+    const classification = varianceData?.classification || "";
+    const color = getGroupColor(classification);
+    const groupName = getGroupDisplayName(classification);
+    return {
+      name: groupName,
+      type: "line" as const,
+      data: months.map((month) => { const dp = groupData.find((d) => d.month === month); return dp ? [month, dp.mean] : null; }).filter((d) => d !== null),
+      itemStyle: { color },
+      lineStyle: { color, width: 2 },
+      symbol: "circle",
+      symbolSize: 6,
+    };
+  });
+
+  const CAP_LEN_PX = 4;
+  const errorBarSeries = displayedProgressionGroups.map((group) => {
+    const groupData = filteredProgressionData.filter((d) => d.group === group);
+    const varianceData = withinGroupVariance?.find((v) => v.group === group);
+    const classification = varianceData?.classification || "";
+    const color = getGroupColor(classification);
+    return {
+      name: `${group} error`,
+      type: "custom" as const,
+      data: months.map((month) => { const dp = groupData.find((d) => d.month === month); if (!dp) return null; return [month, dp.mean, dp.mean - dp.ci_low, dp.ci_high - dp.mean]; }).filter((d) => d !== null),
+      renderItem: (_params: unknown, api: EChartsRenderApi) => {
+        const xVal = api.value(0); const mean = api.value(1); const marginLow = api.value(2); const marginHigh = api.value(3);
+        const low = api.coord([xVal, mean - marginLow]); const high = api.coord([xVal, mean + marginHigh]);
+        return { type: "group", children: [
+          { type: "line", shape: { x1: low[0], y1: low[1], x2: high[0], y2: high[1] }, style: api.style({ stroke: color, lineWidth: 1.5 }) },
+          { type: "line", shape: { x1: low[0] - CAP_LEN_PX / 2, y1: low[1], x2: low[0] + CAP_LEN_PX / 2, y2: low[1] }, style: api.style({ stroke: color, lineWidth: 1.5 }) },
+          { type: "line", shape: { x1: high[0] - CAP_LEN_PX / 2, y1: high[1], x2: high[0] + CAP_LEN_PX / 2, y2: high[1] }, style: api.style({ stroke: color, lineWidth: 1.5 }) },
+        ] };
+      },
+      z: 1,
+      showInLegend: false,
+    };
+  });
+
+  const allMeans = filteredProgressionData.map((d) => d.mean);
+  const allCis = filteredProgressionData.flatMap((d) => [d.ci_low, d.ci_high]);
+  const yMin = Math.min(...allMeans, ...allCis);
+  const yMax = Math.max(...allMeans, ...allCis);
+  const yRange = yMax - yMin;
+  const yPadding = yRange * 0.15;
+
+  return {
+    animation: false,
+    grid: { left: "12%", right: "8%", top: "5%", bottom: "15%", containLabel: false },
+    xAxis: {
+      type: "value" as const, name: "Month", nameLocation: "middle", nameGap: 15,
+      min: Math.max(0, months[0] - 1), max: months[months.length - 1],
+      nameTextStyle: { fontSize: 10, color: "#484646" }, axisLabel: { fontSize: 9, color: "#484646" },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } },
+      axisTick: { show: false }, splitLine: { show: true, lineStyle: { type: "solid", color: "#E8E8E8", width: 1 } },
+    },
+    yAxis: {
+      type: "value" as const, name: `Δ ${outcome}`, nameLocation: "middle", nameGap: 22,
+      min: yMin - yPadding, max: yMax + yPadding,
+      nameTextStyle: { fontSize: 10, color: "#484646" },
+      axisLabel: { fontSize: 9, color: "#484646", showMinLabel: false, showMaxLabel: false, formatter: (value: number) => value % 1 === 0 ? value.toString() : value.toFixed(1) },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } },
+      axisTick: { show: false }, splitLine: { show: true, lineStyle: { type: "solid", color: "#E8E8E8", width: 1 } },
+    },
+    tooltip: { show: false, trigger: "none" as const, axisPointer: { show: false } },
+    legend: { show: false },
+    series: [...series, ...errorBarSeries],
+  };
+}
+
+function buildVarianceDecompositionChartOption(
+  decompositionData: NonNullable<ResultTableItem["variance_decomposition"]>,
+) {
+  const totalVarianceValue = decompositionData[0]?.variance || 0;
+  const vrRatio = Math.max(0, Math.min(1, decompositionData[0]?.vr ?? 0));
+  const explainedTotal = totalVarianceValue * vrRatio;
+  const withinPooled = Math.max(0, totalVarianceValue - explainedTotal);
+  const varianceMax = Math.max(totalVarianceValue, 0);
+  const varianceBarWidth = "82%";
+
+  return {
+    animation: false,
+    grid: { left: "4px", right: "5%", top: "5%", bottom: "15%", containLabel: true },
+    xAxis: { type: "category" as const, data: ["Explained"], axisLabel: { show: true, fontSize: 9, color: "#484646" }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false } },
+    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 36, max: varianceMax * 1.5, splitNumber: 5, nameTextStyle: { fontSize: 9, color: "#484646" }, axisLabel: { fontSize: 9, color: "#484646", margin: 4, formatter: (value: number) => value.toFixed(2) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#efeff4" } } },
+    tooltip: { show: false }, legend: { show: false },
+    series: [
+      { name: "Within pooled", type: "bar" as const, stack: "variance", data: [withinPooled], itemStyle: { color: "#231F52", borderRadius: [8, 8, 8, 8] }, barWidth: varianceBarWidth },
+      { name: "Explained Total Within", type: "bar" as const, stack: "variance", data: [explainedTotal], itemStyle: { color: "#AAA5E1", borderRadius: [8, 8, 8, 8] }, barWidth: varianceBarWidth },
+    ],
+  };
+}
+
+function buildWithinGroupVarianceChartOption(
+  sortedVariance: NonNullable<ResultTableItem["within_group_variance_by_subgroup"]>,
+) {
+  const maxVar = Math.max(...sortedVariance.map((v) => v.variance));
+  const totalVarValue = sortedVariance.length > 0 ? sortedVariance[0].total_var : 0;
+
+  return {
+    animation: false,
+    grid: { left: "4px", right: "5%", top: "5%", bottom: "15%", containLabel: true },
+    xAxis: { type: "category" as const, data: sortedVariance.map((v) => v.classification === "high" ? "High" : v.classification === "middle" ? "Middle" : "Low"), axisLabel: { fontSize: 9, color: "#484646" }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false } },
+    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 36, max: maxVar * 1.2, splitNumber: 5, nameTextStyle: { fontSize: 9, color: "#484646" }, axisLabel: { fontSize: 9, color: "#484646", margin: 4, formatter: (value: number) => value.toFixed(2) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#efeff4" } } },
+    tooltip: { show: false }, legend: { show: false },
+    series: [{
+      type: "bar" as const,
+      data: sortedVariance.map((v) => ({ value: v.variance, sampleN: typeof v.number === "number" ? Math.round(v.number) : null, itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] } })),
+      barWidth: "50%",
+      label: { show: true, position: "insideBottom", distance: 8, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#FFFFFF", fontFamily: "Inter, sans-serif", fontSize: 12, fontWeight: 600, lineHeight: 13.2 },
+      markLine: { silent: true, symbol: "none", label: { show: true, position: "end", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10, color: "#484646", offset: [-75, -10] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
+    }],
+  };
+}
+
+// ─── ExpandedRowContent ───────────────────────────────────────────────────────
+
+function ExpandedRowContent({ row }: { row: ResultTableItem }) {
+  const detailGroupLimit = getDisplayGroupCount(
+    row.of_group,
+    row.number_or_patient?.length ??
+      row.within_group_variance_by_subgroup?.length ??
+      0,
+  );
+
+  const sortedPatients = clampGroupArray(
+    row.number_or_patient
+      ? sortByClassification(
+          [...row.number_or_patient],
+          (p) =>
+            row.within_group_variance_by_subgroup?.find(
+              (v) => v.group === p.group,
+            )?.classification || "",
+        )
+      : [],
+    detailGroupLimit,
+    0,
+  );
+
+  const lowGroupPatient = sortedPatients.find((p) => {
+    const varianceData = row.within_group_variance_by_subgroup?.find(
+      (v) => v.group === p.group,
+    );
+    return varianceData?.classification === "low";
+  });
+  const minPatients = lowGroupPatient?.number || 0;
+
+  const totalVariance = row.variance_decomposition?.[0]?.variance || 0;
+  const totalVR = row.variance_decomposition?.[0]?.vr || 0;
+
+  const sortedVariance = clampGroupArray(
+    row.within_group_variance_by_subgroup
+      ? sortByClassification(
+          [...row.within_group_variance_by_subgroup],
+          (v) => v.classification,
+        )
+      : [],
+    detailGroupLimit,
+    0,
+  );
+
+  const variancePercent = (row.variance_benefit * 100).toFixed(1);
+  const primaryGroup = sortedVariance.find((v) => v.classification === "low")
+    ? "Low Risk"
+    : sortedVariance.find((v) => v.classification === "high")
+      ? "High Risk"
+      : "patient group";
+
+  const progressionGroupSet = row.disease_progression_by_subgroup
+    ? new Set(row.disease_progression_by_subgroup.map((d) => d.group))
+    : new Set<string>();
+  const orderedProgressionGroups = sortedVariance
+    .map((v) => v.group)
+    .filter((g) => progressionGroupSet.has(g));
+  const diseaseProgressionGroups = row.disease_progression_by_subgroup
+    ? Array.from(
+        new Set(row.disease_progression_by_subgroup.map((d) => d.group).sort()),
+      )
+    : [];
+  const displayedProgressionGroups = clampGroupArray(
+    orderedProgressionGroups.length > 0
+      ? orderedProgressionGroups
+      : diseaseProgressionGroups,
+    row.of_group,
+    row.disease_progression_by_subgroup?.length ??
+      row.number_or_patient?.length ??
+      row.within_group_variance_by_subgroup?.length ??
+      0,
+  );
+  const displayedProgressionGroupSet = new Set(displayedProgressionGroups);
+
+  const filteredProgressionData = (
+    row.disease_progression_by_subgroup ?? []
+  ).filter((d) => displayedProgressionGroupSet.has(d.group));
+
+  return (
+    <tr className="bg-[#efeff4]">
+      <td colSpan={12} className="border-neutral-80 border-b p-0">
+        <div className="bg-[#efeff4] px-4 py-6">
+          <div className="flex gap-3 grid grid-cols-[1fr_2fr]">
+            {/* Left Column */}
+            <div className="flex flex-col gap-3">
+              {/* Disease Progression by Subgroup */}
+              <div className="flex h-[252px] flex-col rounded-[18px] bg-white/60 p-4">
+                <h3 className="text-body4 mb-4 flex-shrink-0 font-semibold text-[#1c1b1b]">
+                  Disease Progression by Subgroup
+                </h3>
+                <div
+                  className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white"
+                  style={{ height: "100%" }}
+                >
+                  {filteredProgressionData.length > 0 ? (
+                    <ReactECharts
+                      option={buildDiseaseProgressionChartOption(
+                        filteredProgressionData,
+                        displayedProgressionGroups,
+                        row.within_group_variance_by_subgroup,
+                        row.outcome,
+                      )}
+                      style={{ height: "100%", width: "100%" }}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <span className="text-sm text-[#484646]">No data available</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Number of patients */}
+              <div className="flex h-[196px] flex-col rounded-[18px] bg-white/60 p-4">
+                <h3 className="text-body4 mb-0 flex-shrink-0 font-semibold text-[#1c1b1b]">
+                  Number of patients
+                </h3>
+                <p className="mb-0 flex-shrink-0 text-sm text-[#605e5e]">
+                  At least {minPatients} patients per group are recommended.
+                </p>
+                <div className="mt-auto">
+                  <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3">
+                    <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-0 text-sm font-semibold text-[#231f52]">
+                      <div className="w-[142px]">
+                        <p className="text-sm font-semibold text-[#231F52]">Group</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#231F52]">
+                          Number of patients
+                        </p>
+                      </div>
+                    </div>
+                    {sortedPatients.map((patient, idx) => {
+                      const varianceData = row.within_group_variance_by_subgroup?.find(
+                        (v) => v.group === patient.group,
+                      );
+                      const classification = varianceData?.classification || "";
+                      const groupName = getGroupDisplayName(classification);
+                      const groupColor = getGroupColor(classification);
+                      return (
+                        <div
+                          key={patient.group}
+                          className={`flex items-center gap-2 text-sm text-[#1c1b1b] ${
+                            idx > 0 ? "border-t border-[#adaaaa] pt-0" : ""
+                          }`}
+                        >
+                          <div className="flex w-[142px] items-center gap-[6px]">
+                            <div
+                              className="h-3 w-3 rounded-full"
+                              style={{ backgroundColor: groupColor }}
+                            />
+                            <div>
+                              <p className="text-body4m font-semibold text-[#1C1B1B]">
+                                {groupName}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-body4m font-semibold text-[#1C1B1B]">
+                              {patient.number.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Right Column */}
+            <div className="bg-primary-15 flex grid h-[468px] flex-1 min-w-0 flex-col gap-3 rounded-[18px] p-4">
+              {/* Variance Reduction Explained */}
+              <div>
+                <h3 className="text-feature-title mb-4 text-white">
+                  Variance Reduction Explained
+                </h3>
+                <p className="text-body5m leading-relaxed font-semibold text-white">
+                  Subgroup stratification reduced the overall variance by{" "}
+                  {variancePercent}%. The observed variance reduction was primarily
+                  driven by the {primaryGroup} patient group. Therefore, if cutoff
+                  adjustment is required, maintaining the {primaryGroup} group and
+                  adjusting the cutoff for the{" "}
+                  {primaryGroup === "Low Risk" ? "High Risk" : "Low Risk"} group is a
+                  reasonable strategy.
+                </p>
+              </div>
+              {/* Two cards in one row */}
+              <div className="mt-auto grid grid-cols-2 gap-3">
+                {/* Variance decomposition */}
+                <div className="flex h-wrap flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-3">
+                  <div className="flex justify-between gap-2">
+                    <div className="flex-shrink-0">
+                      <h3 className="text-body3 mb-2 tracking-[-0.75px] text-[#1c1b1b]">
+                        Variance decomposition
+                      </h3>
+                      <div className="mb-4 flex gap-5">
+                        <div>
+                          <div className="text-body5 font-semibold text-[#f06600]">
+                            Variance
+                          </div>
+                          <div className="text-h4 text-[#f06600]">
+                            {totalVariance.toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-body5 font-semibold text-[#f06600]">
+                            VR
+                          </div>
+                          <div className="text-h4 text-[#f06600]">
+                            {totalVR.toFixed(3)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="gap-0">
+                      <div className="flex gap-[5px] font-medium">
+                        <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#231F52]" />
+                        <div className="w-[60px] text-[10.5px]">
+                          <p>Within</p>
+                          <p className="-mt-1 text-[#939090]">pooled</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-[5px] font-medium">
+                        <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#AAA5E1]" />
+                        <div className="w-[60px] text-[10.5px]">
+                          <p>Explained</p>
+                          <p className="-mt-1 text-[#939090]">Total Within</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="min-h-0 flex-1 overflow-hidden bg-white"
+                    style={{ height: "100%" }}
+                  >
+                    {row.variance_decomposition && row.variance_decomposition.length > 0 ? (
+                      <div className="relative h-full w-full">
+                        <ReactECharts
+                          option={buildVarianceDecompositionChartOption(
+                            row.variance_decomposition,
+                          )}
+                          style={{ height: "100%", width: "100%" }}
+                        />
+                        <div className="pointer-events-none absolute top-[8px] right-[14px] left-[34px] h-[40px] px-3">
+                          <div className="rounded-[8px] border border-[#D1CFD8] p-[6px]">
+                            <p className="text-[10.5px] font-medium text-[#787776]">
+                              {getCiText(row.variance_decomposition)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <span className="text-sm text-[#484646]">No data available</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Within-group variance by subgroup */}
+                <div className="flex h-[306px] flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-3">
+                  <div className="flex-shrink-0">
+                    <h3 className="mb-4 text-body3 tracking-[-0.75px] text-[#1c1b1b]">
+                      Within-group variance by subgroup
+                    </h3>
+                    <div className="mb-4 flex gap-5">
+                      {sortedVariance.map((v) => {
+                        const displayName =
+                          v.classification === "high"
+                            ? "High"
+                            : v.classification === "middle"
+                              ? "Middle"
+                              : "Low";
+                        return (
+                          <div key={v.group}>
+                            <div className="text-xs font-semibold text-[#f06600]">
+                              {displayName}
+                            </div>
+                            <div className="text-h4 text-[#f06600]">
+                              {v.variance.toFixed(2)}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div
+                    className="min-h-0 flex-1 overflow-hidden bg-white"
+                    style={{ height: "100%" }}
+                  >
+                    {sortedVariance.length > 0 ? (
+                      <ReactECharts
+                        option={buildWithinGroupVarianceChartOption(sortedVariance)}
+                        style={{ height: "100%", width: "100%" }}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <span className="text-sm text-[#484646]">No data available</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
+
+// ───────────────────────────────────────────────────────────────────────────
+
+
 function TSISubgroupSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -317,7 +793,7 @@ function TSISubgroupSelectionPageContent() {
                                 {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
                                 <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2">
                                   {/* 초록 컨테이너: Set label 영역 (flex-1 = group rows와 동일 높이) */}
-                                  <div className="flex flex-1 flex-shrink-0 items-center gap-2 px-1">
+                                  <div className="flex flex-1 flex-shrink-0 items-center gap-2 px-1 min-h-[20px]">
                                     <span
                                       className="bg-primary-10 text-body5m box-border flex shrink-0 items-center justify-center gap-1 rounded-full text-white"
                                       style={{
@@ -339,7 +815,7 @@ function TSISubgroupSelectionPageContent() {
                                     )}
                                   </div>
                                   {/* 노랑 컨테이너: Group rows 영역 (flex-1 = Set label과 동일 높이) */}
-                                  <div className="flex flex-1 flex-col">
+                                  <div className="flex flex-3 flex-col min-h-[20px]">
                                     {displayGroups.map((g, groupIndex) => {
                                       // group1 -> Group 1 형식으로 변환
                                       const groupNum = g.group.replace(
@@ -975,1389 +1451,7 @@ function TSISubgroupSelectionPageContent() {
                                         </div>
                                       </td>
                                     </tr>
-                                    {isExpanded &&
-                                      (() => {
-                                        // result_table에서 해당 row 데이터 가져오기
-                                        const detailData = row;
-
-                                        // 그룹 이름 매핑 (classification 기반)
-                                        const getGroupDisplayName = (
-                                          classification: string,
-                                        ) => {
-                                          if (classification === "high")
-                                            return "High Risk";
-                                          if (classification === "middle")
-                                            return "Middle Risk";
-                                          if (classification === "low")
-                                            return "Low";
-                                          return classification;
-                                        };
-
-                                        // 그룹 색상 매핑
-                                        const getGroupColor = (
-                                          classification: string,
-                                        ) => {
-                                          if (classification === "high")
-                                            return "#231F52";
-                                          if (classification === "middle")
-                                            return "#7571A9";
-                                          if (classification === "low")
-                                            return "#AAA5E1";
-                                          return "#231F52";
-                                        };
-                                        const detailGroupLimit =
-                                          getDisplayGroupCount(
-                                            detailData?.of_group,
-                                            detailData.number_or_patient
-                                              ?.length ??
-                                              detailData
-                                                .within_group_variance_by_subgroup
-                                                ?.length ??
-                                              0,
-                                          );
-
-                                        // number_or_patient 데이터 정렬 (high -> middle -> low 순서)
-                                        const sortedPatients = clampGroupArray(
-                                          detailData.number_or_patient
-                                            ? [
-                                                ...detailData.number_or_patient,
-                                              ].sort((a, b) => {
-                                                const order = {
-                                                  high: 0,
-                                                  middle: 1,
-                                                  low: 2,
-                                                };
-                                                const aClass =
-                                                  detailData.within_group_variance_by_subgroup?.find(
-                                                    (v) => v.group === a.group,
-                                                  )?.classification || "";
-                                                const bClass =
-                                                  detailData.within_group_variance_by_subgroup?.find(
-                                                    (v) => v.group === b.group,
-                                                  )?.classification || "";
-                                                return (
-                                                  (order[
-                                                    aClass as keyof typeof order
-                                                  ] ?? 99) -
-                                                  (order[
-                                                    bClass as keyof typeof order
-                                                  ] ?? 99)
-                                                );
-                                              })
-                                            : [],
-                                          detailGroupLimit,
-                                          0,
-                                        );
-
-                                        // 최소 환자 수 계산 (low 그룹 기준)
-                                        const lowGroupPatient =
-                                          sortedPatients.find((p) => {
-                                            const varianceData =
-                                              detailData.within_group_variance_by_subgroup?.find(
-                                                (v) => v.group === p.group,
-                                              );
-                                            return (
-                                              varianceData?.classification ===
-                                              "low"
-                                            );
-                                          });
-                                        const minPatients =
-                                          lowGroupPatient?.number || 0;
-
-                                        // Variance decomposition에서 총 variance 계산
-                                        const totalVariance =
-                                          detailData.variance_decomposition?.[0]
-                                            ?.variance || 0;
-                                        const totalVR =
-                                          detailData.variance_decomposition?.[0]
-                                            ?.vr || 0;
-
-                                        // Within-group variance 데이터 정렬
-                                        const sortedVariance = clampGroupArray(
-                                          detailData.within_group_variance_by_subgroup
-                                            ? [
-                                                ...detailData.within_group_variance_by_subgroup,
-                                              ].sort((a, b) => {
-                                                const order = {
-                                                  high: 0,
-                                                  middle: 1,
-                                                  low: 2,
-                                                };
-                                                return (
-                                                  (order[
-                                                    a.classification as keyof typeof order
-                                                  ] ?? 99) -
-                                                  (order[
-                                                    b.classification as keyof typeof order
-                                                  ] ?? 99)
-                                                );
-                                              })
-                                            : [],
-                                          detailGroupLimit,
-                                          0,
-                                        );
-
-                                        const totalVarValue =
-                                          sortedVariance.length > 0
-                                            ? sortedVariance[0].total_var
-                                            : 0;
-
-                                        // Variance Reduction Explained 텍스트 생성
-                                        const variancePercent = (
-                                          detailData.variance_benefit * 100
-                                        ).toFixed(1);
-                                        const primaryGroup =
-                                          sortedVariance.find(
-                                            (v) => v.classification === "low",
-                                          )
-                                            ? "Low Risk"
-                                            : sortedVariance.find(
-                                                  (v) =>
-                                                    v.classification === "high",
-                                                )
-                                              ? "High Risk"
-                                              : "patient group";
-                                        const progressionGroupSet =
-                                          detailData.disease_progression_by_subgroup
-                                            ? new Set(
-                                                detailData.disease_progression_by_subgroup.map(
-                                                  (d) => d.group,
-                                                ),
-                                              )
-                                            : new Set<string>();
-                                        const orderedProgressionGroups =
-                                          sortedVariance
-                                            .map((variance) => variance.group)
-                                            .filter((group) =>
-                                              progressionGroupSet.has(group),
-                                            );
-                                        const diseaseProgressionGroups =
-                                          detailData.disease_progression_by_subgroup
-                                            ? Array.from(
-                                                new Set(
-                                                  detailData.disease_progression_by_subgroup
-                                                    .map((d) => d.group)
-                                                    .sort(),
-                                                ),
-                                              )
-                                            : [];
-                                        const displayedProgressionGroups =
-                                          clampGroupArray(
-                                            orderedProgressionGroups.length > 0
-                                              ? orderedProgressionGroups
-                                              : diseaseProgressionGroups,
-                                            detailData?.of_group,
-                                            detailData
-                                              ?.disease_progression_by_subgroup
-                                              ?.length ??
-                                              detailData?.number_or_patient
-                                                ?.length ??
-                                              detailData
-                                                .within_group_variance_by_subgroup
-                                                ?.length ??
-                                              0,
-                                          );
-                                        const displayedProgressionGroupSet =
-                                          new Set(displayedProgressionGroups);
-
-                                        return (
-                                          <tr className="bg-[#efeff4]">
-                                            <td
-                                              colSpan={12}
-                                              className="border-neutral-80 border-b p-0"
-                                            >
-                                              <div className="bg-[#efeff4] px-4 py-6">
-                                                <div className="flex gap-3">
-                                                  {/* Left Column */}
-                                                  <div className="flex w-[372px] flex-col gap-3">
-                                                    {/* Disease Progression by Subgroup */}
-                                                    <div className="flex h-[252px] flex-col rounded-[18px] bg-white/60 p-4">
-                                                      <h3 className="text-body4 mb-4 flex-shrink-0 font-semibold text-[#1c1b1b]">
-                                                        Disease Progression by
-                                                        Subgroup
-                                                      </h3>
-                                                      <div
-                                                        className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white"
-                                                        style={{
-                                                          height: "100%",
-                                                        }}
-                                                      >
-                                                        {detailData.disease_progression_by_subgroup &&
-                                                        detailData
-                                                          .disease_progression_by_subgroup
-                                                          .length > 0 ? (
-                                                          (() => {
-                                                            // 그룹별로 데이터 분리
-                                                            const filteredProgressionData =
-                                                              detailData.disease_progression_by_subgroup.filter(
-                                                                (d) =>
-                                                                  displayedProgressionGroupSet.has(
-                                                                    d.group,
-                                                                  ),
-                                                              );
-                                                            const groups =
-                                                              displayedProgressionGroups;
-                                                            const months =
-                                                              Array.from(
-                                                                new Set(
-                                                                  filteredProgressionData.map(
-                                                                    (d) =>
-                                                                      d.month,
-                                                                  ),
-                                                                ),
-                                                              ).sort(
-                                                                (a, b) => a - b,
-                                                              );
-
-                                                            // 각 그룹별 데이터 시리즈 생성
-                                                            const series =
-                                                              groups.map(
-                                                                (
-                                                                  group,
-                                                                  groupIdx,
-                                                                ) => {
-                                                                  const groupData =
-                                                                    filteredProgressionData.filter(
-                                                                      (d) =>
-                                                                        d.group ===
-                                                                        group,
-                                                                    );
-                                                                  const varianceData =
-                                                                    detailData.within_group_variance_by_subgroup?.find(
-                                                                      (v) =>
-                                                                        v.group ===
-                                                                        group,
-                                                                    );
-                                                                  const classification =
-                                                                    varianceData?.classification ||
-                                                                    "";
-                                                                  const color =
-                                                                    getGroupColor(
-                                                                      classification,
-                                                                    );
-                                                                  const groupName =
-                                                                    getGroupDisplayName(
-                                                                      classification,
-                                                                    );
-
-                                                                  return {
-                                                                    name: groupName,
-                                                                    type: "line" as const,
-                                                                    data: months
-                                                                      .map(
-                                                                        (
-                                                                          month,
-                                                                        ) => {
-                                                                          const dataPoint =
-                                                                            groupData.find(
-                                                                              (
-                                                                                d,
-                                                                              ) =>
-                                                                                d.month ===
-                                                                                month,
-                                                                            );
-                                                                          return dataPoint
-                                                                            ? [
-                                                                                month,
-                                                                                dataPoint.mean,
-                                                                              ]
-                                                                            : null;
-                                                                        },
-                                                                      )
-                                                                      .filter(
-                                                                        (d) =>
-                                                                          d !==
-                                                                          null,
-                                                                      ),
-                                                                    itemStyle: {
-                                                                      color,
-                                                                    },
-                                                                    lineStyle: {
-                                                                      color,
-                                                                      width: 2,
-                                                                    },
-                                                                    symbol:
-                                                                      "circle",
-                                                                    symbolSize: 6,
-                                                                  };
-                                                                },
-                                                              );
-
-                                                            // 에러바 시리즈 생성 (custom renderItem 사용)
-                                                            const errorBarSeries =
-                                                              groups.map(
-                                                                (
-                                                                  group,
-                                                                  groupIdx,
-                                                                ) => {
-                                                                  const groupData =
-                                                                    filteredProgressionData.filter(
-                                                                      (d) =>
-                                                                        d.group ===
-                                                                        group,
-                                                                    );
-                                                                  const varianceData =
-                                                                    detailData.within_group_variance_by_subgroup?.find(
-                                                                      (v) =>
-                                                                        v.group ===
-                                                                        group,
-                                                                    );
-                                                                  const classification =
-                                                                    varianceData?.classification ||
-                                                                    "";
-                                                                  const color =
-                                                                    getGroupColor(
-                                                                      classification,
-                                                                    );
-                                                                  const CAP_LEN_PX = 4;
-
-                                                                  return {
-                                                                    name: `${group} error`,
-                                                                    type: "custom" as const,
-                                                                    data: months
-                                                                      .map(
-                                                                        (
-                                                                          month,
-                                                                        ) => {
-                                                                          const dataPoint =
-                                                                            groupData.find(
-                                                                              (
-                                                                                d,
-                                                                              ) =>
-                                                                                d.month ===
-                                                                                month,
-                                                                            );
-                                                                          if (
-                                                                            !dataPoint
-                                                                          )
-                                                                            return null;
-                                                                          return [
-                                                                            month,
-                                                                            dataPoint.mean,
-                                                                            dataPoint.mean -
-                                                                              dataPoint.ci_low,
-                                                                            dataPoint.ci_high -
-                                                                              dataPoint.mean,
-                                                                          ];
-                                                                        },
-                                                                      )
-                                                                      .filter(
-                                                                        (d) =>
-                                                                          d !==
-                                                                          null,
-                                                                      ),
-                                                                    renderItem:
-                                                                      (
-                                                                        params: unknown,
-                                                                        api: {
-                                                                          value: (
-                                                                            i: number,
-                                                                          ) => number;
-                                                                          coord: (
-                                                                            p: number[],
-                                                                          ) => number[];
-                                                                          style: (
-                                                                            o: object,
-                                                                          ) => object;
-                                                                        },
-                                                                      ) => {
-                                                                        const xVal =
-                                                                          api.value(
-                                                                            0,
-                                                                          );
-                                                                        const mean =
-                                                                          api.value(
-                                                                            1,
-                                                                          );
-                                                                        const marginLow =
-                                                                          api.value(
-                                                                            2,
-                                                                          );
-                                                                        const marginHigh =
-                                                                          api.value(
-                                                                            3,
-                                                                          );
-                                                                        const low =
-                                                                          api.coord(
-                                                                            [
-                                                                              xVal,
-                                                                              mean -
-                                                                                marginLow,
-                                                                            ],
-                                                                          );
-                                                                        const high =
-                                                                          api.coord(
-                                                                            [
-                                                                              xVal,
-                                                                              mean +
-                                                                                marginHigh,
-                                                                            ],
-                                                                          );
-                                                                        return {
-                                                                          type: "group",
-                                                                          children:
-                                                                            [
-                                                                              {
-                                                                                type: "line",
-                                                                                shape:
-                                                                                  {
-                                                                                    x1: low[0],
-                                                                                    y1: low[1],
-                                                                                    x2: high[0],
-                                                                                    y2: high[1],
-                                                                                  },
-                                                                                style:
-                                                                                  api.style(
-                                                                                    {
-                                                                                      stroke:
-                                                                                        color,
-                                                                                      lineWidth: 1.5,
-                                                                                    },
-                                                                                  ),
-                                                                              },
-                                                                              {
-                                                                                type: "line",
-                                                                                shape:
-                                                                                  {
-                                                                                    x1:
-                                                                                      low[0] -
-                                                                                      CAP_LEN_PX /
-                                                                                        2,
-                                                                                    y1: low[1],
-                                                                                    x2:
-                                                                                      low[0] +
-                                                                                      CAP_LEN_PX /
-                                                                                        2,
-                                                                                    y2: low[1],
-                                                                                  },
-                                                                                style:
-                                                                                  api.style(
-                                                                                    {
-                                                                                      stroke:
-                                                                                        color,
-                                                                                      lineWidth: 1.5,
-                                                                                    },
-                                                                                  ),
-                                                                              },
-                                                                              {
-                                                                                type: "line",
-                                                                                shape:
-                                                                                  {
-                                                                                    x1:
-                                                                                      high[0] -
-                                                                                      CAP_LEN_PX /
-                                                                                        2,
-                                                                                    y1: high[1],
-                                                                                    x2:
-                                                                                      high[0] +
-                                                                                      CAP_LEN_PX /
-                                                                                        2,
-                                                                                    y2: high[1],
-                                                                                  },
-                                                                                style:
-                                                                                  api.style(
-                                                                                    {
-                                                                                      stroke:
-                                                                                        color,
-                                                                                      lineWidth: 1.5,
-                                                                                    },
-                                                                                  ),
-                                                                              },
-                                                                            ],
-                                                                        };
-                                                                      },
-                                                                    z: 1,
-                                                                    showInLegend: false,
-                                                                  };
-                                                                },
-                                                              );
-
-                                                            // Y축 범위 계산 (에러바가 잘리지 않도록 더 넓은 padding)
-                                                            const allMeans =
-                                                              filteredProgressionData.map(
-                                                                (d) => d.mean,
-                                                              );
-                                                            const allCis =
-                                                              filteredProgressionData.flatMap(
-                                                                (d) => [
-                                                                  d.ci_low,
-                                                                  d.ci_high,
-                                                                ],
-                                                              );
-                                                            const yMin =
-                                                              Math.min(
-                                                                ...allMeans,
-                                                                ...allCis,
-                                                              );
-                                                            const yMax =
-                                                              Math.max(
-                                                                ...allMeans,
-                                                                ...allCis,
-                                                              );
-                                                            const yRange =
-                                                              yMax - yMin;
-                                                            const yPadding =
-                                                              yRange * 0.15; // 10% -> 15%로 증가하여 에러바가 잘리지 않도록
-
-                                                            const chartOption =
-                                                              {
-                                                                animation: false,
-                                                                grid: {
-                                                                  left: "12%",
-                                                                  right: "8%",
-                                                                  top: "5%",
-                                                                  bottom: "15%",
-                                                                  containLabel: false,
-                                                                },
-                                                                xAxis: {
-                                                                  type: "value" as const,
-                                                                  name: "Month",
-                                                                  nameLocation:
-                                                                    "middle",
-                                                                  nameGap: 15,
-                                                                  min: Math.max(
-                                                                    0,
-                                                                    months[0] -
-                                                                      1,
-                                                                  ),
-                                                                  max: months[
-                                                                    months.length -
-                                                                      1
-                                                                  ], // 마지막 month까지만 표시
-                                                                  nameTextStyle:
-                                                                    {
-                                                                      fontSize: 10,
-                                                                      color:
-                                                                        "#484646",
-                                                                    },
-                                                                  axisLabel: {
-                                                                    fontSize: 9,
-                                                                    color:
-                                                                      "#484646",
-                                                                  },
-                                                                  axisLine: {
-                                                                    show: true,
-                                                                    onZero: false, // X축이 항상 하단에 표시되도록
-                                                                    lineStyle: {
-                                                                      color:
-                                                                        "#484646",
-                                                                      width: 1,
-                                                                    },
-                                                                  },
-                                                                  axisTick: {
-                                                                    show: false,
-                                                                  },
-                                                                  splitLine: {
-                                                                    show: true,
-                                                                    lineStyle: {
-                                                                      type: "solid",
-                                                                      color:
-                                                                        "#E8E8E8",
-                                                                      width: 1,
-                                                                    },
-                                                                  },
-                                                                },
-                                                                yAxis: {
-                                                                  type: "value" as const,
-                                                                  name: `Δ ${detailData.outcome}`,
-                                                                  nameLocation:
-                                                                    "middle",
-                                                                  nameGap: 22,
-                                                                  min:
-                                                                    yMin -
-                                                                    yPadding,
-                                                                  max:
-                                                                    yMax +
-                                                                    yPadding,
-                                                                  nameTextStyle:
-                                                                    {
-                                                                      fontSize: 10,
-                                                                      color:
-                                                                        "#484646",
-                                                                    },
-                                                                  axisLabel: {
-                                                                    fontSize: 9,
-                                                                    color:
-                                                                      "#484646",
-                                                                    showMinLabel: false, // min 값 틱 레이블 숨김
-                                                                    showMaxLabel: false, // max 값 틱 레이블 숨김
-                                                                    formatter: (
-                                                                      value: number,
-                                                                    ) => {
-                                                                      // 소수점이 있으면 소수점 첫째자리까지, 없으면 정수로 표시
-                                                                      return value %
-                                                                        1 ===
-                                                                        0
-                                                                        ? value.toString()
-                                                                        : value.toFixed(
-                                                                            1,
-                                                                          );
-                                                                    },
-                                                                  },
-                                                                  axisLine: {
-                                                                    show: true,
-                                                                    onZero: false, // Y축이 항상 왼쪽에 표시되도록
-                                                                    lineStyle: {
-                                                                      color:
-                                                                        "#484646",
-                                                                      width: 1,
-                                                                    },
-                                                                  },
-                                                                  axisTick: {
-                                                                    show: false,
-                                                                  },
-                                                                  splitLine: {
-                                                                    show: true,
-                                                                    lineStyle: {
-                                                                      type: "solid",
-                                                                      color:
-                                                                        "#E8E8E8",
-                                                                      width: 1,
-                                                                    },
-                                                                  },
-                                                                },
-                                                                tooltip: {
-                                                                  show: false, // 툴팁 완전히 비활성화
-                                                                  trigger:
-                                                                    "none" as const,
-                                                                  axisPointer: {
-                                                                    show: false, // 마우스 오버시 수직선 제거
-                                                                  },
-                                                                },
-                                                                legend: {
-                                                                  show: false,
-                                                                },
-                                                                series: [
-                                                                  ...series,
-                                                                  ...errorBarSeries,
-                                                                ],
-                                                              };
-
-                                                            return (
-                                                              <ReactECharts
-                                                                option={
-                                                                  chartOption
-                                                                }
-                                                                style={{
-                                                                  height:
-                                                                    "100%",
-                                                                  width: "100%",
-                                                                }}
-                                                              />
-                                                            );
-                                                          })()
-                                                        ) : (
-                                                          <div className="flex h-full items-center justify-center">
-                                                            <span className="text-sm text-[#484646]">
-                                                              No data available
-                                                            </span>
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                    {/* Number of patients */}
-                                                    <div className="flex h-[196px] flex-col rounded-[18px] bg-white/60 p-4">
-                                                      <h3 className="text-body4 mb-0 flex-shrink-0 font-semibold text-[#1c1b1b]">
-                                                        Number of patients
-                                                      </h3>
-                                                      <p className="mb-0 flex-shrink-0 text-sm text-[#605e5e]">
-                                                        At least {minPatients}{" "}
-                                                        patients per group are
-                                                        recommended.
-                                                      </p>
-                                                      <div className="mt-auto">
-                                                        <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3">
-                                                          <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-0 text-sm font-semibold text-[#231f52]">
-                                                            <div className="w-[142px]">
-                                                              <p className="text-sm font-semibold text-[#231F52]">
-                                                                Group
-                                                              </p>
-                                                            </div>
-                                                            <div>
-                                                              <p className="text-sm font-semibold text-[#231F52]">
-                                                                Number of
-                                                                patients
-                                                              </p>
-                                                            </div>
-                                                          </div>
-                                                          {sortedPatients.map(
-                                                            (patient, idx) => {
-                                                              const varianceData =
-                                                                detailData.within_group_variance_by_subgroup?.find(
-                                                                  (v) =>
-                                                                    v.group ===
-                                                                    patient.group,
-                                                                );
-                                                              const classification =
-                                                                varianceData?.classification ||
-                                                                "";
-                                                              const groupName =
-                                                                getGroupDisplayName(
-                                                                  classification,
-                                                                );
-                                                              const groupColor =
-                                                                getGroupColor(
-                                                                  classification,
-                                                                );
-
-                                                              return (
-                                                                <div
-                                                                  key={
-                                                                    patient.group
-                                                                  }
-                                                                  className={`flex items-center gap-2 text-sm text-[#1c1b1b] ${
-                                                                    idx > 0
-                                                                      ? "border-t border-[#adaaaa] pt-0"
-                                                                      : ""
-                                                                  }`}
-                                                                >
-                                                                  <div className="flex w-[142px] items-center gap-[6px]">
-                                                                    <div
-                                                                      className="h-3 w-3 rounded-full"
-                                                                      style={{
-                                                                        backgroundColor:
-                                                                          groupColor,
-                                                                      }}
-                                                                    />
-                                                                    <div>
-                                                                      <p className="text-body4m font-semibold text-[#1C1B1B]">
-                                                                        {
-                                                                          groupName
-                                                                        }
-                                                                      </p>
-                                                                    </div>
-                                                                  </div>
-                                                                  <div>
-                                                                    <p className="text-body4m font-semibold text-[#1C1B1B]">
-                                                                      {patient.number.toLocaleString()}
-                                                                    </p>
-                                                                  </div>
-                                                                </div>
-                                                              );
-                                                            },
-                                                          )}
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                  {/* Right Column */}
-                                                  <div className="bg-primary-15 flex h-[468px] flex-1 min-w-0 flex-col gap-3 rounded-[18px] p-4">
-                                                    {/* Variance Reduction Explained */}
-                                                    <div>
-                                                      <h3 className="text-feature-title mb-4 text-white">
-                                                        Variance Reduction
-                                                        Explained
-                                                      </h3>
-                                                      <p className="text-body5m leading-relaxed font-semibold text-white">
-                                                        Subgroup stratification
-                                                        reduced the overall
-                                                        variance by{" "}
-                                                        {variancePercent}%. The
-                                                        observed variance
-                                                        reduction was primarily
-                                                        driven by the{" "}
-                                                        {primaryGroup}
-                                                        patient group.
-                                                        Therefore, if cutoff
-                                                        adjustment is required,
-                                                        maintaining the{" "}
-                                                        {primaryGroup}
-                                                        group and adjusting the
-                                                        cutoff for the{" "}
-                                                        {primaryGroup ===
-                                                        "Low Risk"
-                                                          ? "High Risk"
-                                                          : "Low Risk"}{" "}
-                                                        group is a reasonable
-                                                        strategy.
-                                                      </p>
-                                                    </div>
-                                                    {/* Two cards in one row */}
-                                                    <div className="mt-auto grid grid-cols-2 gap-3">
-                                                      {/* Variance decomposition */}
-                                                      <div className="flex h-[306px] flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-4">
-                                                        {/* 텍스트 영역 (패딩 없음) */}
-                                                        <div className="flex justify-between">
-                                                          <div className="flex-shrink-0">
-                                                            <h3 className="text-body5 mb-4 tracking-[-0.75px] text-[#1c1b1b]">
-                                                              Variance
-                                                              decomposition
-                                                            </h3>
-                                                            <div className="mb-4 flex gap-5">
-                                                              <div>
-                                                                <div className="text-body5 -mb-1 font-semibold text-[#f06600]">
-                                                                  Variance
-                                                                </div>
-                                                                <div className="text-[28px] leading-relaxed font-semibold tracking-[-0.84px] text-[#f06600]">
-                                                                  {totalVariance.toFixed(
-                                                                    2,
-                                                                  )}
-                                                                </div>
-                                                              </div>
-                                                              <div>
-                                                                <div className="text-body5 -mb-1 font-semibold text-[#f06600]">
-                                                                  VR
-                                                                </div>
-                                                                <div className="text-[28px] leading-relaxed font-semibold tracking-[-0.84px] text-[#f06600]">
-                                                                  {totalVR.toFixed(
-                                                                    3,
-                                                                  )}
-                                                                </div>
-                                                              </div>
-                                                            </div>
-                                                          </div>
-                                                          <div className="gap-1">
-                                                            <div className="flex gap-[5px] font-medium">
-                                                              <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#231F52]" />
-                                                              <div className="w-[60px] text-[10.5px]">
-                                                                <p>Within</p>
-                                                                <p className="-mt-1 text-[#939090]">
-                                                                  pooled
-                                                                </p>
-                                                              </div>
-                                                            </div>
-                                                            <div className="flex gap-[5px] font-medium">
-                                                              <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#AAA5E1]" />
-                                                              <div className="w-[60px] text-[10.5px]">
-                                                                <p>Explained</p>
-                                                                <p className="-mt-1 text-[#939090]">
-                                                                  Total Within
-                                                                </p>
-                                                              </div>
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                        {/* 그래프 영역 (패딩 없음) */}
-                                                        <div
-                                                          className="min-h-0 flex-1 overflow-hidden bg-white"
-                                                          style={{
-                                                            height: "100%",
-                                                          }}
-                                                        >
-                                                          {detailData.variance_decomposition &&
-                                                          detailData
-                                                            .variance_decomposition
-                                                            .length > 0 ? (
-                                                            (() => {
-                                                              // Variance decomposition 차트 데이터 준비
-                                                              const decompositionData =
-                                                                detailData.variance_decomposition;
-                                                              // 총 variance는 첫 번째 항목의 variance 사용
-                                                              const totalVarianceValue =
-                                                                decompositionData[0]
-                                                                  ?.variance ||
-                                                                0;
-                                                              // VR을 비율로 해석해 total variance를 within/explained로 분해
-                                                              // (stack 합이 totalVarianceValue가 되도록 유지)
-                                                              const vrRatio =
-                                                                Math.max(
-                                                                  0,
-                                                                  Math.min(
-                                                                    1,
-                                                                    decompositionData[0]
-                                                                      ?.vr ?? 0,
-                                                                  ),
-                                                                );
-                                                              const explainedTotal =
-                                                                totalVarianceValue *
-                                                                vrRatio;
-                                                              const withinPooled =
-                                                                Math.max(
-                                                                  0,
-                                                                  totalVarianceValue -
-                                                                    explainedTotal,
-                                                                );
-                                                              const varianceMax =
-                                                                Math.max(
-                                                                  totalVarianceValue,
-                                                                  0,
-                                                                );
-                                                              const varianceBarWidth =
-                                                                "82%";
-
-                                                              const chartOption =
-                                                                {
-                                                                  animation: false,
-                                                                  grid: {
-                                                                    left: "4px",
-                                                                    right: "5%",
-                                                                    top: "5%",
-                                                                    bottom:
-                                                                      "15%",
-                                                                    containLabel: true,
-                                                                  },
-                                                                  xAxis: {
-                                                                    type: "category" as const,
-                                                                    data: [
-                                                                      "Explained",
-                                                                    ],
-
-                                                                    axisLabel: {
-                                                                      show: true,
-                                                                      fontSize: 9,
-                                                                      color:
-                                                                        "#484646",
-                                                                    },
-                                                                    axisLine: {
-                                                                      show: true,
-                                                                      onZero: false,
-                                                                      lineStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#484646",
-                                                                          width: 1,
-                                                                        },
-                                                                    },
-                                                                    axisTick: {
-                                                                      show: false,
-                                                                    },
-                                                                  },
-                                                                  yAxis: {
-                                                                    type: "value" as const,
-                                                                    name: "Variance",
-                                                                    nameLocation:
-                                                                      "middle",
-                                                                    nameGap: 36,
-                                                                    max:
-                                                                      varianceMax *
-                                                                      1.5,
-                                                                    splitNumber: 5,
-                                                                    nameTextStyle:
-                                                                      {
-                                                                        fontSize: 9,
-                                                                        color:
-                                                                          "#484646",
-                                                                      },
-                                                                    axisLabel: {
-                                                                      fontSize: 9,
-                                                                      color:
-                                                                        "#484646",
-                                                                      margin: 4,
-                                                                      formatter:
-                                                                        (
-                                                                          value: number,
-                                                                        ) =>
-                                                                          value.toFixed(
-                                                                            2,
-                                                                          ),
-                                                                    },
-                                                                    axisLine: {
-                                                                      show: true,
-                                                                      onZero: false,
-                                                                      lineStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#484646",
-                                                                          width: 1,
-                                                                        },
-                                                                    },
-                                                                    axisTick: {
-                                                                      show: false,
-                                                                    },
-                                                                    splitLine: {
-                                                                      show: true,
-                                                                      lineStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#efeff4",
-                                                                        },
-                                                                    },
-                                                                  },
-                                                                  tooltip: {
-                                                                    show: false,
-                                                                  },
-                                                                  legend: {
-                                                                    show: false,
-                                                                  },
-                                                                  series: [
-                                                                    {
-                                                                      name: "Within pooled",
-                                                                      type: "bar" as const,
-                                                                      stack:
-                                                                        "variance",
-                                                                      data: [
-                                                                        withinPooled,
-                                                                      ],
-                                                                      itemStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#231F52",
-                                                                          borderRadius:
-                                                                            [
-                                                                              8,
-                                                                              8,
-                                                                              8,
-                                                                              8,
-                                                                            ],
-                                                                        },
-                                                                      barWidth:
-                                                                        varianceBarWidth,
-                                                                    },
-                                                                    {
-                                                                      name: "Explained Total Within",
-                                                                      type: "bar" as const,
-                                                                      stack:
-                                                                        "variance",
-                                                                      data: [
-                                                                        explainedTotal,
-                                                                      ],
-                                                                      itemStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#AAA5E1",
-                                                                          borderRadius:
-                                                                            [
-                                                                              8,
-                                                                              8,
-                                                                              8,
-                                                                              8,
-                                                                            ],
-                                                                        },
-                                                                      barWidth:
-                                                                        varianceBarWidth,
-                                                                    },
-                                                                  ],
-                                                                };
-
-                                                              return (
-                                                                <div className="relative h-full w-full">
-                                                                  <ReactECharts
-                                                                    option={
-                                                                      chartOption
-                                                                    }
-                                                                    style={{
-                                                                      height:
-                                                                        "100%",
-                                                                      width:
-                                                                        "100%",
-                                                                    }}
-                                                                  />
-                                                                  <div className="pointer-events-none absolute top-[8px] right-[14px] left-[34px] h-[40px] px-3">
-                                                                    <div className="rounded-[8px] border border-[#D1CFD8] p-[6px]">
-                                                                      <p className="text-[10.5px] font-medium text-[#787776]">
-                                                                        {getCiText(
-                                                                          detailData.variance_decomposition,
-                                                                        )}
-                                                                      </p>
-                                                                    </div>
-                                                                  </div>
-                                                                </div>
-                                                              );
-                                                            })()
-                                                          ) : (
-                                                            <div className="flex h-full items-center justify-center">
-                                                              <span className="text-sm text-[#484646]">
-                                                                No data
-                                                                available
-                                                              </span>
-                                                            </div>
-                                                          )}
-                                                        </div>
-                                                      </div>
-                                                      {/* Within-group variance by subgroup */}
-                                                      <div className="flex h-[306px] flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-4">
-                                                        {/* 텍스트 영역 (패딩 없음) */}
-                                                        <div className="flex-shrink-0">
-                                                          <h3 className="mb-4 text-[15px] font-semibold text-[#262625]">
-                                                            Within-group
-                                                            variance by subgroup
-                                                          </h3>
-                                                          <div className="mb-4 flex gap-5">
-                                                            {sortedVariance.map(
-                                                              (v) => {
-                                                                const displayName =
-                                                                  v.classification ===
-                                                                  "high"
-                                                                    ? "High"
-                                                                    : v.classification ===
-                                                                        "middle"
-                                                                      ? "Middle"
-                                                                      : "Low";
-                                                                return (
-                                                                  <div
-                                                                    key={
-                                                                      v.group
-                                                                    }
-                                                                  >
-                                                                    <div className="-mb-1 text-xs font-semibold text-[#f06600]">
-                                                                      {
-                                                                        displayName
-                                                                      }
-                                                                    </div>
-                                                                    <div className="text-[28px] font-semibold text-[#f06600]">
-                                                                      {v.variance.toFixed(
-                                                                        2,
-                                                                      )}
-                                                                    </div>
-                                                                  </div>
-                                                                );
-                                                              },
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                        {/* 그래프 영역 (패딩 없음) */}
-                                                        <div
-                                                          className="min-h-0 flex-1 overflow-hidden bg-white"
-                                                          style={{
-                                                            height: "100%",
-                                                          }}
-                                                        >
-                                                          {sortedVariance.length >
-                                                          0 ? (
-                                                            (() => {
-                                                              const maxVar =
-                                                                Math.max(
-                                                                  ...sortedVariance.map(
-                                                                    (v) =>
-                                                                      v.variance,
-                                                                  ),
-                                                                );
-                                                              // total_var 값 가져오기 (모든 그룹이 같은 total_var를 가짐)
-                                                              const totalVarValue =
-                                                                sortedVariance.length >
-                                                                0
-                                                                  ? sortedVariance[0]
-                                                                      .total_var
-                                                                  : 0;
-                                                              const chartOption =
-                                                                {
-                                                                  animation: false,
-                                                                  grid: {
-                                                                    left: "4px",
-                                                                    right: "5%",
-                                                                    top: "5%",
-                                                                    bottom:
-                                                                      "15%",
-                                                                    containLabel: true,
-                                                                  },
-                                                                  xAxis: {
-                                                                    type: "category" as const,
-                                                                    data: sortedVariance.map(
-                                                                      (v) => {
-                                                                        const displayName =
-                                                                          v.classification ===
-                                                                          "high"
-                                                                            ? "High"
-                                                                            : v.classification ===
-                                                                                "middle"
-                                                                              ? "Middle"
-                                                                              : "Low";
-                                                                        return displayName;
-                                                                      },
-                                                                    ),
-                                                                    axisLabel: {
-                                                                      fontSize: 9,
-                                                                      color:
-                                                                        "#484646",
-                                                                    },
-                                                                    axisLine: {
-                                                                      show: true,
-                                                                      onZero: false,
-                                                                      lineStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#484646",
-                                                                          width: 1,
-                                                                        },
-                                                                    },
-                                                                    axisTick: {
-                                                                      show: false,
-                                                                    },
-                                                                  },
-                                                                  yAxis: {
-                                                                    type: "value" as const,
-                                                                    name: "Variance",
-                                                                    nameLocation:
-                                                                      "middle",
-                                                                    nameGap: 36,
-                                                                    max:
-                                                                      maxVar *
-                                                                      1.2,
-                                                                    splitNumber: 5,
-                                                                    nameTextStyle:
-                                                                      {
-                                                                        fontSize: 9,
-                                                                        color:
-                                                                          "#484646",
-                                                                      },
-                                                                    axisLabel: {
-                                                                      fontSize: 9,
-                                                                      color:
-                                                                        "#484646",
-                                                                      margin: 4,
-                                                                      formatter:
-                                                                        (
-                                                                          value: number,
-                                                                        ) =>
-                                                                          value.toFixed(
-                                                                            2,
-                                                                          ),
-                                                                    },
-                                                                    axisLine: {
-                                                                      show: true,
-                                                                      onZero: false,
-                                                                      lineStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#484646",
-                                                                          width: 1,
-                                                                        },
-                                                                    },
-                                                                    axisTick: {
-                                                                      show: false,
-                                                                    },
-                                                                    splitLine: {
-                                                                      show: true,
-                                                                      lineStyle:
-                                                                        {
-                                                                          color:
-                                                                            "#efeff4",
-                                                                        },
-                                                                    },
-                                                                  },
-                                                                  tooltip: {
-                                                                    show: false,
-                                                                  },
-                                                                  legend: {
-                                                                    show: false,
-                                                                  },
-                                                                  series: [
-                                                                    {
-                                                                      type: "bar" as const,
-                                                                      data: sortedVariance.map(
-                                                                        (
-                                                                          v,
-                                                                        ) => ({
-                                                                          value:
-                                                                            v.variance,
-                                                                          sampleN:
-                                                                            typeof v.number ===
-                                                                            "number"
-                                                                              ? Math.round(
-                                                                                  v.number,
-                                                                                )
-                                                                              : null,
-                                                                          itemStyle:
-                                                                            {
-                                                                              color:
-                                                                                getGroupColor(
-                                                                                  v.classification,
-                                                                                ),
-                                                                              borderRadius:
-                                                                                [
-                                                                                  8,
-                                                                                  8,
-                                                                                  8,
-                                                                                  8,
-                                                                                ],
-                                                                            },
-                                                                        }),
-                                                                      ),
-                                                                      barWidth:
-                                                                        "50%",
-                                                                      label: {
-                                                                        show: true,
-                                                                        position:
-                                                                          "insideBottom",
-                                                                        distance: 8,
-                                                                        formatter:
-                                                                          (params: {
-                                                                            data?: {
-                                                                              sampleN?:
-                                                                                | number
-                                                                                | null;
-                                                                            };
-                                                                          }) => {
-                                                                            const sampleN =
-                                                                              params
-                                                                                .data
-                                                                                ?.sampleN;
-                                                                            if (
-                                                                              typeof sampleN !==
-                                                                              "number"
-                                                                            ) {
-                                                                              return "";
-                                                                            }
-                                                                            return `n=${sampleN}`;
-                                                                          },
-                                                                        color:
-                                                                          "#FFFFFF",
-                                                                        fontFamily:
-                                                                          "Inter, sans-serif",
-                                                                        fontSize: 12,
-                                                                        fontWeight: 600,
-                                                                        lineHeight: 13.2,
-                                                                      },
-                                                                      markLine:
-                                                                        {
-                                                                          silent: true,
-                                                                          symbol:
-                                                                            "none",
-                                                                          label:
-                                                                            {
-                                                                              show: true,
-                                                                              position:
-                                                                                "end",
-                                                                              formatter: `Total var=${totalVarValue.toFixed(2)}`,
-                                                                              fontSize: 10,
-                                                                              color:
-                                                                                "#484646",
-                                                                              offset:
-                                                                                [
-                                                                                  -75,
-                                                                                  -10,
-                                                                                ],
-                                                                            },
-                                                                          lineStyle:
-                                                                            {
-                                                                              type: "dashed",
-                                                                              color:
-                                                                                "#D2D2DA",
-                                                                              width: 1,
-                                                                            },
-                                                                          data: [
-                                                                            {
-                                                                              yAxis:
-                                                                                totalVarValue,
-                                                                            },
-                                                                          ],
-                                                                        },
-                                                                    },
-                                                                  ],
-                                                                };
-
-                                                              return (
-                                                                <ReactECharts
-                                                                  option={
-                                                                    chartOption
-                                                                  }
-                                                                  style={{
-                                                                    height:
-                                                                      "100%",
-                                                                    width:
-                                                                      "100%",
-                                                                  }}
-                                                                />
-                                                              );
-                                                            })()
-                                                          ) : (
-                                                            <div className="flex h-full items-center justify-center">
-                                                              <span className="text-sm text-[#484646]">
-                                                                No data
-                                                                available
-                                                              </span>
-                                                            </div>
-                                                          )}
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        );
-                                      })()}
+                                    {isExpanded && <ExpandedRowContent row={row} />}
                                   </Fragment>
                                 );
                               })
