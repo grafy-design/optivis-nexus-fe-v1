@@ -13,9 +13,10 @@ type ScatterGroup = {
 
 type ScatterSlopeChartProps = {
   data: Record<string, ScatterGroup>;
+  height?: number | string;
 };
 
-export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
+export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps) => {
   const groups = Object.entries(data ?? {});
   const allPoints = groups.flatMap(([, group]) => group.points ?? []);
 
@@ -44,7 +45,7 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
           [xMax, regression.slope * xMax + regression.intercept],
         ],
         showSymbol: false,
-        lineStyle: { color: "#666", width: 1.2 },
+        lineStyle: { color: palette[index % palette.length], width: 1.2 },
         tooltip: { show: false },
       });
     }
@@ -52,29 +53,54 @@ export const ScatterSlopeChart = ({ data }: ScatterSlopeChartProps) => {
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 50, right: 14, top: 24, bottom: 32 },
+    grid: { left: 48, right: 4, top: 8, bottom: 4 },
     tooltip: {
       trigger: "item",
       formatter: (p: any) => `Slope: ${p.value[0]}<br/>C Vision: ${p.value[1]}`,
     },
     xAxis: {
       type: "value",
-      name: "ADAS Progression Slope",
-      nameLocation: "middle",
-      nameGap: 24,
-      axisLine: { lineStyle: { color: "#666" } },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#484646" } },
+      axisTick: { show: false },
       splitLine: { show: false },
+     nameTextStyle: {
+        color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
+      },
+      axisLabel: {
+          margin:4,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif"
+        },
     },
     yAxis: {
       type: "value",
-      name: "C Vision",
+      name: "Proportion",
       nameLocation: "middle",
-      nameGap: 34,
-      axisLine: { lineStyle: { color: "#666" } },
+      axisLine: { show: true, lineStyle: { color: "#484646" } },
+      axisTick: { show: true, lineStyle: { color: "#484646" } },
+    nameTextStyle: {
+        color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
+      },
+      nameGap:36,
+      axisLabel: {
+          margin:4,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif"
+        },
       splitLine: { show: false },
     },
     series,
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height }} />;
 };

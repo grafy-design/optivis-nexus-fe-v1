@@ -93,35 +93,47 @@ export default function TSIPatientsSummaryPage() {
           <div className="flex flex-1 min-h-0 flex-col gap-0">
 
           {/* 2-1. 글래스 컨테이너 */}
-          <div className="flex flex-1 min-h-0 flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: 12 }}>
+          <div className="flex flex-1 min-h-0 flex-col gap-0.5" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}>
 
             {/* 1. 숫자 요약 행 */}
-            <div className="flex flex-row items-baseline gap-0 px-[12px] flex-shrink-0">
-              <span className="text-body4m tabular-nums text-primary-50" style={{ fontSize: 28, fontWeight: 700 }}>{displayConversionPercent}</span>
-              <span className="text-[17px] font-semibold text-primary-50">%</span>
-              <span className="text-body4 text-neutral-50 mx-2">converted</span>
-              <span className="text-[17px] font-semibold text-neutral-40">(</span>
-              <span className="text-body4m tabular-nums text-neutral-40" style={{ fontSize: 20, fontWeight: 700 }}>{displayFilteredCount.toLocaleString()}</span>
-              <span className="text-[17px] font-semibold text-neutral-40">/</span>
-              <span className="text-body4m tabular-nums text-neutral-40" style={{ fontSize: 20, fontWeight: 700 }}>{displayTotalCount.toLocaleString()}</span>
-              <span className="text-[17px] font-semibold text-neutral-40">)</span>
+            <div className="flex flex-row h-wrap items-baseline gap-0 px-[4px] flex-shrink-0 justify-end -mt-2">
+              <div className="h-wrap text-body4 text-neutral-50 pr-[16px]">
+                Number Analyzed 480 participants </div>
+              <div className="h-wrap" >
+                <span className="text-body4 text-neutral-50" style={{  }}>{displayConversionPercent}</span>
+              <span className="text-body4 text-neutral-50 ">%</span>
+              <span className="text-body5 text-neutral-50 mx-1">converted</span>
+              <span className="text-body5 text-neutral-50">(</span>
+              <span className="text-body5 tabular-nums text-neutral-50" style={{ }}>{displayFilteredCount.toLocaleString()}</span>
+              <span className="text-body5 text-neutral-50">/</span>
+              <span className="text-body5 tabular-nums text-neutral-50" style={{  }}>{displayTotalCount.toLocaleString()}</span>
+              <span className="text-body5 text-neutral-50">)</span></div>
             </div>
 
             {/* 2. 테이블 헤더 + 바디 컨테이너 (gap-1) */}
-            <div className="flex flex-1 min-h-0 flex-col gap-1">
+            <div className="flex flex-1 min-h-0 flex-col gap-2">
 
               {/* 2-1. Table Header */}
-              <div className="flex-shrink-0">
-                <div className="grid grid-cols-4 gap-0 px-[12px]" style={{ alignItems: "end" }}>
-                  <div className="text-body4 text-neutral-30">Baseline Characteristics</div>
-                  <div />
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-body3 text-neutral-30 flex-shrink-0" style={{ fontWeight: 590, fontSize: 15 }}>Full Cohort</span>
-                    <span className="text-body5 text-neutral-60">N (%) or mean ± sd (min, max)</span>
+              <div className="rounded-[16px] w-full flex items-center py-[8px]" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
+                <div className="grid grid-cols-4 -gap-1 px-[12px] w-full " style={{ alignItems: "center" }}>
+                  <div className="text-body3m text-neutral-99">Baseline Characteristics</div>
+                  <div/>
+                  <div className="grid grid-cols-[1fr_1fr_1fr]">
+                
+                    <div className="col-span-2 flex flex-col items-end">
+                      <div className="text-body3m text-neutral-99 flex-shrink-0">Full Cohort</div>
+                      <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">N (%) or mean ± sd (min, max)
+                    </div>
+                    </div>
+                        <div />
                   </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-body3 text-neutral-30 flex-shrink-0" style={{ fontWeight: 590, fontSize: 15 }}>Filtered Cohort</span>
-                    <span className="text-body5 text-neutral-60">N (%) or mean ± sd (min, max)</span>
+                  <div className="grid grid-cols-[1fr_1fr_1fr]">
+                    
+                    <div className="col-span-2 flex flex-col items-end -gap-1">
+                      <div className="text-body3m text-neutral-99 flex-shrink-0">Filtered Cohort</div>
+                      <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">N (%) or mean ± sd (min, max)</div>
+                    </div>
+                  <div/>
                   </div>
                 </div>
               </div>
@@ -149,13 +161,14 @@ export default function TSIPatientsSummaryPage() {
                             <div className="flex h-full items-end">
                               <div className="text-body2 text-neutral-30 items-end">{category.category}</div>
                             </div>
-                            <div />
-                            <div className="grid grid-cols-[80px_54px] items-end h-full">
-                              <div className="text-body5m text-left text-neutral-50 items-end">Value</div>
-                              <div className="text-body5m text-right text-neutral-50 items-end">Value%</div>
+                            <div/>
+                            <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
+                              <div className="text-body5m text-right text-neutral-50 items-end ">Value</div>
+                              <div className="text-body5m text-right text-neutral-50 items-end ">Value%</div>
+                              <div/>
                             </div>
-                            <div className="grid grid-cols-[80px_54px] items-end h-full">
-                              <div className="text-body5m text-left text-primary-50 items-end">Value</div>
+                            <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
+                              <div className="text-body5m text-right text-primary-50 items-end">Value</div>
                               <div className="text-body5m text-right text-primary-50 items-end">Value%</div>
                             </div>
                           </div>
@@ -170,12 +183,12 @@ export default function TSIPatientsSummaryPage() {
                                   <div className="text-body4m text-[#929090]">{item.label}</div>
                                 </div>
                                 <div />
-                                <div className="grid grid-cols-[80px_54px] items-center h-full">
-                                  <div className="text-body4m text-left tabular-nums text-neutral-50">{item.fullCohort.value}</div>
+                                <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
+                                  <div className="text-body4m text-right tabular-nums text-neutral-50">{item.fullCohort.value}</div>
                                   <div className="text-body4m text-right tabular-nums text-neutral-50">{item.fullCohort.percent}</div>
                                 </div>
-                                <div className="grid grid-cols-[80px_54px] items-center h-full">
-                                  <div className="text-body4m text-left tabular-nums text-primary-50">{item.filteredCohort.value}</div>
+                                <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
+                                  <div className="text-body4m text-right tabular-nums text-primary-50">{item.filteredCohort.value}</div>
                                   <div className="text-body4m text-right tabular-nums text-primary-50">{item.filteredCohort.percent}</div>
                                 </div>
                               </div>
@@ -214,12 +227,12 @@ export default function TSIPatientsSummaryPage() {
       {/* Save Simulation 모달 */}
       {showSaveModal && (
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(4px)" }}
+          style={{ position: "fixed",  inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(4px)" }}
           onClick={() => setShowSaveModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: "relative", width: "660px", borderRadius: "24px", padding: "24px", display: "flex", flexDirection: "column", gap: "24px", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+            style={{ position: "relative", width: "480px", borderRadius: "24px", padding: "20px", display: "flex", flexDirection: "column", gap: "36px", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
           >
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: "24px", pointerEvents: "none" }}>
               <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
@@ -228,19 +241,25 @@ export default function TSIPatientsSummaryPage() {
             </div>
             <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "24px", color: "#262625", letterSpacing: "-0.72px", lineHeight: 1.2, margin: 0 }}>Study Title</p>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Study Title</p>
                 <input type="text" value={simName} onChange={(e) => setSimName(e.target.value)} placeholder="Write a title"
-                  style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#787776", letterSpacing: "-0.51px", lineHeight: 1.05, background: "none", border: "none", outline: "none", padding: 0, width: "100%" }} />
+                  style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", background: "none", border: "none", outline: "none", padding: 0, width: "100%" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "24px", color: "#262625", letterSpacing: "-0.72px", lineHeight: 1.2, margin: 0 }}>Date</p>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#787776", letterSpacing: "-0.51px", lineHeight: 1.05, margin: 0 }}>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Date</p>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
                   {new Date().toISOString().replace("T", " ").slice(0, 19)}
                 </p>
               </div>
+               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Version</p>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
+                  v 1.1
+                </p>
+              </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "24px", color: "#262625", letterSpacing: "-0.72px", lineHeight: 1.2, margin: 0 }}>Description</p>
-                <div style={{ background: "#d9d9d9", borderRadius: "16px", padding: "0 20px", height: "56px", display: "flex", alignItems: "center" }}>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Description</p>
+                <div style={{ background: "#d9d9d9", borderRadius: "12px", padding: "0 20px", height: "36px", display: "flex", alignItems: "center" }}>
                   <input type="text" value={simDesc} onChange={(e) => setSimDesc(e.target.value.slice(0, 30))} placeholder="Please enter a description."
                     style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "19.5px", color: "#787776", letterSpacing: "-0.585px", background: "none", border: "none", outline: "none", width: "100%" }} />
                 </div>

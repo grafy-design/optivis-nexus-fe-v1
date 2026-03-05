@@ -780,10 +780,7 @@ export function RefineCutoffChartEditor({
                 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 2L9 5H3L6 2Z" fill="#929090"/>
-                  <path d="M6 10L3 7H9L6 10Z" fill="#929090"/>
-                </svg>
+                <img src="/assets/icons/chevron-select.svg" width={12} height={12} alt="" style={{ flexShrink: 0 }} />
               </div>
               {additionalSliders.slice(0, maxAdditionalSliders).map((proportion, index) => (
                 <div
@@ -841,8 +838,8 @@ export function RefineCutoffChartEditor({
                     width: 28,
                     height: 28,
                     borderRadius: "50%",
-                    backgroundColor: "#EBE6FD",
-                    border: "1px solid #BFB0F8",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #E2E1E5",
                     boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
                     display: "flex",
                     alignItems: "center",
@@ -850,10 +847,7 @@ export function RefineCutoffChartEditor({
                     flexShrink: 0,
                   }}
                 >
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 2L9 5H3L6 2Z" fill="#BFB0F8"/>
-                    <path d="M6 10L3 7H9L6 10Z" fill="#BFB0F8"/>
-                  </svg>
+                  <img src="/assets/icons/chevron-select.svg" width={12} height={12} alt="" style={{ flexShrink: 0 }} />
                 </div>
               ))}
             </div>

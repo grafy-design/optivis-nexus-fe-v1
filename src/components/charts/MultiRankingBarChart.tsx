@@ -25,6 +25,7 @@ interface MultiRankingBarChartProps {
 }
 
 export function MultiRankingBarChart({ data, height = "100%", label }: MultiRankingBarChartProps) {
+  const isNarrow = typeof window !== "undefined" && window.innerWidth < 1470;
   const normalizedData: MultiRankingBarItem[] = data.map((item) => {
     if ("value" in item && "label" in item) {
       return item;
@@ -69,7 +70,7 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
         series: normalizedData.map((item, index) => ({
           type: "bar",
           data: [item.value],
-          itemStyle: { color: index < 3 ? "#f06600" : index >= 7 ? "#C8C8CB" : "#AAAAAD", borderRadius: [8, 8, 8, 8] },
+          itemStyle: { color: index < 3 ? "#f06600" : index >= 7 ? "#C8C8CB" : "#AAAAAD", borderRadius: [6, 6, 6, 6] },
           barWidth: barWidth,
           barGap,
           label: {
@@ -77,8 +78,8 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
             formatter: item.label,
             position: "insideBottom",
             color: "#ffffff",
-            fontSize: 15,
-            font: "inter",
+            fontSize: isNarrow ? 13 : 15,
+            font: "inter, Sanserif",
             fontWeight: 500,
             letterSpacing: -0.45,
           },

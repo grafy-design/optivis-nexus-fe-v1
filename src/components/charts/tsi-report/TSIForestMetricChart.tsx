@@ -60,7 +60,7 @@ export function TSIForestMetricChart({
   const option: EChartsOption = {
     animation: false,
     tooltip: { show: false },
-    grid: { left: 4, right: 20, top: 2, bottom: showAxis ? 28 : 2 },
+    grid: { left: 0, right: 0, top: 0, bottom: showAxis ? 28 : 2 },
     xAxis: {
       type: "value",
       min: 0,
@@ -80,8 +80,10 @@ export function TSIForestMetricChart({
       nameLocation: "middle",
       nameGap: 14,
       nameTextStyle: {
-        color: "#4A4949",
-        fontSize: 11,
+        color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
       },
     },
     yAxis: {
@@ -91,6 +93,12 @@ export function TSIForestMetricChart({
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { show: false },
+      nameTextStyle: {
+        color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
+      }
     },
     series: [
       {

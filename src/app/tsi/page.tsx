@@ -296,7 +296,7 @@ export default function TSIPage() {
                 <div className="flex flex-1 min-h-0 flex-col gap-[8px]">
                   {/* Table Header - Single header like main page */}
                   <div className="rounded-[24px] h-wrap flex items-center py-[8px]" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
-                    <div className="flex text-white w-full" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                    <div className="flex text-white w-full text-body4m" style={{  }}>
                       {/* Left header */}
                       <div className="flex items-center flex-1 min-w-0 px-[20px]">
                         <div className="flex items-center gap-4 flex-[3] min-w-0">
@@ -328,7 +328,7 @@ export default function TSIPage() {
                     <div className="flex-1 overflow-hidden flex-shrink-0 min-w-0">
                       {leftTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
-                          <div className="p-[20px] min-h-[280px]">
+                          <div className="px-[16px] py-[12px] min-h-[280px]">
                             {leftTableData.map((data, index) => (
                               <div
                                 key={data.id}
@@ -350,17 +350,17 @@ export default function TSIPage() {
                                       size={16}
                                     />
                                   </div>
-                                  <span className="truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                  <span className="truncate text-neutral-50 text-body4m">
                                     {data.name}
                                   </span>
                                 </div>
-                                <span className="flex-[2] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[2] min-w-0 truncate text-neutral-50 text-body4m">
                                   {data.patients}
                                 </span>
-                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body4m">
                                   {data.disease}
                                 </span>
-                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body4m">
                                   {data.updateDate}
                                 </span>
                               </div>
@@ -377,13 +377,13 @@ export default function TSIPage() {
                     </div>
 
                     {/* Divider */}
-                    <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[26px] mb-[26px]" />
+                    <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[12px] mb-[12px]" />
 
                     {/* Right Table */}
                     <div className="flex-1 overflow-hidden flex-shrink-0 min-w-0">
                       {rightTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
-                          <div className="p-[20px] min-h-[280px]">
+                          <div className="px-[16px] py-[12px] min-h-[280px]">
                             {rightTableData.map((data, index) => (
                               <div
                                 key={data.id}
@@ -405,17 +405,17 @@ export default function TSIPage() {
                                       size={16}
                                     />
                                   </div>
-                                  <span className="truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                  <span className="truncate text-neutral-50 text-body4m">
                                     {data.name}
                                   </span>
                                 </div>
-                                <span className="flex-[2] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[2] min-w-0 truncate text-neutral-50 text-body4m">
                                   {data.patients}
                                 </span>
-                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body4m">
                                   {data.disease}
                                 </span>
-                                <span className="flex-[3] min-w-0 truncate text-neutral-20" style={{ fontSize: "14px", fontWeight: 600, letterSpacing: "-0.42px" }}>
+                                <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body4m">
                                   {data.updateDate}
                                 </span>
                               </div>

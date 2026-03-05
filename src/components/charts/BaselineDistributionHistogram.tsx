@@ -14,11 +14,13 @@ export type HistogramData = {
 type BaselineDistributionHistogramProps = {
   histogramData: HistogramData;
   normalize?: boolean;
+  height?: number | string;
 };
 
 export const BaselineDistributionHistogram = ({
   histogramData,
   normalize = false,
+  height = 120,
 }: BaselineDistributionHistogramProps) => {
   const getNiceInterval = (maxValue: number): number => {
     if (maxValue <= 0) {
@@ -76,17 +78,20 @@ export const BaselineDistributionHistogram = ({
 
     return {
       animation: false,
-      grid: { left: 56, right: 10, top: 8, bottom: 28 },
+      grid: { left: 48, right:4, top: 8, bottom:16  },
       tooltip: { trigger: "axis" },
       xAxis: {
         type: "category",
         data: xLabels,
-        axisLine: { lineStyle: { color: "#4B4B4B", width: 1 } },
+        axisLine: { show: true, lineStyle: { color: "#484646" } },
         axisTick: { show: false },
         axisLabel: {
-          color: "#4B4B4B",
-          fontSize: 10,
           interval: 0,
+          margin:4,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
           formatter: (value: string) => {
             const num = Number(value);
             const rounded = Math.round(num);
@@ -104,13 +109,17 @@ export const BaselineDistributionHistogram = ({
         interval: yAxisInterval,
         name: "CI Width",
         nameLocation: "middle",
-        nameGap: 34,
-        nameTextStyle: { color: "#2F2F2F", fontSize: 9 },
-        axisLine: { lineStyle: { color: "#4B4B4B", width: 1 } },
-        axisTick: { lineStyle: { color: "#8D8D8D" } },
+        nameGap: 36,
+        color: "#484646",
+        nameTextStyle: { color: "#484646", fontSize: 9 },
+      axisLine: { show: true, lineStyle: { color: "#484646" } },
+      axisTick: { show: true, lineStyle: { color: "#484646" } },
         axisLabel: {
-          color: "#4B4B4B",
-          fontSize: 9,
+          margin:8,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
           formatter: (value: number) =>
             normalize ? value.toFixed(2) : Math.round(value).toString(),
         },
@@ -132,5 +141,5 @@ export const BaselineDistributionHistogram = ({
     };
   }, [histogramData, normalize]);
 
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height }} />;
 };

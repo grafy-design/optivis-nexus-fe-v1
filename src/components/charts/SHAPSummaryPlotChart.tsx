@@ -66,13 +66,21 @@ export const SHAPSummaryPlotChart = ({
 
     const maxAbsShap = chartData.reduce((acc, [x]) => Math.max(acc, Math.abs(x)), 0.1);
     const xLimit = Math.ceil(maxAbsShap * 10) / 10;
-    const colorValues = chartData.map(([, , value]) => value);
+
+    const colorValues = chartData.map(([, , v]) => v);
     const colorMin = colorValues.length > 0 ? Math.min(...colorValues) : 0;
     const colorMax = colorValues.length > 0 ? Math.max(...colorValues) : 1;
-    const visualMax = colorMax === colorMin ? colorMin + 1 : colorMax;
+    const colorRange = colorMax === colorMin ? 1 : colorMax - colorMin;
+    const interpolateColor = (t: number) => {
+      // #D8D3FF (low) → #231F52 (high)
+      const r = Math.round(0xD8 + (0x23 - 0xD8) * t);
+      const g = Math.round(0xD3 + (0x1F - 0xD3) * t);
+      const b = Math.round(0xFF + (0x52 - 0xFF) * t);
+      return `rgb(${r},${g},${b})`;
+    };
 
     const baseOption: EChartsOption = {
-      animation: false,
+      animation: true,
       title: {
         text: "",
         left: 0,
@@ -87,10 +95,11 @@ export const SHAPSummaryPlotChart = ({
         },
       },
       grid: {
-        top: 8,
-        left: 110,
-        right: 56,
-        bottom: 24,
+        top: 0,
+        left: 12,
+        right: 0,
+        bottom: 0,
+        containLabel: true,
       },
       tooltip: {
         trigger: "item",
@@ -108,24 +117,30 @@ export const SHAPSummaryPlotChart = ({
       },
       xAxis: {
         type: "value",
-        min: -xLimit,
+        min: -xLimit ,
         max: xLimit,
-        splitLine: { show: true, lineStyle: { color: "#E6E6ED" } },
+        splitLine: { show: true, lineStyle: { color: "#E2E1E5", type: "dashed" } },
         axisLine: { lineStyle: { color: "#B4B4BE" } },
         axisTick: { show: false },
-        axisLabel: { color: "#77788A", fontSize: 11 },
+        axisLabel: { color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
+         },
       },
       yAxis: {
         type: "value",
-        min: -0.5,
+        min: - 1,
         max: featureOrder.length - 0.5,
         interval: 1,
-        splitLine: { show: true, lineStyle: { color: "#ECECF2" } },
+        splitLine: { show: true, lineStyle: { color: "#E2E1E5" } },
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: {
-          color: "#5F6072",
-          fontSize: 11,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
           formatter: (value) => {
             const idx = Math.round(Number(value));
             return featureOrder[idx] ?? "";
@@ -133,30 +148,20 @@ export const SHAPSummaryPlotChart = ({
         },
         inverse: true,
       },
-      visualMap: {
-        min: colorMin,
-        max: visualMax,
-        dimension: 2,
-        orient: "vertical",
-        right: 0,
-        top: 8,
-        bottom: 24,
-        itemWidth: 12,
-        // @ts-ignore
-        itemHeight: "400%",
-        text: ["High", "Low"],
-        calculable: false,
-        textStyle: { color: "#5F6072", fontSize: 11 },
-        inRange: {
-          color: ["#D8D3FF", "#231F52"],
-        },
-      },
       series: [
         {
           type: "scatter",
           data: chartData,
           symbolSize: 7,
-          itemStyle: { opacity: 0.9 },
+          itemStyle: {
+            opacity: 0.9,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            color: (params: any) => {
+              const v = Number(Array.isArray(params.value) ? params.value[2] : 0);
+              const t = (v - colorMin) / colorRange;
+              return interpolateColor(Math.max(0, Math.min(1, t)));
+            },
+          },
           emphasis: { scale: 1.05 },
         },
       ],

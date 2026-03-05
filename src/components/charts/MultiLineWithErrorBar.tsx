@@ -205,7 +205,7 @@ export const MultiLineWithErrorBar = ({
   const option: EChartsOption = {
     tooltip: { trigger: "axis" },
     legend: { show: false },
-    grid: { left: 36, right: 18, top: 10, bottom: 26, containLabel: true },
+    grid: { left: 8, right: 8, top: 0, bottom: 0, containLabel: true },
     xAxis: {
       type: "value",
       min: xAxisMin,
@@ -252,7 +252,7 @@ export const MultiLineWithErrorBar = ({
         fontFamily: yAxis?.fontFamily ?? "Inter",
       },
       axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
-      name: yAxis?.name ?? "change from baseline score mean",
+      name: yAxis?.name,
       nameLocation: "middle",
       nameGap: yAxis?.nameGap ?? 28,
       nameRotate: yAxis?.nameRotate ?? 90,

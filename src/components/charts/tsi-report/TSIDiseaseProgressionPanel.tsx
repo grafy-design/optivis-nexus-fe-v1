@@ -164,18 +164,19 @@ export function TSIDiseaseProgressionPanel({
 
       {rows && rows.length > 0 && (
         <div className={`${style.tableMarginTopClassName} flex-shrink-0`}>
-          <div className="h-px w-full" style={{ backgroundColor: style.separatorColor }} />
-          <div className="mt-2 flex flex-col gap-1">
+          <div className="h-px w-full" style={{ backgroundColor: style.separatorColor}} />
+          <div className="mt-2 flex flex-col">
             {rows.map((row, index) => {
               const color = seriesColors[index] ?? seriesColors[seriesColors.length - 1] ?? style.legendFallbackColor;
               return (
-                <div key={row.subgroupName} className="grid grid-cols-[140px_80px_1fr] items-center gap-2 text-[11px]">
+                <div key={row.subgroupName} className={`grid grid-cols-[2fr_4fr_1fr_4fr] items-center gap-2 text-[11px] py-1${index > 0 ? " border-t border-[#CECDD6]" : ""}`}>
                   <div className="flex items-center gap-1.5">
                     <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-neutral-20 font-medium">{row.subgroupName}</span>
+                    <span className="text-body5m text-neutral-70 font-medium">{row.subgroupName}</span>
                   </div>
-                  <span className="text-neutral-40">{row.riskLabel}</span>
-                  <span className="text-neutral-40 truncate">{row.cutoff}</span>
+                  <span className="text-body4m text-neutral-30">{row.riskLabel}</span>
+                  <span className="text-body5m text-neutral-70">cutoff</span>
+                  <span className="text-body4m text-neutral-30 truncate">{row.cutoff}</span>
                 </div>
               );
             })}

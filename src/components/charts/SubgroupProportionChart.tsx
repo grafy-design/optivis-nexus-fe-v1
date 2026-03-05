@@ -11,9 +11,10 @@ type BinRatioItem = {
 
 type SubgroupProportionChartProps = {
   data: BinRatioItem[];
+  height?: number | string;
 };
 
-export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) => {
+export const SubgroupProportionChart = ({ data, height = 120 }: SubgroupProportionChartProps) => {
   const xLabels = data.map((item) => {
     const left = Number(item.range?.[0] ?? 0);
     const right = Number(item.range?.[1] ?? left);
@@ -50,7 +51,7 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 48, right: 12, top: 28, bottom: 30 },
+    grid: { left: 48, right: 0, top: 8, bottom: 16 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -59,8 +60,23 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
     xAxis: {
       type: "category",
       data: xLabels,
-      axisLine: { lineStyle: { color: "#666" } },
+      axisLine: { show: true, lineStyle: { color: "#484646" } },
       axisTick: { show: false },
+      nameGap: 12,
+      nameTextStyle: {
+        color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",
+      },
+      axisLabel: {
+          margin:4,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif"
+        },
+      
     },
     yAxis: {
       type: "value",
@@ -69,9 +85,20 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
       interval: 0.2,
       name: "Proportion",
       nameLocation: "middle",
-      nameGap: 34,
-      axisLine: { lineStyle: { color: "#666" } },
+      nameGap: 36,
+      axisLine: { show: true, lineStyle: { color: "#484646" } },
+      axisTick: { show: true, lineStyle: { color: "#484646" }  },
       splitLine: { show: false },
+      nameTextStyle: {color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif",},
+      axisLabel: {
+          margin: 8,
+          color: "#484646",
+          fontSize: 10,
+          fontWeight: 500,
+          fontFamily: "Inter, sans-serif"}
     },
     series: seriesByGroup.map((group, index) => ({
       name: group.groupKey,
@@ -79,9 +106,10 @@ export const SubgroupProportionChart = ({ data }: SubgroupProportionChartProps) 
       stack: "total",
       data: group.values,
       barWidth: "88%",
-      itemStyle: { color: palette[index % palette.length] },
+      itemStyle: { color: palette[index % palette.length], borderRadius: [6, 6, 6, 6] },
+       
     })),
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} />;
+  return <ReactECharts option={option} style={{ width: "100%", height }} />;
 };
