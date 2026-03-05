@@ -651,7 +651,7 @@
 
   /* Typography - Small1 (Inter Medium 10.5px) */
   .text-small1 {
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 500;
     line-height: 11.025px;
     letter-spacing: -0.525px;
@@ -664,7 +664,6 @@
     line-height: 10.74px;
     letter-spacing: -0.27px;
   }
-
   /* Typography - Feature List Title (Inter Semi Bold 600, 19.5px) */
   .text-feature-title {
     font-size: 19.5px;
