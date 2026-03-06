@@ -318,6 +318,7 @@ function buildDiseaseProgressionChartOption(
   displayedProgressionGroups: string[],
   withinGroupVariance: ResultTableItem["within_group_variance_by_subgroup"],
   outcome: string,
+  isNarrow = false,
 ) {
   const months = Array.from(
     new Set(filteredProgressionData.map((d) => d.month)),
@@ -336,11 +337,11 @@ function buildDiseaseProgressionChartOption(
       itemStyle: { color },
       lineStyle: { color, width: 2 },
       symbol: "circle",
-      symbolSize: 6,
+      symbolSize: isNarrow ? 6 : 10,
     };
   });
 
-  const CAP_LEN_PX = 4;
+  const CAP_LEN_PX = isNarrow ? 4 : 10;
   const errorBarSeries = displayedProgressionGroups.map((group) => {
     const groupData = filteredProgressionData.filter((d) => d.group === group);
     const varianceData = withinGroupVariance?.find((v) => v.group === group);
@@ -491,7 +492,7 @@ function buildVarianceDecompositionChartOption(
     grid: {
       left: "18px",
       right: "0",
-      top: "8px",
+      top: "2px",
       bottom: "0px",
       containLabel: true,
     },
@@ -562,7 +563,7 @@ function buildWithinGroupVarianceChartOption(
     grid: {
       left: "14px",
       right: "0",
-      top: "8px",
+      top: "2px",
       bottom: "0px",
       containLabel: true,
     },
@@ -571,17 +572,14 @@ function buildWithinGroupVarianceChartOption(
     tooltip: { show: false }, legend: { show: false },
     series: [{
       type: "bar" as const,
-      data: sortedVariance.map((v) => {
-        const isSmall = v.variance < yAxisMax * 0.25;
-        return {
-          value: v.variance,
-          sampleN: typeof v.number === "number" ? Math.round(v.number) : null,
-          itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] },
-          label: isSmall ? { color: "#484646" } : undefined,
-        };
-      }),
+      data: sortedVariance.map((v) => ({
+        value: v.variance,
+        sampleN: typeof v.number === "number" ? Math.round(v.number) : null,
+        itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] },
+        label: v.variance === maxVar ? { color: "inherit" } : { color: "#787776" },
+      })),
       barWidth: "85%",
-      label: { show: true, position: "insideBottom", distance: 8, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#FFFFFF", fontFamily: "Inter, sans-serif", fontSize: isNarrow ? 10.5 : 12, fontWeight: 500, lineHeight: isNarrow ? 11.025 : 13.2 },
+      label: { show: true, position: "top", distance: 2, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#787776", fontFamily: "Inter, sans-serif", fontSize: isNarrow ? 10.5 : 12, fontWeight: 500, lineHeight: isNarrow ? 11.025 : 13.2 },
       markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", lineHeight: 11.025, color: "#787776", offset: [0, 2] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
     }],
   };
@@ -684,8 +682,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   Disease Progression by Subgroup
                 </h3>
                 <div
-                  className="relative min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white p-1"
-                  style={{ width: "100%", paddingBottom: "50%" }}
+                  className="relative min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white p-1 w-full pb-[40%] [@media(max-width:1470px)]:pb-[50%]"
                 >
                   {filteredProgressionData.length > 0 ? (
                     <div className="absolute inset-0 p-1">
@@ -695,6 +692,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                           displayedProgressionGroups,
                           row.within_group_variance_by_subgroup,
                           row.outcome,
+                          typeof window !== "undefined" && window.innerWidth <= 1470,
                         )}
                         style={{ height: "100%", width: "100%" }}
                       />
@@ -915,6 +913,13 @@ function TSISubgroupSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const taskId = searchParams.get("taskId") ?? "";
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   const [selectedSetNo, setSelectedSetNo] = useState<string>("");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   // 왼쪽 그래프용: subgroup_sets_summary 데이터
@@ -1012,7 +1017,7 @@ function TSISubgroupSelectionPageContent() {
           <h1
             style={{
               fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: 42,
+              fontSize: titleFontSize,
               fontWeight: 600,
               color: "rgb(17,17,17)",
               letterSpacing: "-1.5px",
@@ -1677,7 +1682,7 @@ function TSISubgroupSelectionPageContent() {
                                             aria-label={`Refine cutoffs for set ${rowNo}`}
                                             type="button"
                                             size="sm"
-                                            className="!w-7 !h-7 text-neutral-40 hover:text-primary-30 shrink-0 cursor-pointer rounded border-0 bg-transparent transition-colors duration-150 hover:bg-primary-95 active:bg-primary-90"
+                                            className="!w-7 !h-7 text-neutral-40 hover:text-tertiary-30 active:text-tertiary-20 shrink-0 cursor-pointer rounded border-0 bg-transparent transition-colors duration-150 hover:bg-tertiary-95 active:bg-tertiary-90"
                                             title="Refine Cutoffs"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -1782,13 +1787,13 @@ function TSISubgroupSelectionPageContent() {
                 paddingLeft: 24,
                 paddingRight: 24,
                 borderRadius: 36,
-                background: selectedSetNo ? "#F06600" : "#D1CFD8",
+                background: selectedSetNo ? "#F06600" : "#c6c5c9",
                 border: "none",
                 cursor: selectedSetNo ? "pointer" : "not-allowed",
                 fontFamily: "Inter",
                 fontSize: 15,
                 fontWeight: 600,
-                color: "#ffffff",
+                color: selectedSetNo ? "#ffffff" : "#e2e1e5",
                 letterSpacing: "-0.45px",
                 display: "flex",
                 alignItems: "center",
@@ -1805,7 +1810,7 @@ function TSISubgroupSelectionPageContent() {
                 xmlns="http://www.w3.org/2000/svg"
                 style={{ flexShrink: 0 }}
               >
-                <path d="M4 3L13 8L4 13V3Z" fill="white" />
+                <path d="M4 3L13 8L4 13V3Z" fill={selectedSetNo ? "white" : "#e2e1e5"} />
               </svg>
             </button>
           </div>

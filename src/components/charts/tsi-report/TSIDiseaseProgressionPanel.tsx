@@ -30,7 +30,7 @@ type VariantStyle = {
   errorBarLineWidth: number;
   errorBarCapHalfWidth: number;
   guideLineColor: string;
-  guideLineType: "solid" | "dashed" | "dotted";
+  guideLineType: "solid" | "dashed" | "dotted" | number[];
   legendMarginTopClassName: string;
   legendLineWidthClassName: string;
   legendFallbackColor: string;
@@ -49,7 +49,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     errorBarLineWidth: 2,
     errorBarCapHalfWidth: 6,
     guideLineColor: "#272354",
-    guideLineType: "solid",
+    guideLineType: [4, 3],
     legendMarginTopClassName: "mt-3",
     legendLineWidthClassName: "w-[84px]",
     legendFallbackColor: "#272354",
@@ -66,7 +66,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     errorBarLineWidth: 2,
     errorBarCapHalfWidth: 6,
     guideLineColor: "#452CF4",
-    guideLineType: "dashed",
+    guideLineType: [4, 3],
     legendMarginTopClassName: "mt-3",
     legendLineWidthClassName: "w-[86px]",
     legendFallbackColor: "#4327E6",

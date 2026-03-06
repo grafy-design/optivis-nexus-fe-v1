@@ -224,6 +224,7 @@ export function RefineCutoffChartEditor({
   );
   const [additionalSliderInputValue, setAdditionalSliderInputValue] = useState("");
   const [plotArea, setPlotArea] = useState<{ top: number; bottom: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   // ECharts 인스턴스에서 실제 플롯 영역의 pixel 좌표를 가져옴
   const updatePlotArea = () => {
@@ -439,7 +440,17 @@ export function RefineCutoffChartEditor({
           showMaxLabel: true,
           fontFamily: "Inter",
           margin: 6,
-          formatter: (value: number) => value.toFixed(0),
+          // edge 라벨 overflow 방지: rich 박스 중심을 tick에 맞추고
+          // min → 오른쪽 정렬(텍스트가 tick 우측), max → 왼쪽 정렬(텍스트가 tick 좌측)
+          rich: {
+            lEdge: { width: 35, align: "right", fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", color: "#787776" },
+            rEdge: { width: 35, align: "left",  fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", color: "#787776" },
+          },
+          formatter: (value: number) => {
+            if (Math.abs(value - xAxisBounds.min) < EPSILON) return `{lEdge|${value.toFixed(0)}}`;
+            if (Math.abs(value - xAxisBounds.max) < EPSILON) return `{rEdge|${value.toFixed(0)}}`;
+            return value.toFixed(0);
+          },
         },
         nameTextStyle: {
           color: "#787776",
@@ -466,7 +477,18 @@ export function RefineCutoffChartEditor({
           symbol: ["none", "arrow"],
           symbolSize: [0, 8],
         },
-        axisLabel: { color: "#787776", fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", formatter: (value: number) => value.toFixed(0) },
+        axisLabel: {
+          color: "#787776",
+          fontSize: 10.5,
+          fontWeight: 600,
+          fontFamily: "Inter",
+          // edge 라벨 overflow 방지: \n으로 텍스트를 축 내부 방향으로 이동
+          formatter: (value: number) => {
+            if (value === 0) return `0\n`;
+            if (value === 100) return `\n100`;
+            return value.toFixed(0);
+          },
+        },
         nameTextStyle: {
           color: "#787776",
           fontSize: 10.5,
@@ -625,6 +647,9 @@ export function RefineCutoffChartEditor({
           z: 5,
         });
 
+        const guideColor = isDragging ? "#8f8ac4" : "#787776";
+        const guideWidth = isDragging ? 2 : 1;
+
         sortedSliders.forEach((proportion, index) => {
           const score = cutoffScores[index] ?? xAxisBounds.min;
           series.push(
@@ -635,7 +660,7 @@ export function RefineCutoffChartEditor({
                 [score, 0],
                 [score, 100],
               ],
-              lineStyle: { type: "dashed", color: "#787776", width: 1 },
+              lineStyle: { type: [5, 5], color: guideColor, width: guideWidth },
               symbol: "none",
               z: 8,
             },
@@ -646,7 +671,7 @@ export function RefineCutoffChartEditor({
                 [xAxisBounds.min, proportion],
                 [xAxisBounds.max, proportion],
               ],
-              lineStyle: { type: "dashed", color: "#787776", width: 1 },
+              lineStyle: { type: [5, 5], color: guideColor, width: guideWidth },
               symbol: "none",
               z: 8,
             }
@@ -657,7 +682,7 @@ export function RefineCutoffChartEditor({
       })(),
       tooltip: { trigger: "none" },
     }),
-    [cdfData, chartFeatureKey, cutoffScores, outcomeKey, sortedSliders, xAxisBounds.max, xAxisBounds.min]
+    [cdfData, chartFeatureKey, cutoffScores, isDragging, outcomeKey, sortedSliders, xAxisBounds.max, xAxisBounds.min]
   );
 
   const addSliderIfValid = (proportion: number) => {
@@ -785,6 +810,7 @@ export function RefineCutoffChartEditor({
                 onMouseDown={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
+                  setIsDragging(true);
                   const container = chartContainerRef.current;
                   if (!container) return;
 
@@ -800,6 +826,7 @@ export function RefineCutoffChartEditor({
                   };
 
                   const handleMouseUp = () => {
+                    setIsDragging(false);
                     document.removeEventListener("mousemove", handleMouseMove);
                     document.removeEventListener("mouseup", handleMouseUp);
                     document.removeEventListener("selectstart", preventSelect);
@@ -832,6 +859,7 @@ export function RefineCutoffChartEditor({
                   onMouseDown={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    setIsDragging(true);
                     const container = chartContainerRef.current;
                     if (!container) return;
                     const currentIndex = index;
@@ -852,6 +880,7 @@ export function RefineCutoffChartEditor({
                     };
 
                     const handleMouseUp = () => {
+                      setIsDragging(false);
                       document.removeEventListener("mousemove", handleMouseMove);
                       document.removeEventListener("mouseup", handleMouseUp);
                       document.removeEventListener("selectstart", preventSelect);
@@ -927,12 +956,15 @@ export function RefineCutoffChartEditor({
 
             return (
               <div
-                className="text-body5m absolute z-10 cursor-pointer select-none hover:opacity-70"
+                className="absolute z-10 cursor-pointer select-none transition-all duration-150 hover:opacity-70"
                 style={{
                   right: `${hLineRight}px`,
                   top: `${hLineY - 12}px`,
                   transform: "translateY(-100%)",
-                  color: "#929090",
+                  color: isDragging ? "#262255" : "#929090",
+                  fontWeight: isDragging ? 600 : 500,
+                  fontSize: 11,
+                  fontFamily: "Inter",
                 }}
                 onClick={() => {
                   setIsEditingY(true);
@@ -959,13 +991,16 @@ export function RefineCutoffChartEditor({
 
             return (
               <div
-                className="text-body5m absolute z-10 select-none"
+                className="absolute z-10 select-none transition-all duration-150"
                 style={{
                   ...(willOverflow
                     ? { right: `${chartContainerWidth - pointX + 28}px` }
                     : { left: `${pointX + 28}px` }),
                   top: `${pointY + 4}px`,
-                  color: "#929090",
+                  color: isDragging ? "#262255" : "#929090",
+                  fontWeight: isDragging ? 600 : 500,
+                  fontSize: 11,
+                  fontFamily: "Inter",
                 }}
               >
                 X={safetyScoreCutoff.toFixed(2)}
@@ -1078,12 +1113,15 @@ export function RefineCutoffChartEditor({
                   </div>
                 ) : (
                   <div
-                    className="text-body5m absolute z-10 cursor-pointer select-none hover:opacity-70"
+                    className="absolute z-10 cursor-pointer select-none transition-all duration-150 hover:opacity-70"
                     style={{
                       right: `${addHLineRight}px`,
                       top: `${addHLineY - 12}px`,
                       transform: "translateY(-100%)",
-                      color: "#929090",
+                      color: isDragging ? "#262255" : "#929090",
+                      fontWeight: isDragging ? 600 : 500,
+                      fontSize: 11,
+                      fontFamily: "Inter",
                     }}
                     onClick={() => {
                       setEditingAdditionalSliderIndex(index);
@@ -1095,13 +1133,16 @@ export function RefineCutoffChartEditor({
                   </div>
                 )}
                 <div
-                  className="text-body5m absolute z-10 select-none"
+                  className="absolute z-10 select-none transition-all duration-150"
                   style={{
                     ...(willOverflow
                       ? { right: `${chartContainerWidth - pointX + 28}px` }
                       : { left: `${pointX + 28}px` }),
                     top: `${pointY + 4}px`,
-                    color: "#929090",
+                    color: isDragging ? "#262255" : "#929090",
+                    fontWeight: isDragging ? 600 : 500,
+                    fontSize: 11,
+                    fontFamily: "Inter",
                   }}
                 >
                   X={additionalSliderSafetyScore.toFixed(2)}

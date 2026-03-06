@@ -221,9 +221,29 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
 
   const maxY = Math.max(0, ...densityBySeries.flatMap((item) => item.density));
 
+  // x축 edge label rich text (동적 float 축 범위 대응 — 15% 임계값으로 좌우 끝 tick 감지)
+  // X-axis edge label rich text (threshold-based detection for dynamic float axis bounds)
+  const xLabelColor = sz?.numberColor ?? sz?.axisColor ?? "#8A8A94";
+  const xLabelFontSize = sz?.numberFontSize ?? 9;
+  const xRange = xMax - xMin;
+  const xEdgeThreshold = xRange * 0.15;
+  const xEdgeRich = sz ? {
+    lEdge: { width: 35, align: "right" as const, fontSize: xLabelFontSize, fontWeight: sz?.numberFontWeight, fontFamily: "Inter", color: xLabelColor },
+    rEdge: { width: 35, align: "left"  as const, fontSize: xLabelFontSize, fontWeight: sz?.numberFontWeight, fontFamily: "Inter", color: xLabelColor },
+  } : undefined;
+  const xEdgeFormatter = sz
+    ? (value: number | string) => {
+        const num = Number(value);
+        const base = labelFormatter ? labelFormatter(num) : String(num);
+        if (num - xMin < xEdgeThreshold) return `{lEdge|${base}}`;
+        if (xMax - num < xEdgeThreshold) return `{rEdge|${base}}`;
+        return base;
+      }
+    : undefined;
+
   const option: EChartsOption = {
     animation: false,
-    tooltip: { trigger: "axis" },
+    tooltip: { trigger: "axis", axisPointer: { lineStyle: { color: "#8f8ac4", type: "dashed" } }, padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
     grid: {
       left: yAxisName ? 24 : 0,
       right: 4,
@@ -239,12 +259,12 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       axisTick: { show: false },
       axisLabel: {
         show: !!sz,
-        color: sz?.numberColor ?? sz?.axisColor ?? "#8A8A94",
-        fontSize: sz?.numberFontSize ?? 9,
+        color: xLabelColor,
+        fontSize: xLabelFontSize,
         fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
         margin: 4,
-        ...(labelFormatter ? { formatter: labelFormatter } : {}),
+        ...(xEdgeRich ? { rich: xEdgeRich, formatter: xEdgeFormatter } : labelFormatter ? { formatter: labelFormatter } : {}),
       },
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
       name: xAxisName,
@@ -270,7 +290,16 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
         margin: 8,
-        ...(labelFormatter ? { formatter: labelFormatter } : {}),
+        formatter: (value: number | string) => {
+          const num = Number(value);
+          const base = labelFormatter ? labelFormatter(num) : String(num);
+          const yAxisMax = maxY > 0 ? maxY * 1.35 : 1;
+          // 하단 0 레이블: 뒤에 빈 줄 → tick 기준 위로 이동
+          if (num === 0) return `${base}\n`;
+          // 상단 edge 레이블: 앞에 빈 줄 → tick 기준 아래로 이동
+          if (yAxisMax - num < yAxisMax * 0.15) return `\n${base}`;
+          return base;
+        },
       },
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
       name: yAxisName,
@@ -296,12 +325,70 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         tooltip: { show: false },
         z: 0,
       }] as any[]) : []),
+      // 각 시리즈 peak 세로선 + 두 peak 사이 가로선 + 간격 라벨
+      ...(() => {
+        const yTop = maxY > 0 ? maxY * 1.35 : 1;
+        const peaks = densityBySeries.map((item) => {
+          let peakX = 0;
+          let peakY = 0;
+          item.density.forEach((d, i) => {
+            if (d > peakY) { peakY = d; peakX = xValues[i]; }
+          });
+          return { x: peakX, y: peakY, color: item.color, name: item.name };
+        });
+
+        // 세로 peak 라인
+        const peakLines = peaks.map((p) => ({
+          name: `${p.name} Peak`,
+          type: "line" as const,
+          data: [[p.x, 0], [p.x, yTop]] as [number, number][],
+          lineStyle: { color: "#787776", width: 1, type: [4, 4] as number[] },
+          symbol: "none" as const,
+          silent: true,
+          tooltip: { show: false },
+          z: 1,
+        }));
+
+        // 두 peak 사이 가로선 + 중앙 간격 라벨
+        const gapLine: any[] = [];
+        if (peaks.length >= 2) {
+          const sorted = [...peaks].sort((a, b) => a.x - b.x);
+          const left = sorted[0];
+          const right = sorted[sorted.length - 1];
+          const gap = Math.abs(right.x - left.x);
+          const lineY = Math.max(left.y, right.y) * 1.12;
+          gapLine.push({
+            name: "Peak Gap Line",
+            type: "line" as const,
+            data: [[left.x, lineY], [right.x, lineY]] as [number, number][],
+            lineStyle: { color: "#787776", width: 1 },
+            symbol: "none" as const,
+            silent: true,
+            tooltip: { show: false },
+            label: {
+              show: true,
+              position: "middle" as const,
+              formatter: gap.toFixed(1),
+              color: "#787776",
+              fontSize: 10,
+              fontWeight: 600,
+              fontFamily: "Inter",
+              backgroundColor: "#fff",
+              padding: [1, 4],
+            },
+            z: 2,
+          });
+        }
+
+        return [...peakLines, ...gapLine];
+      })() as any[],
       ...densityBySeries.map((item) => ({
       name: item.name,
       type: "line" as const,
       data: xValues.map((x, index) => [x, item.density[index]]),
       smooth: true,
       showSymbol: false,
+      itemStyle: { color: item.color },
       lineStyle: { width: item.lineWidth ?? 1.8, color: item.color },
       areaStyle: {
         color: {

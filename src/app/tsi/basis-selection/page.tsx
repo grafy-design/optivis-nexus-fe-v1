@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import PrognosticChart from "./charts/PrognosticChart";
@@ -92,6 +92,13 @@ function ChevronRightIcon({ className }: { className?: string }) {
 function TSIBasisSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // URL 쿼리에서 taskId 읽기 / Read taskId from URL query
   const taskId = searchParams.get("taskId");
@@ -146,7 +153,7 @@ function TSIBasisSelectionPageContent() {
           <h1
             style={{
               fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: 42,
+              fontSize: titleFontSize,
               fontWeight: 600,
               color: "rgb(17,17,17)",
               letterSpacing: "-1.5px",

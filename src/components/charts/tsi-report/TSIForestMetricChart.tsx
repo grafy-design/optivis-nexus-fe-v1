@@ -52,8 +52,8 @@ export function TSIForestMetricChart({
   };
 
   const option: EChartsOption = {
-    animation: false,
-    tooltip: { show: false },
+    animation: true,
+    tooltip: { trigger: "axis", padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
     grid: { left: 0, right: 0, top: 0, bottom: 0 },
     xAxis: {
       type: "value",
@@ -77,7 +77,6 @@ export function TSIForestMetricChart({
         type: "custom" as const,
         renderItem: renderInterval,
         data,
-        silent: true,
       },
     ],
   };

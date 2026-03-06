@@ -17,12 +17,53 @@ import { getPatientSummary, type PatientSummaryData } from "@/services/subgroup-
 const MOCK_TASK_ID = "test-task-id";
 
 /**
+ * 숫자 카운트업 애니메이션 컴포넌트
+ * 마운트 또는 value 변경 시 0 → target 으로 ease-out cubic 애니메이션
+ */
+function AnimatedNumber({
+  value,
+  format,
+  duration = 700,
+}: {
+  value: number;
+  format: (v: number) => string;
+  duration?: number;
+}) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const startTime = performance.now();
+    let raf: number;
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setCurrent(value * eased);
+      if (progress < 1) raf = requestAnimationFrame(animate);
+    };
+
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  return <>{format(current)}</>;
+}
+
+/**
  * 숫자를 소수점 최대 2자리까지 포맷하는 헬퍼
  * Formats a number with up to 2 decimal places
  */
 
 export default function TSIPatientsSummaryPage() {
   const router = useRouter();
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // ── taskId: 현재는 mock, 추후 URL 쿼리로 대체 예정
   //    taskId: currently mock, to be replaced with URL query param
@@ -56,10 +97,6 @@ export default function TSIPatientsSummaryPage() {
     fetchPatientSummary();
   }, [taskId]);
 
-  /** 숫자를 소수점 최대 2자리까지 포맷 / Format number with up to 2 decimal places */
-  const formatUpToTwoDecimals = (value: number) =>
-    value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-
   /** "Identify Subgroup" 버튼 → Basis Selection 페이지 이동 / Navigate to Basis Selection */
   const handleGoToBasisSelection = () => {
     const query = new URLSearchParams({ taskId });
@@ -76,12 +113,12 @@ export default function TSIPatientsSummaryPage() {
         items: category.items.map((item) => ({
           label: item.group_name,
           fullCohort: {
-            value: formatUpToTwoDecimals(item.full_cohort_n),
-            percent: `${formatUpToTwoDecimals(item.full_cohort_pct)}%`,
+            n: item.full_cohort_n,
+            pct: item.full_cohort_pct,
           },
           filteredCohort: {
-            value: formatUpToTwoDecimals(item.filtered_cohort_n),
-            percent: `${formatUpToTwoDecimals(item.filtered_cohort_pct)}%`,
+            n: item.filtered_cohort_n,
+            pct: item.filtered_cohort_pct,
           },
         })),
       })) || [];
@@ -119,7 +156,7 @@ export default function TSIPatientsSummaryPage() {
               <h1
                 style={{
                   fontFamily: "Poppins, Inter, sans-serif",
-                  fontSize: 42,
+                  fontSize: titleFontSize,
                   fontWeight: 600,
                   color: "rgb(17,17,17)",
                   letterSpacing: "-1.5px",
@@ -169,13 +206,19 @@ export default function TSIPatientsSummaryPage() {
                 </div>
                 {/* 전환율 + 필터/전체 인원 수 / Conversion rate + filtered/total counts */}
                 <div className="h-wrap">
-                  <span className="text-body4 text-neutral-50">{displayConversionPercent}</span>
+                  <span className="text-body4 text-neutral-50">
+                    <AnimatedNumber value={displayConversionPercent} format={(v) => v.toFixed(1)} />
+                  </span>
                   <span className="text-body4 text-neutral-50">%</span>
                   <span className="text-body5 text-neutral-50 mx-1">converted</span>
                   <span className="text-body5 text-neutral-50">(</span>
-                  <span className="text-body5 tabular-nums text-neutral-50">{displayFilteredCount.toLocaleString()}</span>
+                  <span className="text-body5 tabular-nums text-neutral-50">
+                    <AnimatedNumber value={displayFilteredCount} format={(v) => Math.round(v).toLocaleString()} />
+                  </span>
                   <span className="text-body5 text-neutral-50">/</span>
-                  <span className="text-body5 tabular-nums text-neutral-50">{displayTotalCount.toLocaleString()}</span>
+                  <span className="text-body5 tabular-nums text-neutral-50">
+                    <AnimatedNumber value={displayTotalCount} format={(v) => Math.round(v).toLocaleString()} />
+                  </span>
                   <span className="text-body5 text-neutral-50">)</span>
                 </div>
               </div>
@@ -282,20 +325,20 @@ export default function TSIPatientsSummaryPage() {
                                   {/* Full Cohort 값 / Full cohort values */}
                                   <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
                                     <div className="text-body4m text-right tabular-nums text-neutral-50">
-                                      {item.fullCohort.value}
+                                      <AnimatedNumber value={item.fullCohort.n} format={(v) => Math.round(v).toLocaleString()} />
                                     </div>
                                     <div className="text-body4m text-right tabular-nums text-neutral-50">
-                                      {item.fullCohort.percent}
+                                      <AnimatedNumber value={item.fullCohort.pct} format={(v) => `${v.toFixed(1)}%`} />
                                     </div>
                                   </div>
 
                                   {/* Filtered Cohort 값 / Filtered cohort values */}
                                   <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
                                     <div className="text-body4m text-right tabular-nums text-primary-50">
-                                      {item.filteredCohort.value}
+                                      <AnimatedNumber value={item.filteredCohort.n} format={(v) => Math.round(v).toLocaleString()} />
                                     </div>
                                     <div className="text-body4m text-right tabular-nums text-primary-50">
-                                      {item.filteredCohort.percent}
+                                      <AnimatedNumber value={item.filteredCohort.pct} format={(v) => `${v.toFixed(1)}%`} />
                                     </div>
                                   </div>
                                 </div>

@@ -11,6 +11,7 @@ import {
 } from "@/components/charts/MultiLineWithErrorBar";
 import { DensityChart } from "@/components/charts/DensityChart";
 import { RefineCutoffChartEditor } from "./components/RefineCutoffChartEditor";
+import { Play } from "lucide-react";
 import {
   getIdentificationFeatureInfo,
   getIdentificationSetInfo,
@@ -492,6 +493,13 @@ const buildSetOneChartData = (
  */
 function TSIRefineCutoffsPageContent() {
   const searchParams = useSearchParams();
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // ── URL 쿼리 파라미터 / URL query parameters ──────────────────────────────
   const taskId = searchParams.get("taskId") ?? "";
@@ -1107,7 +1115,7 @@ function TSIRefineCutoffsPageContent() {
           <h1
             style={{
               fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: 42,
+              fontSize: titleFontSize,
               fontWeight: 600,
               color: "rgb(17,17,17)",
               letterSpacing: "-1.5px",
@@ -1312,7 +1320,7 @@ function TSIRefineCutoffsPageContent() {
                 {/* Apply Criteria 버튼 (월 변경 시 활성) / Apply Criteria button (active when month changed) */}
                 <button
                   onClick={handleClickApplyCriteria}
-                  disabled={!isMonthDirty}
+                  disabled={!isMonthDirty && !hasAppliedCriteria}
                   className="btn-tsi btn-tsi-primary whitespace-nowrap"
                   style={{
                     marginTop: "auto",
@@ -1343,27 +1351,12 @@ function TSIRefineCutoffsPageContent() {
             {/* Generate Subgroups 버튼 (고정) / Generate Subgroups button (fixed at bottom) */}
             <button
               onClick={handleClickGenerateSubGroup}
-              disabled={!isCutoffDirty}
+              disabled={!isCutoffDirty && !hasAppliedCriteria}
               className="btn-tsi btn-tsi-primary"
               style={{ flexShrink: 0, marginLeft: "auto", gap: 8 }}
             >
               Generate Subgroups
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ flexShrink: 0 }}
-              >
-                <path
-                  d="M3 8L13 8M10 4L14 8L10 12"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Play size={16} fill="white" stroke="white" style={{ flexShrink: 0 }} />
             </button>
           </div>
           {/* ── 왼쪽 카드 닫기 / End left card ── */}
@@ -1407,7 +1400,7 @@ function TSIRefineCutoffsPageContent() {
                     }}
                   >
                     <div className="flex min-h-0 w-full flex-col gap-6">
-                      <h4 className="text-body2m flex-shrink-0 text-white pt-[4px] pl-[4px]">
+                      <h4 className="text-body2m flex-shrink-0 text-white pt-1.5 pl-2">
                         Disease Progression by Group
                       </h4>
                       <div
@@ -1426,8 +1419,8 @@ function TSIRefineCutoffsPageContent() {
                           height="100%"
                           sizeVariant="S"
                           grid={{ left: 20, right: 8, top: 2, bottom: 14 }}
-                          xAxis={{ min: 0, max: diseaseXAxisMax, interval: 3, name: "Month", nameGap: 18, onZero: false }}
-                          yAxis={{ min: diseaseYAxisRange.min, max: diseaseYAxisRange.max, name: "Disease progression score", nameGap: 28, showLabels: true, showTick: true, zeroLineColor: "#c7c5c9" }}
+                          xAxis={{ min: 0, max: diseaseXAxisMax, interval: 3, name: "Month", nameGap: 18, onZero: false, alignEdgeLabels: true }}
+                          yAxis={{ min: diseaseYAxisRange.min, max: diseaseYAxisRange.max, name: "Disease progression score", nameGap: 28, showLabels: true, showTick: true, zeroLineColor: "#c7c5c9", alignEdgeLabels: true }}
                           guideLineX={diseaseXAxisMax / 2}
                         />
                       </div>
@@ -1443,7 +1436,7 @@ function TSIRefineCutoffsPageContent() {
                     }}
                   >
                     <div className="flex min-h-0 w-full flex-col gap-6">
-                      <h4 className="text-body2m flex-shrink-0 text-white pt-[4px] pl-[4px]">
+                      <h4 className="text-body2m flex-shrink-0 text-white pt-1.5 pl-2">
                         Slope distribution
                       </h4>
                       <div className="flex w-full rounded-[16px] bg-white p-2" style={{ aspectRatio: "2 / 1" }}>

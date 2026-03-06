@@ -79,7 +79,7 @@ export const BaselineDistributionHistogram = ({
     return {
       animation: false,
       grid: { left: 42, right:4, top: 8, bottom:16  },
-      tooltip: { trigger: "axis" },
+      tooltip: { trigger: "axis", padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
       xAxis: {
         type: "category",
         data: xLabels,

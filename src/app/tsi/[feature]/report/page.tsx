@@ -571,6 +571,22 @@ function TSIReportPageContent() {
   const hasRequiredParams = Boolean(taskId && subgroupId && featureName);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const [forestAspect, setForestAspect] = useState("5 / 1");
+  useEffect(() => {
+    const update = () => setForestAspect(window.innerWidth > 1470 ? "5 / 1" : "4 / 1");
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   /** 현재 날짜·시간 문자열 (YYYY. MM. DD HH:mm:ss) / Current timestamp for display */
   const currentDate = (() => {
     const now = new Date();
@@ -730,7 +746,7 @@ function TSIReportPageContent() {
           }}
         >
           <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-            <div className="text-title text-neutral-5 text-left">
+            <div className="text-title text-neutral-5 text-left" style={{ fontSize: titleFontSize }}>
               Target Subgroup Identification
             </div>
             <p className="text-body2m text-neutral-50 text-left">
@@ -911,8 +927,8 @@ function TSIReportPageContent() {
                                   Variance decomposition
                                 </h4>
                               </div>
-                              <div className="w-full overflow-visible" style={{ aspectRatio: "4 / 3" }}>
-                                <TSIVarianceByGroupBarChart data={featureComparisonData.bars} />
+                              <div className="overflow-visible" style={{ aspectRatio: "4 / 3", marginTop: -2, marginBottom: -6 }}>
+                                <TSIStackedVarianceChart data={featureComparisonData.stack} />
                               </div>
                             </div>
 
@@ -925,8 +941,8 @@ function TSIReportPageContent() {
                                   Within-group variance by subgroup
                                 </h4>
                               </div>
-                              <div className="overflow-visible" style={{ aspectRatio: "4 / 3", marginTop: -2, marginBottom: -6 }}>
-                                <TSIStackedVarianceChart data={featureComparisonData.stack} />
+                              <div className="w-full overflow-visible" style={{ aspectRatio: "4 / 3" }}>
+                                <TSIVarianceByGroupBarChart data={featureComparisonData.bars} />
                               </div>
                             </div>
                           </div>
@@ -1002,7 +1018,7 @@ function TSIReportPageContent() {
                                 }`}
                               >
                                 <div className="h-7" aria-hidden />
-                                <div style={{ aspectRatio: "3 / 1" }}>
+                                <div style={{ aspectRatio: forestAspect }}>
                                   <TSIForestMetricChart
                                     rows={setData.rows}
                                     metricKey={metric.key}

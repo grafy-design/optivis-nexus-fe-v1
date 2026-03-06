@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -342,6 +342,13 @@ function makeEmptySection(id: number): Section {
 
 export default function TSIFilterPage() {
   const router = useRouter();
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // ── 탭 상태 (Inclusion / Exclusion) / Active tab state ────────────────────
   const [activeTab, setActiveTab] = useState<"Inclusion" | "Exclusion">("Inclusion");
@@ -610,7 +617,7 @@ export default function TSIFilterPage() {
           <h1
             style={{
               fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: 42,
+              fontSize: titleFontSize,
               fontWeight: 600,
               color: "rgb(17,17,17)",
               letterSpacing: "-1.5px",

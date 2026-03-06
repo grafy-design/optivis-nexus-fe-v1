@@ -71,6 +71,13 @@ const formatCutoffValues = (values: number[] | undefined): string => {
  * (uses useSearchParams → requires Suspense wrapper)
  */
 function TSISubgroupExplainPageContent() {
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   // ── 피처 선택 상태 (기본: ADDRECALL) / Selected feature state ──────────────
   const [defaultSelectedFeature] = useState("ADDRECALL");
   const [selectedFeature, setSelectedFeature] = useState(defaultSelectedFeature);
@@ -293,7 +300,7 @@ function TSISubgroupExplainPageContent() {
           <h1
             style={{
               fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: 42,
+              fontSize: titleFontSize,
               fontWeight: 600,
               color: "rgb(17,17,17)",
               letterSpacing: "-1.5px",

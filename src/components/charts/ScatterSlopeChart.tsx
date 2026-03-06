@@ -27,6 +27,7 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
   const series: any[] = [];
 
   groups.forEach(([groupName, group], index) => {
+    const points = group.points ?? [];
     series.push({
       name: groupName,
       type: "scatter",

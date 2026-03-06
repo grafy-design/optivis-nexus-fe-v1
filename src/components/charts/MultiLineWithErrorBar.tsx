@@ -79,7 +79,7 @@ interface MultiLineWithErrorBarProps {
   guideLineX?: number | null;
   guideLineColor?: string;
   guideLineWidth?: number;
-  guideLineType?: "solid" | "dashed" | "dotted";
+  guideLineType?: "solid" | "dashed" | "dotted" | number[];
   sizeVariant?: ChartSizeVariant;
   grid?: GridConfig;
 }
@@ -201,6 +201,7 @@ export const MultiLineWithErrorBar = ({
         },
         data: group,
         silent: true,
+        tooltip: { show: false },
         z: 3,
       },
     ];
@@ -245,7 +246,7 @@ export const MultiLineWithErrorBar = ({
         ]
       : [];
 
-  // edge label 정렬용 변수
+  // y축 edge label 정렬용 변수 / Y-axis edge label variables
   const yLabelColor = yAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94";
   const yLabelFontSize = yAxis?.fontSize ?? sz?.numberFontSize ?? 9;
   const yLabelFontFamily = yAxis?.fontFamily ?? "Inter";
@@ -264,8 +265,30 @@ export const MultiLineWithErrorBar = ({
       }
     : labelFormatter;
 
+  // x축 edge label rich text 설정 / X-axis edge label rich text config
+  const xLabelColor = xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94";
+  const xLabelFontSize = xAxis?.fontSize ?? sz?.numberFontSize ?? 9;
+  const xLabelFontFamily = xAxis?.fontFamily ?? "Inter";
+  const xEdgeLabelConfig = xAxis?.alignEdgeLabels
+    ? {
+        rich: {
+          lEdge: { width: 20, align: "right" as const, fontSize: xLabelFontSize, fontWeight: sz?.numberFontWeight, fontFamily: xLabelFontFamily, color: xLabelColor },
+          rEdge: { width: 20, align: "left"  as const, fontSize: xLabelFontSize, fontWeight: sz?.numberFontWeight, fontFamily: xLabelFontFamily, color: xLabelColor },
+        },
+        formatter: (value: number | string) => {
+          const num = Number(value);
+          const base = labelFormatter ? labelFormatter(num) : String(num);
+          // 최솟값(좌측 끝): rich 박스를 우측 정렬 → 텍스트가 tick 오른쪽으로 이동
+          if (Math.abs(num - xAxisMin) < 0.001) return `{lEdge|${base}}`;
+          // 최댓값(우측 끝): rich 박스를 좌측 정렬 → 텍스트가 tick 왼쪽으로 이동
+          if (Math.abs(num - xAxisMax) < 0.001) return `{rEdge|${base}}`;
+          return base;
+        },
+      }
+    : labelFormatter ? { formatter: labelFormatter } : {};
+
   const option: EChartsOption = {
-    tooltip: { trigger: "axis" },
+    tooltip: { trigger: "axis", axisPointer: { lineStyle: { color: "#8f8ac4", type: "dashed" } }, padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
     legend: { show: false },
     grid: {
       left: grid?.left ?? 8,
@@ -288,7 +311,7 @@ export const MultiLineWithErrorBar = ({
       },
       axisLine: { show: true, onZero: xAxis?.onZero ?? true, lineStyle: { color: xAxis?.axisLineColor ?? sz?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
-      axisLabel: { color: xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? sz?.numberFontSize ?? 9, fontWeight: sz?.numberFontWeight, fontFamily: xAxis?.fontFamily ?? "Inter", margin: 4, ...(labelFormatter ? { formatter: labelFormatter } : {}) },
+      axisLabel: { color: xLabelColor, fontSize: xLabelFontSize, fontWeight: sz?.numberFontWeight, fontFamily: xLabelFontFamily, margin: 4, ...xEdgeLabelConfig },
       name: xAxis?.name,
       nameLocation: "middle",
       nameGap: xAxis?.nameGap ?? 24,

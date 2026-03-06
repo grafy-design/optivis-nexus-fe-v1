@@ -66,11 +66,11 @@ export default function PrognosticChart() {
       >
         <defs>
           <linearGradient id="pg-orange-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FFB692" stopOpacity="0.55" />
+            <stop offset="0%" stopColor="#FFB692" stopOpacity="0.25" />
             <stop offset="100%" stopColor="#FFB692" stopOpacity="0.0" />
           </linearGradient>
           <linearGradient id="pg-blue-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3A11D8" stopOpacity="0.12" />
+            <stop offset="0%" stopColor="#3A11D8" stopOpacity="0.06" />
             <stop offset="100%" stopColor="#3A11D8" stopOpacity="0.0" />
           </linearGradient>
           <clipPath id="pg-clip">

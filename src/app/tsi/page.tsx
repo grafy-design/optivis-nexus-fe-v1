@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import SimpleBar from "simplebar-react";
@@ -20,6 +20,13 @@ import CustomCheckbox from "@/components/ui/custom-checkbox";
  */
 export default function TSIPage() {
   const router = useRouter();
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   // ── 파일 업로드 상태 / File upload state ──────────────────────────────
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -163,7 +170,7 @@ export default function TSIPage() {
             <h1
               style={{
                 fontFamily: "Poppins, Inter, sans-serif",
-                fontSize: 42,
+                fontSize: titleFontSize,
                 fontWeight: 600,
                 color: "rgb(17,17,17)",
                 letterSpacing: "-1.5px",

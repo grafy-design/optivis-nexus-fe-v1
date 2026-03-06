@@ -3,6 +3,7 @@
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceStackChartData } from "./types";
+import { useState, useEffect } from "react";
 
 const NEUTRAL_50 = "#787776";
 
@@ -13,9 +14,17 @@ export function TSIStackedVarianceChart({
   data: VarianceStackChartData;
   yAxisLabel?: string;
 }) {
+  const [nameFontSize, setNameFontSize] = useState(9);
+  useEffect(() => {
+    const update = () => setNameFontSize(window.innerWidth > 1470 ? 10.5 : 9);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const option: EChartsOption = {
-    animation: false,
-    tooltip: { show: false },
+    animation: true,
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
     legend: {
       show: true,
       bottom: 0,
@@ -63,7 +72,7 @@ export function TSIStackedVarianceChart({
       nameRotate: 90,
       nameTextStyle: {
         color: NEUTRAL_50,
-        fontSize: 9,
+        fontSize: nameFontSize,
         fontFamily: "Inter",
       },
     },
@@ -73,7 +82,6 @@ export function TSIStackedVarianceChart({
         type: "bar",
         stack: "variance",
         barWidth: "90%",
-        silent: true,
         data: [data.within],
         itemStyle: {
           color: data.withinColor,
@@ -85,7 +93,6 @@ export function TSIStackedVarianceChart({
         type: "bar",
         stack: "variance",
         barWidth: "90%",
-        silent: true,
         data: [data.explained],
         itemStyle: {
           color: data.explainedColor,

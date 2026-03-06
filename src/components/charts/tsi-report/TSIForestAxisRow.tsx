@@ -2,8 +2,17 @@
 
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import { useState, useEffect } from "react";
 
 export function TSIForestAxisRow({ metricLabel }: { metricLabel: string }) {
+  const [nameFontSize, setNameFontSize] = useState(10);
+  useEffect(() => {
+    const update = () => setNameFontSize(window.innerWidth > 1470 ? 10.5 : 10);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const option: EChartsOption = {
     animation: false,
     tooltip: { show: false },
@@ -28,7 +37,7 @@ export function TSIForestAxisRow({ metricLabel }: { metricLabel: string }) {
       nameGap: 12,
       nameTextStyle: {
         color: "#484646",
-        fontSize: 10,
+        fontSize: nameFontSize,
         fontWeight: 500,
         fontFamily: "Inter, sans-serif",
       },

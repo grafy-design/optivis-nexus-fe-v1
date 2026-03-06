@@ -103,6 +103,8 @@ export const SHAPSummaryPlotChart = ({
       },
       tooltip: {
         trigger: "item",
+        padding: [4, 6],
+        textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
         formatter: (params) => {
           const item = Array.isArray(params) ? params[0] : params;
           if (!item || !("value" in item)) {

@@ -3,13 +3,27 @@
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceBarsChartData } from "./types";
+import { useState, useEffect } from "react";
 
 const NEUTRAL_50 = "#787776";
 
 export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { data: VarianceBarsChartData; yAxisLabel?: string }) {
+  const [nameFontSize, setNameFontSize] = useState(9);
+  const [labelFontSize, setLabelFontSize] = useState(9);
+  useEffect(() => {
+    const update = () => {
+      const wide = window.innerWidth > 1470;
+      setNameFontSize(wide ? 10.5 : 9);
+      setLabelFontSize(wide ? 12 : 9);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
   const option: EChartsOption = {
-    animation: false,
-    tooltip: { show: false },
+    animation: true,
+    tooltip: { trigger: "axis", axisPointer: { type: "shadow" }, padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
     grid: { left: 18, right: 6, top: 4, bottom: 0, containLabel: true },
     xAxis: {
       type: "category",
@@ -51,33 +65,37 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
       nameRotate: 90,
       nameTextStyle: {
         color: NEUTRAL_50,
-        fontSize: 9,
+        fontSize: nameFontSize,
         fontFamily: "Inter",
       },
     },
     series: [
       {
         type: "bar",
-        barWidth: 72,
-        data: data.bars.map((bar) => ({
-          value: bar.value,
-          itemStyle: {
-            color: bar.color,
-            borderRadius: [8, 8, 8, 8],
-            borderColor: bar.highlight ? "#8A47FF" : "transparent",
-            borderWidth: bar.highlight ? 3 : 0,
-          },
-          label: {
-            show: true,
-            position: "insideBottom",
-            distance: 8,
-            formatter: bar.weightLabel,
-            color: "#FFFFFF",
-            fontSize: 9,
-            fontFamily: "Inter",
-            fontWeight: 600,
-          },
-        })),
+        barWidth: "60%",
+        barCategoryGap: "10%",
+        data: (() => {
+          const maxValue = Math.max(...data.bars.map((b) => b.value));
+          return data.bars.map((bar) => ({
+            value: bar.value,
+            itemStyle: {
+              color: bar.color,
+              borderRadius: [8, 8, 8, 8],
+              borderColor: bar.highlight ? "#8A47FF" : "transparent",
+              borderWidth: bar.highlight ? 3 : 0,
+            },
+            label: {
+              show: true,
+              position: "top" as const,
+              distance: 2,
+              formatter: bar.weightLabel,
+              color: Math.abs(bar.value - maxValue) < 0.001 ? bar.color : NEUTRAL_50,
+              fontSize: labelFontSize,
+              fontFamily: "Inter",
+              fontWeight: 600,
+            },
+          }));
+        })(),
         markLine: {
           symbol: "none",
           silent: true,
@@ -86,7 +104,15 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
             width: 1,
             type: [4, 3],
           },
-          label: { show: false },
+          label: {
+            show: true,
+            position: "insideEndTop",
+            offset: [6, 0],
+            formatter: `Total Var = ${data.threshold.toFixed(2)}`,
+            color: NEUTRAL_50,
+            fontSize: 9,
+            fontFamily: "Inter",
+          },
           data: [{ yAxis: data.threshold }],
         },
       },

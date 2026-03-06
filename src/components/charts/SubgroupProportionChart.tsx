@@ -56,6 +56,8 @@ export const SubgroupProportionChart = ({ data, height = 120 }: SubgroupProporti
       trigger: "axis",
       axisPointer: { type: "shadow" },
       valueFormatter: (value) => `${(Number(value) * 100).toFixed(1)}%`,
+      padding: [4, 6],
+      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
     },
     xAxis: {
       type: "category",
