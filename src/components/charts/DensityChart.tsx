@@ -4,6 +4,7 @@ import type { EChartsOption } from "echarts";
 import type { ChartSizeVariant } from "./MultiLineWithErrorBar";
 
 const NEUTRAL_30 = "#484646";
+const NEUTRAL_90 = "#e3e1e5";
 const NEUTRAL_95 = "#efeff4";
 
 type DensitySizeStyle = {
@@ -21,7 +22,7 @@ type DensitySizeStyle = {
 
 const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, DensitySizeStyle> = {
   XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 12, labelFontWeight: 600, numberFontSize: 10, numberFontWeight: 500, axisColor: "#484646", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
+  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: "#787776", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
   M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
   L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
@@ -64,7 +65,7 @@ interface DensityChartProps {
   };
   series?: DensitySeries[];
   segmented?: DensitySegmentedConfig;
-  height?: number;
+  height?: number | string;
   sizeVariant?: ChartSizeVariant;
   xAxisName?: string;
   yAxisName?: string;
@@ -224,17 +225,17 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
     animation: false,
     tooltip: { trigger: "axis" },
     grid: {
-      left: yAxisName ? 16 : 0,
+      left: yAxisName ? 24 : 0,
       right: 4,
       top: 2,
-      bottom: xAxisName ? 10 : 0,
+      bottom: xAxisName ? 14 : 0,
       containLabel: true,
     },
     xAxis: {
       type: "value",
       min: xMin,
       max: xMax,
-      axisLine: { show: true, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, onZero: false, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
       axisLabel: {
         show: !!sz,
@@ -242,12 +243,13 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         fontSize: sz?.numberFontSize ?? 9,
         fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
+        margin: 4,
         ...(labelFormatter ? { formatter: labelFormatter } : {}),
       },
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
       name: xAxisName,
       nameLocation: "middle",
-      nameGap: 8,
+      nameGap: 16,
       nameTextStyle: xAxisName ? {
         color: sz?.axisColor ?? "#484646",
         fontSize: sz?.labelFontSize ?? 9,
@@ -259,7 +261,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       type: "value",
       min: 0,
       max: maxY > 0 ? maxY * 1.35 : 1,
-      axisLine: { show: true, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, onZero: false, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: !!(yAxisName || sz) },
       axisLabel: {
         show: !!sz,
@@ -267,12 +269,13 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         fontSize: sz?.numberFontSize ?? 9,
         fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
+        margin: 8,
         ...(labelFormatter ? { formatter: labelFormatter } : {}),
       },
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
       name: yAxisName,
       nameLocation: "middle",
-      nameGap: 16,
+      nameGap: 24,
       nameRotate: 90,
       nameTextStyle: yAxisName ? {
         color: sz?.axisColor ?? "#484646",
@@ -281,9 +284,21 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         fontFamily: "Inter",
       } : undefined,
     },
-    series: densityBySeries.map((item) => ({
+    series: [
+      // x=0 기준선 (x 범위가 음수~양수를 포함할 때)
+      ...(xMin < 0 && xMax > 0 ? ([{
+        name: "Zero Line",
+        type: "line" as const,
+        data: [[0, 0], [0, maxY > 0 ? maxY * 1.35 : 1]] as [number, number][],
+        lineStyle: { color: NEUTRAL_90, width: 1 },
+        symbol: "none" as const,
+        silent: true,
+        tooltip: { show: false },
+        z: 0,
+      }] as any[]) : []),
+      ...densityBySeries.map((item) => ({
       name: item.name,
-      type: "line",
+      type: "line" as const,
       data: xValues.map((x, index) => [x, item.density[index]]),
       smooth: true,
       showSymbol: false,
@@ -302,6 +317,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         },
       },
     })),
+    ],
   };
 
   return <ReactECharts option={option} style={{ width: "100%", height }} />;

@@ -51,7 +51,7 @@ export const SubgroupProportionChart = ({ data, height = 120 }: SubgroupProporti
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 48, right: 0, top: 8, bottom: 16 },
+    grid: { left: 42, right: 0, top: 8, bottom: 16 },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
@@ -60,18 +60,18 @@ export const SubgroupProportionChart = ({ data, height = 120 }: SubgroupProporti
     xAxis: {
       type: "category",
       data: xLabels,
-      axisLine: { show: true, lineStyle: { color: "#484646" } },
+      axisLine: { show: true, lineStyle: { color: "#787776" } },
       axisTick: { show: false },
       nameGap: 12,
       nameTextStyle: {
-        color: "#484646",
+        color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif",
       },
       axisLabel: {
           margin:4,
-          color: "#484646",
+          color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif"
@@ -85,17 +85,17 @@ export const SubgroupProportionChart = ({ data, height = 120 }: SubgroupProporti
       interval: 0.2,
       name: "Proportion",
       nameLocation: "middle",
-      nameGap: 36,
-      axisLine: { show: true, lineStyle: { color: "#484646" } },
-      axisTick: { show: true, lineStyle: { color: "#484646" }  },
+      nameGap: 32,
+      axisLine: { show: true, lineStyle: { color: "#787776" } },
+      axisTick: { show: true, lineStyle: { color: "#787776" }  },
       splitLine: { show: false },
-      nameTextStyle: {color: "#484646",
+      nameTextStyle: {color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif",},
       axisLabel: {
           margin: 8,
-          color: "#484646",
+          color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif"}

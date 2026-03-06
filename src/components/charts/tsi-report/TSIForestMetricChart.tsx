@@ -7,15 +7,9 @@ import type { RiskMetricKey, RiskResponseRow } from "./types";
 export function TSIForestMetricChart({
   rows,
   metricKey,
-  metricLabel,
-  showAxis,
-  minHeight,
 }: {
   rows: RiskResponseRow[];
   metricKey: RiskMetricKey;
-  metricLabel: string;
-  showAxis: boolean;
-  minHeight?: number;
 }) {
   const intervals = rows.map((row) => row.metrics[metricKey]);
   const data = intervals.map((interval, index) => [index, interval.low, interval.mean, interval.high]);
@@ -60,31 +54,15 @@ export function TSIForestMetricChart({
   const option: EChartsOption = {
     animation: false,
     tooltip: { show: false },
-    grid: { left: 0, right: 0, top: 0, bottom: showAxis ? 28 : 2 },
+    grid: { left: 0, right: 0, top: 0, bottom: 0 },
     xAxis: {
       type: "value",
       min: 0,
       max: 100,
       splitLine: { show: false },
-      axisLine: {
-        show: showAxis,
-        lineStyle: { color: "#9A98A3", width: 1 },
-      },
-      axisTick: {
-        show: showAxis,
-        length: 6,
-        lineStyle: { color: "#9A98A3", width: 1 },
-      },
+      axisLine: { show: false },
+      axisTick: { show: false },
       axisLabel: { show: false },
-      name: showAxis ? metricLabel : "",
-      nameLocation: "middle",
-      nameGap: 14,
-      nameTextStyle: {
-        color: "#484646",
-          fontSize: 10,
-          fontWeight: 500,
-          fontFamily: "Inter, sans-serif",
-      },
     },
     yAxis: {
       type: "category",
@@ -93,12 +71,6 @@ export function TSIForestMetricChart({
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { show: false },
-      nameTextStyle: {
-        color: "#484646",
-          fontSize: 10,
-          fontWeight: 500,
-          fontFamily: "Inter, sans-serif",
-      }
     },
     series: [
       {
@@ -110,12 +82,10 @@ export function TSIForestMetricChart({
     ],
   };
 
-  const chartMinHeight = minHeight ?? (showAxis ? 116 : 88);
-
   return (
     <ReactECharts
       option={option}
-      style={{ width: "100%", minHeight: chartMinHeight, height: chartMinHeight }}
+      style={{ width: "100%", height: "100%" }}
     />
   );
 }

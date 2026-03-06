@@ -35,7 +35,7 @@ import {
 const MONTH_STEP = 3;
 const DEFAULT_MONTH_MIN = 3;
 const DEFAULT_MONTH_MAX = 24;
-const DEFAULT_INITIAL_MONTH = 12;
+const DEFAULT_INITIAL_MONTH = 3;
 
 // ── 타입 정의 / Type definitions ─────────────────────────────────────────────
 
@@ -520,16 +520,20 @@ function TSIRefineCutoffsPageContent() {
   }, []);
   const leftPanelWidth = windowWidth < 1470 ? 520 * 0.75 : 520;
   const isSmallScreen = windowWidth < 1470;
-  const chartSymbolSize = isSmallScreen ? 12 : 18;
-  const chartLineWidth = isSmallScreen ? 3 : 4.5;
-  const chartErrorBarLineWidth = isSmallScreen ? 4 : 6;
-  const chartErrorBarCapHalfWidth = isSmallScreen ? 6 : 9;
+  const chartSymbolSize = isSmallScreen ? 10 : 12;
+  const chartLineWidth = isSmallScreen ? 2 : 3;
+  const chartErrorBarLineWidth = isSmallScreen ? 1.5 : 3;
+  const chartErrorBarCapHalfWidth = isSmallScreen ? 4 : 6;
 
   // ── 컷오프 슬라이더 상태 / Cutoff slider state ────────────────────────────
   const [additionalSliders, setAdditionalSliders] = useState<number[]>([]);
   const [cumulativeProportion, setCumulativeProportion] = useState(0);
   const [initialCumulativeProportion, setInitialCumulativeProportion] = useState(0);
   const [initialAdditionalSliders, setInitialAdditionalSliders] = useState<number[]>([]);
+
+  // ── 버튼 활성화 단계 상태 / Button activation stage state ─────────────────
+  const [hasAppliedCriteria, setHasAppliedCriteria] = useState(false);
+  const [hasGeneratedSubgroups, setHasGeneratedSubgroups] = useState(false);
 
   // ── API 응답 데이터 상태 / API response data state ────────────────────────
   const [featureInfoData, setFeatureInfoData] = useState<IdentificationFeatureInfoData | null>(null);
@@ -794,6 +798,26 @@ function TSIRefineCutoffsPageContent() {
     return Math.max(3, Math.ceil(axisMax / 3) * 3);
   }, [diseaseChartData, diseaseDisplayMonth]);
 
+  /** 질병 진행 차트 Y축 범위 (에러바 포함) / Disease chart Y-axis range including error bars */
+  const diseaseYAxisRange = useMemo(() => {
+    let minVal = Infinity;
+    let maxVal = -Infinity;
+    diseaseChartData.dataGroup.forEach((group) => {
+      group.forEach(([, y, error]) => {
+        minVal = Math.min(minVal, y - error);
+        maxVal = Math.max(maxVal, y + error);
+      });
+    });
+    if (!Number.isFinite(minVal)) return { min: 0, max: 10 };
+    const padding = (maxVal - minVal) * 0.1 || 1;
+    const rawMin = minVal - padding;
+    const rawMax = maxVal + padding;
+    return {
+      min: Math.floor(rawMin),
+      max: Math.ceil(rawMax),
+    };
+  }, [diseaseChartData]);
+
   /** 밀도 차트 세그먼트 데이터 / Density chart segmented data */
   const densitySegmentedData = useMemo<{
     values: number[];
@@ -971,6 +995,8 @@ function TSIRefineCutoffsPageContent() {
     if (!taskId || !subgroupId) return;
     setAppliedStratificationMonth(effectivePendingStratificationMonth);
     setApplyCriteriaVersion((prev) => prev + 1);
+    setHasAppliedCriteria(true);
+    setHasGeneratedSubgroups(false);
   };
 
   /** "Generate Subgroups" 버튼 클릭 → Set Info 재조회 / Generate Subgroups handler */
@@ -997,6 +1023,7 @@ function TSIRefineCutoffsPageContent() {
         requestParams.cutoff_y
       );
       setSetInfoData(response.data);
+      setHasGeneratedSubgroups(true);
     } catch (_error) {
       setSetInfoData(null);
     } finally {
@@ -1179,7 +1206,7 @@ function TSIRefineCutoffsPageContent() {
 
                           {/* 슬라이더 핸들 (드래그 가능) / Slider handle (draggable) */}
                           <div
-                            className="absolute top-1/2 h-[24px] w-[24px] -translate-y-1/2 cursor-grab rounded-full bg-white shadow-sm active:cursor-grabbing"
+                            className="absolute top-1/2 h-[24px] w-[24px] -translate-y-1/2 cursor-grab rounded-full border border-[#e2e1e5] bg-[#fcf8f8] shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-[#f9f8fc] active:cursor-grabbing active:bg-[#efeff4]"
                             style={{
                               left: `calc(${Math.max(0, Math.min(100, monthPercentage))}% - 12px)`,
                             }}
@@ -1285,23 +1312,14 @@ function TSIRefineCutoffsPageContent() {
                 {/* Apply Criteria 버튼 (월 변경 시 활성) / Apply Criteria button (active when month changed) */}
                 <button
                   onClick={handleClickApplyCriteria}
+                  disabled={!isMonthDirty}
+                  className="btn-tsi btn-tsi-primary whitespace-nowrap"
                   style={{
                     marginTop: "auto",
                     marginLeft: "auto",
                     height: 30,
-                    width: 124,
-                    borderRadius: 36,
-                    border: "none",
-                    background: isMonthDirty ? "#F06600" : "#919092",
-                    cursor: "pointer",
-                    fontFamily: "Inter",
                     fontSize: 13,
-                    fontWeight: 600,
-                    color: "#ffffff",
                     letterSpacing: "-0.39px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
                   }}
                 >
                   Apply Criteria
@@ -1325,29 +1343,9 @@ function TSIRefineCutoffsPageContent() {
             {/* Generate Subgroups 버튼 (고정) / Generate Subgroups button (fixed at bottom) */}
             <button
               onClick={handleClickGenerateSubGroup}
-              style={{
-                flexShrink: 0,
-                marginLeft: "auto",
-                height: 40,
-                paddingLeft: 24,
-                paddingRight: 24,
-                borderRadius: 36,
-                border: "none",
-                background:
-                  effectiveAppliedStratificationMonth !== initialStratificationMonth || isCutoffDirty
-                    ? "#F06600"
-                    : "#919092",
-                cursor: "pointer",
-                fontFamily: "Inter",
-                fontSize: 15,
-                fontWeight: 600,
-                color: "#ffffff",
-                letterSpacing: "-0.45px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
+              disabled={!isCutoffDirty}
+              className="btn-tsi btn-tsi-primary"
+              style={{ flexShrink: 0, marginLeft: "auto", gap: 8 }}
             >
               Generate Subgroups
               <svg
@@ -1397,8 +1395,7 @@ function TSIRefineCutoffsPageContent() {
 
                 {/* ── 차트 2개 가로 배치 / Two charts side by side ────── */}
                 <div
-                  className="flex min-h-0 min-w-0 flex-shrink-0 gap-3 overflow-hidden"
-                  style={{ height: "320px" }}
+                  className="flex min-w-0 flex-shrink-0 gap-3"
                 >
 
                   {/* 차트 1: Disease Progression by Group */}
@@ -1414,8 +1411,8 @@ function TSIRefineCutoffsPageContent() {
                         Disease Progression by Group
                       </h4>
                       <div
-                        className="flex min-h-0 flex-1 rounded-[16px] bg-white p-3"
-                        style={{ height: "100%" }}
+                        className="flex w-full rounded-[16px] bg-white p-2"
+                        style={{ aspectRatio: "2 / 1" }}
                       >
                         <MultiLineWithErrorBar
                           dataGroup={diseaseChartData.dataGroup}
@@ -1428,10 +1425,10 @@ function TSIRefineCutoffsPageContent() {
                           errorBarCapHalfWidth={chartErrorBarCapHalfWidth}
                           height="100%"
                           sizeVariant="S"
-                          grid={{ left: 24, right: 4, top: 2, bottom: 10 }}
-                          xAxis={{ min: 0, max: diseaseXAxisMax, interval: 3, name: "Month", nameGap: 8 }}
-                          yAxis={{ name: "Disease progression score", nameGap: 28, showLabels: true, showTick: true }}
-                          guideLineX={diseaseDisplayMonth}
+                          grid={{ left: 20, right: 8, top: 2, bottom: 14 }}
+                          xAxis={{ min: 0, max: diseaseXAxisMax, interval: 3, name: "Month", nameGap: 18, onZero: false }}
+                          yAxis={{ min: diseaseYAxisRange.min, max: diseaseYAxisRange.max, name: "Disease progression score", nameGap: 28, showLabels: true, showTick: true, zeroLineColor: "#c7c5c9" }}
+                          guideLineX={diseaseXAxisMax / 2}
                         />
                       </div>
                     </div>
@@ -1449,9 +1446,10 @@ function TSIRefineCutoffsPageContent() {
                       <h4 className="text-body2m flex-shrink-0 text-white pt-[4px] pl-[4px]">
                         Slope distribution
                       </h4>
-                      <div className="flex min-h-0 flex-1 items-center justify-center rounded-[16px] bg-white p-3">
+                      <div className="flex w-full rounded-[16px] bg-white p-2" style={{ aspectRatio: "2 / 1" }}>
                         <DensityChart
                           segmented={densitySegmentedData ?? undefined}
+                          height="100%"
                           sizeVariant="S"
                           xAxisName="Slope"
                           yAxisName="Density"
@@ -1470,7 +1468,7 @@ function TSIRefineCutoffsPageContent() {
                   <div className="flex flex-col px-3 py-3">
 
                     {/* 테이블 헤더 / Table header */}
-                    <div className="border-neutral-80 flex h-wrap flex-shrink-0 items-center gap-4 border-b pb-[4px]">
+                    <div className="border-neutral-50 flex h-wrap flex-shrink-0 items-center gap-4 border-b pb-[8px]">
                       <div className="text-body4 text-neutral-30 flex-[8] font-semibold">no.</div>
                       <div className="text-body4 text-neutral-30 flex-[24] font-semibold">Group</div>
                       <div className="text-body4 text-neutral-30 flex-[18] font-semibold">Patients N</div>
@@ -1517,45 +1515,15 @@ function TSIRefineCutoffsPageContent() {
                 {/* Save 버튼 / Save button */}
                 <button
                   onClick={handleOnSaveRefineCutoff}
-                  style={{
-                    height: 40,
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    borderRadius: 36,
-                    border: "none",
-                    background: "#787776",
-                    cursor: "pointer",
-                    fontFamily: "Inter",
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: "#ffffff",
-                    letterSpacing: "-0.45px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  disabled={!hasGeneratedSubgroups}
+                  className="btn-tsi btn-tsi-primary"
                 >
                   Save
                 </button>
                 {/* Save As 버튼 / Save As button */}
                 <button
-                  style={{
-                    height: 40,
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    borderRadius: 36,
-                    border: "none",
-                    background: "#787776",
-                    cursor: "pointer",
-                    fontFamily: "Inter",
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: "#ffffff",
-                    letterSpacing: "-0.45px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  disabled={!hasGeneratedSubgroups}
+                  className="btn-tsi btn-tsi-primary"
                 >
                   Save As
                 </button>

@@ -26,6 +26,9 @@ interface AxisConfig {
   inverse?: boolean;
   showLabels?: boolean;
   showTick?: boolean;
+  alignEdgeLabels?: boolean;
+  onZero?: boolean;
+  zeroLineColor?: string;
 }
 
 export type ChartSizeVariant = "XS" | "S" | "M" | "L";
@@ -48,7 +51,7 @@ type ChartSizeStyle = {
 
 const CHART_SIZE_STYLES: Record<ChartSizeVariant, ChartSizeStyle> = {
   XS: { labelFontSize: 9, labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 12, labelFontWeight: 600, numberFontSize: 10, numberFontWeight: 500, axisColor: "#484646", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
+  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: "#787776", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
   M:  { labelFontSize: 15, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
   L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
@@ -144,11 +147,13 @@ export const MultiLineWithErrorBar = ({
         symbolSize,
         itemStyle: filledSymbol ? { color, borderColor: color, borderWidth: 1 } : { color },
         lineStyle: { width: lineWidth, color },
+
       },
       {
         name: `${groupName} Error`,
         type: "custom",
         coordinateSystem: "cartesian2d",
+
         renderItem: (_params, api) => {
           const xValue = Number(api.value(0));
           const yValue = Number(api.value(1));
@@ -220,6 +225,45 @@ export const MultiLineWithErrorBar = ({
           },
         ];
 
+  // y=0 기준선 (onZero: false일 때 0 위치에 수평선 표시)
+  const zeroLineSeries: NonNullable<EChartsOption["series"]> =
+    yAxis?.zeroLineColor && yAxisMin < 0
+      ? [
+          {
+            name: "Zero Line",
+            type: "line",
+            data: [
+              [xAxisMin, 0],
+              [xAxisMax, 0],
+            ],
+            lineStyle: { color: yAxis.zeroLineColor, width: 1 },
+            symbol: "none",
+            silent: true,
+            tooltip: { show: false },
+            z: 0,
+          },
+        ]
+      : [];
+
+  // edge label 정렬용 변수
+  const yLabelColor = yAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94";
+  const yLabelFontSize = yAxis?.fontSize ?? sz?.numberFontSize ?? 9;
+  const yLabelFontFamily = yAxis?.fontFamily ?? "Inter";
+  // inverse=true 이면 min이 상단, max가 하단; inverse=false이면 반대
+  const yTopValue = yAxis?.inverse ? yAxisMin : yAxisMax;
+  const yBottomValue = yAxis?.inverse ? yAxisMax : yAxisMin;
+  const yEdgeFormatter = yAxis?.alignEdgeLabels
+    ? (value: number | string) => {
+        const num = Number(value);
+        const base = labelFormatter ? labelFormatter(num) : String(num);
+        // 상단 레이블: 빈 줄 추가 → 텍스트 블록 전체가 tick 기준 아래로 이동
+        if (Math.abs(num - yTopValue) < 0.001) return `\n${base}`;
+        // 하단 레이블: 뒤에 빈 줄 추가 → 텍스트 블록 전체가 tick 기준 위로 이동
+        if (Math.abs(num - yBottomValue) < 0.001) return `${base}\n`;
+        return base;
+      }
+    : labelFormatter;
+
   const option: EChartsOption = {
     tooltip: { trigger: "axis" },
     legend: { show: false },
@@ -242,9 +286,9 @@ export const MultiLineWithErrorBar = ({
           width: 1,
         },
       },
-      axisLine: { show: true, lineStyle: { color: xAxis?.axisLineColor ?? sz?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, onZero: xAxis?.onZero ?? true, lineStyle: { color: xAxis?.axisLineColor ?? sz?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
-      axisLabel: { color: xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? sz?.numberFontSize ?? 9, fontWeight: sz?.numberFontWeight, fontFamily: xAxis?.fontFamily ?? "Inter", ...(labelFormatter ? { formatter: labelFormatter } : {}) },
+      axisLabel: { color: xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? sz?.numberFontSize ?? 9, fontWeight: sz?.numberFontWeight, fontFamily: xAxis?.fontFamily ?? "Inter", margin: 4, ...(labelFormatter ? { formatter: labelFormatter } : {}) },
       name: xAxis?.name,
       nameLocation: "middle",
       nameGap: xAxis?.nameGap ?? 24,
@@ -271,11 +315,11 @@ export const MultiLineWithErrorBar = ({
       axisTick: { show: yAxis?.showTick ?? false },
       axisLabel: {
         show: yAxis?.showLabels ?? false,
-        color: yAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94",
-        fontSize: yAxis?.fontSize ?? sz?.numberFontSize ?? 9,
+        color: yLabelColor,
+        fontSize: yLabelFontSize,
         fontWeight: sz?.numberFontWeight,
-        fontFamily: yAxis?.fontFamily ?? "Inter",
-        ...(labelFormatter ? { formatter: labelFormatter } : {}),
+        fontFamily: yLabelFontFamily,
+        ...(yEdgeFormatter ? { formatter: yEdgeFormatter } : {}),
       },
       axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? sz?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       name: yAxis?.name,
@@ -290,7 +334,7 @@ export const MultiLineWithErrorBar = ({
         align: "center",
       },
     },
-    series: [...guideSeries, ...dynamicSeries],
+    series: [...zeroLineSeries, ...guideSeries, ...dynamicSeries],
   };
 
   return <ReactECharts option={option} style={{ width: "100%", height }} />;

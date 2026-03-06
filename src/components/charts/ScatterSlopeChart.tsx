@@ -53,25 +53,25 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
 
   const option: EChartsOption = {
     animation: false,
-    grid: { left: 48, right: 4, top: 8, bottom: 16},
+    grid: { left: 42, right: 4, top: 8, bottom: 16},
     tooltip: {
       trigger: "item",
       formatter: (p: any) => `Slope: ${p.value[0]}<br/>C Vision: ${p.value[1]}`,
     },
     xAxis: {
       type: "value",
-      axisLine: { show: true, onZero: false, lineStyle: { color: "#484646" } },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#787776" } },
       axisTick: { show: false },
       splitLine: { show: false },
      nameTextStyle: {
-        color: "#484646",
+        color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif",
       },
       axisLabel: {
           margin:4,
-          color: "#484646",
+          color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif"
@@ -81,18 +81,18 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
       type: "value",
       name: "Proportion",
       nameLocation: "middle",
-      axisLine: { show: true, lineStyle: { color: "#484646" } },
-      axisTick: { show: true, lineStyle: { color: "#484646" } },
+      axisLine: { show: true, lineStyle: { color: "#787776" } },
+      axisTick: { show: true, lineStyle: { color: "#787776" } },
     nameTextStyle: {
-        color: "#484646",
+        color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif",
       },
-      nameGap:36,
+      nameGap:32,
       axisLabel: {
-          margin:4,
-          color: "#484646",
+          margin:8,
+          color: "#787776",
           fontSize: 10,
           fontWeight: 500,
           fontFamily: "Inter, sans-serif"

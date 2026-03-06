@@ -42,7 +42,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     containerClassName:
       "flex w-full flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
     separatorColor: "#B7B6BE",
-    chartMinHeightClassName: "h-[360px] [@media(max-width:1470px)]:h-[250px]",
+    chartMinHeightClassName: "",
     axisColor: "#CECDD6",
     lineWidth: 3,
     symbolSize: 12,
@@ -59,7 +59,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     containerClassName:
       "flex w-full flex-shrink-0 flex-col rounded-[16px] bg-[#FFFFFF] p-4",
     separatorColor: "#A9A8B2",
-    chartMinHeightClassName: "h-[360px] [@media(max-width:1470px)]:h-[250px]",
+    chartMinHeightClassName: "",
     axisColor: "#CBCAD3",
     lineWidth: 3,
     symbolSize: 12,
@@ -67,10 +67,10 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     errorBarCapHalfWidth: 6,
     guideLineColor: "#452CF4",
     guideLineType: "dashed",
-    legendMarginTopClassName: "mt-2",
+    legendMarginTopClassName: "mt-3",
     legendLineWidthClassName: "w-[86px]",
     legendFallbackColor: "#4327E6",
-    tableMarginTopClassName: "mt-2",
+    tableMarginTopClassName: "mt-3",
   },
 };
 
@@ -87,13 +87,12 @@ export function TSIDiseaseProgressionPanel({
   return (
     <div className={style.containerClassName}>
       <h4
-        className="text-body2m text-neutral-20 flex-shrink-0 pb-3 border-b"
-        style={{ borderColor: style.separatorColor }}
+        className="text-body3 text-neutral-30 flex-shrink-0 pb-2 border-b border-neutral-80"
       >
         Disease Progression by Subgroup
       </h4>
 
-      <div className={`mt-3 flex-shrink-0 ${style.chartMinHeightClassName}`}>
+      <div className="mt-3 flex-shrink-0 w-full" style={{ aspectRatio: "5 / 3" }}>
         <MultiLineWithErrorBar
           dataGroup={chartData}
           seriesLabels={seriesLabels}
@@ -130,6 +129,7 @@ export function TSIDiseaseProgressionPanel({
             fontSize: 10,
             fontFamily: "Inter",
             showLabels: true,
+            alignEdgeLabels: true,
           }}
           guideLineX={12}
           guideLineColor={style.guideLineColor}

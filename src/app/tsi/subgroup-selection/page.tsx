@@ -16,12 +16,16 @@ import { Loading } from "@/components/common/Loading";
 
 /**
  * TSI Step 4: Subgroup Selection
- * 구조: 상위 배경 카드 2개 나란히
- * - 왼쪽 상위: selection-left.png → 안에 남색 카드 (Subgroup Sets Summary)
- * - 오른쪽 상위: selection-bg.png → 안에 흰색 테이블 카드
+ * 왼쪽: 하위군 세트 요약 카드 (남색 배경 + 에러바 차트)
+ * 오른쪽: 세트 목록 테이블 카드 (흰 배경, 펼침 행 포함)
+ *
+ * Left card: Subgroup Sets Summary (navy background + error-bar charts)
+ * Right card: Result table with expandable rows showing detailed charts
  */
 
-// UI에서 사용하는 Set 데이터 구조
+// ── 타입 정의 / Type definitions ─────────────────────────────────────────────
+
+/** UI에서 사용하는 Set 데이터 구조 / Set data structure used in the UI */
 interface SetData {
   no: string;
   setName: string;
@@ -34,36 +38,42 @@ interface SetData {
   groupBalance: string;
 }
 
-/** 그룹별 에러바 색상 (Group 1, 2, 3 각각 구분) */
+// ── 왼쪽 요약 차트 상수 / Left summary chart constants ───────────────────────
+
+/** 그룹별 에러바 색상 / Error-bar colors per group */
 const GROUP_BAR_COLORS = ["#AAA5E1", "#7571A9", "#231F52"];
 const SUMMARY_ERROR_BAR_LINE_HEIGHT_PX = 2;
 const SUMMARY_ERROR_BAR_CAP_WIDTH_PX = 2;
 const SUMMARY_ERROR_BAR_CAP_HEIGHT_PX = 12;
 const SUMMARY_ERROR_BAR_DOT_SIZE_PX = 10;
+/** 차트에 표시할 최대 그룹 수 / Maximum number of groups to display */
 const MAX_GROUP_DISPLAY_COUNT = 3;
 
-/** 테이블 공통 스타일 */
+// ── 테이블 셀 스타일 상수 / Table cell style constants ───────────────────────
+
 const TABLE_CELL_BASE = "h-[52px] border-b align-middle";
 const TABLE_HEADER_CELL_BASE = "border-b align-middle py-1";
-/** border-l이 없는 셀: 오른쪽 padding만 8px */
+/** border-l이 없는 헤더 셀 / Header cell without left border */
 const TABLE_HEADER_CELL_BASE_NO_BORDER = `${TABLE_HEADER_CELL_BASE} pr-2 border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
 const TABLE_BODY_CELL_BASE_NO_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5 text-neutral-40`;
-/** border-l이 있는 셀: 오른쪽 padding만 8px, 왼쪽은 margin으로 처리 */
+/** border-l이 있는 헤더 셀 / Header cell with left border */
 const TABLE_HEADER_CELL_BASE_WITH_BORDER = `${TABLE_HEADER_CELL_BASE} pr-2 border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
 const TABLE_BODY_CELL_BASE_WITH_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5 text-neutral-40`;
-/** 마지막 컬럼: border-l은 있지만 padding 없음 */
+/** 마지막 컬럼 헤더 셀 / Last column header cell */
 const TABLE_HEADER_CELL_BASE_LAST = `${TABLE_HEADER_CELL_BASE} border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
 const TABLE_BODY_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-80 text-body5 text-neutral-40`;
-
-/** 내부 div: 셀과 같은 너비, 더 작은 높이(36px), 세로선 포함 */
+/** 내부 div: 세로선 포함, 가운데 정렬 / Inner div with left border, center-aligned */
 const TABLE_INNER_DIV_CENTER =
-  "w-full min-h-[28px] flex items-center justify-center border-l border-neutral-80 pl-2";
+  "w-full h-fit min-h-[28px] flex items-center justify-center border-l border-neutral-80 pl-2";
 const TABLE_INNER_DIV_LEFT =
-  "w-full min-h-[28px] flex items-center border-l border-neutral-80 pl-2";
+  "w-full h-fit min-h-[28px] flex items-center border-l border-neutral-80 pl-2";
 const TABLE_INNER_DIV_CENTER_NO_BORDER =
-  "w-full min-h-[28px] flex items-center justify-center";
-const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full min-h-[28px] flex items-center";
+  "w-full h-fit min-h-[28px] flex items-center justify-center";
+const TABLE_INNER_DIV_LEFT_NO_BORDER = "w-full h-fit min-h-[28px] flex items-center";
 
+// ── 유틸리티 함수 / Utility functions ────────────────────────────────────────
+
+/** 분산 분해 데이터에서 CI 텍스트를 생성합니다. / Generates CI summary text. */
 const getCiText = (
   varianceDecomposition: ResultTableItem["variance_decomposition"],
 ) => {
@@ -73,6 +83,7 @@ const getCiText = (
   η²=${listItem.eta_square}, ω²=${listItem.omega} `;
 };
 
+/** 표시할 그룹 수를 계산합니다. / Calculates group count, capped at MAX_GROUP_DISPLAY_COUNT. */
 const getDisplayGroupCount = (
   requestedCount: number | null | undefined,
   fallbackCount: number,
@@ -90,6 +101,7 @@ const getDisplayGroupCount = (
   return Math.min(fallback, MAX_GROUP_DISPLAY_COUNT);
 };
 
+/** 배열을 지정된 그룹 수만큼 잘라냅니다. / Clamps array to calculated display group count. */
 const clampGroupArray = <T,>(
   items: T[],
   requestedCount: number | null | undefined,
@@ -100,8 +112,10 @@ const clampGroupArray = <T,>(
   return items.slice(0, limit);
 };
 
+/** 분류 정렬 순서: high → middle → low / Sort order: high → middle → low */
 const CLASSIFICATION_ORDER: Record<string, number> = { high: 0, middle: 1, low: 2 };
 
+/** classification 값을 표시 이름으로 변환 / Converts classification key to display name */
 const getGroupDisplayName = (classification: string): string => {
   if (classification === "high") return "High Risk";
   if (classification === "middle") return "Middle Risk";
@@ -109,6 +123,7 @@ const getGroupDisplayName = (classification: string): string => {
   return classification;
 };
 
+/** classification에 따른 그룹 색상 반환 / Returns chart color for a given classification */
 const getGroupColor = (classification: string): string => {
   if (classification === "high") return "#231F52";
   if (classification === "middle") return "#7571A9";
@@ -116,6 +131,7 @@ const getGroupColor = (classification: string): string => {
   return "#231F52";
 };
 
+/** classification 기준으로 배열 정렬 (high > middle > low) / Sorts array by classification */
 const sortByClassification = <T extends { classification?: string; group?: string }>(
   items: T[],
   getClassification: (item: T) => string,
@@ -125,8 +141,7 @@ const sortByClassification = <T extends { classification?: string; group?: strin
       (CLASSIFICATION_ORDER[getClassification(a)] ?? 99) -
       (CLASSIFICATION_ORDER[getClassification(b)] ?? 99),
   );
-
-// ─── 목업 데이터 (API 실패 시 폴백) ─────────────────────────────────────
+// ── 목업 데이터 (API 실패 시 폴백) / Mock data (fallback when API fails) ──────
 
 const MOCK_SUMMARY_DATA: SubgroupSetSummary[] = [
   {
@@ -286,7 +301,7 @@ const MOCK_RESULT_TABLE_DATA: ResultTableItem[] = [
   },
 ];
 
-// ─── Chart option builders ────────────────────────────────────────────
+// ── ECharts 차트 옵션 빌더 / ECharts chart option builders ────────────────────
 
 type EChartsRenderApi = {
   value: (i: number) => number;
@@ -294,6 +309,10 @@ type EChartsRenderApi = {
   style: (o: object) => object;
 };
 
+/**
+ * 하위군별 질병 진행 꺾은선+에러바 차트 옵션을 빌드합니다.
+ * Builds the ECharts option for the Disease Progression line chart with error bars.
+ */
 function buildDiseaseProgressionChartOption(
   filteredProgressionData: NonNullable<ResultTableItem["disease_progression_by_subgroup"]>,
   displayedProgressionGroups: string[],
@@ -352,12 +371,24 @@ function buildDiseaseProgressionChartOption(
   const yRange = yMax - yMin;
   const yPadding = yRange * 0.15;
 
+  // X축 edge 레이블 너비 측정 — 텍스트가 축 경계 밖으로 삐져나오지 않도록
+  const measureW = (text: string) => {
+    if (typeof document === "undefined") return text.length * 6;
+    const cvs = document.createElement("canvas");
+    const ctx = cvs.getContext("2d");
+    if (!ctx) return text.length * 6;
+    ctx.font = "500 10px Inter";
+    return ctx.measureText(text).width;
+  };
+  const xMinLabelW = measureW("0");
+  const xMaxLabelW = measureW(months[months.length - 1].toString());
+
   return {
     animation: false,
     grid: {
       left: "16px",
-      right: "8px",
-      top: "2px",
+      right: "4px",
+      top: "1px",
       bottom: "14px",
       containLabel: true,
     },
@@ -368,8 +399,41 @@ function buildDiseaseProgressionChartOption(
       nameGap: 18,
       min: 0,
       max: months[months.length - 1],
-      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" },
-      axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
+      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
+      axisLabel: {
+        fontSize: 10,
+        fontWeight: 500,
+        fontFamily: "Inter",
+        color: "#787776",
+        margin: 4,
+        // rich text로 edge 레이블을 축 경계에 정확히 맞춤
+        // lEdge: right-align → 텍스트 왼쪽 끝이 tick 위치에 맞춰짐
+        // rEdge: left-align  → 텍스트 오른쪽 끝이 tick 위치에 맞춰짐
+        rich: {
+          lEdge: {
+            width: Math.ceil(xMinLabelW * 2) + 2,
+            align: "right",
+            fontSize: 10,
+            fontWeight: 500,
+            fontFamily: "Inter",
+            color: "#787776",
+          },
+          rEdge: {
+            width: Math.ceil(xMaxLabelW * 2) + 2,
+            align: "left",
+            fontSize: 10,
+            fontWeight: 500,
+            fontFamily: "Inter",
+            color: "#787776",
+          },
+        },
+        formatter: (value: number) => {
+          const xMax = months[months.length - 1];
+          if (value === 0) return "{lEdge|0}";
+          if (value === xMax) return `{rEdge|${value}}`;
+          return value.toString();
+        },
+      },
       axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
       axisTick: { show: false },
       splitLine: { show: true, lineStyle: { type: "solid", color: "#e3e1e5", width: 1 } },
@@ -381,7 +445,7 @@ function buildDiseaseProgressionChartOption(
       nameGap: 28,
       min: yMin - yPadding,
       max: yMax + yPadding,
-      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" },
+      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
       axisLabel: {
         fontSize: 10,
         fontWeight: 500,
@@ -390,7 +454,12 @@ function buildDiseaseProgressionChartOption(
         margin: 4,
         showMinLabel: false,
         showMaxLabel: false,
-        formatter: (value: number) => value.toFixed(1),
+        formatter: (value: number) => {
+          const base = value.toFixed(1);
+          // 상단 edge: tick이 yMax 근처 (패딩 영역 내) → 아래로 이동
+          if (value > yMax - yPadding) return `\n${base}`;
+          return base;
+        },
       },
       axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
       axisTick: { show: false },
@@ -402,6 +471,10 @@ function buildDiseaseProgressionChartOption(
   };
 }
 
+/**
+ * 분산 분해(Variance Decomposition) 누적 막대 차트 옵션을 빌드합니다.
+ * Builds the ECharts option for the Variance Decomposition stacked bar chart.
+ */
 function buildVarianceDecompositionChartOption(
   decompositionData: NonNullable<ResultTableItem["variance_decomposition"]>,
 ) {
@@ -411,6 +484,7 @@ function buildVarianceDecompositionChartOption(
   const withinPooled = Math.max(0, totalVarianceValue - explainedTotal);
   const varianceMax = Math.max(totalVarianceValue, 0);
   const varianceBarWidth = "82%";
+  const ciText = getCiText(decompositionData);
 
   return {
     animation: false,
@@ -432,17 +506,17 @@ function buildVarianceDecompositionChartOption(
       type: "value" as const,
       name: "Variance",
       nameLocation: "middle",
-      nameGap: 32,
+      nameGap: 24,
       max: varianceMax * 1.5,
       splitNumber: 5,
-      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" },
+      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
       axisLabel: {
         fontSize: 10,
         fontWeight: 500,
         fontFamily: "Inter",
         color: "#787776",
         margin: 4,
-        formatter: (value: number) => value.toFixed(2),
+        formatter: (value: number) => value.toFixed(1),
       },
       axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
       axisTick: { show: false },
@@ -471,11 +545,17 @@ function buildVarianceDecompositionChartOption(
   };
 }
 
+/**
+ * 하위군별 그룹 내 분산(Within-Group Variance) 막대 차트 옵션을 빌드합니다.
+ * Builds the ECharts option for the Within-Group Variance bar chart.
+ */
 function buildWithinGroupVarianceChartOption(
   sortedVariance: NonNullable<ResultTableItem["within_group_variance_by_subgroup"]>,
+  isNarrow = false,
 ) {
   const maxVar = Math.max(...sortedVariance.map((v) => v.variance));
   const totalVarValue = sortedVariance.length > 0 ? sortedVariance[0].total_var : 0;
+  const yAxisMax = Math.max(maxVar, totalVarValue) * 1.2;
 
   return {
     animation: false,
@@ -487,20 +567,32 @@ function buildWithinGroupVarianceChartOption(
       containLabel: true,
     },
     xAxis: { type: "category" as const, data: sortedVariance.map((v) => v.classification === "high" ? "High" : v.classification === "middle" ? "Middle" : "Low"), axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false } },
-    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 32, max: maxVar * 1.2, splitNumber: 5, nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" }, axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4, formatter: (value: number) => value.toFixed(2) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#e3e1e5" } } },
+    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 32, max: yAxisMax, splitNumber: 5, nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" }, axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4, formatter: (value: number) => value.toFixed(1) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#e3e1e5" } } },
     tooltip: { show: false }, legend: { show: false },
     series: [{
       type: "bar" as const,
-      data: sortedVariance.map((v) => ({ value: v.variance, sampleN: typeof v.number === "number" ? Math.round(v.number) : null, itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] } })),
+      data: sortedVariance.map((v) => {
+        const isSmall = v.variance < yAxisMax * 0.25;
+        return {
+          value: v.variance,
+          sampleN: typeof v.number === "number" ? Math.round(v.number) : null,
+          itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] },
+          label: isSmall ? { color: "#484646" } : undefined,
+        };
+      }),
       barWidth: "85%",
-      label: { show: true, position: "insideBottom", distance: 8, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#FFFFFF", fontFamily: "Inter, sans-serif", fontSize: 12, fontWeight: 600, lineHeight: 13.2 },
-      markLine: { silent: true, symbol: "none", label: { show: true, position: "end", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10, color: "#484646", offset: [-75, -10] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
+      label: { show: true, position: "insideBottom", distance: 8, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#FFFFFF", fontFamily: "Inter, sans-serif", fontSize: isNarrow ? 10.5 : 12, fontWeight: 500, lineHeight: isNarrow ? 11.025 : 13.2 },
+      markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", lineHeight: 11.025, color: "#787776", offset: [0, 2] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
     }],
   };
 }
 
-// ─── ExpandedRowContent ───────────────────────────────────────────────────────
+// ── ExpandedRowContent 컴포넌트 / ExpandedRowContent component ────────────────
 
+/**
+ * 테이블 행을 펼쳤을 때 표시되는 상세 내용 컴포넌트.
+ * Component displayed when a table row is expanded.
+ */
 function ExpandedRowContent({ row }: { row: ResultTableItem }) {
   const detailGroupLimit = getDisplayGroupCount(
     row.of_group,
@@ -587,23 +679,26 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
             {/* Left Column */}
             <div className="flex flex-col gap-3">
               {/* Disease Progression by Subgroup */}
-              <div className="flex flex-col flex-[1] rounded-[18px] bg-white/60 p-2 gap-3 ">
-                <h3 className="text-body4 flex-shrink-0 font-semibold text-[#1c1b1b] pl-1 pt-1">
+              <div className="flex flex-col flex-1 rounded-[18px] bg-white/60 p-2 gap-4">
+                <h3 className="text-body4 flex-shrink-0 text-neutral-30 pl-1 pt-1">
                   Disease Progression by Subgroup
                 </h3>
                 <div
-                  className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white p-2"
+                  className="relative min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white p-1"
+                  style={{ width: "100%", paddingBottom: "50%" }}
                 >
                   {filteredProgressionData.length > 0 ? (
-                    <ReactECharts
-                      option={buildDiseaseProgressionChartOption(
-                        filteredProgressionData,
-                        displayedProgressionGroups,
-                        row.within_group_variance_by_subgroup,
-                        row.outcome,
-                      )}
-                      style={{ height: "160px", width: "100%" }}
-                    />
+                    <div className="absolute inset-0 p-1">
+                      <ReactECharts
+                        option={buildDiseaseProgressionChartOption(
+                          filteredProgressionData,
+                          displayedProgressionGroups,
+                          row.within_group_variance_by_subgroup,
+                          row.outcome,
+                        )}
+                        style={{ height: "100%", width: "100%" }}
+                      />
+                    </div>
                   ) : (
                     <div className="flex h-full items-center justify-center">
                       <span className="text-sm text-[#484646]">No data available</span>
@@ -612,9 +707,9 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                 </div>
               </div>
               {/* Number of patients */}
-              <div className="flex flex-[1]  flex-col rounded-[18px] bg-white/60 p-2 gap-1 ">
+              <div className="flex flex-1 flex-col rounded-[18px] bg-white/60 p-2 gap-1">
               <div className="pl-1 pt-1">
-                <h3 className="text-body4 mb-1 flex-shrink-0 font-semibold text-[#1c1b1b] ">
+                <h3 className="text-body4 mb-1 flex-shrink-0 text-neutral-30 ">
                   Number of patients
                 </h3>
                 <p className="text-small1 mb-0 flex-shrink-0 text-[#605e5e]">
@@ -627,7 +722,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                         <p className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">Group</p>
                       </div>
                       <div className="flex-1">
-                        <p className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">
+                        <p className="text-body5 text-primary-15 [@media(max-width:1470px)]:text-small1 ">
                           Number of patients
                         </p>
                       </div>
@@ -642,7 +737,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                       return (
                         <div
                           key={patient.group}
-                          className={`flex items-center gap-2 py-1 text-sm text-[#1c1b1b] ${
+                          className={`flex items-center gap-2 py-1 text-sm  ${
                             idx > 0 ? "border-t border-[#adaaaa]" : ""
                           }`}
                         >
@@ -652,13 +747,13 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                               style={{ backgroundColor: groupColor }}
                             />
                             <div>
-                              <p className="text-body4m font-semibold text-[#1C1B1B] ">
+                              <p className="text-body4m  text-neutral-30 ">
                                 {groupName}
                               </p>
                             </div>
                           </div>
                           <div className="flex-1">
-                            <p className="text-body4m font-semibold text-[#1C1B1B]">
+                            <p className="text-body4m  text-neutral-30">
                               {patient.number.toLocaleString()}
                             </p>
                           </div>
@@ -673,10 +768,10 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
             <div className="bg-primary-15 flex flex-col min-w-0 gap-6 rounded-[18px] p-3">
               {/* Variance Reduction Explained */}
               <div className="flex flex-col gap-2">
-                <h3 className="text-feature-titles text-white">
+                <h3 className="text-body3m text-white">
                   Variance Reduction Explained
                 </h3>
-                <p className="text-body5m leading-relaxed font-semibold text-white">
+                <p className="text-body5m leading-relaxed text-white">
                   Subgroup stratification reduced the overall variance by{" "}
                   {variancePercent}%. The observed variance reduction was primarily
                   driven by the {primaryGroup} patient group. Therefore, if cutoff
@@ -689,15 +784,15 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
               {/* Two cards in one row */}
               <div className="grid grid-cols-2 gap-3">
                 {/* Variance decomposition */}
-                <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-4">
+                <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-3">
                   <div className="flex justify-between gap-2 h-wrap">
                     <div className="flex-shrink-0 [@media(max-width:1480px)]:flex-[3_1_0]">
-                      <h3 className="text-body3 [@media(max-width:1470px)]:text-body4 mb-2 tracking-[-0.75px] text-[#1c1b1b]">
+                      <h3 className="text-body3 text-neutral-20 [@media(max-width:1470px)]:text-body4 mb-2 tracking-[-0.75px]" style={{lineHeight: "100%"}}>
                         Variance decomposition
                       </h3>
                       <div className="mb-4 flex gap-5">
                         <div>
-                          <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
+                          <div className="text-body5  [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
                             Variance
                           </div>
                           <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
@@ -714,16 +809,16 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                         </div>
                       </div>
                     </div>
-                    <div className="flex min-w-0 flex-col gap-0 [@media(max-width:1480px)]:flex-[1_1_0]">
-                      <div className="flex flex-col min-[1471px]:flex-row items-start min-[1471px]:items-center gap-[5px] font-medium">
-                        <div className="mt-1 h-[10px] w-[32px] shrink-0 rounded-2xl bg-[#231F52]" />
+                    <div className="flex min-w-0 flex-col gap-0 [@media(max-width:1470px)]:gap-1 [@media(max-width:1480px)]:flex-[1_1_0]">
+                      <div className="flex flex-col min-[1471px]:flex-row items-start min-[1471px]:items-center gap-0.5 min-[1471px]:gap-1 font-medium">
+                        <div className="h-[10px] w-[32px] shrink-0 rounded-2xl bg-[#231F52]" />
                         <div className="min-w-0 min-[1471px]:whitespace-nowrap text-[10.5px] text-left">
                           <p>Within</p>
-                          <p className="-mt-0.5 text-[#939090]">pooled</p>
+                          <p className="-mt-0.5 text-[#939090]" style={{ lineHeight: "110%" }}>pooled</p>
                         </div>
                       </div>
-                      <div className="flex flex-col min-[1471px]:flex-row items-start min-[1471px]:items-center gap-[5px] font-medium">
-                        <div className="mt-1 h-[10px] w-[32px] shrink-0 rounded-2xl bg-[#AAA5E1]" />
+                      <div className="flex flex-col min-[1471px]:flex-row items-start min-[1471px]:items-center gap-0.5 min-[1471px]:gap-1 font-medium">
+                        <div className="h-[10px] w-[32px] shrink-0 rounded-2xl bg-[#AAA5E1]" />
                         <div className="min-w-0 min-[1471px]:whitespace-nowrap text-[10.5px] text-left">
                           <p>Explained</p>
                           <p className="-mt-0.5 text-[#939090]" style={{ lineHeight: "110%" }}>Total Within</p>
@@ -733,15 +828,17 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   </div>
                   <div className="bg-white">
                     {row.variance_decomposition && row.variance_decomposition.length > 0 ? (
-                      <div className="relative h-wrap w-full">
-                        <ReactECharts
-                          option={buildVarianceDecompositionChartOption(
-                            row.variance_decomposition,
-                          )}
-                          style={{ height: "160px", width: "100%" }}
-                        />
-                        <div className="pointer-events-none absolute top-0 left-[20%] right-[2%] w-[78%] flex items-start justify-center">
-                          <div className="rounded-[6px] border border-neutral-80 bg-white p-1">
+                      <div className="relative w-full" style={{ paddingBottom: "60%" }}>
+                        <div className="absolute inset-0">
+                          <ReactECharts
+                            option={buildVarianceDecompositionChartOption(
+                              row.variance_decomposition,
+                            )}
+                            style={{ height: "100%", width: "100%" }}
+                          />
+                        </div>
+                        <div className="pointer-events-none absolute top-0 left-[26px] right-0 z-10 flex justify-center">
+                          <div className="rounded-[6px] border border-neutral-80 bg-white p-1 w-fit">
                             <p className="text-small2 text-neutral-50">
                               {getCiText(row.variance_decomposition)}
                             </p>
@@ -758,7 +855,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                 {/* Within-group variance by subgroup */}
                 <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-4">
                   <div className="flex-shrink-0">
-                    <h3 className="mb-2 text-body3 [@media(max-width:1470px)]:text-body4 tracking-[-0.75px] text-[#1c1b1b]">
+                    <h3 className="mb-2 text-body3 text-neutral-20 [@media(max-width:1470px)]:text-body4" style={{lineHeight: "100%"}}>
                       Within-group variance by subgroup
                     </h3>
                     <div className="mb-2 flex gap-5">
@@ -782,12 +879,14 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                       })}
                     </div>
                   </div>
-                  <div className="bg-white">
+                  <div className="relative bg-white" style={{ width: "100%", paddingBottom: "60%" }}>
                     {sortedVariance.length > 0 ? (
-                      <ReactECharts
-                        option={buildWithinGroupVarianceChartOption(sortedVariance)}
-                        style={{ height: "160px", width: "100%" }}
-                      />
+                      <div className="absolute inset-0">
+                        <ReactECharts
+                          option={buildWithinGroupVarianceChartOption(sortedVariance, typeof window !== "undefined" && window.innerWidth <= 1470)}
+                          style={{ height: "100%", width: "100%" }}
+                        />
+                      </div>
                     ) : (
                       <div className="flex h-full items-center justify-center">
                         <span className="text-sm text-[#484646]">No data available</span>
@@ -805,9 +904,13 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
 }
 
 
-// ───────────────────────────────────────────────────────────────────────────
+// ── 메인 페이지 컴포넌트 / Main page component ────────────────────────────────
 
 
+/**
+ * TSI Step 4 실제 페이지 컨텐츠 (useSearchParams 사용 → Suspense 래핑 필요).
+ * Actual page content, requires Suspense wrapper due to useSearchParams.
+ */
 function TSISubgroupSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -904,7 +1007,7 @@ function TSISubgroupSelectionPageContent() {
           marginRight: "14px",
         }}
       >
-        {/* Title */}
+        {/* ── 1. 페이지 타이틀 / Page title ── */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
           <h1
             style={{
@@ -932,14 +1035,14 @@ function TSISubgroupSelectionPageContent() {
           </span>
         </div>
 
-        {/* 메인+버튼 묶음 컨테이너 */}
+        {/* ── 2. 메인+버튼 묶음 컨테이너 / Main cards + button wrapper ── */}
         <div className="flex flex-col flex-1 min-h-0" style={{ gap: 0 }}>
-          {/* 메인: 상위 배경 카드 2개 나란히 (좌 selection-left, 우 selection-bg) */}
+          {/* ── 2-A. 상위 배경 카드 2개 나란히 / Two side-by-side background cards ── */}
           <div
             className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 px-0.5 min-h-0"
             style={{ minWidth: 0 }}
           >
-            {/* 왼쪽 상위 배경 카드: selection-left.png (Figma 536x614, radius 36) */}
+            {/* ── 2-A-L. 왼쪽 상위 배경 카드 (glass, 30%) / Left glass card ── */}
             <div
               className="flex min-h-0 flex-[30] min-w-0 flex-col overflow-hidden rounded-[36px] p-0"
               style={{
@@ -953,25 +1056,25 @@ function TSISubgroupSelectionPageContent() {
                 borderColor: "transparent",
               }}
             >
-              {/* 남색 카드: Figma Frame 1618872954 512x590, radius 24, set 추가 시 스크롤 */}
+              {/* ── 2-A-L-1. 남색 카드 (Subgroup Sets Summary) / Navy card ── */}
               <div
                 className="bg-primary-15 flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px]"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
               >
-                {/* 헤더: Figma 16,16 → 480x32, 카드와 간격 100px */}
+                {/* ── 카드 헤더 / Card header ── */}
                 <div className="mb-[60px] flex-shrink-0 px-4 pt-4 pb-3">
                   <h2 className="text-body1 text-white">
                     Subgroup Sets Summary
                   </h2>
                 </div>
-                {/* 흰 패널: Set 목록 + 구간 차트 + Disease Progression 축 */}
+                {/* ── 흰 패널: Set 목록 + 에러바 차트 / White panel: set list + error-bar chart ── */}
                 <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
                   <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] border bg-white px-4 py-2">
                     {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
                     <div className="flex min-h-0 flex-1 flex-col overflow-hidden ">
-                      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto h-fit">
+                      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
                         {isLoading ? (
                           <div className="flex h-full items-center justify-center">
                             <div className="text-body3 text-white">
@@ -1018,18 +1121,15 @@ function TSISubgroupSelectionPageContent() {
                             return (
                               <div
                                 key={`${set.set_name}_${index}`}
-                                className="border-neutral-80 flex min-h-0 flex-1 h-fit border-b last:border-b-0"
+                                className="border-neutral-80 flex min-h-fit flex-1 border-b last:border-b-0"
                               >
                                 {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
-                                <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2 h-fit">
+                                <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2 [@media(max-width:1470px)]:py-1 min-h-fit">
                                   {/* 초록 컨테이너: Set label 영역 (flex-1 = group rows와 동일 높이) */}
                                   <div className="flex flex-1 flex-shrink-0 items-center gap-2 px-1 min-h-[20px]">
                                     <span
-                                      className="bg-primary-10 text-body5m box-border flex shrink-0 items-center justify-center gap-1 rounded-full text-white"
+                                      className="bg-primary-15 text-body5m box-border flex shrink-0 items-center justify-center gap-1 rounded-full text-white pt-1 pb-0.5 px-4"
                                       style={{
-                                        width: 72,
-                                        height: 20,
-                                        padding: "0 6px",
                                       }}
                                     >
                                       {set.set_name}
@@ -1045,7 +1145,7 @@ function TSISubgroupSelectionPageContent() {
                                     )}
                                   </div>
                                   {/* 노랑 컨테이너: Group rows 영역 (flex-1 = Set label과 동일 높이) */}
-                                  <div className="flex flex-3 flex-col min-h-[20px] h-fit">
+                                  <div className="flex flex-3 flex-col min-h-fit py-0.5">
                                     {displayGroups.map((g, groupIndex) => {
                                       // group1 -> Group 1 형식으로 변환
                                       const groupNum = g.group.replace(
@@ -1056,7 +1156,7 @@ function TSISubgroupSelectionPageContent() {
                                       return (
                                         <div
                                           key={`${set.set_name}-group-${groupIndex}`}
-                                          className="text-body5m text-neutral-30 flex min-h-[20px] flex-1 items-center pr-1 pl-2"
+                                          className="text-body5m text-neutral-30 flex min-h-[20px] flex-1 items-center pt-1 pb-0.5 px-2"
                                         >
                                           {groupName}
                                         </div>
@@ -1065,7 +1165,7 @@ function TSISubgroupSelectionPageContent() {
                                   </div>
                                 </div>
                                 {/* 오른쪽 셀: 왼쪽 기준 맞춤 */}
-                                <div className="relative flex min-w-0 flex-1 flex-col h-fit py-2 pr-4 pl-2">
+                                <div className="relative flex min-w-0 flex-1 flex-col min-h-fit py-2 [@media(max-width:1470px)]:py-1 pr-4 pl-2">
                                   {/* Set label 영역과 동일: flex-1 스페이서 */}
                                   <div
                                     className="flex-1 flex-shrink-0"
@@ -1193,7 +1293,7 @@ function TSISubgroupSelectionPageContent() {
                       {/* overflow-y-auto */}
                       {/* X축 행: 왼쪽 빈 칸 + 오른쪽에만 Slow/Rapid (위쪽 선은 마지막 Set 행 border-b로만 표시) */}
                       <div
-                        className={`flex flex-shrink-0 ${error ? "invisible" : ""}`}
+                        className={`flex flex-shrink-0 border-t border-neutral-80 ${error ? "invisible" : ""}`}
                       >
                         <div
                           className="border-neutral-80 w-[112px] flex-shrink-0"
@@ -1233,7 +1333,7 @@ function TSISubgroupSelectionPageContent() {
                 </div>
               </div>
             </div>
-            {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
+            {/* ── 2-A-R. 오른쪽 상위 배경 카드 (glass, 70%) / Right glass card ── */}
             <div
               className="flex min-h-0 min-w-0 flex-[70] flex-col overflow-hidden rounded-[24px] p-0"
               style={{
@@ -1248,7 +1348,7 @@ function TSISubgroupSelectionPageContent() {
               }}
             >
               <div className="relative flex min-h-0 flex-1 flex-col p-0">
-                {/* 안에 테이블 카드 (흰색) */}
+                {/* ── 2-A-R-1. 흰색 테이블 카드 / White table card ── */}
                 <div
                   className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] bg-white px-4 py-2"
                   style={{
@@ -1436,18 +1536,16 @@ function TSISubgroupSelectionPageContent() {
                                               e.stopPropagation();
                                               toggleRowExpansion(rowNo);
                                             }}
-                                            className="text-neutral-40 inline-flex shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-1 transition-colors duration-150 hover:bg-neutral-90 active:bg-neutral-80"
+                                            className="text-neutral-40 hover:text-neutral-30 active:text-neutral-20 inline-flex shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent transition-colors duration-150"
                                             title={
                                               isExpanded ? "접기" : "펼치기"
                                             }
                                           >
                                             <svg
-                                              width="24"
-                                              height="24"
-                                              viewBox="0 0 24 24"
+                                              viewBox="0 0 20 20"
                                               fill="none"
                                               xmlns="http://www.w3.org/2000/svg"
-                                              className={`text-neutral-40 transition-transform duration-200 ${
+                                              className={`w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-40 transition-transform duration-200 ${
                                                 isExpanded ? "rotate-180" : ""
                                               }`}
                                             >
@@ -1578,7 +1676,8 @@ function TSISubgroupSelectionPageContent() {
                                           <IconButton
                                             aria-label={`Refine cutoffs for set ${rowNo}`}
                                             type="button"
-                                            className="text-neutral-40 hover:text-neutral-30 shrink-0 cursor-pointer rounded border-0 bg-transparent p-1 transition-colors duration-150 hover:bg-neutral-90 active:bg-neutral-80"
+                                            size="sm"
+                                            className="!w-7 !h-7 text-neutral-40 hover:text-primary-30 shrink-0 cursor-pointer rounded border-0 bg-transparent transition-colors duration-150 hover:bg-primary-95 active:bg-primary-90"
                                             title="Refine Cutoffs"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -1600,11 +1699,10 @@ function TSISubgroupSelectionPageContent() {
                                             }}
                                           >
                                             <svg
-                                              width="24"
-                                              height="24"
                                               viewBox="0 0 24 24"
                                               fill="none"
                                               xmlns="http://www.w3.org/2000/svg"
+                                              className="w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5"
                                             >
                                               <g
                                                 style={{
@@ -1613,14 +1711,14 @@ function TSISubgroupSelectionPageContent() {
                                               >
                                                 <path
                                                   d="M3.57812 20.4219V15.6094L15.6094 3.57812L20.4219 8.39062L8.39062 20.4219H3.57812Z"
-                                                  stroke="#787776"
+                                                  stroke="currentColor"
                                                   strokeWidth="2"
                                                   strokeLinecap="round"
                                                   strokeLinejoin="round"
                                                 />
                                                 <path
                                                   d="M12.0156 7.1875L16.8281 12"
-                                                  stroke="#787776"
+                                                  stroke="currentColor"
                                                   strokeWidth="2"
                                                   strokeLinecap="round"
                                                   strokeLinejoin="round"
@@ -1651,7 +1749,7 @@ function TSISubgroupSelectionPageContent() {
               </div>
             </div>
           </div>
-          {/* 버튼: 카드 밖 아래 */}
+          {/* ── 2-B. 하단 버튼 영역 / Bottom button area ── */}
           <div className="flex flex-shrink-0 items-center justify-end pr-3 pb-6 gap-4 ">
             <button
               type="button"
@@ -1677,15 +1775,16 @@ function TSISubgroupSelectionPageContent() {
             </button>
             <button
               type="button"
+              disabled={!selectedSetNo}
               onClick={handleSubgroupExplain}
               style={{
                 height: 40,
                 paddingLeft: 24,
                 paddingRight: 24,
                 borderRadius: 36,
-                background: "#F06600",
+                background: selectedSetNo ? "#F06600" : "#D1CFD8",
                 border: "none",
-                cursor: "pointer",
+                cursor: selectedSetNo ? "pointer" : "not-allowed",
                 fontFamily: "Inter",
                 fontSize: 15,
                 fontWeight: 600,
@@ -1716,6 +1815,9 @@ function TSISubgroupSelectionPageContent() {
   );
 }
 
+/**
+ * Suspense 래퍼 / Suspense wrapper (required for useSearchParams)
+ */
 export default function TSISubgroupSelectionPage() {
   return (
     <Suspense fallback={null}>

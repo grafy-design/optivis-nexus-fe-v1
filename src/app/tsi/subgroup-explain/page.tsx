@@ -356,9 +356,12 @@ function TSISubgroupExplainPageContent() {
                 <h2 className="text-body2m flex-shrink-0 text-white pl-[2px]">
                   Expected Therapeutic Gain
                 </h2>
-                <div className="flex min-h-0 flex-1 flex-col rounded-[16px] bg-white p-3">
+                <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-[16px] bg-white p-2">
                   <div className="flex min-h-0 flex-1 rounded-[12px] bg-white">
                     <MultiRankingBarChart data={expectedTherapeuticGainData} />
+                  </div>
+                  <div className="flex justify-center">
+                    <span className="text-body5 text-neutral-50">Feature</span>
                   </div>
                 </div>
               </div>
@@ -366,20 +369,19 @@ function TSISubgroupExplainPageContent() {
               {/* 흰색 테이블 카드 / White table card */}
               <div
                 className="flex min-h-0 w-full flex-[2] flex-col overflow-hidden rounded-[24px] bg-white"
-                style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
               >
-                <div className="flex min-h-0 flex-1 flex-col px-4">
+                <div className="flex min-h-0 flex-1 flex-col py-3 px-3">
 
                   {/* 테이블 헤더 / Table header */}
-                  <div className="border-neutral-80 flex min-h-[48px] flex-shrink-0 items-center border-b py-2">
+                  <div className="border-neutral-80 flex min-h-[24px] flex-shrink-0 items-center border-b py-2 [@media(max-width:1470px)]:pb-1 -mt-2">
                     <div className="text-body5 text-neutral-30 flex-[3] min-w-0 shrink-0">Rank</div>
-                    <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0">Feature name</div>
+                    <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">Feature name</div>
                     <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
-                      Max Variance<br />Reduction(△▽)
+                      Max Variance Reduc&shy;tion(△▽)
                     </div>
-                    <div className="text-body5 text-neutral-30 flex-[5] min-w-0 shrink-0">Contribution</div>
+                    <div className="text-body5 text-neutral-30 flex-[5] min-w-0 shrink-0 leading-tight">Contri&shy;bution</div>
                     <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
-                      Cutoff<br />(Auto-derived)
+                      Cutoff (Auto-derived)
                     </div>
                   </div>
 
@@ -388,19 +390,19 @@ function TSISubgroupExplainPageContent() {
                     {expectedTherapeuticGainData.map((row, index) => (
                       <div
                         key={`${row.rank}_${index}`}
-                        className="border-neutral-80 flex min-h-[44px] items-center border-b py-1"
+                        className="border-neutral-80 flex min-h-[36px] items-center border-b py-1"
                       >
-                        <div className="text-body4 text-neutral-40 flex-[3] min-w-0">{row.rank}</div>
-                        <div className="text-body4 text-neutral-40 flex-[7] min-w-0 truncate">
+                        <div className="text-body5 text-neutral-40 flex-[3] min-w-0">{row.rank}</div>
+                        <div className="text-body5 text-neutral-40 flex-[7] min-w-0 truncate">
                           {row.feature_name}
                         </div>
-                        <div className="text-body4 text-neutral-40 flex-[7] min-w-0">
+                        <div className="text-body5 text-neutral-40 flex-[7] min-w-0">
                           {formatNumberMax2(Number(row.variance_reduction))}
                         </div>
-                        <div className="text-body4 text-neutral-40 flex-[5] min-w-0">
+                        <div className="text-body5 text-neutral-40 flex-[5] min-w-0">
                           {formatNumberMax2(Number(row.relative_contribution))}%
                         </div>
-                        <div className="text-body4 text-neutral-40 flex-[7] min-w-0">
+                        <div className="text-body5 text-neutral-40 flex-[7] min-w-0">
                           {formatCutoffValues(row.cutoff)}
                         </div>
                       </div>
@@ -432,11 +434,11 @@ function TSISubgroupExplainPageContent() {
               <div className="flex flex-col min-h-0 flex-1" style={{ gap: 12 }}>
 
                 {/* ── 상단 행: SHAP 차트 + 설명 텍스트 / Top row: SHAP chart + description ── */}
-                <div className="flex flex-[2] [@media(min-width:1470px)]:min-h-[62vh]">
+                <div className="flex">
 
                   {/* 파란색 SHAP 차트 카드 / Blue SHAP chart card */}
                   <div
-                    className="bg-primary-15 flex min-h-100 flex-1 flex-shrink-0 flex-col gap-6 overflow-hidden rounded-[24px] p-3"
+                    className="bg-primary-15 flex flex-1 flex-col gap-6 rounded-[24px] p-3"
                     style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                   >
                     <h2 className="text-body2m flex-shrink-0 text-white pl-[2px]">
@@ -444,17 +446,17 @@ function TSISubgroupExplainPageContent() {
                     </h2>
 
                     {/* SHAP 그래프 + 설명 텍스트 묶음 / SHAP chart + description row */}
-                    <div className="flex min-h-0 flex-1 flex-row gap-3">
+                    <div className="flex flex-row gap-3">
 
                       {/* SHAP Summary Plot 차트 / SHAP Summary Plot chart */}
-                      <div className="flex min-w-0 min-h-0 flex-[7] flex-col overflow-hidden">
-                        <div className="flex w-full flex-1 min-h-0 flex-col rounded-[16px] bg-white p-3">
-                          <h3 className="text-body4 text-neutral-40 mb-6 flex-shrink-0">
+                      <div className="flex min-w-0 min-h-0 flex-[7] flex-col">
+                        <div className="flex w-full flex-col rounded-[16px] bg-white p-3 gap-6">
+                          <h3 className="text-body5m text-neutral-50 flex-shrink-0 text-center">
                             {`Baseline Features Explaining △${resultData?.outcome ?? "ADAS-Cog"}`}
                           </h3>
                           <div
-                            className="flex flex-1 min-h-0 w-full rounded-[12px] bg-white [@media(max-width:1470px)]:!h-[320px] [@media(max-width:1470px)]:flex-none"
-                            style={{ height: "100%" }}
+                            className="flex w-full rounded-[12px] bg-white"
+                            style={{ aspectRatio: "1 / 0.5" }}
                           >
                             <div className="flex-1 min-w-0 min-h-0">
                               <SHAPSummaryPlotChart
@@ -462,8 +464,8 @@ function TSISubgroupExplainPageContent() {
                               />
                             </div>
                             {/* Visual Map 범례 (High → Low 그라데이션) */}
-                            <div className="flex flex-shrink-0 flex-col items-center justify-center gap-1" style={{ width: 32, paddingLeft: 2 }}>
-                              <span style={{ fontSize: 11, fontWeight: 500, color: "#5F6072", fontFamily: "Inter, sans-serif" }}>High</span>
+                            <div className="flex flex-shrink-0 flex-col items-center justify-center gap-1.5" style={{ width: 32, paddingLeft: 2 }}>
+                              <span className="text-body5m text-neutral-50">High</span>
                               <div
                                 className="flex-1 rounded-[4px]"
                                 style={{
@@ -472,7 +474,7 @@ function TSISubgroupExplainPageContent() {
                                   background: "linear-gradient(to bottom, #231F52, #D8D3FF)",
                                 }}
                               />
-                              <span style={{ fontSize: 11, fontWeight: 500, color: "#5F6072", fontFamily: "Inter, sans-serif" }}>Low</span>
+                              <span className="text-body5m text-neutral-50">Low</span>
                             </div>
                           </div>
                         </div>
@@ -484,11 +486,12 @@ function TSISubgroupExplainPageContent() {
                           {baselineDriverMessageItems.map((item, index) => (
                             <li
                               key={`${item.no ?? index}-${item.title}`}
-                              className="flex flex-col"
                               style={{ lineHeight: 1.2 }}
                             >
-                              <span className="text-body3m mb-1">{item.title}</span>
-                              <span className="text-body5m whitespace-pre-line">{item.description}</span>
+                              <div className="flex flex-col">
+                                <span className="text-body3m mb-1" style={{ lineHeight: 1.2 }}>{item.title}</span>
+                                <span className="text-body5m whitespace-pre-line" style={{ lineHeight: 1.2 }}>{item.description}</span>
+                              </div>
                             </li>
                           ))}
                         </ul>
@@ -519,8 +522,8 @@ function TSISubgroupExplainPageContent() {
                             index < featureList.length - 1 ? "border-neutral-90 border-b" : ""
                           } ${
                             selectedFeature === feature
-                              ? "bg-primary-15 text-white active:bg-primary-15"
-                              : "text-neutral-30 hover:bg-neutral-95 active:bg-neutral-95"
+                              ? "bg-primary-15 text-white hover:bg-[#2e2a66] active:bg-[#1e1a44]"
+                              : "text-neutral-30 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
                           }`}
                         >
                           {feature}
@@ -532,7 +535,7 @@ function TSISubgroupExplainPageContent() {
                   {/* 오른쪽 파란색 상세 카드 (차트 3개 세로 + 설명)
                       Right blue detail card (3 charts vertically + description) */}
                   <div
-                    className="bg-primary-15 flex flex-[8] flex-shrink-0 flex-row gap-3 rounded-[24px] p-3"
+                    className="bg-primary-15 flex flex-[8] flex-shrink-0 flex-row gap-3 rounded-[24px] p-3 "
                     style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                   >
 
@@ -540,8 +543,8 @@ function TSISubgroupExplainPageContent() {
                     <div className="flex min-w-0 flex-[5] flex-col gap-3">
 
                       {/* 차트 1: Baseline Distribution Histogram */}
-                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2">
-                        <h3 className="text-body4 text-neutral-40 mb-2">
+                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2 gap-3">
+                        <h3 className="text-body4 text-primary-15 ">
                           Baseline Distribution of {selectedFeature} (Baseline)
                         </h3>
                         <BaselineDistributionHistogram
@@ -551,8 +554,8 @@ function TSISubgroupExplainPageContent() {
                       </div>
 
                       {/* 차트 2: ADAS Progression Slope Scatter */}
-                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2">
-                        <h3 className="text-body4 text-neutral-40 mb-2">
+                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2 gap-3">
+                        <h3 className="text-body4 text-primary-15">
                           ADAS Progression Slope vs. {selectedFeature} (Baseline)
                         </h3>
                         <ScatterSlopeChart
@@ -562,8 +565,8 @@ function TSISubgroupExplainPageContent() {
                       </div>
 
                       {/* 차트 3: Subgroup Proportion */}
-                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2">
-                        <h3 className="text-body4 text-neutral-40 mb-2">
+                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2 gap-3">
+                        <h3 className="text-body4 text-primary-15">
                           Subgroup Proportion by {selectedFeature} (Baseline)
                         </h3>
                         <SubgroupProportionChart
@@ -575,16 +578,17 @@ function TSISubgroupExplainPageContent() {
                     </div>
 
                     {/* 피처별 설명 텍스트 / Feature-level description text */}
-                    <div className="flex min-w-0 flex-[3] flex-col justify-start pt-3">
+                    <div className="flex min-w-0 flex-[3] flex-col justify-start d">
                       <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                         {featureMessageItems.map((item, index) => (
                           <li
                             key={`${item.no ?? index}-${item.title}`}
-                            className="flex flex-col"
                             style={{ lineHeight: 1.2 }}
                           >
-                            <span className="text-body3m mb-1">{item.title}</span>
-                            <span className="text-body5m whitespace-pre-line">{item.description}</span>
+                            <div className="flex flex-col">
+                              <span className="text-body3m mb-1" style={{ lineHeight: 1.2 }}>{item.title}</span>
+                              <span className="text-body5m whitespace-pre-line" style={{ lineHeight: 1.2 }}>{item.description}</span>
+                            </div>
                           </li>
                         ))}
                       </ul>

@@ -4,7 +4,7 @@ import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceStackChartData } from "./types";
 
-const NEUTRAL_30 = "#484646";
+const NEUTRAL_50 = "#787776";
 
 export function TSIStackedVarianceChart({
   data,
@@ -24,35 +24,45 @@ export function TSIStackedVarianceChart({
       itemGap: 24,
       icon: "roundRect",
       textStyle: {
-        color: NEUTRAL_30,
+        color: NEUTRAL_50,
         fontSize: 9,
         fontFamily: "Inter",
       },
     },
-    grid: { left: 16, right: 6, top: 18, bottom: 24, containLabel: true },
+    grid: { left: 16, right: 6, top: 10, bottom: 24, containLabel: true },
     xAxis: {
       type: "category",
       data: [""],
       axisLabel: { show: false },
       axisTick: { show: false },
       splitLine: { show: false },
-      axisLine: { show: true, lineStyle: { color: NEUTRAL_30, width: 1 } },
+      axisLine: { show: true, lineStyle: { color: NEUTRAL_50, width: 1 } },
     },
     yAxis: {
       type: "value",
       min: 0,
       max: data.max,
       interval: data.ticks.length > 1 ? data.ticks[1] - data.ticks[0] : 5,
-      axisLine: { show: true, lineStyle: { color: NEUTRAL_30, width: 1 } },
-      axisTick: { show: true, length: 4, lineStyle: { color: NEUTRAL_30 } },
-      axisLabel: { show: true, color: NEUTRAL_30, fontSize: 9, fontFamily: "Inter" },
+      axisLine: { show: true, lineStyle: { color: NEUTRAL_50, width: 1 } },
+      axisTick: { show: true, length: 4, lineStyle: { color: NEUTRAL_50 } },
+      axisLabel: {
+        show: true,
+        color: NEUTRAL_50,
+        fontSize: 9,
+        fontFamily: "Inter",
+        formatter: (value: number) => {
+          if (value === 0) return `${value.toFixed(1)}\n`;
+          if (Math.abs(value - data.max) < 0.001) return `\n${value.toFixed(1)}`;
+          return value.toFixed(1);
+        },
+      },
       splitLine: { show: false },
       name: yAxisLabel,
       nameLocation: "middle",
-      nameGap: 28,
+      nameGap: 36,
       nameRotate: 90,
       nameTextStyle: {
-        color: NEUTRAL_30,
+        color: NEUTRAL_50,
         fontSize: 9,
         fontFamily: "Inter",
       },
@@ -85,7 +95,7 @@ export function TSIStackedVarianceChart({
           show: true,
           position: "top",
           formatter: () => data.vrLabel,
-          color: NEUTRAL_30,
+          color: NEUTRAL_50,
           fontSize: 9,
           fontFamily: "Inter",
         },
@@ -93,5 +103,10 @@ export function TSIStackedVarianceChart({
     ],
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height: "calc(100% + 8px)" }} />;
+  return (
+    <ReactECharts
+      option={option}
+      style={{ width: "100%", height: "calc(100% + 8px)" }}
+    />
+  );
 }

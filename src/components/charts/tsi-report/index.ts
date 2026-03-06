@@ -10,6 +10,7 @@ export type {
 } from "./types";
 export type { TSIDiseaseProgressionPanelVariant } from "./TSIDiseaseProgressionPanel";
 export { TSIDiseaseProgressionPanel } from "./TSIDiseaseProgressionPanel";
+export { TSIForestAxisRow } from "./TSIForestAxisRow";
 export { TSIForestMetricChart } from "./TSIForestMetricChart";
 export { TSIStackedVarianceChart } from "./TSIStackedVarianceChart";
 export { TSIVarianceByGroupBarChart } from "./TSIVarianceByGroupBarChart";

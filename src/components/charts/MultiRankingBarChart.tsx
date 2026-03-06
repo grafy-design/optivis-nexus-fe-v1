@@ -78,7 +78,7 @@ export function MultiRankingBarChart({ data, height = "100%", label }: MultiRank
             formatter: item.label,
             position: "insideBottom",
             color: "#ffffff",
-            fontSize: isNarrow ? 13 : 15,
+            fontSize: isNarrow ? 11 : 13,
             font: "inter, Sanserif",
             fontWeight: 500,
             letterSpacing: -0.45,

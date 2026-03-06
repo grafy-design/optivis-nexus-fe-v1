@@ -162,7 +162,7 @@ export default function TSIPatientsSummaryPage() {
             >
 
               {/* ── 2-1-A. 숫자 요약 행 / Stats summary row ─────────────── */}
-              <div className="flex flex-row h-wrap items-baseline gap-0 px-[4px] flex-shrink-0 justify-end -mt-2">
+              <div className="flex flex-row h-wrap items-baseline gap-0 px-[4px] flex-shrink-0 justify-end -mt-2 mb-1 mr-0.5">
                 {/* 전체 분석 인원 레이블 / Total analyzed count label */}
                 <div className="h-wrap text-body4 text-neutral-50 pr-[16px]">
                   Number Analyzed 480 participants
@@ -253,13 +253,13 @@ export default function TSIPatientsSummaryPage() {
                               </div>
                               <div />
                               <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
-                                <div className="text-body5m text-right text-neutral-50 items-end">Value</div>
-                                <div className="text-body5m text-right text-neutral-50 items-end">Value%</div>
+                                <div className="text-body5m text-right text-neutral-50 items-end">Patients</div>
+                                <div className="text-body5m text-right text-neutral-50 items-end">%</div>
                                 <div />
                               </div>
                               <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
-                                <div className="text-body5m text-right text-primary-50 items-end">Value</div>
-                                <div className="text-body5m text-right text-primary-50 items-end">Value%</div>
+                                <div className="text-body5m text-right text-primary-50 items-end">Patients</div>
+                                <div className="text-body5m text-right text-primary-50 items-end">%</div>
                               </div>
                             </div>
 
