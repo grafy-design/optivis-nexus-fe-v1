@@ -50,7 +50,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     errorBarCapHalfWidth: 6,
     guideLineColor: "#272354",
     guideLineType: "solid",
-    legendMarginTopClassName: "mt-2",
+    legendMarginTopClassName: "mt-3",
     legendLineWidthClassName: "w-[84px]",
     legendFallbackColor: "#272354",
     tableMarginTopClassName: "mt-3",
@@ -67,7 +67,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     errorBarCapHalfWidth: 6,
     guideLineColor: "#452CF4",
     guideLineType: "dashed",
-    legendMarginTopClassName: "mt-1",
+    legendMarginTopClassName: "mt-2",
     legendLineWidthClassName: "w-[86px]",
     legendFallbackColor: "#4327E6",
     tableMarginTopClassName: "mt-2",
@@ -105,19 +105,18 @@ export function TSIDiseaseProgressionPanel({
           errorBarCapHalfWidth={style.errorBarCapHalfWidth}
           height="100%"
           sizeVariant="M"
-          grid={{ left: 4, right: 0, top: 8, bottom: 16 }}
+          grid={{ left: 0, right: 6, top: 4, bottom: 0, containLabel: true }}
           xAxis={{
             min: 0,
             max: 24,
             interval: 3,
             splitLine: true,
-            splitLineColor: style.axisColor,
-            axisLineColor: style.axisColor,
+            splitLineColor: "#e3e1e5",
+            axisLineColor: "#e3e1e5",
+            labelColor: "#484646",
+            fontSize: 10,
+            fontFamily: "Inter",
             showLabels: true,
-            name: "Month",
-            nameColor: "#1B1B1B",
-            nameFontSize: 14,
-            nameGap: 44,
           }}
           yAxis={{
             min: yAxisRange.min,
@@ -125,13 +124,12 @@ export function TSIDiseaseProgressionPanel({
             interval: yAxisRange.interval,
             inverse: true,
             splitLine: true,
-            splitLineColor: style.axisColor,
-            axisLineColor: style.axisColor,
+            splitLineColor: "#e3e1e5",
+            axisLineColor: "#e3e1e5",
+            labelColor: "#484646",
+            fontSize: 10,
+            fontFamily: "Inter",
             showLabels: true,
-            name: "ADAS-Cog",
-            nameColor: "#1B1B1B",
-            nameFontSize: 14,
-            nameGap: 44,
           }}
           guideLineX={12}
           guideLineColor={style.guideLineColor}
@@ -157,7 +155,7 @@ export function TSIDiseaseProgressionPanel({
                   style={{ backgroundColor: color }}
                 />
               </div>
-              <span className="text-neutral-10 text-[10.5px] font-medium">{label}</span>
+              <span className="text-body5 text-neutral-50">{label}</span>
             </div>
           );
         })}

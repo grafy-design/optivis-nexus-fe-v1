@@ -25,6 +25,7 @@ interface AxisConfig {
   nameRotate?: number;
   inverse?: boolean;
   showLabels?: boolean;
+  showTick?: boolean;
 }
 
 export type ChartSizeVariant = "XS" | "S" | "M" | "L";
@@ -36,17 +37,29 @@ type ChartSizeStyle = {
   labelFontSize: number;
   labelFontWeight: number;
   numberFontSize: number;
+  numberFontWeight?: number;
   axisColor: string;
+  numberColor?: string;
+  axisLineColor?: string;
   axisWidth: number;
   splitLineColor: string;
+  labelDecimalPlaces?: number;
 };
 
 const CHART_SIZE_STYLES: Record<ChartSizeVariant, ChartSizeStyle> = {
   XS: { labelFontSize: 9, labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 9, labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  S:  { labelFontSize: 12, labelFontWeight: 600, numberFontSize: 10, numberFontWeight: 500, axisColor: "#484646", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
   M:  { labelFontSize: 15, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
   L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
+
+interface GridConfig {
+  left?: number;
+  right?: number;
+  top?: number;
+  bottom?: number;
+  containLabel?: boolean;
+}
 
 interface MultiLineWithErrorBarProps {
   dataGroup: ErrorBarGroup[];
@@ -65,6 +78,7 @@ interface MultiLineWithErrorBarProps {
   guideLineWidth?: number;
   guideLineType?: "solid" | "dashed" | "dotted";
   sizeVariant?: ChartSizeVariant;
+  grid?: GridConfig;
 }
 
 const DEFAULT_GROUP_COLORS = [
@@ -94,8 +108,12 @@ export const MultiLineWithErrorBar = ({
   guideLineWidth = 1,
   guideLineType = "dashed",
   sizeVariant,
+  grid,
 }: MultiLineWithErrorBarProps) => {
   const sz = sizeVariant ? CHART_SIZE_STYLES[sizeVariant] : null;
+  const labelFormatter = sz?.labelDecimalPlaces !== undefined
+    ? (value: number | string) => Number(value).toFixed(sz.labelDecimalPlaces)
+    : undefined;
   const groups = dataGroup ?? [];
   const allPoints = groups.flat();
   const maxYWithError = allPoints.reduce((acc, [, y, error]) => Math.max(acc, y + error), 0);
@@ -205,7 +223,13 @@ export const MultiLineWithErrorBar = ({
   const option: EChartsOption = {
     tooltip: { trigger: "axis" },
     legend: { show: false },
-    grid: { left: 8, right: 8, top: 0, bottom: 0, containLabel: true },
+    grid: {
+      left: grid?.left ?? 8,
+      right: grid?.right ?? 8,
+      top: grid?.top ?? 0,
+      bottom: grid?.bottom ?? 0,
+      containLabel: grid?.containLabel ?? true,
+    },
     xAxis: {
       type: "value",
       min: xAxisMin,
@@ -218,9 +242,9 @@ export const MultiLineWithErrorBar = ({
           width: 1,
         },
       },
-      axisLine: { show: true, lineStyle: { color: xAxis?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, lineStyle: { color: xAxis?.axisLineColor ?? sz?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
-      axisLabel: { color: xAxis?.labelColor ?? sz?.axisColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? sz?.numberFontSize ?? 9, fontFamily: xAxis?.fontFamily ?? "Inter" },
+      axisLabel: { color: xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94", fontSize: xAxis?.fontSize ?? sz?.numberFontSize ?? 9, fontWeight: sz?.numberFontWeight, fontFamily: xAxis?.fontFamily ?? "Inter", ...(labelFormatter ? { formatter: labelFormatter } : {}) },
       name: xAxis?.name,
       nameLocation: "middle",
       nameGap: xAxis?.nameGap ?? 24,
@@ -244,14 +268,16 @@ export const MultiLineWithErrorBar = ({
           width: 1,
         },
       },
-      axisTick: { show: false },
+      axisTick: { show: yAxis?.showTick ?? false },
       axisLabel: {
         show: yAxis?.showLabels ?? false,
-        color: yAxis?.labelColor ?? sz?.axisColor ?? "#8A8A94",
+        color: yAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#8A8A94",
         fontSize: yAxis?.fontSize ?? sz?.numberFontSize ?? 9,
+        fontWeight: sz?.numberFontWeight,
         fontFamily: yAxis?.fontFamily ?? "Inter",
+        ...(labelFormatter ? { formatter: labelFormatter } : {}),
       },
-      axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, lineStyle: { color: yAxis?.axisLineColor ?? sz?.axisLineColor ?? sz?.axisColor ?? "#9A9AA3", width: sz?.axisWidth ?? 1 } },
       name: yAxis?.name,
       nameLocation: "middle",
       nameGap: yAxis?.nameGap ?? 28,

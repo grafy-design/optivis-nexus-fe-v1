@@ -9,19 +9,26 @@ import SafetyChart from "./charts/SafetyChart";
 
 /**
  * TSI Step 3: Basis Selection
- * 타이틀은 카드 밖, 카드 안에: 왼쪽 = Select a subgroup basis, 오른쪽 = 설명 + 차트 (선택에 따라 변경)
+ * 하위군 분류 기준(Basis)을 선택하는 단계.
+ * 왼쪽: 선택 목록 카드, 오른쪽: 선택된 기준의 설명 + 차트 카드
+ *
+ * Step 3: Select a subgroup basis (Prognostic / Drug Responsiveness / Safety / Multiple Conditions).
+ * Left card: option list, Right card: description + chart preview for the hovered/selected option.
  */
+
+// ── 기준 옵션 목록 / Basis option list ─────────────────────────────────
 const BASIS_OPTIONS: Array<{
   id: string;
   label: string;
   disabled?: boolean;
 }> = [
-  { id: "prognostic", label: "Prognostic" },
-  { id: "drug-responsiveness", label: "Drug Responsiveness" },
-  { id: "safety", label: "Safety" },
-  { id: "multiple-conditions", label: "Multiple Conditions", disabled: true },
+  { id: "prognostic",           label: "Prognostic" },
+  { id: "drug-responsiveness",  label: "Drug Responsiveness" },
+  { id: "safety",               label: "Safety" },
+  { id: "multiple-conditions",  label: "Multiple Conditions", disabled: true },
 ];
 
+// ── 기준별 설명 텍스트 / Description text per basis ─────────────────────
 const BASIS_CONTENT: Record<string, { title: string; description: string }> = {
   prognostic: {
     title: "Stratify patients based on predicted disease progression metrics",
@@ -44,12 +51,19 @@ const BASIS_CONTENT: Record<string, { title: string; description: string }> = {
   },
 };
 
+/**
+ * 선택된 기준에 맞는 차트를 렌더링하는 헬퍼 컴포넌트
+ * Renders the appropriate chart based on the selected basis ID
+ */
 function BasisChart({ basis }: { basis: string }) {
   if (basis === "drug-responsiveness") return <DrugResponsivenessChart />;
   if (basis === "safety") return <SafetyChart />;
   return <PrognosticChart />;
 }
 
+/**
+ * 오른쪽 방향 꺽쇠 아이콘 / Right chevron icon for list items
+ */
 function ChevronRightIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -71,20 +85,35 @@ function ChevronRightIcon({ className }: { className?: string }) {
   );
 }
 
+/**
+ * 실제 페이지 컨텐츠 (useSearchParams 사용 → Suspense 래핑 필요)
+ * Actual page content, wrapped in Suspense because it calls useSearchParams
+ */
 function TSIBasisSelectionPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // URL 쿼리에서 taskId 읽기 / Read taskId from URL query
   const taskId = searchParams.get("taskId");
+
+  // ── 선택/호버 상태 / Selection and hover state ────────────────────
   const [selectedBasis, setSelectedBasis] = useState<string | null>(null);
   const [hoveredBasis, setHoveredBasis] = useState<string | null>(null);
   const [lastPreviewBasis, setLastPreviewBasis] = useState<string>("prognostic");
+
+  /**
+   * 오른쪽 카드에 표시할 기준:
+   * 호버 중 → 선택됨 → 마지막 미리보기 순으로 fallback
+   * Basis to preview: hovered > selected > last previewed
+   */
   const previewBasis = hoveredBasis ?? selectedBasis ?? lastPreviewBasis;
 
+  /** 오른쪽 카드 클릭 → 현재 previewBasis를 선택으로 확정 / Right card click: confirm current preview as selection */
   const handleRightCardClick = () => {
-    // 우측 카드 클릭 시 현재 previewBasis를 선택으로 확정
     setSelectedBasis(previewBasis);
   };
 
+  /** "Next" 버튼 → Subgroup Selection 페이지로 이동 / Navigate to subgroup-selection */
   const handleGoToSubgroupSelection = () => {
     const basis = selectedBasis ?? previewBasis;
     setSelectedBasis(basis);
@@ -100,87 +129,164 @@ function TSIBasisSelectionPageContent() {
 
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", gap: 24, marginLeft: "14px", marginRight: "14px", paddingBottom: 12 }}>
-        {/* Title */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "calc(100% - 28px)",
+          height: "100%",
+          gap: 24,
+          marginLeft: "14px",
+          marginRight: "14px",
+          paddingBottom: 12,
+        }}
+      >
+        {/* ── 1. 페이지 타이틀 / Page title ──────────────────────── */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
-          <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+          <h1
+            style={{
+              fontFamily: "Poppins, Inter, sans-serif",
+              fontSize: 42,
+              fontWeight: 600,
+              color: "rgb(17,17,17)",
+              letterSpacing: "-1.5px",
+              lineHeight: 1.1,
+              margin: 0,
+            }}
+          >
             Target Subgroup Identification
           </h1>
-          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+          <span
+            style={{
+              fontFamily: "Inter",
+              fontSize: 16,
+              fontWeight: 600,
+              color: "rgb(120,119,118)",
+              letterSpacing: "-0.48px",
+            }}
+          >
             Select a subgroup basis
           </span>
         </div>
 
-        {/* 메인 카드 영역 (배경 이미지 카드) */}
-        <div className="rounded-[36px] overflow-show flex flex-1 min-h-0" style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}>
-              <div className="flex w-full h-full gap-4">
-                {/* 왼쪽 카드: Select a subgroup basis - 흰색 배경 */}
-                <div
-                  className="flex w-[347px] [@media(min-width:1441px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden bg-white self-start"
-                  style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)", borderRadius: 24 }}
-                >
-                  {BASIS_OPTIONS.map((opt) => {
-                    const isSelected = selectedBasis === opt.id;
-                    const isDisabled = opt.disabled === true;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        disabled={isDisabled}
-                        onClick={() => !isDisabled && setSelectedBasis(opt.id === selectedBasis ? null : opt.id)}
-                        onMouseEnter={() => { if (!isDisabled) { setHoveredBasis(opt.id); setLastPreviewBasis(opt.id); } }}
-                        onMouseLeave={() => setHoveredBasis(null)}
-                        className={`border-neutral-80 flex h-[54px] w-full items-center justify-between border-b px-4 text-left last:border-b-0 transition-colors duration-150 ${
-                          isDisabled
-                            ? "bg-neutral-95 text-neutral-60 cursor-not-allowed opacity-60"
-                            : isSelected
-                              ? "bg-primary-15 text-white"
-                              : "text-neutral-30 bg-white hover:bg-primary-15 hover:text-white active:bg-primary-15 active:text-white"
-                        }`}
-                      >
-                        <span className="font-semibold leading-[1.2] tracking-[-0.04em] text-[15px] [@media(min-width:1441px)]:text-[19.5px]">{opt.label}</span>
-                        {!isDisabled && (
-                          <ChevronRightIcon
-                            className={isSelected || hoveredBasis === opt.id ? "flex-shrink-0 text-white" : "text-neutral-60 flex-shrink-0"}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+        {/* ── 2. 메인 카드 영역 (글래스 배경) / Main card area (glass background) ── */}
+        <div
+          className="rounded-[36px] overflow-show flex flex-1 min-h-0"
+          style={{
+            borderImage:
+              'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
+            borderStyle: "solid",
+            borderTopWidth: "20px",
+            borderBottomWidth: "28px",
+            borderLeftWidth: "24px",
+            borderRightWidth: "24px",
+            borderColor: "transparent",
+          }}
+        >
+          <div className="flex w-full h-full gap-4">
 
-                {/* 오른쪽 카드: 문구+차트 영역 클릭 시 Subgroup Selection으로 이동 */}
-                {(() => {
-                  const content = BASIS_CONTENT[previewBasis] ?? BASIS_CONTENT.prognostic;
-                  return (
-                    <button
-                      type="button"
-                      onClick={selectedBasis === previewBasis ? handleGoToSubgroupSelection : handleRightCardClick}
-                      className="bg-primary-15 flex flex-col flex-1 min-w-0 h-full cursor-pointer rounded-[24px] text-left transition-opacity hover:opacity-95 p-4"
-                    >
-                      <div className="flex flex-shrink-0 flex-col justify-start h-[120px]">
-                        <h2 className="text-body1m mb-4 text-white">{content.title}</h2>
-                        <p className="text-body5m leading-[17.85px] text-white w-3/4">
-                          {content.description}
-                        </p>
+            {/* ── 2-A. 왼쪽 카드: 기준 선택 목록 / Left card: basis option list ── */}
+            <div
+              className="flex w-[347px] [@media(min-width:1441px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden bg-white self-start"
+              style={{
+                boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
+                borderRadius: 24,
+              }}
+            >
+              {BASIS_OPTIONS.map((opt) => {
+                const isSelected = selectedBasis === opt.id;
+                const isDisabled = opt.disabled === true;
+                return (
+                  /* 개별 옵션 버튼 / Individual option button */
+                  <button
+                    key={opt.id}
+                    type="button"
+                    disabled={isDisabled}
+                    onClick={() =>
+                      !isDisabled &&
+                      setSelectedBasis(opt.id === selectedBasis ? null : opt.id)
+                    }
+                    onMouseEnter={() => {
+                      if (!isDisabled) {
+                        setHoveredBasis(opt.id);
+                        setLastPreviewBasis(opt.id);
+                      }
+                    }}
+                    onMouseLeave={() => setHoveredBasis(null)}
+                    className={`border-neutral-80 flex h-[54px] w-full items-center justify-between border-b px-4 text-left last:border-b-0 transition-colors duration-150 ${
+                      isDisabled
+                        ? "bg-neutral-95 text-neutral-60 cursor-not-allowed opacity-60"
+                        : isSelected
+                          ? "bg-primary-15 text-white"
+                          : "text-neutral-30 bg-white hover:bg-primary-15 hover:text-white active:bg-primary-15 active:text-white"
+                    }`}
+                  >
+                    <span className="font-semibold leading-[1.2] tracking-[-0.04em] text-[15px] [@media(min-width:1441px)]:text-[19.5px]">
+                      {opt.label}
+                    </span>
+                    {/* 비활성화 옵션에는 아이콘 숨김 / Hide icon for disabled options */}
+                    {!isDisabled && (
+                      <ChevronRightIcon
+                        className={
+                          isSelected || hoveredBasis === opt.id
+                            ? "flex-shrink-0 text-white"
+                            : "text-neutral-60 flex-shrink-0"
+                        }
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* ── 2-B. 오른쪽 카드: 설명 + 차트 미리보기 / Right card: description + chart preview ── */}
+            {(() => {
+              const content =
+                BASIS_CONTENT[previewBasis] ?? BASIS_CONTENT.prognostic;
+              return (
+                <button
+                  type="button"
+                  onClick={
+                    selectedBasis === previewBasis
+                      ? handleGoToSubgroupSelection
+                      : handleRightCardClick
+                  }
+                  className="bg-primary-15 flex flex-col flex-1 min-w-0 h-full cursor-pointer rounded-[24px] text-left transition-opacity hover:opacity-95 p-4"
+                >
+                  {/* 설명 텍스트 영역 / Description text area */}
+                  <div className="flex flex-shrink-0 flex-col justify-start h-[120px]">
+                    <h2 className="text-body1m mb-4 text-white">{content.title}</h2>
+                    <p className="text-body5m leading-[17.85px] text-white w-3/4">
+                      {content.description}
+                    </p>
+                  </div>
+
+                  {/* 차트 미리보기 영역 / Chart preview area */}
+                  <div className="flex flex-col flex-1 min-h-0 w-full" style={{ marginTop: 60 }}>
+                    <div className="flex flex-col flex-1 min-h-0 w-full rounded-[12px] bg-white overflow-visible p-3">
+                      <div
+                        className="flex-1 min-h-0 w-full overflow-hidden rounded-[8px]"
+                        style={{ height: "100%" }}
+                      >
+                        <BasisChart basis={previewBasis} />
                       </div>
-                      <div className="flex flex-col flex-1 min-h-0 w-full" style={{ marginTop: 60 }}>
-                        <div className="flex flex-col flex-1 min-h-0 w-full rounded-[12px] bg-white overflow-visible p-3">
-                          <div className="flex-1 min-h-0 w-full overflow-hidden rounded-[8px]" style={{ height: "100%" }}>
-                            <BasisChart basis={previewBasis} />
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })()}
-              </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })()}
           </div>
         </div>
+        {/* ── 2 닫기 / End main card ── */}
+
+      </div>
     </AppLayout>
   );
 }
 
+/**
+ * Suspense 래퍼 / Suspense wrapper (required for useSearchParams)
+ */
 export default function TSIBasisSelectionPage() {
   return (
     <Suspense fallback={null}>

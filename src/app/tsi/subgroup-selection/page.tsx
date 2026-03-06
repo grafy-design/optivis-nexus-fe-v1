@@ -3,7 +3,7 @@
 import { Suspense, useState, Fragment, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import * as RadioGroup from "@radix-ui/react-radio-group";
+import RadioButton from "@/components/ui/radio-button";
 import { AppLayout } from "@/components/layout/AppLayout";
 import IconButton from "@/components/ui/icon-button";
 import {
@@ -38,8 +38,8 @@ interface SetData {
 const GROUP_BAR_COLORS = ["#AAA5E1", "#7571A9", "#231F52"];
 const SUMMARY_ERROR_BAR_LINE_HEIGHT_PX = 2;
 const SUMMARY_ERROR_BAR_CAP_WIDTH_PX = 2;
-const SUMMARY_ERROR_BAR_CAP_HEIGHT_PX = 6;
-const SUMMARY_ERROR_BAR_DOT_SIZE_PX = 8;
+const SUMMARY_ERROR_BAR_CAP_HEIGHT_PX = 12;
+const SUMMARY_ERROR_BAR_DOT_SIZE_PX = 10;
 const MAX_GROUP_DISPLAY_COUNT = 3;
 
 /** 테이블 공통 스타일 */
@@ -126,6 +126,166 @@ const sortByClassification = <T extends { classification?: string; group?: strin
       (CLASSIFICATION_ORDER[getClassification(b)] ?? 99),
   );
 
+// ─── 목업 데이터 (API 실패 시 폴백) ─────────────────────────────────────
+
+const MOCK_SUMMARY_DATA: SubgroupSetSummary[] = [
+  {
+    set_name: "Set 1",
+    outcome: "ADAS Cog 11",
+    month: 12,
+    entity_type: "feature",
+    basis_type: "slope",
+    cutoff_axis_type: "x_value",
+    groups: [
+      { group: "group1", mean: -1.2, ci_low: -2.5, ci_high: 0.1, name: "Disease Progression" },
+      { group: "group2", mean: 0.8, ci_low: -0.3, ci_high: 1.9, name: "Disease Progression" },
+    ],
+  },
+  {
+    set_name: "Set 2",
+    outcome: "CDR-SB",
+    month: 12,
+    entity_type: "feature",
+    basis_type: "slope",
+    cutoff_axis_type: "x_value",
+    groups: [
+      { group: "group1", mean: -0.5, ci_low: -1.8, ci_high: 0.8, name: "Disease Progression" },
+      { group: "group2", mean: 1.5, ci_low: 0.3, ci_high: 2.7, name: "Disease Progression" },
+    ],
+  },
+  {
+    set_name: "Set 3",
+    outcome: "ADAS Cog 11",
+    month: 12,
+    entity_type: "feature",
+    basis_type: "slope",
+    cutoff_axis_type: "x_value",
+    groups: [
+      { group: "group1", mean: -2.0, ci_low: -3.5, ci_high: -0.5, name: "Disease Progression" },
+      { group: "group2", mean: 0.3, ci_low: -0.8, ci_high: 1.4, name: "Disease Progression" },
+      { group: "group3", mean: 2.1, ci_low: 1.0, ci_high: 3.2, name: "Disease Progression" },
+    ],
+  },
+];
+
+const MOCK_RESULT_TABLE_DATA: ResultTableItem[] = [
+  {
+    subgroup_id: 101,
+    no: 1,
+    set_name: "Set 1",
+    outcome: "ADAS Cog 11",
+    cut_off: ["<=1.34"],
+    month: 12,
+    of_group: 2,
+    variance_benefit: 0.18,
+    variance_benefit_label: "(Highest)",
+    group_balance: "OK(n min=370)",
+    entity_type: "feature",
+    basis_type: "slope",
+    cutoff_axis_type: "x_value",
+    disease_progression_by_subgroup: [
+      { group: "group1", month: 0, mean: 20.5, ci_low: 19.2, ci_high: 21.8 },
+      { group: "group1", month: 3, mean: 19.8, ci_low: 18.5, ci_high: 21.1 },
+      { group: "group1", month: 6, mean: 19.0, ci_low: 17.6, ci_high: 20.4 },
+      { group: "group1", month: 9, mean: 18.5, ci_low: 17.0, ci_high: 20.0 },
+      { group: "group1", month: 12, mean: 18.0, ci_low: 16.4, ci_high: 19.6 },
+      { group: "group2", month: 0, mean: 15.0, ci_low: 13.8, ci_high: 16.2 },
+      { group: "group2", month: 3, mean: 15.2, ci_low: 14.0, ci_high: 16.4 },
+      { group: "group2", month: 6, mean: 15.5, ci_low: 14.2, ci_high: 16.8 },
+      { group: "group2", month: 9, mean: 15.8, ci_low: 14.4, ci_high: 17.2 },
+      { group: "group2", month: 12, mean: 16.0, ci_low: 14.5, ci_high: 17.5 },
+    ],
+    number_or_patient: [
+      { group: "group1", number: 454 },
+      { group: "group2", number: 370 },
+    ],
+    variance_decomposition: [
+      { group: "total", variance: 52.13, number: 824, vr: 0.44, ci: "0.38 - 0.50", eta_square: 0.19, omega: 0.18 },
+    ],
+    within_group_variance_by_subgroup: [
+      { group: "group1", number: 454, variance: 134.49, classification: "high", total_var: 119.5 },
+      { group: "group2", number: 370, variance: 52.13, classification: "low", total_var: 119.5 },
+    ],
+  },
+  {
+    subgroup_id: 102,
+    no: 2,
+    set_name: "Set 2",
+    outcome: "CDR-SB",
+    cut_off: ["<=-0.17"],
+    month: 12,
+    of_group: 2,
+    variance_benefit: 0.06,
+    variance_benefit_label: "",
+    group_balance: "OK(n min=298)",
+    entity_type: "feature",
+    basis_type: "slope",
+    cutoff_axis_type: "x_value",
+    disease_progression_by_subgroup: [
+      { group: "group1", month: 0, mean: 3.2, ci_low: 2.8, ci_high: 3.6 },
+      { group: "group1", month: 3, mean: 3.5, ci_low: 3.0, ci_high: 4.0 },
+      { group: "group1", month: 6, mean: 3.8, ci_low: 3.2, ci_high: 4.4 },
+      { group: "group1", month: 9, mean: 4.0, ci_low: 3.3, ci_high: 4.7 },
+      { group: "group1", month: 12, mean: 4.3, ci_low: 3.5, ci_high: 5.1 },
+      { group: "group2", month: 0, mean: 2.5, ci_low: 2.1, ci_high: 2.9 },
+      { group: "group2", month: 3, mean: 2.6, ci_low: 2.2, ci_high: 3.0 },
+      { group: "group2", month: 6, mean: 2.7, ci_low: 2.2, ci_high: 3.2 },
+      { group: "group2", month: 9, mean: 2.8, ci_low: 2.3, ci_high: 3.3 },
+      { group: "group2", month: 12, mean: 2.9, ci_low: 2.3, ci_high: 3.5 },
+    ],
+    number_or_patient: [
+      { group: "group1", number: 526 },
+      { group: "group2", number: 298 },
+    ],
+    variance_decomposition: [
+      { group: "total", variance: 3.97, number: 824, vr: 0.61, ci: "0.84 - 1.14", eta_square: 0.06, omega: 0.06 },
+    ],
+    within_group_variance_by_subgroup: [
+      { group: "group1", number: 526, variance: 6.38, classification: "high", total_var: 6.48 },
+      { group: "group2", number: 298, variance: 3.97, classification: "low", total_var: 6.48 },
+    ],
+  },
+  {
+    subgroup_id: 103,
+    no: 3,
+    set_name: "Set 3",
+    outcome: "ADAS Cog 11",
+    cut_off: ["<=33%", "<=66%"],
+    month: 12,
+    of_group: 3,
+    variance_benefit: 0.30,
+    variance_benefit_label: "",
+    group_balance: "OK(n min=210)",
+    entity_type: "feature",
+    basis_type: "slope",
+    cutoff_axis_type: "x_value",
+    disease_progression_by_subgroup: [
+      { group: "group1", month: 0, mean: 22.0, ci_low: 20.5, ci_high: 23.5 },
+      { group: "group1", month: 6, mean: 20.5, ci_low: 18.8, ci_high: 22.2 },
+      { group: "group1", month: 12, mean: 19.0, ci_low: 17.0, ci_high: 21.0 },
+      { group: "group2", month: 0, mean: 17.5, ci_low: 16.2, ci_high: 18.8 },
+      { group: "group2", month: 6, mean: 17.0, ci_low: 15.6, ci_high: 18.4 },
+      { group: "group2", month: 12, mean: 16.5, ci_low: 14.9, ci_high: 18.1 },
+      { group: "group3", month: 0, mean: 14.0, ci_low: 12.8, ci_high: 15.2 },
+      { group: "group3", month: 6, mean: 14.5, ci_low: 13.2, ci_high: 15.8 },
+      { group: "group3", month: 12, mean: 15.0, ci_low: 13.5, ci_high: 16.5 },
+    ],
+    number_or_patient: [
+      { group: "group1", number: 304 },
+      { group: "group2", number: 310 },
+      { group: "group3", number: 210 },
+    ],
+    variance_decomposition: [
+      { group: "total", variance: 68.5, number: 824, vr: 0.52, ci: "0.45 - 0.59", eta_square: 0.25, omega: 0.24 },
+    ],
+    within_group_variance_by_subgroup: [
+      { group: "group1", number: 304, variance: 95.2, classification: "high", total_var: 85.0 },
+      { group: "group2", number: 310, variance: 60.1, classification: "middle", total_var: 85.0 },
+      { group: "group3", number: 210, variance: 38.7, classification: "low", total_var: 85.0 },
+    ],
+  },
+];
+
 // ─── Chart option builders ────────────────────────────────────────────
 
 type EChartsRenderApi = {
@@ -194,21 +354,47 @@ function buildDiseaseProgressionChartOption(
 
   return {
     animation: false,
-    grid: { left: "12%", right: "8%", top: "5%", bottom: "15%", containLabel: false },
+    grid: {
+      left: "16px",
+      right: "8px",
+      top: "2px",
+      bottom: "14px",
+      containLabel: true,
+    },
     xAxis: {
-      type: "value" as const, name: "Month", nameLocation: "middle", nameGap: 15,
-      min: Math.max(0, months[0] - 1), max: months[months.length - 1],
-      nameTextStyle: { fontSize: 10, color: "#484646" }, axisLabel: { fontSize: 9, color: "#484646" },
-      axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } },
-      axisTick: { show: false }, splitLine: { show: true, lineStyle: { type: "solid", color: "#E8E8E8", width: 1 } },
+      type: "value" as const,
+      name: "Month",
+      nameLocation: "middle",
+      nameGap: 18,
+      min: 0,
+      max: months[months.length - 1],
+      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" },
+      axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
+      axisTick: { show: false },
+      splitLine: { show: true, lineStyle: { type: "solid", color: "#e3e1e5", width: 1 } },
     },
     yAxis: {
-      type: "value" as const, name: `Δ ${outcome}`, nameLocation: "middle", nameGap: 22,
-      min: yMin - yPadding, max: yMax + yPadding,
-      nameTextStyle: { fontSize: 10, color: "#484646" },
-      axisLabel: { fontSize: 9, color: "#484646", showMinLabel: false, showMaxLabel: false, formatter: (value: number) => value % 1 === 0 ? value.toString() : value.toFixed(1) },
-      axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } },
-      axisTick: { show: false }, splitLine: { show: true, lineStyle: { type: "solid", color: "#E8E8E8", width: 1 } },
+      type: "value" as const,
+      name: `Δ ${outcome}`,
+      nameLocation: "middle",
+      nameGap: 28,
+      min: yMin - yPadding,
+      max: yMax + yPadding,
+      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" },
+      axisLabel: {
+        fontSize: 10,
+        fontWeight: 500,
+        fontFamily: "Inter",
+        color: "#787776",
+        margin: 4,
+        showMinLabel: false,
+        showMaxLabel: false,
+        formatter: (value: number) => value.toFixed(1),
+      },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
+      axisTick: { show: false },
+      splitLine: { show: true, lineStyle: { type: "solid", color: "#e3e1e5", width: 1 } },
     },
     tooltip: { show: false, trigger: "none" as const, axisPointer: { show: false } },
     legend: { show: false },
@@ -228,13 +414,59 @@ function buildVarianceDecompositionChartOption(
 
   return {
     animation: false,
-    grid: { left: "4px", right: "5%", top: "5%", bottom: "15%", containLabel: true },
-    xAxis: { type: "category" as const, data: ["Explained"], axisLabel: { show: true, fontSize: 9, color: "#484646" }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false } },
-    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 36, max: varianceMax * 1.5, splitNumber: 5, nameTextStyle: { fontSize: 9, color: "#484646" }, axisLabel: { fontSize: 9, color: "#484646", margin: 4, formatter: (value: number) => value.toFixed(2) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#efeff4" } } },
-    tooltip: { show: false }, legend: { show: false },
+    grid: {
+      left: "18px",
+      right: "0",
+      top: "8px",
+      bottom: "0px",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "category" as const,
+      data: ["Explained"],
+      axisLabel: { show: true, fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: "value" as const,
+      name: "Variance",
+      nameLocation: "middle",
+      nameGap: 32,
+      max: varianceMax * 1.5,
+      splitNumber: 5,
+      nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" },
+      axisLabel: {
+        fontSize: 10,
+        fontWeight: 500,
+        fontFamily: "Inter",
+        color: "#787776",
+        margin: 4,
+        formatter: (value: number) => value.toFixed(2),
+      },
+      axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
+      axisTick: { show: false },
+      splitLine: { show: true, lineStyle: { color: "#e3e1e5" } },
+    },
+    tooltip: { show: false },
+    legend: { show: false },
     series: [
-      { name: "Within pooled", type: "bar" as const, stack: "variance", data: [withinPooled], itemStyle: { color: "#231F52", borderRadius: [8, 8, 8, 8] }, barWidth: varianceBarWidth },
-      { name: "Explained Total Within", type: "bar" as const, stack: "variance", data: [explainedTotal], itemStyle: { color: "#AAA5E1", borderRadius: [8, 8, 8, 8] }, barWidth: varianceBarWidth },
+      {
+        name: "Within pooled",
+        type: "bar" as const,
+        stack: "variance",
+        data: [withinPooled],
+        itemStyle: { color: "#231F52", borderRadius: [8, 8, 8, 8] },
+        barWidth: varianceBarWidth,
+      },
+      {
+        name: "Explained Total Within",
+        type: "bar" as const,
+        stack: "variance",
+        data: [explainedTotal],
+        itemStyle: { color: "#AAA5E1", borderRadius: [8, 8, 8, 8] },
+        barWidth: varianceBarWidth,
+      },
     ],
   };
 }
@@ -247,14 +479,20 @@ function buildWithinGroupVarianceChartOption(
 
   return {
     animation: false,
-    grid: { left: "4px", right: "5%", top: "5%", bottom: "15%", containLabel: true },
-    xAxis: { type: "category" as const, data: sortedVariance.map((v) => v.classification === "high" ? "High" : v.classification === "middle" ? "Middle" : "Low"), axisLabel: { fontSize: 9, color: "#484646" }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false } },
-    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 36, max: maxVar * 1.2, splitNumber: 5, nameTextStyle: { fontSize: 9, color: "#484646" }, axisLabel: { fontSize: 9, color: "#484646", margin: 4, formatter: (value: number) => value.toFixed(2) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#484646", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#efeff4" } } },
+    grid: {
+      left: "14px",
+      right: "0",
+      top: "8px",
+      bottom: "0px",
+      containLabel: true,
+    },
+    xAxis: { type: "category" as const, data: sortedVariance.map((v) => v.classification === "high" ? "High" : v.classification === "middle" ? "Middle" : "Low"), axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false } },
+    yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 32, max: maxVar * 1.2, splitNumber: 5, nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#484646" }, axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4, formatter: (value: number) => value.toFixed(2) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#e3e1e5" } } },
     tooltip: { show: false }, legend: { show: false },
     series: [{
       type: "bar" as const,
       data: sortedVariance.map((v) => ({ value: v.variance, sampleN: typeof v.number === "number" ? Math.round(v.number) : null, itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] } })),
-      barWidth: "50%",
+      barWidth: "85%",
       label: { show: true, position: "insideBottom", distance: 8, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#FFFFFF", fontFamily: "Inter, sans-serif", fontSize: 12, fontWeight: 600, lineHeight: 13.2 },
       markLine: { silent: true, symbol: "none", label: { show: true, position: "end", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10, color: "#484646", offset: [-75, -10] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
     }],
@@ -349,13 +587,12 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
             {/* Left Column */}
             <div className="flex flex-col gap-3">
               {/* Disease Progression by Subgroup */}
-              <div className="flex h-[252px] flex-col rounded-[18px] bg-white/60 p-4">
-                <h3 className="text-body4 mb-4 flex-shrink-0 font-semibold text-[#1c1b1b]">
+              <div className="flex flex-col flex-[1] rounded-[18px] bg-white/60 p-2 gap-3 ">
+                <h3 className="text-body4 flex-shrink-0 font-semibold text-[#1c1b1b] pl-1 pt-1">
                   Disease Progression by Subgroup
                 </h3>
                 <div
-                  className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white"
-                  style={{ height: "100%" }}
+                  className="min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white p-2"
                 >
                   {filteredProgressionData.length > 0 ? (
                     <ReactECharts
@@ -365,7 +602,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                         row.within_group_variance_by_subgroup,
                         row.outcome,
                       )}
-                      style={{ height: "100%", width: "100%" }}
+                      style={{ height: "160px", width: "100%" }}
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
@@ -375,21 +612,22 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                 </div>
               </div>
               {/* Number of patients */}
-              <div className="flex h-[196px] flex-col rounded-[18px] bg-white/60 p-4">
-                <h3 className="text-body4 mb-0 flex-shrink-0 font-semibold text-[#1c1b1b]">
+              <div className="flex flex-[1]  flex-col rounded-[18px] bg-white/60 p-2 gap-1 ">
+              <div className="pl-1 pt-1">
+                <h3 className="text-body4 mb-1 flex-shrink-0 font-semibold text-[#1c1b1b] ">
                   Number of patients
                 </h3>
-                <p className="mb-0 flex-shrink-0 text-sm text-[#605e5e]">
+                <p className="text-small1 mb-0 flex-shrink-0 text-[#605e5e]">
                   At least {minPatients} patients per group are recommended.
-                </p>
+                </p></div>
                 <div className="mt-auto">
-                  <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3">
-                    <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-0 text-sm font-semibold text-[#231f52]">
-                      <div className="w-[142px]">
-                        <p className="text-sm font-semibold text-[#231F52]">Group</p>
+                  <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3 ">
+                    <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-1 font-semibold text-[#231f52]">
+                      <div className="flex-1">
+                        <p className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">Group</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-[#231F52]">
+                      <div className="flex-1">
+                        <p className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">
                           Number of patients
                         </p>
                       </div>
@@ -404,22 +642,22 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                       return (
                         <div
                           key={patient.group}
-                          className={`flex items-center gap-2 text-sm text-[#1c1b1b] ${
-                            idx > 0 ? "border-t border-[#adaaaa] pt-0" : ""
+                          className={`flex items-center gap-2 py-1 text-sm text-[#1c1b1b] ${
+                            idx > 0 ? "border-t border-[#adaaaa]" : ""
                           }`}
                         >
-                          <div className="flex w-[142px] items-center gap-[6px]">
+                          <div className="flex flex-1 items-center gap-[6px]">
                             <div
                               className="h-3 w-3 rounded-full"
                               style={{ backgroundColor: groupColor }}
                             />
                             <div>
-                              <p className="text-body4m font-semibold text-[#1C1B1B]">
+                              <p className="text-body4m font-semibold text-[#1C1B1B] ">
                                 {groupName}
                               </p>
                             </div>
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-body4m font-semibold text-[#1C1B1B]">
                               {patient.number.toLocaleString()}
                             </p>
@@ -432,10 +670,10 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
               </div>
             </div>
             {/* Right Column */}
-            <div className="bg-primary-15 flex grid h-[468px] flex-1 min-w-0 flex-col gap-3 rounded-[18px] p-4">
+            <div className="bg-primary-15 flex flex-col min-w-0 gap-6 rounded-[18px] p-3">
               {/* Variance Reduction Explained */}
-              <div>
-                <h3 className="text-feature-title mb-4 text-white">
+              <div className="flex flex-col gap-2">
+                <h3 className="text-feature-titles text-white">
                   Variance Reduction Explained
                 </h3>
                 <p className="text-body5m leading-relaxed font-semibold text-white">
@@ -449,65 +687,62 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                 </p>
               </div>
               {/* Two cards in one row */}
-              <div className="mt-auto grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {/* Variance decomposition */}
-                <div className="flex h-wrap flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-3">
-                  <div className="flex justify-between gap-2">
-                    <div className="flex-shrink-0">
-                      <h3 className="text-body3 mb-2 tracking-[-0.75px] text-[#1c1b1b]">
+                <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-4">
+                  <div className="flex justify-between gap-2 h-wrap">
+                    <div className="flex-shrink-0 [@media(max-width:1480px)]:flex-[3_1_0]">
+                      <h3 className="text-body3 [@media(max-width:1470px)]:text-body4 mb-2 tracking-[-0.75px] text-[#1c1b1b]">
                         Variance decomposition
                       </h3>
                       <div className="mb-4 flex gap-5">
                         <div>
-                          <div className="text-body5 font-semibold text-[#f06600]">
+                          <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
                             Variance
                           </div>
-                          <div className="text-h4 text-[#f06600]">
+                          <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
                             {totalVariance.toFixed(2)}
                           </div>
                         </div>
                         <div>
-                          <div className="text-body5 font-semibold text-[#f06600]">
+                          <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
                             VR
                           </div>
-                          <div className="text-h4 text-[#f06600]">
+                          <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
                             {totalVR.toFixed(3)}
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div className="gap-0">
-                      <div className="flex gap-[5px] font-medium">
-                        <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#231F52]" />
-                        <div className="w-[60px] text-[10.5px]">
+                    <div className="flex min-w-0 flex-col gap-0 [@media(max-width:1480px)]:flex-[1_1_0]">
+                      <div className="flex flex-col min-[1471px]:flex-row items-start min-[1471px]:items-center gap-[5px] font-medium">
+                        <div className="mt-1 h-[10px] w-[32px] shrink-0 rounded-2xl bg-[#231F52]" />
+                        <div className="min-w-0 min-[1471px]:whitespace-nowrap text-[10.5px] text-left">
                           <p>Within</p>
-                          <p className="-mt-1 text-[#939090]">pooled</p>
+                          <p className="-mt-0.5 text-[#939090]">pooled</p>
                         </div>
                       </div>
-                      <div className="flex gap-[5px] font-medium">
-                        <div className="mt-1 h-[10px] w-[32px] rounded-2xl bg-[#AAA5E1]" />
-                        <div className="w-[60px] text-[10.5px]">
+                      <div className="flex flex-col min-[1471px]:flex-row items-start min-[1471px]:items-center gap-[5px] font-medium">
+                        <div className="mt-1 h-[10px] w-[32px] shrink-0 rounded-2xl bg-[#AAA5E1]" />
+                        <div className="min-w-0 min-[1471px]:whitespace-nowrap text-[10.5px] text-left">
                           <p>Explained</p>
-                          <p className="-mt-1 text-[#939090]">Total Within</p>
+                          <p className="-mt-0.5 text-[#939090]" style={{ lineHeight: "110%" }}>Total Within</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div
-                    className="min-h-0 flex-1 overflow-hidden bg-white"
-                    style={{ height: "100%" }}
-                  >
+                  <div className="bg-white">
                     {row.variance_decomposition && row.variance_decomposition.length > 0 ? (
-                      <div className="relative h-full w-full">
+                      <div className="relative h-wrap w-full">
                         <ReactECharts
                           option={buildVarianceDecompositionChartOption(
                             row.variance_decomposition,
                           )}
-                          style={{ height: "100%", width: "100%" }}
+                          style={{ height: "160px", width: "100%" }}
                         />
-                        <div className="pointer-events-none absolute top-[8px] right-[14px] left-[34px] h-[40px] px-3">
-                          <div className="rounded-[8px] border border-[#D1CFD8] p-[6px]">
-                            <p className="text-[10.5px] font-medium text-[#787776]">
+                        <div className="pointer-events-none absolute top-0 left-[20%] right-[2%] w-[78%] flex items-start justify-center">
+                          <div className="rounded-[6px] border border-neutral-80 bg-white p-1">
+                            <p className="text-small2 text-neutral-50">
                               {getCiText(row.variance_decomposition)}
                             </p>
                           </div>
@@ -521,12 +756,12 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   </div>
                 </div>
                 {/* Within-group variance by subgroup */}
-                <div className="flex h-[306px] flex-1 min-w-0 flex-col overflow-hidden rounded-[12px] bg-white p-3">
+                <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-4">
                   <div className="flex-shrink-0">
-                    <h3 className="mb-4 text-body3 tracking-[-0.75px] text-[#1c1b1b]">
+                    <h3 className="mb-2 text-body3 [@media(max-width:1470px)]:text-body4 tracking-[-0.75px] text-[#1c1b1b]">
                       Within-group variance by subgroup
                     </h3>
-                    <div className="mb-4 flex gap-5">
+                    <div className="mb-2 flex gap-5">
                       {sortedVariance.map((v) => {
                         const displayName =
                           v.classification === "high"
@@ -536,10 +771,10 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                               : "Low";
                         return (
                           <div key={v.group}>
-                            <div className="text-xs font-semibold text-[#f06600]">
+                            <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
                               {displayName}
                             </div>
-                            <div className="text-h4 text-[#f06600]">
+                            <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
                               {v.variance.toFixed(2)}
                             </div>
                           </div>
@@ -547,14 +782,11 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                       })}
                     </div>
                   </div>
-                  <div
-                    className="min-h-0 flex-1 overflow-hidden bg-white"
-                    style={{ height: "100%" }}
-                  >
+                  <div className="bg-white">
                     {sortedVariance.length > 0 ? (
                       <ReactECharts
                         option={buildWithinGroupVarianceChartOption(sortedVariance)}
-                        style={{ height: "100%", width: "100%" }}
+                        style={{ height: "160px", width: "100%" }}
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
@@ -616,12 +848,10 @@ function TSISubgroupSelectionPageContent() {
 
         // 초기 선택 없음 (체크박스 미선택 상태)
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Subgroup Summary 조회에 실패했습니다.",
-        );
-        console.error("Subgroup Summary API 호출 실패:", err);
+        console.error("Subgroup Summary API 호출 실패, 목업 데이터 사용:", err);
+        // API 실패 시 목업 데이터로 대체
+        setSummaryData(MOCK_SUMMARY_DATA);
+        setResultTableData(MOCK_RESULT_TABLE_DATA);
       } finally {
         setIsLoading(false);
       }
@@ -706,7 +936,7 @@ function TSISubgroupSelectionPageContent() {
         <div className="flex flex-col flex-1 min-h-0" style={{ gap: 0 }}>
           {/* 메인: 상위 배경 카드 2개 나란히 (좌 selection-left, 우 selection-bg) */}
           <div
-            className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0"
+            className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 px-0.5 min-h-0"
             style={{ minWidth: 0 }}
           >
             {/* 왼쪽 상위 배경 카드: selection-left.png (Figma 536x614, radius 36) */}
@@ -740,8 +970,8 @@ function TSISubgroupSelectionPageContent() {
                 <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
                   <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] border bg-white px-4 py-2">
                     {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
-                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden ">
+                      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto h-fit">
                         {isLoading ? (
                           <div className="flex h-full items-center justify-center">
                             <div className="text-body3 text-white">
@@ -788,10 +1018,10 @@ function TSISubgroupSelectionPageContent() {
                             return (
                               <div
                                 key={`${set.set_name}_${index}`}
-                                className="border-neutral-80 flex min-h-0 flex-1 border-b last:border-b-0"
+                                className="border-neutral-80 flex min-h-0 flex-1 h-fit border-b last:border-b-0"
                               >
                                 {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
-                                <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2">
+                                <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2 h-fit">
                                   {/* 초록 컨테이너: Set label 영역 (flex-1 = group rows와 동일 높이) */}
                                   <div className="flex flex-1 flex-shrink-0 items-center gap-2 px-1 min-h-[20px]">
                                     <span
@@ -815,7 +1045,7 @@ function TSISubgroupSelectionPageContent() {
                                     )}
                                   </div>
                                   {/* 노랑 컨테이너: Group rows 영역 (flex-1 = Set label과 동일 높이) */}
-                                  <div className="flex flex-3 flex-col min-h-[20px]">
+                                  <div className="flex flex-3 flex-col min-h-[20px] h-fit">
                                     {displayGroups.map((g, groupIndex) => {
                                       // group1 -> Group 1 형식으로 변환
                                       const groupNum = g.group.replace(
@@ -826,7 +1056,7 @@ function TSISubgroupSelectionPageContent() {
                                       return (
                                         <div
                                           key={`${set.set_name}-group-${groupIndex}`}
-                                          className="text-body5m text-neutral-30 flex min-h-0 flex-1 items-center pr-1 pl-2"
+                                          className="text-body5m text-neutral-30 flex min-h-[20px] flex-1 items-center pr-1 pl-2"
                                         >
                                           {groupName}
                                         </div>
@@ -835,7 +1065,7 @@ function TSISubgroupSelectionPageContent() {
                                   </div>
                                 </div>
                                 {/* 오른쪽 셀: 왼쪽 기준 맞춤 */}
-                                <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden py-2 pr-4 pl-2">
+                                <div className="relative flex min-w-0 flex-1 flex-col h-fit py-2 pr-4 pl-2">
                                   {/* Set label 영역과 동일: flex-1 스페이서 */}
                                   <div
                                     className="flex-1 flex-shrink-0"
@@ -885,11 +1115,11 @@ function TSISubgroupSelectionPageContent() {
                                       return (
                                         <div
                                           key={`${set.set_name}-chart-${i}`}
-                                          className="relative z-[1] flex min-h-0 flex-1 items-center"
+                                          className="relative z-[1] flex min-h-[20px] flex-1 items-center"
                                         >
                                           <div
-                                            className="relative flex h-2 w-full items-center"
-                                            style={{ minHeight: 8 }}
+                                            className="relative flex h-3 w-full items-center"
+                                            style={{ minHeight: 12 }}
                                           >
                                             {/* 가로선: ci_low ~ ci_high 범위 */}
                                             <div
@@ -1028,13 +1258,6 @@ function TSISubgroupSelectionPageContent() {
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                     <div className="min-h-0 w-full flex-1 overflow-auto">
                       {/* 전통적인 HTML 테이블: 좌우 padding 8px 고정, 헤더 컬럼 auto */}
-                      <RadioGroup.Root
-                        value={selectedSetNo}
-                        onValueChange={(value) => {
-                          setSelectedSetNo(value);
-                        }}
-                        className="w-full"
-                      >
                         <table className="w-full table-fixed border-collapse">
                           <colgroup>
                             <col style={{ width: "5%" }} />
@@ -1239,55 +1462,19 @@ function TSISubgroupSelectionPageContent() {
                                       <td
                                         className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
                                       >
-                                        <div className={TABLE_INNER_DIV_CENTER}>
-                                          <RadioGroup.Item
-                                            value={rowNo}
-                                            id={`radio-${rowNo}`}
-                                            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0 outline-none focus:ring-0 focus:outline-none"
-                                          >
-                                            {isSelected ? (
-                                              <svg
-                                                width="17"
-                                                height="17"
-                                                viewBox="0 0 17 17"
-                                                fill="none"
-                                              >
-                                                <rect
-                                                  x="0.5"
-                                                  y="0.5"
-                                                  width="16"
-                                                  height="16"
-                                                  rx="3.5"
-                                                  fill="#3a11d8"
-                                                  stroke="#3a11d8"
-                                                />
-                                                <path
-                                                  d="M4 8.5L7 11.5L13 5.5"
-                                                  stroke="white"
-                                                  strokeWidth="1.5"
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                />
-                                              </svg>
-                                            ) : (
-                                              <svg
-                                                width="17"
-                                                height="17"
-                                                viewBox="0 0 17 17"
-                                                fill="none"
-                                              >
-                                                <rect
-                                                  x="0.5"
-                                                  y="0.5"
-                                                  width="16"
-                                                  height="16"
-                                                  rx="3.5"
-                                                  fill="transparent"
-                                                  stroke="#c6c5c9"
-                                                />
-                                              </svg>
-                                            )}
-                                          </RadioGroup.Item>
+                                        <div
+                                          className={TABLE_INNER_DIV_CENTER}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <RadioButton
+                                            checked={isSelected}
+                                            onChange={() =>
+                                              setSelectedSetNo(
+                                                isSelected ? "" : rowNo,
+                                              )
+                                            }
+                                            size={17}
+                                          />
                                         </div>
                                       </td>
                                       <td
@@ -1458,7 +1645,6 @@ function TSISubgroupSelectionPageContent() {
                             )}
                           </tbody>
                         </table>
-                      </RadioGroup.Root>
                     </div>
                   </div>
                 </div>
@@ -1466,7 +1652,7 @@ function TSISubgroupSelectionPageContent() {
             </div>
           </div>
           {/* 버튼: 카드 밖 아래 */}
-          <div className="flex flex-shrink-0 items-center justify-end gap-4 pb-2">
+          <div className="flex flex-shrink-0 items-center justify-end pr-3 pb-6 gap-4 ">
             <button
               type="button"
               style={{

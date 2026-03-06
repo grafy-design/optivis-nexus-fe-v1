@@ -10,14 +10,18 @@ type DensitySizeStyle = {
   labelFontSize: number;
   labelFontWeight: number;
   numberFontSize: number;
+  numberFontWeight?: number;
   axisColor: string;
+  numberColor?: string;
+  axisLineColor?: string;
   axisWidth: number;
   splitLineColor: string;
+  labelDecimalPlaces?: number;
 };
 
 const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, DensitySizeStyle> = {
   XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  S:  { labelFontSize: 12, labelFontWeight: 600, numberFontSize: 10, numberFontWeight: 500, axisColor: "#484646", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
   M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
   L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
@@ -62,6 +66,8 @@ interface DensityChartProps {
   segmented?: DensitySegmentedConfig;
   height?: number;
   sizeVariant?: ChartSizeVariant;
+  xAxisName?: string;
+  yAxisName?: string;
 }
 
 const hexToRgba = (hexColor: string, alpha: number): string => {
@@ -132,8 +138,11 @@ const calculateBandwidth = (values: number[], minX: number, maxX: number): numbe
   return Math.max(silverman, span * 0.02, 0.02);
 };
 
-export const DensityChart = ({ data, series, segmented, height = 220, sizeVariant }: DensityChartProps) => {
+export const DensityChart = ({ data, series, segmented, height = 220, sizeVariant, xAxisName, yAxisName }: DensityChartProps) => {
   const sz = sizeVariant ? DENSITY_SIZE_STYLES[sizeVariant] : null;
+  const labelFormatter = sz?.labelDecimalPlaces !== undefined
+    ? (value: number | string) => Number(value).toFixed(sz.labelDecimalPlaces)
+    : undefined;
   const baseSeries =
     segmented && segmented.values.length > 0
       ? []
@@ -215,39 +224,62 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
     animation: false,
     tooltip: { trigger: "axis" },
     grid: {
-      left: 12,
-      right: 12,
-      top: 8,
-      bottom: 14,
-      containLabel: false,
+      left: yAxisName ? 16 : 0,
+      right: 4,
+      top: 2,
+      bottom: xAxisName ? 10 : 0,
+      containLabel: true,
     },
     xAxis: {
       type: "value",
       min: xMin,
       max: xMax,
-      axisLine: { show: true, lineStyle: { color: sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
       axisLabel: {
         show: !!sz,
-        color: sz?.axisColor ?? "#8A8A94",
+        color: sz?.numberColor ?? sz?.axisColor ?? "#8A8A94",
         fontSize: sz?.numberFontSize ?? 9,
+        fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
+        ...(labelFormatter ? { formatter: labelFormatter } : {}),
       },
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
+      name: xAxisName,
+      nameLocation: "middle",
+      nameGap: 8,
+      nameTextStyle: xAxisName ? {
+        color: sz?.axisColor ?? "#484646",
+        fontSize: sz?.labelFontSize ?? 9,
+        fontWeight: sz?.labelFontWeight ?? 400,
+        fontFamily: "Inter",
+      } : undefined,
     },
     yAxis: {
       type: "value",
       min: 0,
       max: maxY > 0 ? maxY * 1.35 : 1,
-      axisLine: { show: true, lineStyle: { color: sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
-      axisTick: { show: false },
+      axisLine: { show: true, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
+      axisTick: { show: !!(yAxisName || sz) },
       axisLabel: {
         show: !!sz,
-        color: sz?.axisColor ?? "#8A8A94",
+        color: sz?.numberColor ?? sz?.axisColor ?? "#8A8A94",
         fontSize: sz?.numberFontSize ?? 9,
+        fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
+        ...(labelFormatter ? { formatter: labelFormatter } : {}),
       },
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
+      name: yAxisName,
+      nameLocation: "middle",
+      nameGap: 16,
+      nameRotate: 90,
+      nameTextStyle: yAxisName ? {
+        color: sz?.axisColor ?? "#484646",
+        fontSize: sz?.labelFontSize ?? 9,
+        fontWeight: sz?.labelFontWeight ?? 400,
+        fontFamily: "Inter",
+      } : undefined,
     },
     series: densityBySeries.map((item) => ({
       name: item.name,

@@ -97,7 +97,7 @@ export const SHAPSummaryPlotChart = ({
       grid: {
         top: 8,
         left: 12,
-        right: 56,
+        right: 12,
         bottom: 0,
         containLabel: true,
       },
@@ -149,18 +149,10 @@ export const SHAPSummaryPlotChart = ({
         inverse: true,
       },
       visualMap: {
+        show: false,
         min: colorMin,
         max: colorMax === colorMin ? colorMin + 1 : colorMax,
         dimension: 2,
-        orient: "vertical",
-        right: 0,
-        top: 8,
-        bottom: 24,
-        itemWidth: 12,
-        itemHeight: 200,
-        text: ["High", "Low"],
-        calculable: false,
-        textStyle: { color: "#5F6072", fontSize: 11 },
         inRange: {
           color: ["#D8D3FF", "#231F52"],
         },

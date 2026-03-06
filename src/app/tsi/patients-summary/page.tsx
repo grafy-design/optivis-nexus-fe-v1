@@ -7,21 +7,38 @@ import { getPatientSummary, type PatientSummaryData } from "@/services/subgroup-
 
 /**
  * TSI Step 2: Patients Summary
- * 피그마: [FLT-003] Patients Summary - 8
+ * 환자 데이터 요약 페이지 — 전체 코호트 vs 필터 코호트 기초 특성 비교 테이블 표시.
+ *
+ * Patients Summary page — displays a comparison table of baseline characteristics
+ * between the Full Cohort and Filtered Cohort.
  */
 
+// ── 임시 Task ID (개발/테스트용) / Mock task ID for dev/testing ─────────────
 const MOCK_TASK_ID = "test-task-id";
+
+/**
+ * 숫자를 소수점 최대 2자리까지 포맷하는 헬퍼
+ * Formats a number with up to 2 decimal places
+ */
 
 export default function TSIPatientsSummaryPage() {
   const router = useRouter();
+
+  // ── taskId: 현재는 mock, 추후 URL 쿼리로 대체 예정
+  //    taskId: currently mock, to be replaced with URL query param
   const taskId = MOCK_TASK_ID;
+
+  // ── 서버 데이터 상태 / Server data state ──────────────────────────────────
   const [patientSummaryData, setPatientSummaryData] = useState<PatientSummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ── Save Simulation 모달 상태 / Save Simulation modal state ───────────────
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [simName, setSimName] = useState("");
   const [simDesc, setSimDesc] = useState("");
 
+  // ── 마운트 시 Patient Summary API 호출 / Fetch on mount ───────────────────
   useEffect(() => {
     const fetchPatientSummary = async () => {
       try {
@@ -39,14 +56,18 @@ export default function TSIPatientsSummaryPage() {
     fetchPatientSummary();
   }, [taskId]);
 
+  /** 숫자를 소수점 최대 2자리까지 포맷 / Format number with up to 2 decimal places */
   const formatUpToTwoDecimals = (value: number) =>
     value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
+  /** "Identify Subgroup" 버튼 → Basis Selection 페이지 이동 / Navigate to Basis Selection */
   const handleGoToBasisSelection = () => {
     const query = new URLSearchParams({ taskId });
     router.push(`/tsi/basis-selection?${query.toString()}`);
   };
 
+  // ── API 데이터를 테이블용 형태로 변환 (Gender 카테고리 제외)
+  //    Transform API data to table format (excludes Gender category)
   const baselineData =
     patientSummaryData?.baseline_characteristics
       .filter((category) => category.category.toLowerCase() !== "gender")
@@ -65,219 +86,405 @@ export default function TSIPatientsSummaryPage() {
         })),
       })) || [];
 
+  // ── 요약 숫자: 전체/필터 인원수, 전환율 / Summary counts: total/filtered/conversion
   const displayTotalCount = patientSummaryData?.full_cohort_n || 0;
   const displayFilteredCount = patientSummaryData?.filtered_cohort_n || 0;
   const displayConversionPercent = patientSummaryData?.conversion_percent || 0;
 
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
-      {/* 외부 래퍼 */}
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 28px)", height: "100%", marginLeft: "14px", marginRight: "14px", paddingBottom: "24px" }}>
 
-        {/* 메인 컨테이너 */}
+      {/* ── 외부 래퍼: 좌우 마진, 하단 패딩 / Outer wrapper with horizontal margins */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "calc(100% - 28px)",
+          height: "100%",
+          marginLeft: "14px",
+          marginRight: "14px",
+          paddingBottom: "24px",
+        }}
+      >
+
+        {/* ── 메인 컨테이너 / Main container ──────────────────────────────── */}
         <div className="relative overflow-hidden flex-1 min-h-0 flex flex-col gap-[24px]">
 
-          {/* 1. 타이틀 */}
-          <div className="flex flex-shrink-0 items-start justify-between gap-4" style={{ padding: "0px 12px 0 12px" }}>
+          {/* ── 1. 페이지 타이틀 / Page title ────────────────────────────── */}
+          <div
+            className="flex flex-shrink-0 items-start justify-between gap-4"
+            style={{ padding: "0px 12px 0 12px" }}
+          >
             <div style={{ flexShrink: 0 }}>
-              <h1 style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0 }}>
+              <h1
+                style={{
+                  fontFamily: "Poppins, Inter, sans-serif",
+                  fontSize: 42,
+                  fontWeight: 600,
+                  color: "rgb(17,17,17)",
+                  letterSpacing: "-1.5px",
+                  lineHeight: 1.1,
+                  margin: 0,
+                }}
+              >
                 Patients Summary
               </h1>
-              <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+              <span
+                style={{
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: "rgb(120,119,118)",
+                  letterSpacing: "-0.48px",
+                }}
+              >
                 Simulation templates are provided to show the required input structure. Please review before proceeding.
               </span>
             </div>
           </div>
 
-          {/* 2. gap-0 컨테이너 */}
+          {/* ── 2. 글래스 카드 + 버튼 컨테이너 / Glass card + button container ── */}
           <div className="flex flex-1 min-h-0 flex-col gap-0">
 
-          {/* 2-1. 글래스 컨테이너 */}
-          <div className="flex flex-1 min-h-0 flex-col gap-0.5" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}>
+            {/* ── 2-1. 글래스 배경 카드 / Glass background card ───────────── */}
+            <div
+              className="flex flex-1 min-h-0 flex-col gap-0.5"
+              style={{
+                borderImage:
+                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
+                borderStyle: "solid",
+                borderTopWidth: "20px",
+                borderBottomWidth: "28px",
+                borderLeftWidth: "24px",
+                borderRightWidth: "24px",
+                borderColor: "transparent",
+              }}
+            >
 
-            {/* 1. 숫자 요약 행 */}
-            <div className="flex flex-row h-wrap items-baseline gap-0 px-[4px] flex-shrink-0 justify-end -mt-2">
-              <div className="h-wrap text-body4 text-neutral-50 pr-[16px]">
-                Number Analyzed 480 participants </div>
-              <div className="h-wrap" >
-                <span className="text-body4 text-neutral-50" style={{  }}>{displayConversionPercent}</span>
-              <span className="text-body4 text-neutral-50 ">%</span>
-              <span className="text-body5 text-neutral-50 mx-1">converted</span>
-              <span className="text-body5 text-neutral-50">(</span>
-              <span className="text-body5 tabular-nums text-neutral-50" style={{ }}>{displayFilteredCount.toLocaleString()}</span>
-              <span className="text-body5 text-neutral-50">/</span>
-              <span className="text-body5 tabular-nums text-neutral-50" style={{  }}>{displayTotalCount.toLocaleString()}</span>
-              <span className="text-body5 text-neutral-50">)</span></div>
-            </div>
-
-            {/* 2. 테이블 헤더 + 바디 컨테이너 (gap-1) */}
-            <div className="flex flex-1 min-h-0 flex-col gap-2">
-
-              {/* 2-1. Table Header */}
-              <div className="rounded-[16px] w-full flex items-center py-[8px]" style={{ backgroundColor: "rgba(0,0,0,0.6)" }}>
-                <div className="grid grid-cols-4 -gap-1 px-[12px] w-full " style={{ alignItems: "center" }}>
-                  <div className="text-body3m text-neutral-99">Baseline Characteristics</div>
-                  <div/>
-                  <div className="grid grid-cols-[1fr_1fr_1fr]">
-                
-                    <div className="col-span-2 flex flex-col items-end">
-                      <div className="text-body3m text-neutral-99 flex-shrink-0">Full Cohort</div>
-                      <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">N (%) or mean ± sd (min, max)
-                    </div>
-                    </div>
-                        <div />
-                  </div>
-                  <div className="grid grid-cols-[1fr_1fr_1fr]">
-                    
-                    <div className="col-span-2 flex flex-col items-end -gap-1">
-                      <div className="text-body3m text-neutral-99 flex-shrink-0">Filtered Cohort</div>
-                      <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">N (%) or mean ± sd (min, max)</div>
-                    </div>
-                  <div/>
-                  </div>
+              {/* ── 2-1-A. 숫자 요약 행 / Stats summary row ─────────────── */}
+              <div className="flex flex-row h-wrap items-baseline gap-0 px-[4px] flex-shrink-0 justify-end -mt-2">
+                {/* 전체 분석 인원 레이블 / Total analyzed count label */}
+                <div className="h-wrap text-body4 text-neutral-50 pr-[16px]">
+                  Number Analyzed 480 participants
+                </div>
+                {/* 전환율 + 필터/전체 인원 수 / Conversion rate + filtered/total counts */}
+                <div className="h-wrap">
+                  <span className="text-body4 text-neutral-50">{displayConversionPercent}</span>
+                  <span className="text-body4 text-neutral-50">%</span>
+                  <span className="text-body5 text-neutral-50 mx-1">converted</span>
+                  <span className="text-body5 text-neutral-50">(</span>
+                  <span className="text-body5 tabular-nums text-neutral-50">{displayFilteredCount.toLocaleString()}</span>
+                  <span className="text-body5 text-neutral-50">/</span>
+                  <span className="text-body5 tabular-nums text-neutral-50">{displayTotalCount.toLocaleString()}</span>
+                  <span className="text-body5 text-neutral-50">)</span>
                 </div>
               </div>
 
-              {/* 2-2. Table Body */}
-              <div className="relative flex flex-col overflow-y-auto flex-1 min-h-0">
-                <div className="overflow-y-auto flex flex-col gap-2">
-                  {isLoading ? (
-                    <div className="mt-2 flex h-full items-center justify-center">
-                      <div className="text-body3 text-neutral-50">Loading...</div>
-                    </div>
-                  ) : error ? (
-                    <div className="mt-2 flex h-full items-center justify-center">
-                      <div className="text-body3 text-red-500">Error: {error}</div>
-                    </div>
-                  ) : baselineData.length === 0 ? (
-                    <div className="mt-2 flex h-full items-center justify-center">
-                      <div className="text-body3 text-neutral-50">No data available</div>
-                    </div>
-                  ) : (
-                    baselineData.map((category, categoryIndex) => (
-                      <div key={categoryIndex} className="rounded-[16px] bg-white">
-                        <div className="flex flex-col pt-[12px] px-[12px] pb-[8px]">
-                          <div className="border-neutral-80 grid grid-cols-4 h-full items-end border-b gap-0 pb-1">
-                            <div className="flex h-full items-end">
-                              <div className="text-body2 text-neutral-30 items-end">{category.category}</div>
-                            </div>
-                            <div/>
-                            <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
-                              <div className="text-body5m text-right text-neutral-50 items-end ">Value</div>
-                              <div className="text-body5m text-right text-neutral-50 items-end ">Value%</div>
-                              <div/>
-                            </div>
-                            <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
-                              <div className="text-body5m text-right text-primary-50 items-end">Value</div>
-                              <div className="text-body5m text-right text-primary-50 items-end">Value%</div>
-                            </div>
-                          </div>
-                          {category.items.map((item, itemIndex) => {
-                            const isLast = itemIndex === category.items.length - 1;
-                            return (
-                              <div
-                                key={itemIndex}
-                                className={`grid grid-cols-4 h-full pt-2 pb-1 items-center gap-0 ${!isLast ? "border-neutral-80 border-b" : ""}`}
-                              >
-                                <div className="flex h-full items-center">
-                                  <div className="text-body4m text-[#929090]">{item.label}</div>
-                                </div>
-                                <div />
-                                <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
-                                  <div className="text-body4m text-right tabular-nums text-neutral-50">{item.fullCohort.value}</div>
-                                  <div className="text-body4m text-right tabular-nums text-neutral-50">{item.fullCohort.percent}</div>
-                                </div>
-                                <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
-                                  <div className="text-body4m text-right tabular-nums text-primary-50">{item.filteredCohort.value}</div>
-                                  <div className="text-body4m text-right tabular-nums text-primary-50">{item.filteredCohort.percent}</div>
-                                </div>
-                              </div>
-                            );
-                          })}
+              {/* ── 2-1-B. 테이블 헤더 + 바디 / Table header + body ──────── */}
+              <div className="flex flex-1 min-h-0 flex-col gap-2">
+
+                {/* ── 테이블 헤더 행 / Table header row ────────────────── */}
+                <div
+                  className="rounded-[16px] w-full flex items-center py-[8px]"
+                  style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+                >
+                  <div
+                    className="grid grid-cols-4 -gap-1 px-[12px] w-full"
+                    style={{ alignItems: "center" }}
+                  >
+                    {/* 컬럼 1: Baseline Characteristics 레이블 */}
+                    <div className="text-body3m text-neutral-99">Baseline Characteristics</div>
+
+                    {/* 컬럼 2: 빈 공간 */}
+                    <div />
+
+                    {/* 컬럼 3: Full Cohort 헤더 */}
+                    <div className="grid grid-cols-[1fr_1fr_1fr]">
+                      <div className="col-span-2 flex flex-col items-end">
+                        <div className="text-body3m text-neutral-99 flex-shrink-0">Full Cohort</div>
+                        <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">
+                          N (%) or mean ± sd (min, max)
                         </div>
                       </div>
-                    ))
-                  )}
+                      <div />
+                    </div>
+
+                    {/* 컬럼 4: Filtered Cohort 헤더 */}
+                    <div className="grid grid-cols-[1fr_1fr_1fr]">
+                      <div className="col-span-2 flex flex-col items-end -gap-1">
+                        <div className="text-body3m text-neutral-99 flex-shrink-0">Filtered Cohort</div>
+                        <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">
+                          N (%) or mean ± sd (min, max)
+                        </div>
+                      </div>
+                      <div />
+                    </div>
+                  </div>
                 </div>
+
+                {/* ── 테이블 바디 / Table body ─────────────────────────── */}
+                <div className="relative flex flex-col overflow-y-auto flex-1 min-h-0">
+                  <div className="overflow-y-auto flex flex-col gap-2">
+
+                    {/* 로딩 / 에러 / 빈 데이터 / 실제 데이터 분기 렌더링
+                        Loading / Error / Empty / Data conditional rendering */}
+                    {isLoading ? (
+                      <div className="mt-2 flex h-full items-center justify-center">
+                        <div className="text-body3 text-neutral-50">Loading...</div>
+                      </div>
+                    ) : error ? (
+                      <div className="mt-2 flex h-full items-center justify-center">
+                        <div className="text-body3 text-red-500">Error: {error}</div>
+                      </div>
+                    ) : baselineData.length === 0 ? (
+                      <div className="mt-2 flex h-full items-center justify-center">
+                        <div className="text-body3 text-neutral-50">No data available</div>
+                      </div>
+                    ) : (
+                      baselineData.map((category, categoryIndex) => (
+                        /* ── 카테고리 카드 / Category card ── */
+                        <div key={categoryIndex} className="rounded-[16px] bg-white">
+                          <div className="flex flex-col pt-[12px] px-[12px] pb-[8px]">
+
+                            {/* 카테고리 헤더 행 / Category header row */}
+                            <div className="border-neutral-80 grid grid-cols-4 h-full items-end border-b gap-0 pb-1">
+                              <div className="flex h-full items-end">
+                                <div className="text-body2 text-neutral-30 items-end">{category.category}</div>
+                              </div>
+                              <div />
+                              <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
+                                <div className="text-body5m text-right text-neutral-50 items-end">Value</div>
+                                <div className="text-body5m text-right text-neutral-50 items-end">Value%</div>
+                                <div />
+                              </div>
+                              <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
+                                <div className="text-body5m text-right text-primary-50 items-end">Value</div>
+                                <div className="text-body5m text-right text-primary-50 items-end">Value%</div>
+                              </div>
+                            </div>
+
+                            {/* 카테고리 아이템 행들 / Category item rows */}
+                            {category.items.map((item, itemIndex) => {
+                              const isLast = itemIndex === category.items.length - 1;
+                              return (
+                                <div
+                                  key={itemIndex}
+                                  className={`grid grid-cols-4 h-full pt-2 pb-1 items-center gap-0 ${
+                                    !isLast ? "border-neutral-80 border-b" : ""
+                                  }`}
+                                >
+                                  {/* 아이템 레이블 / Item label */}
+                                  <div className="flex h-full items-center">
+                                    <div className="text-body4m text-[#929090]">{item.label}</div>
+                                  </div>
+                                  <div />
+
+                                  {/* Full Cohort 값 / Full cohort values */}
+                                  <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
+                                    <div className="text-body4m text-right tabular-nums text-neutral-50">
+                                      {item.fullCohort.value}
+                                    </div>
+                                    <div className="text-body4m text-right tabular-nums text-neutral-50">
+                                      {item.fullCohort.percent}
+                                    </div>
+                                  </div>
+
+                                  {/* Filtered Cohort 값 / Filtered cohort values */}
+                                  <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
+                                    <div className="text-body4m text-right tabular-nums text-primary-50">
+                                      {item.filteredCohort.value}
+                                    </div>
+                                    <div className="text-body4m text-right tabular-nums text-primary-50">
+                                      {item.filteredCohort.percent}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+
+                          </div>
+                        </div>
+                      ))
+                    )}
+
+                  </div>
+                </div>
+                {/* ── 테이블 영역 닫기 / End table area ── */}
+
               </div>
+            </div>
+            {/* ── 2-1. 글래스 카드 닫기 / End glass card ── */}
 
-            </div>{/* 2. gap-1 컨테이너 닫기 */}
+            {/* ── 2-2. 하단 버튼 영역 / Bottom action buttons ──────────────── */}
+            <div
+              className="flex flex-shrink-0 items-center justify-end gap-4"
+              style={{ paddingRight: 8 }}
+            >
+              {/* Save Simulation 버튼 → 모달 열기 / Opens save modal */}
+              <button
+                type="button"
+                className="btn-tsi btn-tsi-secondary"
+                onClick={() => setShowSaveModal(true)}
+              >
+                Save Simulation
+              </button>
 
-          </div>{/* 2-1. 글래스 컨테이너 닫기 */}
+              {/* Identify Subgroup 버튼 → Basis Selection 이동 / Navigate to Basis Selection */}
+              <button
+                type="button"
+                onClick={handleGoToBasisSelection}
+                className="btn-tsi btn-tsi-primary"
+                style={{ paddingRight: 18, gap: 8 }}
+              >
+                Identify Subgroup
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{ flexShrink: 0 }}
+                >
+                  <path d="M4 3L13 8L4 13V3Z" fill="white" />
+                </svg>
+              </button>
+            </div>
 
-          {/* 2-2. 버튼 컨테이너 */}
-          <div className="flex flex-shrink-0 items-center justify-end gap-4" style={{ paddingRight: 8 }}>
-            <button type="button" className="btn-tsi btn-tsi-secondary" onClick={() => setShowSaveModal(true)}>
-              Save Simulation
-            </button>
-            <button type="button" onClick={handleGoToBasisSelection} className="btn-tsi btn-tsi-primary" style={{ paddingRight: 18, gap: 8 }}>
-              Identify Subgroup
-              <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                <path d="M4 3L13 8L4 13V3Z" fill="white"/>
-              </svg>
-            </button>
           </div>
+          {/* ── 2. 카드 + 버튼 컨테이너 닫기 / End card + button container ── */}
 
-          </div>{/* 2. gap-0 컨테이너 닫기 */}
+        </div>
+        {/* ── 메인 컨테이너 닫기 / End main container ── */}
 
-        </div>{/* 메인 컨테이너 닫기 */}
+      </div>
+      {/* ── 외부 래퍼 닫기 / End outer wrapper ── */}
 
-      </div>{/* 외부 래퍼 닫기 */}
-
-      {/* Save Simulation 모달 */}
+      {/* ── Save Simulation 모달 / Save Simulation modal ──────────────────── */}
       {showSaveModal && (
         <div
-          style={{ position: "fixed",  inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0, 0, 0, 0.4)", backdropFilter: "blur(4px)" }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0, 0, 0, 0.4)",
+            backdropFilter: "blur(4px)",
+          }}
           onClick={() => setShowSaveModal(false)}
         >
+          {/* 모달 카드 (클릭 버블링 방지) / Modal card (stop propagation) */}
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: "relative", width: "480px", borderRadius: "24px", padding: "20px", display: "flex", flexDirection: "column", gap: "36px", overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+            style={{
+              position: "relative",
+              width: "480px",
+              borderRadius: "24px",
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "36px",
+              overflow: "hidden",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
+            }}
           >
-            <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: "24px", pointerEvents: "none" }}>
+
+            {/* 글래스모피즘 배경 레이어 / Glassmorphism background layers */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "24px",
+                pointerEvents: "none",
+              }}
+            >
               <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
               <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(255,255,255,0.88)" }} />
               <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
             </div>
+
+            {/* 모달 폼 필드 / Modal form fields */}
             <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
+
+              {/* Study Title 입력 / Study Title input */}
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Study Title</p>
-                <input type="text" value={simName} onChange={(e) => setSimName(e.target.value)} placeholder="Write a title"
-                  style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", background: "none", border: "none", outline: "none", padding: 0, width: "100%" }} />
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+                  Study Title
+                </p>
+                <input
+                  type="text"
+                  value={simName}
+                  onChange={(e) => setSimName(e.target.value)}
+                  placeholder="Write a title"
+                  style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", background: "none", border: "none", outline: "none", padding: 0, width: "100%" }}
+                />
               </div>
+
+              {/* Date 표시 (자동) / Date display (auto) */}
               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Date</p>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+                  Date
+                </p>
                 <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
                   {new Date().toISOString().replace("T", " ").slice(0, 19)}
                 </p>
               </div>
-               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Version</p>
+
+              {/* Version 표시 / Version display */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+                  Version
+                </p>
                 <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
                   v 1.1
                 </p>
               </div>
+
+              {/* Description 입력 (최대 30자) / Description input (max 30 chars) */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>Description</p>
+                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+                  Description
+                </p>
                 <div style={{ background: "#d9d9d9", borderRadius: "12px", padding: "0 20px", height: "36px", display: "flex", alignItems: "center" }}>
-                  <input type="text" value={simDesc} onChange={(e) => setSimDesc(e.target.value.slice(0, 30))} placeholder="Please enter a description."
-                    style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "19.5px", color: "#787776", letterSpacing: "-0.585px", background: "none", border: "none", outline: "none", width: "100%" }} />
+                  <input
+                    type="text"
+                    value={simDesc}
+                    onChange={(e) => setSimDesc(e.target.value.slice(0, 30))}
+                    placeholder="Please enter a description."
+                    style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "19.5px", color: "#787776", letterSpacing: "-0.585px", background: "none", border: "none", outline: "none", width: "100%" }}
+                  />
                 </div>
               </div>
+
             </div>
+
+            {/* 모달 버튼 영역 / Modal action buttons */}
             <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "12px", justifyContent: "center" }}>
-              <button type="button" onClick={() => setShowSaveModal(false)}
-                style={{ width: "180px", height: "48px", borderRadius: "36px", border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#231f52", letterSpacing: "-0.51px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+              {/* Close 버튼 / Close button */}
+              <button
+                type="button"
+                onClick={() => setShowSaveModal(false)}
+                style={{ width: "180px", height: "48px", borderRadius: "36px", border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#231f52", letterSpacing: "-0.51px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}
+              >
                 Close
               </button>
-              <button type="button" onClick={() => setShowSaveModal(false)}
-                style={{ width: "180px", height: "48px", borderRadius: "36px", border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#ffffff", letterSpacing: "-0.51px", background: "#231f52", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)" }}>
+              {/* Save 버튼 / Save button */}
+              <button
+                type="button"
+                onClick={() => setShowSaveModal(false)}
+                style={{ width: "180px", height: "48px", borderRadius: "36px", border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#ffffff", letterSpacing: "-0.51px", background: "#231f52", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)" }}
+              >
                 Save
               </button>
             </div>
+
           </div>
         </div>
       )}
+      {/* ── Save 모달 닫기 / End Save modal ── */}
+
     </AppLayout>
   );
 }

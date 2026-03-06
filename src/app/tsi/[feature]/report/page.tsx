@@ -605,14 +605,14 @@ function TSIReportPageContent() {
           </div>
       {/* 리포트 배경 카드 */}
         <div
-          className="flex h-wrap flex-shrink-0 flex-col overflow-hidden rounded-[36px]"
-          style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", padding: "4px 12px 24px" }}
+          className="flex h-wrap flex-shrink-0 flex-col rounded-[36px] gap-8"
+          style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent" }}
         >
           {/* 리포트 내용 영역 */}
           <div className="flex flex-1 flex-col h-wrap-content">
             {/* 첫 번째 섹션: Stratification Strategy Comparison (150px y부터, 1748px 너비, 962px 높이) */}
             <div className="mx-auto mb-[24px] w-full max-w-full min-w-0 flex-shrink-0 ">
-              <div className="flex h-full w-full flex-col">
+            
                 {/* 섹션 제목 */}
                 <h2 className="flex w-full text-h4 text-[#26225B] mb-[24px]  flex-shrink-0" style={{ paddingTop: "4px", paddingLeft: "4px" }}>
                   Stratification Strategy Comparison
@@ -690,7 +690,7 @@ function TSIReportPageContent() {
                 <h2 className="text-h4 text-[#26225B] mb-[24px] ml-[4px] flex-shrink-0">
                   Stratification Strategy Comparison
                 </h2>
-                <div className="border-neutral-90 flex h-[562px] w-full flex-col rounded-[24px] border bg-white/60 p-4">
+                <div className="flex h-[562px] w-full flex-col overflow-visible rounded-[24px] bg-white/60 p-4">
                   {modelComparisonData && featureComparisonData ? (
                     <>
                       {/* 텍스트 영역 */}
@@ -704,46 +704,26 @@ function TSIReportPageContent() {
                       {/* 두 개의 차트 섹션 */}
                       <div className="mt-auto flex w-full flex-shrink-0 gap-0">
                         {/* 첫 번째 차트 섹션 */}
-                        <div className="flex h-[378px] flex-1 min-w-0 flex-col items-start gap-[10px] p-[6px]">
-                          <div className="flex h-full w-full flex-col rounded-[16px] bg-[#FFFFFF] p-4">
-                            <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
-                              <div className="flex min-h-0 flex-col">
+                        <div className="flex h-[378px] flex-1 min-w-0 flex-col items-start gap-[10px] overflow-visible p-[6px]">
+                          <div className="flex h-full w-full flex-col overflow-visible rounded-[16px] bg-[#FFFFFF] p-4">
+                            <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-visible">
+                              <div className="flex min-h-0 flex-col overflow-visible">
                                 <h4 className="text-xl font-semibold text-[#484646]">
                                   Variance decomposition
                                 </h4>
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
-                                <div className="mt-2 min-h-0 flex-1">
+                                <div className="mt-2 overflow-visible" style={{ height: 260 }}>
                                   <TSIStackedVarianceChart data={modelComparisonData.stack} />
-                                </div>
-                                <div className="mt-1 flex flex-shrink-0 items-center justify-center gap-8">
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{
-                                        backgroundColor: modelComparisonData.stack.withinColor,
-                                      }}
-                                    />
-                                    <span className="text-small1 text-[#1C1B1C]">Within</span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{
-                                        backgroundColor: modelComparisonData.stack.explainedColor,
-                                      }}
-                                    />
-                                    <span className="text-small1 text-[#1C1B1C]">Explained</span>
-                                  </div>
                                 </div>
                               </div>
 
-                              <div className="flex min-h-0 flex-col">
+                              <div className="flex min-h-0 flex-col overflow-visible">
                                 <h4 className="text-xl font-semibold text-[#484646]">
                                   Within-group variance
                                 </h4>
 
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
-                                <div className="mt-2 min-h-0 flex-1">
+                                <div className="mt-2 overflow-visible" style={{ height: 260 }}>
                                   <TSIVarianceByGroupBarChart data={modelComparisonData.bars} />
                                 </div>
                               </div>
@@ -751,10 +731,10 @@ function TSIReportPageContent() {
                           </div>
                         </div>
                         {/* 두 번째 차트 섹션 */}
-                        <div className="flex h-[378px] flex-1 min-w-0 flex-col items-start gap-[10px] p-[6px]">
-                          <div className="flex h-full w-full flex-col rounded-[16px] bg-[#FFFFFF] p-4">
-                            <div className="grid min-h-0 flex-1 grid-cols-2 gap-4">
-                              <div className="flex min-h-0 flex-col">
+                        <div className="flex h-[378px] flex-1 min-w-0 flex-col items-start gap-[10px] overflow-visible p-[6px]">
+                          <div className="flex h-full w-full flex-col overflow-visible rounded-[16px] bg-[#FFFFFF] p-4">
+                            <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-visible">
+                              <div className="flex min-h-0 flex-col overflow-visible">
                                 <div className="text-[10px] font-medium text-[#484646]">
                                   Separation evidence
                                 </div>
@@ -763,12 +743,12 @@ function TSIReportPageContent() {
                                 </h4>
 
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
-                                <div className="mt-2 min-h-0 flex-1">
+                                <div className="mt-2 overflow-visible" style={{ height: 260 }}>
                                   <TSIVarianceByGroupBarChart data={featureComparisonData.bars} />
                                 </div>
                               </div>
 
-                              <div className="flex min-h-0 flex-col">
+                              <div className="flex min-h-0 flex-col overflow-visible">
                                 <div className="text-[10px] font-medium text-[#484646]">
                                   Separation evidence
                                 </div>
@@ -776,28 +756,8 @@ function TSIReportPageContent() {
                                   Within-group variance by subgroup
                                 </h4>
                                 <div className="mt-2 h-px flex-shrink-0 bg-[#A9A8B2]" />
-                                <div className="mt-2 min-h-0 flex-1">
+                                <div className="mt-2 overflow-visible" style={{ height: 260 }}>
                                   <TSIStackedVarianceChart data={featureComparisonData.stack} />
-                                </div>
-                                <div className="mt-1 flex flex-shrink-0 items-center justify-center gap-8">
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{
-                                        backgroundColor: featureComparisonData.stack.withinColor,
-                                      }}
-                                    />
-                                    <span className="text-small1 text-[#1C1B1C]">Within</span>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <span
-                                      className="h-[14px] w-[48px] rounded-[5px]"
-                                      style={{
-                                        backgroundColor: featureComparisonData.stack.explainedColor,
-                                      }}
-                                    />
-                                    <span className="text-small1 text-[#1C1B1C]">Explained</span>
-                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -823,12 +783,12 @@ function TSIReportPageContent() {
                 <h2 className="text-h4 text-[#26225B] mb-[24px] ml-[4px] flex-shrink-0">
                   Risk & Response Assessment
                 </h2>
-                <div className="border-neutral-90 flex min-h-[322px] w-full gap-4 rounded-[24px] border bg-white/60 p-4">
+                <div className="flex min-h-[322px] w-full gap-4 rounded-[24px] bg-white/60 p-4">
                   {/* 왼쪽: 타이틀 영역 */}
                   <div className="flex min-h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
                     <div className="flex w-full flex-col items-start gap-[24px]">
-                      <h3 className="text-body2m text-neutral-5">{riskOverview.title}</h3>
-                      <p className="text-body5 text-neutral-40 whitespace-pre-line">
+                      <h3 className="text-body2 text-neutral-5">{riskOverview.title}</h3>
+                      <p className="text-body5 text-neutral-50 whitespace-pre-line">
                         {riskOverview.description}
                       </p>
                     </div>
@@ -837,7 +797,7 @@ function TSIReportPageContent() {
                   {/* 오른쪽: 포레스트 플롯 */}
                   <div className="flex min-w-0 flex-1">
                     {hasRiskResponseData ? (
-                      <div className="min-w-0 w-full flex-1 overflow-hidden rounded-[16px] border border-[#E5E4EA] bg-[#FFFFFF] p-4">
+                      <div className="min-w-0 w-full flex-1 overflow-hidden rounded-[16px] bg-[#FFFFFF] p-4">
                         <div className="flex min-h-0 w-full flex-col">
                           {riskResponseSets.map((setData, setIdx) => (
                             <div
@@ -898,7 +858,7 @@ function TSIReportPageContent() {
         </div>
 
         {/* 하단 우측 CTA */}
-        <div className="flex items-center justify-end py-6 flex-shrink-0 pr-[12px]">
+        <div className="flex items-center justify-end p flex-shrink-0 pr-[12px]">
           <div className="flex gap-4">
             <button
               type="button"
@@ -929,7 +889,6 @@ function TSIReportPageContent() {
             </button>
           </div>
         </div>
-      </div>
     </AppLayout>
   );
 }

@@ -39,10 +39,11 @@ export default function RadioButton({
         {checked && (
           <div
             style={{
-              width: "6px",
-              height: "6px",
+              width: `${Math.max(5, Math.round(size * 0.43))}px`,
+              height: `${Math.max(5, Math.round(size * 0.43))}px`,
               borderRadius: "50%",
               background: "#fff",
+              flexShrink: 0,
             }}
           />
         )}

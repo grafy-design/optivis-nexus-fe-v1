@@ -17,10 +17,10 @@ interface RefineCutoffChartEditorProps {
 
 type CdfPoint = [x: number, y: number];
 
-const GRID_LEFT = 30;
-const GRID_RIGHT = 25;
-const GRID_TOP = 20;
-const GRID_BOTTOM = 30;
+const GRID_LEFT = 24;
+const GRID_RIGHT = 8;
+const GRID_TOP = 4;
+const GRID_BOTTOM = 14;
 const CHART_HEIGHT = 400;
 const PLOT_HEIGHT = CHART_HEIGHT - GRID_TOP - GRID_BOTTOM;
 const EPSILON = 1e-6;
@@ -376,7 +376,7 @@ export function RefineCutoffChartEditor({
         type: "value",
         name: chartFeatureKey || outcomeKey || "Safety Score",
         nameLocation: "middle",
-        nameGap: 25,
+        nameGap: 10,
         min: xAxisBounds.min,
         max: xAxisBounds.max,
         splitNumber: 6,
@@ -385,15 +385,17 @@ export function RefineCutoffChartEditor({
         axisTick: { show: false, alignWithLabel: false },
         minorTick: { show: false },
         axisLabel: {
-          color: "#333",
-          fontSize: 9,
+          color: "#787776",
+          fontSize: 10,
+          fontWeight: 500,
           showMinLabel: true,
           showMaxLabel: true,
           fontFamily: "Inter",
+          formatter: (value: number) => value.toFixed(0),
         },
         nameTextStyle: {
-          color: "#333",
-          fontSize: 15,
+          color: "#484646",
+          fontSize: 12,
           fontWeight: 600,
           fontFamily: "Inter",
         },
@@ -402,23 +404,24 @@ export function RefineCutoffChartEditor({
         type: "value",
         name: "cumulative proportion",
         nameLocation: "middle",
-        nameGap: 30,
+        nameGap: 22,
         nameRotate: 90,
         min: 0,
         max: 100,
         interval: 10,
         splitLine: { show: false },
+        axisTick: { show: true },
         axisLine: {
           show: true,
           onZero: false,
-          lineStyle: { color: "#666" },
+          lineStyle: { color: "#787776" },
           symbol: ["none", "arrow"],
           symbolSize: [0, 8],
         },
-        axisLabel: { color: "#333", fontSize: 9, fontFamily: "Inter" },
+        axisLabel: { color: "#787776", fontSize: 10, fontWeight: 500, fontFamily: "Inter", formatter: (value: number) => value.toFixed(0) },
         nameTextStyle: {
-          color: "#333",
-          fontSize: 15,
+          color: "#484646",
+          fontSize: 12,
           fontWeight: 600,
           fontFamily: "Inter",
         },
@@ -568,7 +571,7 @@ export function RefineCutoffChartEditor({
             [xAxisBounds.min, 0],
             [xAxisBounds.max, 0],
           ],
-          lineStyle: { color: "#666", width: 1 },
+          lineStyle: { color: "#787776", width: 1 },
           symbol: ["none", "arrow"],
           symbolSize: [0, 8],
           z: 5,
