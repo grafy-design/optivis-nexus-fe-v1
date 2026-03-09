@@ -380,15 +380,15 @@ function TSISubgroupExplainPageContent() {
                 <div className="flex min-h-0 flex-1 flex-col py-3 px-3">
 
                   {/* 테이블 헤더 / Table header */}
-                  <div className="border-neutral-80 flex min-h-[24px] flex-shrink-0 items-center border-b py-2 [@media(max-width:1470px)]:pb-1 -mt-2">
+                  <div className="border-neutral-80 flex min-h-[24px] flex-shrink-0 items-center border-b py-2 pr-3 [@media(max-width:1470px)]:pb-1 -mt-2">
                     <div className="text-body5 text-neutral-30 flex-[3] min-w-0 shrink-0">Rank</div>
                     <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">Feature name</div>
-                    <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
-                      Max Variance Reduc&shy;tion(△▽)
+                      <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight" style={{ lineHeight: "110%" }}>Max Variance Reduc&shy;tion (ΔV)
                     </div>
                     <div className="text-body5 text-neutral-30 flex-[5] min-w-0 shrink-0 leading-tight">Contri&shy;bution</div>
-                    <div className="text-body5 text-neutral-30 flex-[7] min-w-0 shrink-0 leading-tight">
-                      Cutoff (Auto-derived)
+                    <div className="flex-[7] min-w-0 shrink-0">
+                      <div className="text-body5 text-neutral-30 leading-tight">Cutoff</div>
+                      <div className="text-small2 text-neutral-50 leading-tight">Auto-derived</div>
                     </div>
                   </div>
 
@@ -459,7 +459,7 @@ function TSISubgroupExplainPageContent() {
                       <div className="flex min-w-0 min-h-0 flex-[7] flex-col">
                         <div className="flex w-full flex-col rounded-[16px] bg-white p-3 gap-6">
                           <h3 className="text-body5m text-neutral-50 flex-shrink-0 text-center">
-                            {`Baseline Features Explaining △${resultData?.outcome ?? "ADAS-Cog"}`}
+                            {`Baseline Features Explaining Δ${resultData?.outcome ?? "ADAS-Cog"}`}
                           </h3>
                           <div
                             className="flex w-full rounded-[12px] bg-white"
@@ -517,7 +517,7 @@ function TSISubgroupExplainPageContent() {
                   {/* 왼쪽 피처 목록 카드 / Left feature list card */}
                   <div
                     className="flex flex-[2] flex-col overflow-hidden rounded-[24px] bg-white"
-                    style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
+                
                   >
                     <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                       {featureList.map((feature, index) => (
@@ -525,7 +525,7 @@ function TSISubgroupExplainPageContent() {
                           unstyled
                           key={feature}
                           onClick={() => setSelectedFeature(feature)}
-                          className={`text-body4 flex h-[48px] w-full items-center gap-[10px] self-stretch px-[12px] py-[12px] transition-colors focus:outline-none ${
+                          className={`text-body4m flex h-[48px] w-full items-center gap-[10px] self-stretch px-[12px] py-[12px] transition-colors focus:outline-none ${
                             index < featureList.length - 1 ? "border-neutral-90 border-b" : ""
                           } ${
                             selectedFeature === feature
@@ -585,7 +585,7 @@ function TSISubgroupExplainPageContent() {
                     </div>
 
                     {/* 피처별 설명 텍스트 / Feature-level description text */}
-                    <div className="flex min-w-0 flex-[3] flex-col justify-start d">
+                    <div className="flex min-w-0 flex-[3] flex-col justify-start">
                       <ul className="flex list-disc flex-col gap-3 pl-4 text-white">
                         {featureMessageItems.map((item, index) => (
                           <li
@@ -615,7 +615,7 @@ function TSISubgroupExplainPageContent() {
 
           {/* ── 2-B. 하단 버튼 영역 / Bottom action buttons ─────────────── */}
           <div
-            className="flex flex-shrink-0 items-center justify-end gap-4"
+            className="flex flex-shrink-0 items-center justify-end gap-3"
             style={{ paddingRight: 8 }}
           >
             {/* Save Progress 버튼 / Save Progress button */}

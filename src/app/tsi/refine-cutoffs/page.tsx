@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
 import Select from "@/components/ui/select";
@@ -67,7 +67,7 @@ type GroupMeta = {
 };
 
 // ── 그룹 색상 / Group colors ──────────────────────────────────────────────────
-const DEFAULT_GROUP_COLORS = ["#f97316", "#919092", "#3A11D8", "#14A38B", "#E04A7A"];
+const DEFAULT_GROUP_COLORS = ["#f97316", "#919092", "#262255", "#14A38B", "#E04A7A"];
 
 /**
  * 그룹 수에 따라 색상 배열 반환
@@ -75,9 +75,9 @@ const DEFAULT_GROUP_COLORS = ["#f97316", "#919092", "#3A11D8", "#14A38B", "#E04A
  */
 const resolveGroupColors = (groupCount: number): string[] => {
   if (groupCount <= 0) return [];
-  if (groupCount === 1) return ["#3A11D8"];
-  if (groupCount === 2) return ["#f97316", "#3A11D8"];
-  if (groupCount === 3) return ["#f97316", "#919092", "#3A11D8"];
+  if (groupCount === 1) return ["#262255"];
+  if (groupCount === 2) return ["#f97316", "#262255"];
+  if (groupCount === 3) return ["#f97316", "#919092", "#262255"];
   return Array.from(
     { length: groupCount },
     (_, index) => DEFAULT_GROUP_COLORS[index % DEFAULT_GROUP_COLORS.length]
@@ -319,12 +319,12 @@ const buildTableGroupRows = (cutoffs: CutoffPoint[], xValues: number[]): TableGr
         groupName: "Group 1",
         color: "#f97316",
         patientsN: left,
-        xLabel: `X<=${c1.x.toFixed(2)}`,
-        yLabel: `Y<=${toPercentLabel(c1.y)}`,
+        xLabel: `X≤${c1.x.toFixed(2)}`,
+        yLabel: `Y≤${toPercentLabel(c1.y)}`,
       },
       {
         groupName: "Group 2",
-        color: "#3A11D8",
+        color: "#262255",
         patientsN: right,
         xLabel: `X>${c1.x.toFixed(2)}`,
         yLabel: `Y>${toPercentLabel(c1.y)}`,
@@ -342,19 +342,19 @@ const buildTableGroupRows = (cutoffs: CutoffPoint[], xValues: number[]): TableGr
       groupName: "Group 1",
       color: "#f97316",
       patientsN: left,
-      xLabel: `X<=${c1.x.toFixed(2)}`,
-      yLabel: `Y<=${toPercentLabel(c1.y)}`,
+      xLabel: `X≤${c1.x.toFixed(2)}`,
+      yLabel: `Y≤${toPercentLabel(c1.y)}`,
     },
     {
       groupName: "Group 2",
       color: "#919092",
       patientsN: middle,
-      xLabel: `X>${c1.x.toFixed(2)} && X<=${c2.x.toFixed(2)}`,
-      yLabel: `Y>${toPercentLabel(c1.y)} && Y<=${toPercentLabel(c2.y)}`,
+      xLabel: `X>${c1.x.toFixed(2)} && X≤${c2.x.toFixed(2)}`,
+      yLabel: `Y>${toPercentLabel(c1.y)} && Y≤${toPercentLabel(c2.y)}`,
     },
     {
       groupName: "Group 3",
-      color: "#3A11D8",
+      color: "#262255",
       patientsN: right,
       xLabel: `X>${c2.x.toFixed(2)}`,
       yLabel: `Y>${toPercentLabel(c2.y)}`,
@@ -493,6 +493,7 @@ const buildSetOneChartData = (
  */
 function TSIRefineCutoffsPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [titleFontSize, setTitleFontSize] = useState(42);
   useEffect(() => {
     const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
@@ -542,6 +543,7 @@ function TSIRefineCutoffsPageContent() {
   // ── 버튼 활성화 단계 상태 / Button activation stage state ─────────────────
   const [hasAppliedCriteria, setHasAppliedCriteria] = useState(false);
   const [hasGeneratedSubgroups, setHasGeneratedSubgroups] = useState(false);
+  const [hasEverMovedMonth, setHasEverMovedMonth] = useState(false);
 
   // ── API 응답 데이터 상태 / API response data state ────────────────────────
   const [featureInfoData, setFeatureInfoData] = useState<IdentificationFeatureInfoData | null>(null);
@@ -720,8 +722,8 @@ function TSIRefineCutoffsPageContent() {
         groupName: meta?.label ?? formatGroupLabel(row.group, index),
         color: meta?.color ?? fallbackColors[index] ?? DEFAULT_GROUP_COLORS[index],
         patientsN: row.patient_number,
-        xLabel: row.delta_outcome,
-        yLabel: row.cumulative_proportion,
+        xLabel: (row.delta_outcome ?? "").replace(/<=/g, "≤").replace(/>=/g, "≥"),
+        yLabel: (row.cumulative_proportion ?? "").replace(/<=/g, "≤").replace(/>=/g, "≥"),
       };
     });
   }, [setInfoData, setInfoGroupMetaByKey]);
@@ -853,7 +855,7 @@ function TSIRefineCutoffsPageContent() {
           boundaries,
           colors: Array.from(
             { length: segmentCount },
-            (_, index) => activeGroupMeta[index]?.color ?? fallbackColors[index] ?? "#3A11D8"
+            (_, index) => activeGroupMeta[index]?.color ?? fallbackColors[index] ?? "#262255"
           ),
           labels: Array.from(
             { length: segmentCount },
@@ -1075,6 +1077,7 @@ function TSIRefineCutoffsPageContent() {
         requestParams.cutoffX,
         requestParams.cutoffY
       );
+      router.push("/tsi/subgroup-selection");
     } finally {
       setIsLoading(false);
     }
@@ -1214,7 +1217,7 @@ function TSIRefineCutoffsPageContent() {
 
                           {/* 슬라이더 핸들 (드래그 가능) / Slider handle (draggable) */}
                           <div
-                            className="absolute top-1/2 h-[24px] w-[24px] -translate-y-1/2 cursor-grab rounded-full border border-[#e2e1e5] bg-[#fcf8f8] shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-[#f9f8fc] active:cursor-grabbing active:bg-[#efeff4]"
+                            className="absolute top-1/2 h-[24px] w-[24px] -translate-y-1/2 cursor-grab rounded-full border border-[#e2e1e5] bg-[#fcf8f8] shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-[#f9f8fc] active:cursor-grabbing active:bg-[#efeff4] active:border-[#b0afb8]"
                             style={{
                               left: `calc(${Math.max(0, Math.min(100, monthPercentage))}% - 12px)`,
                             }}
@@ -1241,6 +1244,7 @@ function TSIRefineCutoffsPageContent() {
                                 const rawMonth = minMonth + (percentage / 100) * (maxMonth - minMonth);
                                 const nextMonth = findClosestMonthMark(rawMonth, monthMarks);
                                 setStratificationMonth(nextMonth);
+                                setHasEverMovedMonth(true);
                               };
                               const handleMouseUp = (upEvent: MouseEvent) => {
                                 upEvent.preventDefault();
@@ -1306,12 +1310,14 @@ function TSIRefineCutoffsPageContent() {
                       <Select
                         value={effectivePendingStratificationMonth.toString()}
                         options={monthMarks.map((month) => month.toString())}
-                        onChange={(value) =>
+                        onChange={(value) => {
                           setStratificationMonth(
                             findClosestMonthMark(Number.parseInt(value, 10), monthMarks)
-                          )
+                          );
+                          setHasEverMovedMonth(true);
                         }
-                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-5 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[8px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-[6px] [&>button>span]:text-left [&>button>span]:font-semibold [&>button>svg]:flex-shrink-0"
+                        }
+                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-50 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[8px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-[6px] [&>button>span]:text-left [&>button>span]:font-semibold [&>button>svg]:flex-shrink-0"
                       />
                     </div>
                   </div>
@@ -1320,14 +1326,11 @@ function TSIRefineCutoffsPageContent() {
                 {/* Apply Criteria 버튼 (월 변경 시 활성) / Apply Criteria button (active when month changed) */}
                 <button
                   onClick={handleClickApplyCriteria}
-                  disabled={!isMonthDirty && !hasAppliedCriteria}
+                  disabled={!hasEverMovedMonth && !hasAppliedCriteria}
                   className="btn-tsi btn-tsi-primary whitespace-nowrap"
                   style={{
                     marginTop: "auto",
                     marginLeft: "auto",
-                    height: 30,
-                    fontSize: 13,
-                    letterSpacing: "-0.39px",
                   }}
                 >
                   Apply Criteria
@@ -1418,7 +1421,7 @@ function TSIRefineCutoffsPageContent() {
                           errorBarCapHalfWidth={chartErrorBarCapHalfWidth}
                           height="100%"
                           sizeVariant="S"
-                          grid={{ left: 20, right: 8, top: 2, bottom: 14 }}
+                          grid={{ left: 22, right: 8, top: 2, bottom: 14 }}
                           xAxis={{ min: 0, max: diseaseXAxisMax, interval: 3, name: "Month", nameGap: 18, onZero: false, alignEdgeLabels: true }}
                           yAxis={{ min: diseaseYAxisRange.min, max: diseaseYAxisRange.max, name: "Disease progression score", nameGap: 28, showLabels: true, showTick: true, zeroLineColor: "#c7c5c9", alignEdgeLabels: true }}
                           guideLineX={diseaseXAxisMax / 2}
@@ -1462,11 +1465,11 @@ function TSIRefineCutoffsPageContent() {
 
                     {/* 테이블 헤더 / Table header */}
                     <div className="border-neutral-50 flex h-wrap flex-shrink-0 items-center gap-4 border-b pb-[8px]">
-                      <div className="text-body4 text-neutral-30 flex-[8] font-semibold">no.</div>
-                      <div className="text-body4 text-neutral-30 flex-[24] font-semibold">Group</div>
-                      <div className="text-body4 text-neutral-30 flex-[18] font-semibold">Patients N</div>
-                      <div className="text-body4 text-neutral-30 flex-[29] font-semibold">△ Outcome (x)</div>
-                      <div className="text-body4 text-neutral-30 flex-[21] font-semibold">
+                      <div className="text-body4 text-primary-15 flex-[8] font-semibold">no.</div>
+                      <div className="text-body4 text-primary-15 flex-[24] font-semibold">Group</div>
+                      <div className="text-body4 text-primary-15 flex-[18] font-semibold">Patients N</div>
+                      <div className="text-body4 text-primary-15 flex-[29] font-semibold"> Δ Outcome (x)</div>
+                      <div className="text-body4 text-primary-15 flex-[21] font-semibold">
                         cumulative proportion (y)
                       </div>
                     </div>
@@ -1515,6 +1518,7 @@ function TSIRefineCutoffsPageContent() {
                 </button>
                 {/* Save As 버튼 / Save As button */}
                 <button
+                  onClick={() => router.push("/tsi/subgroup-selection")}
                   disabled={!hasGeneratedSubgroups}
                   className="btn-tsi btn-tsi-primary"
                 >

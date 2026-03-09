@@ -203,6 +203,151 @@
   --secondary: #f46904;
   --background: #e7e5e7;
   --BG: linear-gradient(0deg, rgba(227, 225, 225, 0.45) 0%, rgba(227, 225, 225, 0.45) 100%), linear-gradient(0deg, #E0E5FE 0%, #F7F8FA 100%);
+
+  /* ── 시멘틱 토큰 (Design Tokens / Mode 1) ──────────────────── */
+
+  /* Skeleton */
+  --skeleton: #E2E1E5;
+
+  /* Title */
+  --title-default: #262625;
+  --title-accent: #F06600;
+  --title-inverted: #FFFFFF;
+
+  /* Text */
+  --text-primary: #484646;
+  --text-accent: #262625;
+  --text-secondary: #787776;
+  --text-active: #3A11D8;
+  --text-error-major: #FF5449;
+  --text-error-dark: #DE3730;
+  --text-disabled: #C6C5C9;
+  --text-inverted: #FFFFFF;
+
+  /* Border */
+  --border-body: #C6C5C9;
+  --border-title-primary: #484646;
+  --border-title-divider: #E2E1E5;
+  --border-selected: #4013EE;
+  --border-title-secondary: #E2E1E5;
+  --chart-border: #787776;
+
+  /* Icon */
+  --icon-primary: #787776;
+  --icon-inverted: #FFFFFF;
+  --icon-secondary: #AAAAAD;
+  --icon-disabled: #AAAAAD;
+  --icon-on-button: #262255;
+
+  /* Table */
+  --table-background: #FFFFFF;
+  --table-selected: #F3EEFF;
+  --table-text-head-column: #484646;
+  --table-text-head-row: #787776;
+  --table-text-body: #787776;
+  --table-head-column-secondary: #262255;
+  --table-text-index-primary: #484646;
+  --table-text-index-secondary: #787776;
+
+  /* Chart - Axis */
+  --chart-axis-border: #787776;
+  --chart-gridlines: #F9F8FC;
+  --chart-y-reference-line: #FFFFFF;
+
+  /* Chart - Set00 (Traditional / Optivis) */
+  --chart-set00-traditional: #262255;
+  --chart-set00-optivis: #F06600;
+  --chart-set00-traditional-active: #3A11D8;
+  --chart-set00-optivis-active: #F06600;
+
+  /* Chart - Set01 */
+  --chart-set01-group01: #F06600;
+  --chart-set01-group02: #262255;
+  --chart-set01-group03: #3A11D8;
+
+  /* Chart - Set02 */
+  --chart-set02-group01: #262255;
+  --chart-set02-group02: #7571A9;
+  --chart-set02-group03: #AAA5E1;
+
+  /* Chart - Set03 */
+  --chart-set03-group01: #F06600;
+  --chart-set03-group02: #FFB692;
+  --chart-set03-group03: #FFEDE6;
+
+  /* Chart - Set04 */
+  --chart-set04-group01: #181347;
+  --chart-set04-group02: #444075;
+  --chart-set04-group03: #7571A9;
+  --chart-set04-group04: #AAA5E1;
+  --chart-set04-group05: #E3DFFF;
+
+  /* Chart - Set05 */
+  --chart-set05-group01: #4F25FF;
+  --chart-set05-group02: #C5C0FE;
+
+  /* Chart - Set06 */
+  --chart-set06-group01: #3A11D8;
+  --chart-set06-group02: #F06600;
+  --chart-set06-group03: #24C6C9;
+
+  /* Chart - Set07 */
+  --chart-set07-group01: #3A11D8;
+  --chart-set07-group02: #F06600;
+  --chart-set07-group03: #FFB692;
+
+  /* Chart - Set08 */
+  --chart-set08-group01: #F06600;
+  --chart-set08-group02: #C5C0FE;
+
+  /* Chart - Text */
+  --chart-text-datalabel: #FFFFFF;
+  --chart-text-axis-value: #787776;
+  --chart-text-category-title: #262625;
+
+  /* Layer */
+  --layer-primary: #FFFFFF;
+  --layer-accent: #262255;
+  --layer-secondary: rgba(255, 255, 255, 0.6);
+
+  /* Radius */
+  --radius-none: 0px;
+  --radius-lv01: 36px;
+  --radius-lv02: 24px;
+  --radius-lv03: 18px;
+  --radius-lv04: 12px;
+  --radius-lv04-2: 8px;
+  --radius-lv04-3: 4px;
+
+  /* Spacing */
+  --spacing-00: 0px;
+  --spacing-01: 2px;
+  --spacing-02: 4px;
+  --spacing-03: 8px;
+  --spacing-04: 12px;
+  --spacing-05: 16px;
+  --spacing-18: 18px;
+  --spacing-20: 20px;
+  --spacing-06: 24px;
+  --spacing-07: 32px;
+  --spacing-07-2: 36px;
+  --spacing-09: 48px;
+  --spacing-10: 64px;
+  --spacing-12: 96px;
+
+  /* Select Item */
+  --select-selected: #4F25FF;
+  --select-nonselected: #C6C5C9;
+
+  /* Label */
+  --label-primary: #F06600;
+  --label-error: #FF5449;
+
+  /* Menu */
+  --menu-enabled: #FFFFFF;
+  --menu-hover: #F9F8FC;
+  --menu-active: #EFEFF4;
+  --menu-selected: #262255;
 }
 
 /* Tailwind Theme - CSS 변수를 Tailwind 클래스로 사용 가능하게 함 */

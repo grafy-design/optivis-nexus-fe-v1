@@ -660,7 +660,7 @@ export function RefineCutoffChartEditor({
                 [score, 0],
                 [score, 100],
               ],
-              lineStyle: { type: [5, 5], color: guideColor, width: guideWidth },
+              lineStyle: { type: [4, 2], color: guideColor, width: guideWidth },
               symbol: "none",
               z: 8,
             },
@@ -671,7 +671,7 @@ export function RefineCutoffChartEditor({
                 [xAxisBounds.min, proportion],
                 [xAxisBounds.max, proportion],
               ],
-              lineStyle: { type: [5, 5], color: guideColor, width: guideWidth },
+              lineStyle: { type: [4, 2], color: guideColor, width: guideWidth },
               symbol: "none",
               z: 8,
             }
@@ -959,7 +959,7 @@ export function RefineCutoffChartEditor({
                 className="absolute z-10 cursor-pointer select-none transition-all duration-150 hover:opacity-70"
                 style={{
                   right: `${hLineRight}px`,
-                  top: `${hLineY - 12}px`,
+                  top: `${hLineY - 4}px`,
                   transform: "translateY(-100%)",
                   color: isDragging ? "#262255" : "#929090",
                   fontWeight: isDragging ? 600 : 500,
@@ -986,7 +986,7 @@ export function RefineCutoffChartEditor({
             const pointX = GRID_LEFT + normalizedX * gridWidth;
             const pointY = proportionToPixelY(cumulativeProportion);
             const labelWidth = 60;
-            const labelX = pointX + 28;
+            const labelX = pointX + 22;
             const willOverflow = labelX + labelWidth > chartContainerWidth - GRID_RIGHT;
 
             return (
@@ -994,8 +994,8 @@ export function RefineCutoffChartEditor({
                 className="absolute z-10 select-none transition-all duration-150"
                 style={{
                   ...(willOverflow
-                    ? { right: `${chartContainerWidth - pointX + 28}px` }
-                    : { left: `${pointX + 28}px` }),
+                    ? { right: `${chartContainerWidth - pointX + 22}px` }
+                    : { left: `${pointX + 22}px` }),
                   top: `${pointY + 4}px`,
                   color: isDragging ? "#262255" : "#929090",
                   fontWeight: isDragging ? 600 : 500,
@@ -1039,7 +1039,7 @@ export function RefineCutoffChartEditor({
             const pointX = GRID_LEFT + normalizedX * gridWidth;
             const pointY = proportionToPixelY(proportion);
             const labelWidth = 60;
-            const labelX = pointX + 28;
+            const labelX = pointX + 22;
             const willOverflow = labelX + labelWidth > chartContainerWidth - GRID_RIGHT;
 
             const addHLineY = proportionToPixelY(proportion);
@@ -1116,7 +1116,7 @@ export function RefineCutoffChartEditor({
                     className="absolute z-10 cursor-pointer select-none transition-all duration-150 hover:opacity-70"
                     style={{
                       right: `${addHLineRight}px`,
-                      top: `${addHLineY - 12}px`,
+                      top: `${addHLineY - 4}px`,
                       transform: "translateY(-100%)",
                       color: isDragging ? "#262255" : "#929090",
                       fontWeight: isDragging ? 600 : 500,
@@ -1136,8 +1136,8 @@ export function RefineCutoffChartEditor({
                   className="absolute z-10 select-none transition-all duration-150"
                   style={{
                     ...(willOverflow
-                      ? { right: `${chartContainerWidth - pointX + 28}px` }
-                      : { left: `${pointX + 28}px` }),
+                      ? { right: `${chartContainerWidth - pointX + 20}px` }
+                      : { left: `${pointX + 20}px` }),
                     top: `${pointY + 4}px`,
                     color: isDragging ? "#262255" : "#929090",
                     fontWeight: isDragging ? 600 : 500,

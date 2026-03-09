@@ -116,7 +116,7 @@ export default function Select({
                   onClick={() => handleSelect(option)}
                   className={cn(
                     "w-full text-left text-body5 relative flex items-center flex-shrink-0 self-stretch cursor-pointer",
-                    isSelected ? "text-white" : "text-neutral-50",
+                    isSelected ? "text-neutral-30" : "text-neutral-50",
                   )}
                   style={{
                     fontSize: "12px",
@@ -128,10 +128,8 @@ export default function Select({
                 >
                   <div
                     className={cn(
-                      "w-full h-full flex items-center px-2 rounded-[8px] transition-colors",
-                      isSelected
-                        ? "bg-tertiary-40"
-                        : "bg-transparent hover:bg-neutral-85",
+                      "w-full h-full flex items-center px-2 rounded-[8px] transition-colors duration-150",
+                      "bg-transparent hover:bg-black/5 active:bg-black/8",
                     )}
                   >
                     {option}

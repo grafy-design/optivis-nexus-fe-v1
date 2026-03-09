@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 
@@ -22,6 +22,9 @@ export const BaselineDistributionHistogram = ({
   normalize = false,
   height = 120,
 }: BaselineDistributionHistogramProps) => {
+  const chartRef = useRef<any>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   const getNiceInterval = (maxValue: number): number => {
     if (maxValue <= 0) {
       return 1;
@@ -36,7 +39,18 @@ export const BaselineDistributionHistogram = ({
     return 10 * power;
   };
 
-  const option = useMemo<EChartsOption>(() => {
+  const onEvents = {
+    mouseover: useCallback((params: any) => {
+      if (params.dataIndex !== undefined && params.componentType === "series") {
+        setHoveredIdx(params.dataIndex);
+      }
+    }, []),
+    globalout: useCallback(() => {
+      setHoveredIdx(null);
+    }, []),
+  };
+
+  const { baseOption, groupCount } = useMemo(() => {
     const bins = histogramData?.bins ?? [];
     const groups = histogramData?.groups ?? {};
     const bucketCount = Math.max(0, bins.length - 1);
@@ -71,75 +85,129 @@ export const BaselineDistributionHistogram = ({
     const yAxisInterval = getNiceInterval(yAxisMaxRaw);
     const yAxisMax = Math.ceil(yAxisMaxRaw / yAxisInterval) * yAxisInterval;
     const palette = [
-      "rgba(196, 190, 235, 0.78)",
-      "rgba(127, 119, 190, 0.82)",
-      "rgba(27, 22, 84, 0.94)",
+      "rgba(203, 198, 232, 0.9)",
+      "rgba(176, 170, 220, 0.9)",
+      "rgba(150, 143, 200, 0.9)",
+      "rgba(124, 116, 180, 0.9)",
+      "rgba(58, 52, 110, 0.95)",
+      "rgba(40, 37, 86, 0.95)",
     ];
 
     return {
-      animation: false,
-      grid: { left: 42, right:4, top: 8, bottom:16  },
-      tooltip: { trigger: "axis", padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
-      xAxis: {
-        type: "category",
-        data: xLabels,
-        axisLine: { show: true, lineStyle: { color: "#787776" } },
-        axisTick: { show: false },
-        axisLabel: {
-          interval: 0,
-          margin:4,
-          color: "#787776",
-          fontSize: 10,
-          fontWeight: 500,
-          fontFamily: "Inter, sans-serif",
-          formatter: (value: string) => {
-            const num = Number(value);
-            const rounded = Math.round(num);
-            if (Number.isNaN(num) || rounded % 2 !== 0) {
-              return "";
-            }
-            return String(rounded);
+      baseOption: {
+        animation: false,
+        grid: { left: 42, right: 4, top: 8, bottom: 16 },
+        tooltip: {
+          trigger: "axis" as const,
+          axisPointer: { type: "shadow" as const, triggerEmphasis: false, z: -1 },
+          padding: [4, 6],
+          borderWidth: 0,
+          borderColor: "transparent",
+          extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
+          textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
+          formatter: (params: any) => {
+            const items = Array.isArray(params) ? params : [params];
+            const row = (marker: string, label: string, val: string) =>
+              `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="font-size:9px;font-weight:500">${marker}${label}</span><span style="font-size:13px;font-weight:600">${val}</span></div>`;
+            const title = items[0]?.axisValueLabel ?? "";
+            return `<div style="font-family:Inter,sans-serif">${title ? `<div style="font-size:9px;font-weight:500;margin-bottom:4px">${title}</div>` : ""}${items.map((item: any) => row(item.marker ?? "", item.seriesName ?? "", String(item.value ?? 0))).join("")}</div>`;
           },
         },
-      },
-      yAxis: {
-        type: "value",
-        min: 0,
-        max: yAxisMax,
-        interval: yAxisInterval,
-        name: "CI Width",
-        nameLocation: "middle",
-        nameGap: 32,
-        color: "#787776",
-        nameTextStyle: { color: "#787776", fontSize: 9 },
-      axisLine: { show: true, lineStyle: { color: "#787776" } },
-      axisTick: { show: true, lineStyle: { color: "#787776" } },
-        axisLabel: {
-          margin:8,
-          color: "#787776",
-          fontSize: 10,
-          fontWeight: 500,
-          fontFamily: "Inter, sans-serif",
-          formatter: (value: number) =>
-            normalize ? value.toFixed(2) : Math.round(value).toString(),
-        },
-        splitLine: { show: false },
-      },
-      series: [
-        ...normalizedGroups.map((group, index) => ({
-          name: group.name,
-          type: "bar" as const,
-          data: group.values,
-          barWidth: "62%",
-          barGap: "-100%",
-          itemStyle: {
-            color: palette[index % palette.length],
-            borderRadius: [3, 3, 0, 0] as [number, number, number, number],
+        xAxis: {
+          type: "category" as const,
+          data: xLabels,
+          axisLine: { show: true, lineStyle: { color: "#787776" } },
+          axisTick: { show: false, alignWithLabel: true },
+          axisLabel: {
+            interval: 0,
+            margin: 4,
+            color: "#787776",
+            fontSize: 10,
+            fontWeight: 500,
+            fontFamily: "Inter, sans-serif",
+            formatter: (value: string) => {
+              const num = Number(value);
+              if (Number.isNaN(num)) return "";
+              return num.toFixed(1);
+            },
           },
-        })),
-      ],
+        },
+        yAxis: {
+          type: "value" as const,
+          min: 0,
+          max: yAxisMax,
+          interval: yAxisInterval,
+          name: "CI Width",
+          nameLocation: "middle" as const,
+          nameGap: 32,
+          nameTextStyle: {
+            color: "#787776",
+            fontSize: 10,
+            fontWeight: 500,
+            fontFamily: "Inter, sans-serif",
+          },
+          axisLine: { show: true, lineStyle: { color: "#787776" } },
+          axisTick: { show: true, lineStyle: { color: "#787776" } },
+          axisLabel: {
+            margin: 8,
+            color: "#787776",
+            fontSize: 10,
+            fontWeight: 500,
+            fontFamily: "Inter, sans-serif",
+            formatter: (value: number) => {
+              const label = normalize ? value.toFixed(2) : Math.round(value).toString();
+              if (value === yAxisMax) return `\n${label}`;
+              if (value === 0) return `${label}\n`;
+              return label;
+            },
+          },
+          splitLine: { show: false },
+        },
+        normalizedGroups,
+        palette,
+        bucketCount,
+      },
+      groupCount: normalizedGroups.length,
     };
   }, [histogramData, normalize]);
 
-  return <ReactECharts option={option} style={{ width: "100%", height }} />;
+  const { normalizedGroups, palette, bucketCount: bc, ...optionBase } = baseOption;
+
+  const numGroups = normalizedGroups.length;
+  const layers = Array.from({ length: numGroups }, () =>
+    [] as { value: number; color: string; name: string }[]
+  );
+  for (let di = 0; di < bc; di++) {
+    const items = normalizedGroups.map((group: { name: string; values: number[] }, gi: number) => ({
+      value: group.values[di],
+      color: palette[gi % palette.length],
+      name: group.name,
+    }));
+    items.sort((a, b) => b.value - a.value);
+    items.forEach((item, li) => {
+      layers[li][di] = item;
+    });
+  }
+
+  const option: EChartsOption = {
+    ...optionBase,
+    series: layers.map((layer, layerIdx) => ({
+      name: `layer-${layerIdx}`,
+      type: "bar" as const,
+      barGap: "-100%",
+      barCategoryGap: 2,
+      itemStyle: {
+        borderRadius: [3, 3, 0, 0] as [number, number, number, number],
+      },
+      emphasis: { disabled: true },
+      data: layer.map((item, di) => {
+        const base = { value: item.value, itemStyle: { color: item.color } };
+        if (hoveredIdx === null) return base;
+        if (di !== hoveredIdx) return { ...base, itemStyle: { ...base.itemStyle, opacity: 0.6 } };
+        return base;
+      }),
+    })),
+  };
+
+  return <ReactECharts ref={chartRef} option={option} onEvents={onEvents} style={{ width: "100%", height }} />;
 };

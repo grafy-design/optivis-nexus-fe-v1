@@ -36,7 +36,7 @@ export function TSIForestAxisRow({ metricLabel }: { metricLabel: string }) {
       nameLocation: "middle",
       nameGap: 12,
       nameTextStyle: {
-        color: "#484646",
+        color: "#787776",
         fontSize: nameFontSize,
         fontWeight: 500,
         fontFamily: "Inter, sans-serif",

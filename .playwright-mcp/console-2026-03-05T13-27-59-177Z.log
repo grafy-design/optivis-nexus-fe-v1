@@ -1,0 +1,65 @@
+[     441ms] [WARNING] Image with src "http://localhost:3000/assets/figma/home/sidebar-avatar-button.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[    1187ms] [WARNING] Image with src "http://localhost:3000/assets/tsi/set-check.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[    4416ms] [ERROR] ./src/app/tsi/subgroup-selection/page.tsx:16:8
+Ecmascript file had an error
+  14 | import ReactECharts from "echarts-for-react";
+  15 | import { Loading } from "@/components/common/Loading";
+> 16 | import RadioButton from "@/components/ui/radio-button";
+     |        ^^^^^^^^^^^
+  17 |
+  18 | /**
+  19 |  * TSI Step 4: Subgroup Selection
+
+the name `RadioButton` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/app/tsi/subgroup-selection/page.tsx [Client Component Browser]
+    ./src/app/tsi/subgroup-selection/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/tsi/subgroup-selection/page.tsx [Client Component SSR]
+    ./src/app/tsi/subgroup-selection/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:2359
+[    7887ms] [ERROR] ./src/app/tsi/subgroup-selection/page.tsx:1648:41
+Parsing ecmascript source code failed
+  1646 |                           </tbody>
+  1647 |                         </table>
+> 1648 |                       </RadioGroup.Root>
+       |                                         ^
+> 1649 |                     </div>
+       | ^^^^^^^^^^^^^^^^^^^^^
+  1650 |                   </div>
+  1651 |                 </div>
+  1652 |               </div>
+
+Expected '</', got 'jsx text (
+                    )'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/tsi/subgroup-selection/page.tsx [Client Component Browser]
+    ./src/app/tsi/subgroup-selection/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/tsi/subgroup-selection/page.tsx [Client Component SSR]
+    ./src/app/tsi/subgroup-selection/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:2359
+[   10530ms] [ERROR] ./src/app/tsi/subgroup-selection/page.tsx:16:8
+Ecmascript file had an error
+  14 | import ReactECharts from "echarts-for-react";
+  15 | import { Loading } from "@/components/common/Loading";
+> 16 | import RadioButton from "@/components/ui/radio-button";
+     |        ^^^^^^^^^^^
+  17 |
+  18 | /**
+  19 |  * TSI Step 4: Subgroup Selection
+
+the name `RadioButton` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/app/tsi/subgroup-selection/page.tsx [Client Component Browser]
+    ./src/app/tsi/subgroup-selection/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/tsi/subgroup-selection/page.tsx [Client Component SSR]
+    ./src/app/tsi/subgroup-selection/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:2359

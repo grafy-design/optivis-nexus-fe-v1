@@ -1,0 +1,42 @@
+[     921ms] [WARNING] Image with src "http://localhost:3000/assets/figma/home/sidebar-avatar-button.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[    2933ms] [WARNING] [ECharts] DEPRECATED: "api.style" has been deprecated. Please write literal style directly instead. @ http://localhost:3000/_next/static/chunks/node_modules_echarts_lib_util_17ab60a1._.js:5783
+[  194200ms] [ERROR] ./src/app/tsi/[feature]/report/page.tsx:786:33
+Parsing ecmascript source code failed
+  784 |                   Risk & Response Assessment
+  785 |                 </h2>
+> 786 |                 <div className= flex min-h-[322px] w-full gap-4 rounded-[24px] bg-white/60 p-4">
+      |                                 ^^^^
+  787 |                   {/* 왼쪽: 타이틀 영역 */}
+  788 |                   <div className="flex min-h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
+  789 |                     <div className="flex w-full flex-col items-start gap-[24px]">
+
+Expected '</', got 'flex'
+
+Import traces:
+  Client Component Browser:
+    ./src/app/tsi/[feature]/report/page.tsx [Client Component Browser]
+    ./src/app/tsi/[feature]/report/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/tsi/[feature]/report/page.tsx [Client Component SSR]
+    ./src/app/tsi/[feature]/report/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:2359
+[  195906ms] [ERROR] ./src/app/tsi/[feature]/report/page.tsx:786:46
+Parsing ecmascript source code failed
+  784 |                   Risk & Response Assessment
+  785 |                 </h2>
+> 786 |                 <div className="" flex min-h-[322px] w-full gap-4 rounded-[24px] bg-white/60 p-4">
+      |                                              ^
+  787 |                   {/* 왼쪽: 타이틀 영역 */}
+  788 |                   <div className="flex min-h-[290px] w-[414px] flex-shrink-0 flex-col items-start gap-[28px]">
+  789 |                     <div className="flex w-full flex-col items-start gap-[24px]">
+
+Expected '</', got '['
+
+Import traces:
+  Client Component Browser:
+    ./src/app/tsi/[feature]/report/page.tsx [Client Component Browser]
+    ./src/app/tsi/[feature]/report/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/tsi/[feature]/report/page.tsx [Client Component SSR]
+    ./src/app/tsi/[feature]/report/page.tsx [Server Component] @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:2359

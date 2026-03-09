@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
 import type { ErrorBarGroup, ErrorBarPoint } from "@/components/charts/MultiLineWithErrorBar";
@@ -19,6 +19,8 @@ import {
   type VarianceBarsChartData,
   type VarianceStackChartData,
 } from "@/components/charts/tsi-report";
+import { TSISaveModal } from "@/components/tsi/TSISaveModal";
+import { TSIReportHeader } from "@/components/tsi/TSIReportHeader";
 import { getReportByFeature } from "@/services/subgroup-service";
 import type {
   ReportByFeatureResponse,
@@ -560,6 +562,7 @@ const decodeFeature = (value: string): string => {
  * Actual TSI report page content. Must be wrapped in Suspense due to useParams/useSearchParams.
  */
 function TSIReportPageContent() {
+  const router = useRouter();
   const routeParams = useParams<{ feature?: string }>();
   const featureParam = routeParams?.feature;
   const featureName = decodeFeature(featureParam ?? "").trim();
@@ -570,13 +573,17 @@ function TSIReportPageContent() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const hasRequiredParams = Boolean(taskId && subgroupId && featureName);
   const [isLoading, setIsLoading] = useState(true);
-
-  const [titleFontSize, setTitleFontSize] = useState(42);
-  useEffect(() => {
-    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [forestHoveredSet, setForestHoveredSet] = useState<number | null>(null);
+  const [forestHoveredRow, setForestHoveredRow] = useState<number | null>(null);
+  const makeForestHoverHandler = useCallback((setIdx: number) => (rowIdx: number | null) => {
+    if (rowIdx !== null) {
+      setForestHoveredSet(setIdx);
+      setForestHoveredRow(rowIdx);
+    } else {
+      setForestHoveredSet(null);
+      setForestHoveredRow(null);
+    }
   }, []);
 
   const [forestAspect, setForestAspect] = useState("5 / 1");
@@ -587,17 +594,6 @@ function TSIReportPageContent() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  /** 현재 날짜·시간 문자열 (YYYY. MM. DD HH:mm:ss) / Current timestamp for display */
-  const currentDate = (() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-    return `${year}. ${month}. ${day} ${hours}:${minutes}:${seconds}`;
-  })();
 
   /** API 호출: feature, taskId, subgroupId 변경 시 리포트 재조회 / Fetches report when params change */
   useEffect(() => {
@@ -649,7 +645,7 @@ function TSIReportPageContent() {
   const comparisonOverview = getOverviewContent(2);
   const riskOverview = getOverviewContent(3);
 
-  // ── 차트 데이터 변환 / Transform chart data ─────────────────────────────────────────
+  // ── 차트 데이터 변환 / Transform chart data ────────────────────────────────────���────
 
   const modelBasedPanelData = buildProgressionPanelData(
     reportJson?.model_stratification_strategy ?? [],
@@ -684,7 +680,7 @@ function TSIReportPageContent() {
     return (
       <AppLayout headerType="tsi" scaleMode="fit">
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
-          {/* ── 필수 파라미터 누락 에러 / Missing required params error ── */}
+          {/* ── 필수 파라미터 누�� 에러 / Missing required params error ── */}
           <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
             Report 조회에 필요한 파라미터가 누락되었습니다. (`feature`, `taskId`, `subgroupId`)
           </div>
@@ -699,7 +695,7 @@ function TSIReportPageContent() {
         <Loading isLoading />
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
           {/* ── 로딩 중 메시지 / Loading message ── */}
-          <div className="rounded-[24px] border border-[#D9D8E2] bg-[#F6F6FA] p-6 text-[#6A687A]">
+          <div className="rounded-[24px] border border-neutral-80 bg-neutral-95 p-6 text-neutral-50">
             리포트 데이터를 조회 중입니다.
           </div>
         </div>
@@ -735,44 +731,11 @@ function TSIReportPageContent() {
       >
 
         {/* ── 1. 페이지 타이틀 + PDF 저장 버튼 / Page title + Save as PDF button ── */}
-        <div
-          style={{
-            flexShrink: 0,
-            padding: "0 12px 4px 12px",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            marginBottom: 24,
+        <TSIReportHeader
+          onSaveAsPDF={() => {
+            console.log("[TSI][Report] Save as PDF clicked");
           }}
-        >
-          <div className="flex flex-col gap-1 flex-shrink-0 items-start">
-            <div className="text-title text-neutral-5 text-left" style={{ fontSize: titleFontSize }}>
-              Target Subgroup Identification
-            </div>
-            <p className="text-body2m text-neutral-50 text-left">
-              {currentDate}
-            </p>
-          </div>
-          <button
-            type="button"
-            className="btn-tsi btn-tsi-secondary"
-            onClick={() => {
-              console.log("[TSI][Report] Save as PDF clicked");
-            }}
-          >
-            Save as PDF
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              style={{ flexShrink: 0 }}
-            >
-              <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
+        />
 
         {/* ── 2. 리포트 배경 카드 (glass) / Report glass background card ── */}
         <div
@@ -805,7 +768,7 @@ function TSIReportPageContent() {
               <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-4 gap-4">
                 {/* Model Based 라벨 / Model Based badge */}
                 <div className=" flex">
-                  <span className="text-body5m px-4 py-1.5 items-center justify-center rounded-[25px] bg-orange-500 text-white">
+                  <span className="text-body5m px-4 py-1.5 items-center justify-center rounded-[25px] bg-secondary-60 text-white">
                     Model Based
                   </span>
                 </div>
@@ -824,7 +787,7 @@ function TSIReportPageContent() {
                     rows={modelBasedPanelData.rows}
                   />
                 ) : (
-                  <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
+                  <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-white p-4">
                     <p className="text-body2m text-neutral-50">
                       Model Based 데이터가 없습니다.
                     </p></div>
@@ -835,7 +798,7 @@ function TSIReportPageContent() {
               <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-4 gap-4">
                 {/* Feature Based 라벨 / Feature Based badge */}
                 <div className="flex">
-                  <span className="text-body5m px-4 py-1.5 items-center justify-center gap-2 rounded-[24px] bg-orange-500 font-medium text-white">
+                  <span className="text-body5m px-4 py-1.5 items-center justify-center gap-2 rounded-[24px] bg-secondary-60 font-medium text-white">
                     Feature Based
                   </span>
                 </div>
@@ -855,7 +818,7 @@ function TSIReportPageContent() {
                     rows={featureBasedPanelData.rows}
                   />
                 ) : (
-                  <div className="flex w-full h-full items-center justify-center rounded-[16px] bg-[#FFFFFF] p-4">
+                  <div className="flex w-full h-full items-center justify-center rounded-[16px] bg-white p-4">
                     <p className="text-body2m text-neutral-50">
                       Feature Based 데이터가 없습니다.
                     </p>
@@ -888,11 +851,11 @@ function TSIReportPageContent() {
                     <div className="flex w-full flex-shrink-0 gap-2">
 
                       {/* Model Based 차트 패널 (분산 분해 + 그룹 내 분산) / Model Based: variance decomp + within-group variance */}
-                        <div className="flex w-full flex-col overflow-visible rounded-[16px] bg-[#FFFFFF] p-3">
+                        <div className="flex w-full flex-col overflow-visible rounded-[16px] bg-white p-3">
                           <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-visible">
                             <div className="flex min-h-0 flex-col justify-between overflow-visible">
-                              <div className="flex flex-col gap-1 border-b border-[#A9A8B2] pb-1.5">
-                                <h4 className="m-0 text-body2 font-semibold text-[#484646]" style={{ lineHeight: "100%" }}>
+                              <div className="flex flex-col gap-1 border-b border-neutral-70 pb-1.5">
+                                <h4 className="m-0 text-body2 font-semibold text-neutral-30" style={{ lineHeight: "100%" }}>
                                   Variance decomposition
                                 </h4>
                               </div>
@@ -902,8 +865,8 @@ function TSIReportPageContent() {
                             </div>
 
                             <div className="flex min-h-0 flex-col justify-between overflow-visible">
-                              <div className="flex flex-col gap-1 border-b border-[#A9A8B2] pb-1.5">
-                                <h4 className="m-0 text-body2 font-semibold text-[#484646]" style={{ lineHeight: "100%" }}>
+                              <div className="flex flex-col gap-1 border-b border-neutral-70 pb-1.5">
+                                <h4 className="m-0 text-body2 font-semibold text-neutral-30" style={{ lineHeight: "100%" }}>
                                   Within-group variance
                                 </h4>
                               </div>
@@ -916,14 +879,14 @@ function TSIReportPageContent() {
 
                       {/* Feature Based 차트 패널 / Feature Based: variance decomp + within-group variance */}
                      
-                        <div className="flex w-full flex-col overflow-visible rounded-[16px] bg-[#FFFFFF] p-3">
+                        <div className="flex w-full flex-col overflow-visible rounded-[16px] bg-white p-3">
                           <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-visible">
                             <div className="flex min-h-0 flex-col overflow-visible gap-3">
-                              <div className="flex flex-col gap-0.75 border-b border-[#A9A8B2] pb-1.5 ">
+                              <div className="flex flex-col gap-0.75 border-b border-neutral-70 pb-1.5 ">
                                 <div className="text-small1 font-medium text-neutral-50">
                                   Separation evidence
                                 </div>
-                                <h4 className=" text-body2 font-semibold text-[#484646]" style={{ lineHeight: "100%" }}>
+                                <h4 className=" text-body2 font-semibold text-neutral-30" style={{ lineHeight: "100%" }}>
                                   Variance decomposition
                                 </h4>
                               </div>
@@ -932,12 +895,12 @@ function TSIReportPageContent() {
                               </div>
                             </div>
 
-                            <div className="flex min-h-0 flex-col overflow-visible gap-3">
-                              <div className="flex flex-col gap-0.75 border-b border-[#A9A8B2] pb-1.5">
+                            <div className="flex min-h-0 flex-col justify-between overflow-visible gap-3">
+                              <div className="flex flex-col gap-0.75 border-b border-neutral-70 pb-1.5">
                                 <div className="text-small1 font-medium text-neutral-50">
                                   Separation evidence
                                 </div>
-                                <h4 className="m-0 text-body2 font-semibold text-[#484646]" style={{ lineHeight: "100%" }}>
+                                <h4 className="m-0 text-body2 font-semibold text-neutral-30" style={{ lineHeight: "100%" }}>
                                   Within-group variance by subgroup
                                 </h4>
                               </div>
@@ -983,26 +946,29 @@ function TSIReportPageContent() {
                 {/* 오른쪽: 포레스트 플롯 / Right: forest plot */}
                 <div className="flex min-w-0 flex-[3] items-start">
                   {hasRiskResponseData ? (
-                    <div className="min-w-0 w-full rounded-[16px] bg-[#FFFFFF] p-3" >
+                    <div className="min-w-0 w-full rounded-[16px] bg-white p-3" >
                       <div className="flex min-h-0 w-full flex-col">
                         {riskResponseSets.map((setData, setIdx) => (
                           <div
                             key={setData.setName}
-                            className={`grid grid-cols-[90px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] ${
-                              setIdx === 0 ? "border-b border-[#BAB9C2]" : ""
+                            className={`grid grid-cols-[90px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] transition-colors duration-200 ${
+                              setIdx === 0 ? "border-b border-neutral-70" : ""
                             }`}
+                            style={{
+                              backgroundColor: forestHoveredSet === setIdx ? "rgba(150,150,150,0.08)" : "transparent",
+                            }}
                           >
                             {/* 세트명 + 그룹 라벨 열 / Set name + group label column */}
-                            <div className="border-r border-[#BAB9C2] pr-2">
-                              <div className="flex h-7 items-center">
-                                <span className="text-body5m flex h-wrap w-wrap items-center justify-center px-4 py-1 rounded-full bg-[#292561] text-white">
+                            <div className="border-r border-neutral-70 pl-1 pr-2 flex flex-col">
+                              <div className="flex h-7 items-end flex-shrink-0">
+                                <span className="text-body5m flex h-wrap w-wrap items-center justify-center px-4 py-1 rounded-full bg-primary-15 text-white">
                                   {setData.setName}
                                 </span>
                               </div>
                               {setData.rows.map((row) => (
                                 <div
                                   key={`${setData.setName}-${row.groupLabel}`}
-                                  className="text-neutral-30 flex h-7 items-center text-body4m"
+                                  className="text-neutral-30 flex flex-1 items-center text-body5m"
                                 >
                                   {row.groupLabel}
                                 </div>
@@ -1014,7 +980,7 @@ function TSIReportPageContent() {
                               <div
                                 key={`${setData.setName}-${metric.key}`}
                                 className={`px-2 ${
-                                  metricIdx < 2 ? "border-r border-[#BAB9C2]" : ""
+                                  metricIdx < 2 ? "border-r border-neutral-70" : ""
                                 }`}
                               >
                                 <div className="h-7" aria-hidden />
@@ -1022,6 +988,10 @@ function TSIReportPageContent() {
                                   <TSIForestMetricChart
                                     rows={setData.rows}
                                     metricKey={metric.key}
+                                    metricLabel={metric.label}
+                                    hoveredIdx={forestHoveredSet === setIdx ? forestHoveredRow : null}
+                                    dimAll={forestHoveredSet !== null && forestHoveredSet !== setIdx}
+                                    onHover={makeForestHoverHandler(setIdx)}
                                   />
                                 </div>
                               </div>
@@ -1030,12 +1000,12 @@ function TSIReportPageContent() {
                         ))}
 
                         {/* X축 + 라벨 행 / X-axis row with metric labels */}
-                        <div className=" grid grid-cols-[90px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] border-t border-[#BAB9C2]">
-                          <div className=" -mt-2 border-r border-[#BAB9C2]" />
+                        <div className=" grid grid-cols-[90px_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] border-t border-neutral-70">
+                          <div className=" -mt-2 border-r border-neutral-70" />
                           {RISK_METRICS.map((metric, metricIdx) => (
                             <div
                               key={`axis-${metric.key}`}
-                              className={`px-2 mt-[-7px] ${metricIdx < 2 ? "border-r border-[#BAB9C2]" : ""}`}
+                              className={`px-2 mt-[-7px] ${metricIdx < 2 ? "border-r border-neutral-70" : ""}`}
                             >
                               <TSIForestAxisRow metricLabel={metric.label} />
                             </div>
@@ -1044,7 +1014,7 @@ function TSIReportPageContent() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-[16px] border border-[#D9D8E2] bg-[#FFFFFF] p-4">
+                    <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-[16px] border border-neutral-80 bg-white p-4">
                       <p className="text-body2m text-neutral-50">
                         Risk &amp; Response Assessment 데이터가 없습니다.
                       </p>
@@ -1065,17 +1035,16 @@ function TSIReportPageContent() {
             <button
               type="button"
               className="btn-tsi btn-tsi-secondary"
-              onClick={() => {
-                console.log("[TSI][Report] Save Progress clicked");
-              }}
+              onClick={() => setShowSaveModal(true)}
             >
               Save Progress
             </button>
             <button
               type="button"
-              className="btn-tsi btn-tsi-primary"
+              className="btn-tsi btn-tsi-primary gap-2"
               onClick={() => {
-                console.log("[TSI][Report] Add Basis clicked");
+                const query = new URLSearchParams({ taskId });
+                router.push(`/tsi/basis-selection?${query.toString()}`);
               }}
             >
               Add Basis
@@ -1095,6 +1064,15 @@ function TSIReportPageContent() {
         </div>
 
       </div>
+
+      {/* ── Save Progress 모달 / Save Progress modal ── */}
+      <TSISaveModal
+        open={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        onSave={(_name, _desc) => {
+          setShowSaveModal(false);
+        }}
+      />
     </AppLayout>
   );
 }

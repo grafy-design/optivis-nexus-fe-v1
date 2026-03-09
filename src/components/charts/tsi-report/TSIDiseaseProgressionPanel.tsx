@@ -48,7 +48,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     symbolSize: 12,
     errorBarLineWidth: 2,
     errorBarCapHalfWidth: 6,
-    guideLineColor: "#272354",
+    guideLineColor: "#c7c5c9",
     guideLineType: [4, 3],
     legendMarginTopClassName: "mt-3",
     legendLineWidthClassName: "w-[84px]",
@@ -65,7 +65,7 @@ const VARIANT_STYLES: Record<TSIDiseaseProgressionPanelVariant, VariantStyle> = 
     symbolSize: 12,
     errorBarLineWidth: 2,
     errorBarCapHalfWidth: 6,
-    guideLineColor: "#452CF4",
+    guideLineColor: "#c7c5c9",
     guideLineType: [4, 3],
     legendMarginTopClassName: "mt-3",
     legendLineWidthClassName: "w-[86px]",
@@ -92,7 +92,7 @@ export function TSIDiseaseProgressionPanel({
         Disease Progression by Subgroup
       </h4>
 
-      <div className="mt-3 flex-shrink-0 w-full" style={{ aspectRatio: "5 / 3" }}>
+      <div className="mt-3 flex-shrink-0 w-full" style={{ aspectRatio: "5 / 2" }}>
         <MultiLineWithErrorBar
           dataGroup={chartData}
           seriesLabels={seriesLabels}

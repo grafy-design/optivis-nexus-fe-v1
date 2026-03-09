@@ -81,7 +81,7 @@ export const TSIHeader = () => {
 
   return (
     <header className="sticky top-0 z-[90] mt-0 pt-0 mb-0 w-full bg-[#e7e5e7]">
-      <div className="w-full h-[90px] px-[28px] py-[17px] flex justify-between items-center">
+      <div className="w-full h-[90px] pl-[28px] pr-[20px] py-[17px] flex justify-between items-center">
         {/* Left - Breadcrumb */}
         <div className={`flex items-center ${stepGap}`}>
           {/* 재생 아이콘 (ATS와 동일 - dark purple, 클릭 시 첫 스텝으로) */}

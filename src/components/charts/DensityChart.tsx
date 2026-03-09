@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { ChartSizeVariant } from "./MultiLineWithErrorBar";
@@ -140,6 +140,30 @@ const calculateBandwidth = (values: number[], minX: number, maxX: number): numbe
 };
 
 export const DensityChart = ({ data, series, segmented, height = 220, sizeVariant, xAxisName, yAxisName }: DensityChartProps) => {
+  const [gapHovered, setGapHovered] = useState(false);
+  const chartRef = useRef<ReactECharts>(null);
+  const peakRangeRef = useRef<{ leftX: number; rightX: number } | null>(null);
+
+  // 피크 면적 호버 감지 (차트 초기화 후 바인딩)
+  const onChartReady = useCallback((instance: any) => {
+    if (!instance) return;
+    const zr = instance.getZr();
+    const onMove = (e: any) => {
+      const range = peakRangeRef.current;
+      if (!range) return;
+      const ox = e.offsetX ?? e.event?.offsetX ?? 0;
+      const oy = e.offsetY ?? e.event?.offsetY ?? 0;
+      let point: number[] | null = null;
+      try { point = instance.convertFromPixel({ gridIndex: 0 }, [ox, oy]); } catch { return; }
+      if (!point) return;
+      const [mx] = point;
+      const inside = mx >= range.leftX && mx <= range.rightX;
+      setGapHovered((prev) => prev !== inside ? inside : prev);
+    };
+    const onLeave = () => setGapHovered(false);
+    zr.on("mousemove", onMove);
+    zr.on("globalout", onLeave);
+  }, []);
   const sz = sizeVariant ? DENSITY_SIZE_STYLES[sizeVariant] : null;
   const labelFormatter = sz?.labelDecimalPlaces !== undefined
     ? (value: number | string) => Number(value).toFixed(sz.labelDecimalPlaces)
@@ -242,8 +266,31 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
     : undefined;
 
   const option: EChartsOption = {
-    animation: false,
-    tooltip: { trigger: "axis", axisPointer: { lineStyle: { color: "#8f8ac4", type: "dashed" } }, padding: [4, 6], textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 } },
+    animation: true,
+    animationDuration: 300,
+    animationEasing: "cubicOut",
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "cross",
+        lineStyle: { color: "#8f8ac4", type: "dashed" },
+        label: { show: false },
+      },
+      padding: [4, 6], borderWidth: 0, borderColor: "transparent",
+      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
+      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
+      formatter: (params: any) => {
+        const items = Array.isArray(params) ? params : [params];
+        const rows = items
+          .filter((p: any) => p.seriesName !== "Peak Gap" && !p.seriesName?.includes("Peak"))
+          .map((p: any) => {
+            const val = Number(p.value?.[1] ?? 0).toFixed(1);
+            return `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="display:flex;align-items:center;gap:2px">${p.marker ?? ""}<span style="font-size:9px;font-weight:500">${p.seriesName}</span></span><span style="font-size:14px;font-weight:600">${val}</span></div>`;
+          })
+          .join("");
+        return `<div style="font-family:Inter,sans-serif;min-width:100px">${rows}</div>`;
+      },
+    },
     grid: {
       left: yAxisName ? 24 : 0,
       right: 4,
@@ -292,11 +339,9 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
         margin: 8,
         formatter: (value: number | string) => {
           const num = Number(value);
-          const base = labelFormatter ? labelFormatter(num) : String(num);
+          const base = num.toFixed(1);
           const yAxisMax = maxY > 0 ? maxY * 1.35 : 1;
-          // 하단 0 레이블: 뒤에 빈 줄 → tick 기준 위로 이동
           if (num === 0) return `${base}\n`;
-          // 상단 edge 레이블: 앞에 빈 줄 → tick 기준 아래로 이동
           if (yAxisMax - num < yAxisMax * 0.15) return `\n${base}`;
           return base;
         },
@@ -304,7 +349,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       splitLine: { show: false, lineStyle: { color: sz?.splitLineColor ?? "#D8D7DF", width: 1 } },
       name: yAxisName,
       nameLocation: "middle",
-      nameGap: 24,
+      nameGap: 36,
       nameRotate: 90,
       nameTextStyle: yAxisName ? {
         color: sz?.axisColor ?? "#484646",
@@ -314,17 +359,6 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       } : undefined,
     },
     series: [
-      // x=0 기준선 (x 범위가 음수~양수를 포함할 때)
-      ...(xMin < 0 && xMax > 0 ? ([{
-        name: "Zero Line",
-        type: "line" as const,
-        data: [[0, 0], [0, maxY > 0 ? maxY * 1.35 : 1]] as [number, number][],
-        lineStyle: { color: NEUTRAL_90, width: 1 },
-        symbol: "none" as const,
-        silent: true,
-        tooltip: { show: false },
-        z: 0,
-      }] as any[]) : []),
       // 각 시리즈 peak 세로선 + 두 peak 사이 가로선 + 간격 라벨
       ...(() => {
         const yTop = maxY > 0 ? maxY * 1.35 : 1;
@@ -337,50 +371,62 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
           return { x: peakX, y: peakY, color: item.color, name: item.name };
         });
 
-        // 세로 peak 라인
+        // 세로 peak 라인 (면적 호버 시 진해짐)
         const peakLines = peaks.map((p) => ({
           name: `${p.name} Peak`,
           type: "line" as const,
           data: [[p.x, 0], [p.x, yTop]] as [number, number][],
-          lineStyle: { color: "#787776", width: 1, type: [4, 4] as number[] },
+          lineStyle: {
+            color: hexToRgba(p.color, gapHovered ? 1 : 0.75),
+            width: gapHovered ? 2.5 : 1.5,
+          },
           symbol: "none" as const,
           silent: true,
           tooltip: { show: false },
           z: 1,
         }));
 
-        // 두 peak 사이 가로선 + 중앙 간격 라벨
-        const gapLine: any[] = [];
+        // 두 peak 사이 면적 채우기 + 간격 라벨 (네이티브 emphasis)
+        const gapArea: any[] = [];
         if (peaks.length >= 2) {
           const sorted = [...peaks].sort((a, b) => a.x - b.x);
           const left = sorted[0];
           const right = sorted[sorted.length - 1];
           const gap = Math.abs(right.x - left.x);
-          const lineY = Math.max(left.y, right.y) * 1.12;
-          gapLine.push({
-            name: "Peak Gap Line",
+          peakRangeRef.current = { leftX: left.x, rightX: right.x };
+          gapArea.push({
+            name: "Peak Gap",
             type: "line" as const,
-            data: [[left.x, lineY], [right.x, lineY]] as [number, number][],
-            lineStyle: { color: "#787776", width: 1 },
+            data: [[left.x, 0], [right.x, 0]] as [number, number][],
+            lineStyle: { width: 0 },
             symbol: "none" as const,
-            silent: true,
+            silent: false,
             tooltip: { show: false },
-            label: {
-              show: true,
-              position: "middle" as const,
-              formatter: gap.toFixed(1),
-              color: "#787776",
-              fontSize: 10,
-              fontWeight: 600,
-              fontFamily: "Inter",
-              backgroundColor: "#fff",
-              padding: [1, 4],
+            markArea: {
+              silent: true,
+              itemStyle: {
+                color: gapHovered ? "rgba(90, 83, 160, 0.18)" : "rgba(200, 198, 202, 0.12)",
+              },
+              label: {
+                show: true,
+                position: "insideTop",
+                offset: [0, 4],
+                formatter: () => gap.toFixed(1),
+                color: gapHovered ? "#262255" : "#787776",
+                fontSize: 12,
+                fontWeight: gapHovered ? 800 : 600,
+                fontFamily: "Inter",
+              },
+              data: [[
+                { xAxis: left.x },
+                { xAxis: right.x },
+              ]],
             },
-            z: 2,
+            z: 1,
           });
         }
 
-        return [...peakLines, ...gapLine];
+        return [...peakLines, ...gapArea];
       })() as any[],
       ...densityBySeries.map((item) => ({
       name: item.name,
@@ -407,5 +453,5 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
     ],
   };
 
-  return <ReactECharts option={option} style={{ width: "100%", height }} />;
+  return <ReactECharts ref={chartRef} option={option} notMerge={true} style={{ width: "100%", height }} onChartReady={onChartReady} />;
 };

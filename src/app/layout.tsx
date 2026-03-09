@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -22,7 +28,7 @@ export default function RootLayout({
     <html lang="ko">
       <head></head>
       <body
-        className={`${inter.variable} antialiased min-w-full`}
+        className={`${inter.variable} ${poppins.variable} antialiased min-w-full`}
         style={{ fontFamily: "var(--font-inter), Inter" }}
       >
         {children}

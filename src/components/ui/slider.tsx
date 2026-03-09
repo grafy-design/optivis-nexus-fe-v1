@@ -27,9 +27,19 @@ export default function Slider({
   disabled = false,
 }: SliderProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
 
   const percentage = ((value - min) / (max - min)) * 100;
+
+  // 핸들 상태별 스타일 (DRD ResizablePill 참고)
+  const knobState = disabled ? "disabled" : isDragging ? "pressed" : isHovered ? "hover" : "default";
+  const knobStyles = {
+    default:  { bg: "#efeff4", border: "#c6c5c9", fill: "#231f52", track: "#e2e1e5" },
+    hover:    { bg: "#e2e1e8", border: "#b0afb8", fill: "#231f52", track: "#e2e1e5" },
+    pressed:  { bg: "rgba(58,17,216,0.3)", border: "rgba(58,17,216,0.5)", fill: "#3a11d8", track: "#e2e1e5" },
+    disabled: { bg: "#f5f5f7", border: "#e2e1e5", fill: "#c6c5c9", track: "#e2e1e5" },
+  }[knobState];
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (disabled) return;
@@ -142,12 +152,15 @@ export default function Slider({
             style={{ userSelect: "none" }}
           >
             {/* Track */}
-            <div className="absolute w-full h-[6px] rounded-[3px] bg-[#e2e1e5]" />
-            
+            <div
+              className="absolute w-full h-[6px] rounded-[3px]"
+              style={{ backgroundColor: knobStyles.track }}
+            />
+
             {/* Fill */}
             <div
-              className="absolute h-[6px] rounded-[3px] bg-[#231f52]"
-              style={{ width: `${percentage}%` }}
+              className="absolute h-[6px] rounded-[3px]"
+              style={{ width: `${percentage}%`, backgroundColor: knobStyles.fill }}
             />
 
             {/* Ticks */}
@@ -160,13 +173,22 @@ export default function Slider({
               ))}
             </div>
 
-            {/* Knob */}
+            {/* Knob/Handle */}
             <div
-              className="absolute w-[38px] h-[24px] rounded-full bg-[#fcf8f8] border border-[#e2e1e5] cursor-grab active:cursor-grabbing"
+              onMouseEnter={() => !disabled && setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
               style={{
+                position: "absolute",
+                width: 38,
+                height: 24,
+                borderRadius: 9999,
+                backgroundColor: knobStyles.bg,
+                border: `1px solid ${knobStyles.border}`,
                 left: `calc(${percentage}% - 19px)`,
                 transform: "translateY(-50%)",
                 top: "50%",
+                cursor: disabled ? "not-allowed" : isDragging ? "grabbing" : "grab",
+                transition: "background-color 0.12s, border-color 0.12s",
               }}
             />
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -342,14 +342,6 @@ function makeEmptySection(id: number): Section {
 
 export default function TSIFilterPage() {
   const router = useRouter();
-  const [titleFontSize, setTitleFontSize] = useState(42);
-  useEffect(() => {
-    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
   // ── 탭 상태 (Inclusion / Exclusion) / Active tab state ────────────────────
   const [activeTab, setActiveTab] = useState<"Inclusion" | "Exclusion">("Inclusion");
 
@@ -573,18 +565,18 @@ export default function TSIFilterPage() {
     lines: { logic: string | null; text: string }[],
     label: string
   ) => (
-    <div className="font-medium text-[15px] leading-[1.1] text-[#929090] tracking-[-0.45px] flex flex-col gap-[4px] font-['Inter']">
+    <div className="font-medium text-[15px] leading-[1.1] text-neutral-50 tracking-[-0.45px] flex flex-col gap-[4px] font-['Inter']">
       {lines.map((line, i) => (
         <p key={i} className="m-0">
           {i === 0 ? (
             <>
-              <span className="text-[#262255] font-semibold">{label}</span>
+              <span className="text-primary-15 font-semibold">{label}</span>
               {" [ \u00A0"}
               {line.text}
             </>
           ) : (
             <>
-              <span className="text-[#3a11d8] font-bold">{line.logic}</span>
+              <span className="text-primary-40 font-bold">{line.logic}</span>
               {" "}
               {line.text}
             </>
@@ -614,28 +606,10 @@ export default function TSIFilterPage() {
 
         {/* ── 1. 페이지 타이틀 / Page title ──────────────────────────── */}
         <div style={{ flexShrink: 0, padding: "0 12px" }}>
-          <h1
-            style={{
-              fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: titleFontSize,
-              fontWeight: 600,
-              color: "rgb(17,17,17)",
-              letterSpacing: "-1.5px",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
-          >
+          <h1 className="m-0 font-['Poppins',_Inter,_sans-serif] font-semibold text-neutral-10 text-[42px] [@media(max-width:1470px)]:text-[36px] leading-[1.1] tracking-[-1.5px]">
             Target Subgroup Identification
           </h1>
-          <span
-            style={{
-              fontFamily: "Inter",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "rgb(120,119,118)",
-              letterSpacing: "-0.48px",
-            }}
-          >
+          <span className="font-semibold text-neutral-50" style={{ fontFamily: "Inter", fontSize: 16, letterSpacing: "-0.48px" }}>
             Cohort Filter Setup
           </span>
         </div>
@@ -662,7 +636,7 @@ export default function TSIFilterPage() {
             className="shrink-0 px-[8px] flex items-center justify-between h-[40px]"
             style={{ paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}
           >
-            <h2 className="font-['Inter'] font-semibold text-[24px] leading-[1.2] text-[#262255] tracking-[-0.72px] m-0">
+            <h2 className="font-['Inter'] font-semibold text-[24px] leading-[1.2] text-primary-15 tracking-[-0.72px] m-0">
               Filter
             </h2>
             <div className="flex items-center gap-[12px]">
@@ -715,7 +689,7 @@ export default function TSIFilterPage() {
             {/* ── 2-B-1. 왼쪽: Feature List 사이드바 / Left: Feature list sidebar ── */}
             <div className="w-[272px] shrink-0 flex flex-col gap-[12px]">
               <div className="px-[4px]">
-                <span className="font-['Inter'] font-medium text-[19.5px] leading-[1.2] text-[#484646] tracking-[-0.585px]">
+                <span className="font-['Inter'] font-medium text-[19.5px] leading-[1.2] text-neutral-30 tracking-[-0.585px]">
                   Feature List
                 </span>
               </div>
@@ -777,7 +751,7 @@ export default function TSIFilterPage() {
                         paddingBottom: 0,
                         display: "block",
                       }}
-                      className="placeholder:text-[#c6c5c9]"
+                      className="placeholder:text-neutral-80"
                     />
                   </div>
 
@@ -904,7 +878,7 @@ export default function TSIFilterPage() {
                   return (
                     <div
                       key={cat.name}
-                      className="flex flex-col border-b border-[#c7c5c9] last:border-none"
+                      className="flex flex-col border-b border-neutral-80 last:border-none"
                     >
                       {/* 카테고리 헤더 / Category header */}
                       <div
@@ -913,7 +887,7 @@ export default function TSIFilterPage() {
                           setActiveCat(cat.name);
                         }}
                         className={`flex items-center h-[48px] px-[18px] gap-[10px] cursor-pointer select-none ${
-                          isActive ? "bg-[#262255]" : "hover:bg-[#f9f8fc]"
+                          isActive ? "bg-primary-15" : "hover:bg-[#f9f8fc]"
                         }`}
                       >
                         <div className="shrink-0 w-[16px] h-[16px] flex items-center justify-center">
@@ -925,7 +899,7 @@ export default function TSIFilterPage() {
                         </div>
                         <span
                           className={`font-semibold text-[15px] leading-none tracking-[-0.45px] ${
-                            isActive ? "text-white" : "text-[#484646]"
+                            isActive ? "text-white" : "text-neutral-30"
                           }`}
                         >
                           {cat.name}
@@ -944,12 +918,12 @@ export default function TSIFilterPage() {
                                 onClick={() => setActiveFeature(isFeatureActive ? null : f)}
                                 onMouseEnter={() => setHoveredFeature(f)}
                                 onMouseLeave={() => setHoveredFeature(null)}
-                                className={`h-[44px] flex items-center pl-[44px] text-[15px] font-medium tracking-[-0.45px] border-t border-[#c7c5c9] first:border-none cursor-pointer select-none transition-colors ${
+                                className={`h-[44px] flex items-center pl-[44px] text-[15px] font-medium tracking-[-0.45px] border-t border-neutral-80 first:border-none cursor-pointer select-none transition-colors ${
                                   isFeatureActive
-                                    ? "bg-[#efeff4] text-[#262255] font-semibold"
+                                    ? "bg-[#efeff4] text-primary-15 font-semibold"
                                     : isFeatureHovered
-                                      ? "bg-[#f9f8fc] text-[#484646]"
-                                      : "text-[#919092]"
+                                      ? "bg-[#f9f8fc] text-neutral-30"
+                                      : "text-neutral-50"
                                 }`}
                               >
                                 {f}
@@ -980,7 +954,7 @@ export default function TSIFilterPage() {
                       setCheckedRows({});
                     }}
                     className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${
-                      activeTab === "Inclusion" ? "bg-[#262255] text-white" : "bg-transparent text-[#484646]"
+                      activeTab === "Inclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"
                     }`}
                   >
                     Inclusion
@@ -991,7 +965,7 @@ export default function TSIFilterPage() {
                       setCheckedRows({});
                     }}
                     className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${
-                      activeTab === "Exclusion" ? "bg-[#262255] text-white" : "bg-transparent text-[#484646]"
+                      activeTab === "Exclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"
                     }`}
                   >
                     Exclusion
@@ -1077,7 +1051,7 @@ export default function TSIFilterPage() {
                         border: "1px solid rgba(0,0,0,0.10)",
                       }}
                     />
-                    <span className="relative z-10 font-['Inter'] font-semibold text-[15px] text-[#262255] tracking-[-0.51px]">
+                    <span className="relative z-10 font-['Inter'] font-semibold text-[15px] text-primary-15 tracking-[-0.51px]">
                       Add Section
                     </span>
                     <div className="relative z-10">
@@ -1109,7 +1083,7 @@ export default function TSIFilterPage() {
                         >
                           <IconChevronDown size={14} color="#313030" />
                         </div>
-                        <span className="font-['Inter'] font-semibold text-[15px] text-[#313030] tracking-[-0.45px]">
+                        <span className="font-['Inter'] font-semibold text-[15px] text-neutral-10 tracking-[-0.45px]">
                           {section.name}
                         </span>
                       </div>
@@ -1148,7 +1122,7 @@ export default function TSIFilterPage() {
                               value={section.value}
                               placeholder="Write input"
                               onChange={(e) => updateSection(section.id, "value", e.target.value)}
-                              className="placeholder:text-[#c6c5c9]"
+                              className="placeholder:text-neutral-80"
                               style={{
                                 flex: 4,
                                 minWidth: 0,
@@ -1220,7 +1194,7 @@ export default function TSIFilterPage() {
                                 onChange={(e) =>
                                   updateSubRow(section.id, rIdx, "value", e.target.value)
                                 }
-                                className="placeholder:text-[#c6c5c9]"
+                                className="placeholder:text-neutral-80"
                                 style={{
                                   flex: 4,
                                   minWidth: 0,
@@ -1290,7 +1264,7 @@ export default function TSIFilterPage() {
             {/* Cancel 버튼 → 이전 페이지 / Cancel: go back */}
             <button
               onClick={() => router.back()}
-              className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] bg-[#787776] border-none cursor-pointer"
+              className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] bg-neutral-50 border-none cursor-pointer"
             >
               <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px]">
                 Cancel

@@ -272,7 +272,7 @@ function TSIBasisSelectionPageContent() {
                   <div className="flex flex-col flex-1 min-h-0 w-full" style={{ marginTop: 60 }}>
                     <div className="flex flex-col flex-1 min-h-0 w-full rounded-[12px] bg-white overflow-visible p-3">
                       <div
-                        className="flex-1 min-h-0 w-full overflow-hidden rounded-[8px]"
+                        className="flex-1 min-h-0 w-full overflow-hidden rounded-[8px] border border-neutral-80"
                         style={{ height: "100%" }}
                       >
                         <BasisChart basis={previewBasis} />

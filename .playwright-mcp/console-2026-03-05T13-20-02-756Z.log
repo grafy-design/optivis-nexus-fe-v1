@@ -1,0 +1,50 @@
+[     592ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[     665ms] [WARNING] Image with src "http://localhost:3000/assets/figma/home/sidebar-avatar-button.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[    1445ms] [WARNING] Image with src "http://localhost:3000/assets/tsi/set-check.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[   14954ms] [WARNING] [ECharts] DEPRECATED: "api.style" has been deprecated. Please write literal style directly instead. @ http://localhost:3000/_next/static/chunks/node_modules_echarts_lib_util_17ab60a1._.js:5783
+[  444939ms] ReferenceError: RadioButton is not defined
+    at eval (http://localhost:3000/_next/static/chunks/src_89265eac._.js?id=%255Bproject%255D%252Fsrc%252Fapp%252Ftsi%252Fsubgroup-selection%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:2804:314)
+    at Array.map (<anonymous>)
+    at TSISubgroupSelectionPageContent (http://localhost:3000/_next/static/chunks/src_89265eac._.js?id=%255Bproject%255D%252Fsrc%252Fapp%252Ftsi%252Fsubgroup-selection%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:2740:100)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:13072:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:4091:24)
+    at updateFunctionComponent (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:5523:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:6111:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:886:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8298:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8190:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8173:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:7932:56)
+    at performSyncWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8890:9)
+    at flushSyncWorkAcrossRoots_impl (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8809:316)
+    at flushSyncWork$1 (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8048:86)
+    at Object.scheduleRefresh (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:294:13)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_5150ccfd._.js:391:33
+    at Set.forEach (<anonymous>)
+    at Object.performReactRefresh (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_5150ccfd._.js:384:38)
+    at applyUpdate (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_5150ccfd._.js:878:31)
+    at http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_5150ccfd._.js:886:13
+[  466876ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:6270
+[  467450ms] [ERROR] Subgroup Summary API 호출 실패, 목업 데이터 사용: Error: 네트워크 연결에 실패했습니다. 서버(https://nexus.oprimed.com)에 연결할 수 없습니다. CORS 문제이거나 서버가 응답하지 않을 수 있습니다.
+    at fetcher (http://localhost:3000/_next/static/chunks/src_89265eac._.js:2012:23)
+    at async getSubgroupSummaryList (http://localhost:3000/_next/static/chunks/src_89265eac._.js:2056:12)
+    at async TSISubgroupSelectionPageContent.useEffect.fetchSubgroupSummary (http://localhost:3000/_next/static/chunks/src_89265eac._.js?id=%255Bproject%255D%252Fsrc%252Fapp%252Ftsi%252Fsubgroup-selection%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:1727:42) @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:2359
+[  467924ms] [WARNING] Image with src "http://localhost:3000/assets/figma/home/sidebar-avatar-button.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[  469509ms] ReferenceError: RadioButton is not defined
+    at http://localhost:3000/_next/static/chunks/src_89265eac._.js:4961:314
+    at Array.map (<anonymous>)
+    at TSISubgroupSelectionPageContent (http://localhost:3000/_next/static/chunks/src_89265eac._.js:4896:100)
+    at Object.react_stack_bottom_frame (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:13072:24)
+    at renderWithHooks (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:4091:24)
+    at updateFunctionComponent (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:5523:21)
+    at beginWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:6111:24)
+    at runWithFiberInDEV (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:886:74)
+    at performUnitOfWork (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8298:97)
+    at workLoopSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8190:40)
+    at renderRootSync (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8173:13)
+    at performWorkOnRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:7932:56)
+    at performWorkOnRootViaSchedulerTask (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js:8882:9)
+    at MessagePort.performWorkUntilDeadline (http://localhost:3000/_next/static/chunks/node_modules_next_dist_compiled_5150ccfd._.js:2601:64)
+[  474379ms] [WARNING] [Fast Refresh] performing full reload because your application had an unrecoverable error @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_cf1d9188._.js:6270
+[  475281ms] [WARNING] Image with src "http://localhost:3000/assets/figma/home/sidebar-avatar-button.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968
+[  476227ms] [WARNING] Image with src "http://localhost:3000/assets/tsi/set-check.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ http://localhost:3000/_next/static/chunks/node_modules_next_dist_b0daae9a._.js:968

@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useState, Fragment, useEffect } from "react";
+import { Suspense, useState, Fragment, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import RadioButton from "@/components/ui/radio-button";
 import { AppLayout } from "@/components/layout/AppLayout";
 import IconButton from "@/components/ui/icon-button";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
   getSubgroupSummaryList,
   type SubgroupSetSummary,
@@ -79,8 +80,7 @@ const getCiText = (
 ) => {
   if (!varianceDecomposition) return "";
   const listItem = varianceDecomposition[varianceDecomposition.length - 1];
-  return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci})
-  η²=${listItem.eta_square}, ω²=${listItem.omega} `;
+  return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci}) η²=${listItem.eta_square}, ω²=${listItem.omega}`;
 };
 
 /** 표시할 그룹 수를 계산합니다. / Calculates group count, capped at MAX_GROUP_DISPLAY_COUNT. */
@@ -130,6 +130,14 @@ const getGroupColor = (classification: string): string => {
   if (classification === "low") return "#AAA5E1";
   return "#231F52";
 };
+
+/** hex 색상을 rgba로 변환 / Converts hex color to rgba string */
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 /** classification 기준으로 배열 정렬 (high > middle > low) / Sorts array by classification */
 const sortByClassification = <T extends { classification?: string; group?: string }>(
@@ -338,6 +346,15 @@ function buildDiseaseProgressionChartOption(
       lineStyle: { color, width: 2 },
       symbol: "circle",
       symbolSize: isNarrow ? 6 : 10,
+      emphasis: {
+        focus: "series" as const,
+        itemStyle: { opacity: 1, borderWidth: 2, borderColor: color, color },
+        lineStyle: { width: 3 },
+      },
+      blur: {
+        itemStyle: { opacity: 0.6 },
+        lineStyle: { opacity: 0.6 },
+      },
     };
   });
 
@@ -385,10 +402,11 @@ function buildDiseaseProgressionChartOption(
   const xMaxLabelW = measureW(months[months.length - 1].toString());
 
   return {
-    animation: false,
+    animation: true,
+    animationDuration: 500,
     grid: {
       left: "16px",
-      right: "4px",
+      right: "6px",
       top: "1px",
       bottom: "14px",
       containLabel: true,
@@ -466,7 +484,43 @@ function buildDiseaseProgressionChartOption(
       axisTick: { show: false },
       splitLine: { show: true, lineStyle: { type: "solid", color: "#e3e1e5", width: 1 } },
     },
-    tooltip: { show: false, trigger: "none" as const, axisPointer: { show: false } },
+    tooltip: {
+      show: true,
+      trigger: "axis" as const,
+      confine: true,
+      axisPointer: {
+        type: "cross" as const,
+        lineStyle: { color: "#D2D2DA" },
+        crossStyle: { color: "#D2D2DA" },
+        label: {
+          show: true,
+          backgroundColor: "transparent",
+          color: "#787776",
+          fontSize: 10,
+          fontFamily: "Inter",
+          fontWeight: 500,
+          margin: 0.8,
+          formatter: (params: { axisDimension: string; value: number }) => {
+            if (params.axisDimension === "x") return `${params.value.toFixed(1)}`;
+            return params.value.toFixed(2);
+          },
+        },
+      },
+      backgroundColor: "rgba(255,255,255,0.96)",
+      borderColor: "#D2D2DA",
+      borderWidth: 1,
+      textStyle: { fontSize: 11, fontFamily: "Inter", color: "#484646" },
+      formatter: (params: Array<{ seriesName: string; marker: string; value: [number, number] }>) => {
+        if (!Array.isArray(params) || params.length === 0) return "";
+        const month = params[0].value[0];
+        const filtered = params.filter((p) => !p.seriesName.endsWith(" error"));
+        let html = `<div style="font-size:9px;font-family:Inter;color:#484646;font-weight:600;margin-bottom:4px">${month.toFixed(1)} month</div>`;
+        filtered.forEach((p) => {
+          html += `<div style="display:flex;align-items:center;gap:4px;padding:1px 0">${p.marker}<span style="color:#484646;font-size:9px;flex:1">${p.seriesName}</span><span style="color:#484646;font-size:12px;font-weight:600;text-align:right">${p.value[1].toFixed(2)}</span></div>`;
+        });
+        return html;
+      },
+    },
     legend: { show: false },
     series: [...series, ...errorBarSeries],
   };
@@ -478,6 +532,7 @@ function buildDiseaseProgressionChartOption(
  */
 function buildVarianceDecompositionChartOption(
   decompositionData: NonNullable<ResultTableItem["variance_decomposition"]>,
+  hoveredSeries: number | null = null,
 ) {
   const totalVarianceValue = decompositionData[0]?.variance || 0;
   const vrRatio = Math.max(0, Math.min(1, decompositionData[0]?.vr ?? 0));
@@ -487,21 +542,27 @@ function buildVarianceDecompositionChartOption(
   const varianceBarWidth = "82%";
   const ciText = getCiText(decompositionData);
 
+  const withinActive = hoveredSeries === null || hoveredSeries === 0;
+  const explainedActive = hoveredSeries === null || hoveredSeries === 1;
+
   return {
-    animation: false,
+    animation: true,
+    animationDuration: 300,
+    animationEasing: "cubicOut",
     grid: {
       left: "18px",
       right: "0",
-      top: "2px",
+      top: "5px",
       bottom: "0px",
       containLabel: true,
     },
     xAxis: {
       type: "category" as const,
-      data: ["Explained"],
+      data: ["Total"],
       axisLabel: { show: true, fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } },
       axisTick: { show: false },
+      axisPointer: { label: { show: false } },
     },
     yAxis: {
       type: "value" as const,
@@ -523,7 +584,22 @@ function buildVarianceDecompositionChartOption(
       axisTick: { show: false },
       splitLine: { show: true, lineStyle: { color: "#e3e1e5" } },
     },
-    tooltip: { show: false },
+    tooltip: {
+      show: true,
+      trigger: "axis" as const,
+      confine: true,
+      axisPointer: { type: "shadow" as const, z: -1, shadowStyle: { color: "rgba(150,150,150,0.08)" }, label: { show: true, backgroundColor: "transparent", color: "#787776", fontSize: 10, fontFamily: "Inter", fontWeight: 500, margin: 4 } },
+      backgroundColor: "rgba(255,255,255,0.96)",
+      borderColor: "#D2D2DA",
+      borderWidth: 1,
+      textStyle: { fontSize: 11, fontFamily: "Inter", color: "#484646" },
+      formatter: (params: Array<{ seriesName: string; marker: string; value: number }>) => {
+        if (!Array.isArray(params)) return "";
+        return params
+          .map((p) => `<div style="display:flex;align-items:center;gap:4px;padding:1px 0">${p.marker}<span style="color:#484646;font-size:9px;flex:1">${p.seriesName}</span><span style="color:#484646;font-size:12px;font-weight:600;text-align:right">${p.value.toFixed(2)}</span></div>`)
+          .join("");
+      },
+    },
     legend: { show: false },
     series: [
       {
@@ -531,7 +607,7 @@ function buildVarianceDecompositionChartOption(
         type: "bar" as const,
         stack: "variance",
         data: [withinPooled],
-        itemStyle: { color: "#231F52", borderRadius: [8, 8, 8, 8] },
+        itemStyle: { color: hexToRgba("#231F52", withinActive ? 1 : 0.6), borderRadius: [8, 8, 8, 8] },
         barWidth: varianceBarWidth,
       },
       {
@@ -539,8 +615,9 @@ function buildVarianceDecompositionChartOption(
         type: "bar" as const,
         stack: "variance",
         data: [explainedTotal],
-        itemStyle: { color: "#AAA5E1", borderRadius: [8, 8, 8, 8] },
+        itemStyle: { color: hexToRgba("#AAA5E1", explainedActive ? 1 : 0.6), borderRadius: [8, 8, 8, 8] },
         barWidth: varianceBarWidth,
+        label: { show: false },
       },
     ],
   };
@@ -553,34 +630,72 @@ function buildVarianceDecompositionChartOption(
 function buildWithinGroupVarianceChartOption(
   sortedVariance: NonNullable<ResultTableItem["within_group_variance_by_subgroup"]>,
   isNarrow = false,
+  hoveredIdx: number | null = null,
 ) {
   const maxVar = Math.max(...sortedVariance.map((v) => v.variance));
   const totalVarValue = sortedVariance.length > 0 ? sortedVariance[0].total_var : 0;
   const yAxisMax = Math.max(maxVar, totalVarValue) * 1.2;
 
   return {
-    animation: false,
+    animation: true,
+    animationDuration: 300,
+    animationEasing: "cubicOut",
     grid: {
-      left: "14px",
+      left: "24px",
       right: "0",
-      top: "2px",
+      top: "5px",
       bottom: "0px",
       containLabel: true,
     },
-    xAxis: { type: "category" as const, data: sortedVariance.map((v) => v.classification === "high" ? "High" : v.classification === "middle" ? "Middle" : "Low"), axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false } },
+    xAxis: { type: "category" as const, data: sortedVariance.map((v) => v.classification === "high" ? "High" : v.classification === "middle" ? "Middle" : "Low"), axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false }, axisPointer: { label: { show: false } } },
     yAxis: { type: "value" as const, name: "Variance", nameLocation: "middle", nameGap: 32, max: yAxisMax, splitNumber: 5, nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" }, axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4, formatter: (value: number) => value.toFixed(1) }, axisLine: { show: true, onZero: false, lineStyle: { color: "#787776", width: 1 } }, axisTick: { show: false }, splitLine: { show: true, lineStyle: { color: "#e3e1e5" } } },
-    tooltip: { show: false }, legend: { show: false },
+    tooltip: {
+      show: true,
+      trigger: "axis" as const,
+      confine: true,
+      axisPointer: { type: "shadow" as const, z: -1, shadowStyle: { color: "rgba(150,150,150,0.08)" }, label: { show: true, backgroundColor: "transparent", color: "#787776", fontSize: 10, fontFamily: "Inter", fontWeight: 500, margin: 4 } },
+      backgroundColor: "rgba(255,255,255,0.96)",
+      borderColor: "#D2D2DA",
+      borderWidth: 1,
+      textStyle: { fontSize: 11, fontFamily: "Inter", color: "#484646" },
+      formatter: (params: Array<{ marker: string; name: string; data?: { value: number; sampleN?: number | null } }>) => {
+        if (!Array.isArray(params)) return "";
+        return params.map((p) => {
+          const val = p.data?.value?.toFixed(2) ?? "";
+          const n = p.data?.sampleN;
+          const nText = typeof n === "number" ? ` (n=${n})` : "";
+          return `<div style="display:flex;align-items:center;gap:4px;padding:1px 0">${p.marker}<span style="color:#484646;font-size:9px;flex:1">${p.name}</span><span style="color:#484646;font-size:12px;font-weight:600;text-align:right">${val}${nText}</span></div>`;
+        }).join("");
+      },
+    }, legend: { show: false },
     series: [{
       type: "bar" as const,
-      data: sortedVariance.map((v) => ({
-        value: v.variance,
-        sampleN: typeof v.number === "number" ? Math.round(v.number) : null,
-        itemStyle: { color: getGroupColor(v.classification), borderRadius: [8, 8, 8, 8] },
-        label: v.variance === maxVar ? { color: "inherit" } : { color: "#787776" },
-      })),
+      data: sortedVariance.map((v, i) => {
+        const isActive = hoveredIdx === null || hoveredIdx === i;
+        const color = getGroupColor(v.classification);
+        return {
+          value: v.variance,
+          sampleN: typeof v.number === "number" ? Math.round(v.number) : null,
+          itemStyle: { color: hexToRgba(color, isActive ? 1 : 0.6), borderRadius: [8, 8, 8, 8] },
+          label: {
+            color: hoveredIdx === null
+              ? (v.variance === maxVar ? color : "#787776")
+              : isActive
+                ? (v.variance === maxVar ? color : "#787776")
+                : hexToRgba("#787776", 0.6),
+          },
+        };
+      }),
       barWidth: "85%",
-      label: { show: true, position: "top", distance: 2, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#787776", fontFamily: "Inter, sans-serif", fontSize: isNarrow ? 10.5 : 12, fontWeight: 500, lineHeight: isNarrow ? 11.025 : 13.2 },
-      markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", lineHeight: 11.025, color: "#787776", offset: [0, 2] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
+      z: 3,
+      label: { show: true, position: "top", distance: 2, align: "center" as const, formatter: (params: { data?: { sampleN?: number | null } }) => { const sampleN = params.data?.sampleN; return typeof sampleN === "number" ? `n=${sampleN}` : ""; }, color: "#787776", fontFamily: "Inter, sans-serif", fontSize: isNarrow ? 10.5 : 12, fontWeight: 500, lineHeight: isNarrow ? 11.55 : 13.2 },
+    },
+    {
+      type: "line" as const,
+      data: [],
+      z: 1,
+      tooltip: { show: false },
+      markLine: { silent: true, symbol: "none", animation: false, label: { show: true, position: "insideEndTop", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", lineHeight: 11.025, color: "#787776", offset: [0, 2] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },
     }],
   };
 }
@@ -592,6 +707,31 @@ function buildWithinGroupVarianceChartOption(
  * Component displayed when a table row is expanded.
  */
 function ExpandedRowContent({ row }: { row: ResultTableItem }) {
+  const [hoveredVdSeries, setHoveredVdSeries] = useState<number | null>(null);
+  const [hoveredWgIdx, setHoveredWgIdx] = useState<number | null>(null);
+
+  const vdEvents = useMemo(() => ({
+    mouseover: (params: any) => {
+      if (params.seriesIndex !== undefined) setHoveredVdSeries(params.seriesIndex);
+    },
+    mouseout: () => setHoveredVdSeries(null),
+    globalout: () => setHoveredVdSeries(null),
+  }), []);
+
+  const wgEvents = useMemo(() => ({
+    mouseover: (params: any) => {
+      if (params.dataIndex !== undefined) setHoveredWgIdx(params.dataIndex);
+    },
+    mouseout: () => setHoveredWgIdx(null),
+    globalout: () => setHoveredWgIdx(null),
+    updateaxispointer: (params: any) => {
+      const axesInfo = params?.axesInfo;
+      if (axesInfo && axesInfo.length > 0 && axesInfo[0].value !== undefined) {
+        setHoveredWgIdx(axesInfo[0].value);
+      }
+    },
+  }), []);
+
   const detailGroupLimit = getDisplayGroupCount(
     row.of_group,
     row.number_or_patient?.length ??
@@ -717,10 +857,10 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3 ">
                     <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-1 font-semibold text-[#231f52]">
                       <div className="flex-1">
-                        <p className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">Group</p>
+                        <p className="text-body4 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">Group</p>
                       </div>
                       <div className="flex-1">
-                        <p className="text-body5 text-primary-15 [@media(max-width:1470px)]:text-small1 ">
+                        <p className="text-body4 text-primary-15 [@media(max-width:1470px)]:text-small1 ">
                           Number of patients
                         </p>
                       </div>
@@ -745,13 +885,13 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                               style={{ backgroundColor: groupColor }}
                             />
                             <div>
-                              <p className="text-body4m  text-neutral-30 ">
+                              <p className="text-body5m  text-neutral-30 ">
                                 {groupName}
                               </p>
                             </div>
                           </div>
                           <div className="flex-1">
-                            <p className="text-body4m  text-neutral-30">
+                            <p className="text-body5m  text-neutral-30">
                               {patient.number.toLocaleString()}
                             </p>
                           </div>
@@ -790,18 +930,18 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                       </h3>
                       <div className="mb-4 flex gap-5">
                         <div>
-                          <div className="text-body5  [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
+                          <div className="text-body5  [@media(max-width:1470px)]:text-small1 font-semibold text-secondary-60">
                             Variance
                           </div>
-                          <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
+                          <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-secondary-60">
                             {totalVariance.toFixed(2)}
                           </div>
                         </div>
                         <div>
-                          <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
+                          <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-secondary-60">
                             VR
                           </div>
-                          <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
+                          <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-secondary-60">
                             {totalVR.toFixed(3)}
                           </div>
                         </div>
@@ -826,26 +966,24 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   </div>
                   <div className="bg-white">
                     {row.variance_decomposition && row.variance_decomposition.length > 0 ? (
-                      <div className="relative w-full" style={{ paddingBottom: "60%" }}>
-                        <div className="absolute inset-0">
-                          <ReactECharts
-                            option={buildVarianceDecompositionChartOption(
-                              row.variance_decomposition,
-                            )}
-                            style={{ height: "100%", width: "100%" }}
-                          />
-                        </div>
-                        <div className="pointer-events-none absolute top-0 left-[26px] right-0 z-10 flex justify-center">
-                          <div className="rounded-[6px] border border-neutral-80 bg-white p-1 w-fit">
-                            <p className="text-small2 text-neutral-50">
-                              {getCiText(row.variance_decomposition)}
-                            </p>
+                      <>
+                        <div className="relative w-full" style={{ paddingBottom: "60%" }}>
+                          <div className="absolute inset-0">
+                            <ReactECharts
+                              option={buildVarianceDecompositionChartOption(
+                                row.variance_decomposition,
+                                hoveredVdSeries,
+                              )}
+                              style={{ height: "100%", width: "100%" }}
+                              onEvents={vdEvents}
+                            />
                           </div>
                         </div>
-                      </div>
+                        <p className="mt-1 text-[9px] leading-[1.3] text-neutral-50 break-all">{getCiText(row.variance_decomposition)}</p>
+                      </>
                     ) : (
                       <div className="flex h-full items-center justify-center">
-                        <span className="text-sm text-[#484646]">No data available</span>
+                        <span className="text-body4m text-neutral-30">No data available</span>
                       </div>
                     )}
                   </div>
@@ -866,10 +1004,10 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                               : "Low";
                         return (
                           <div key={v.group}>
-                            <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-[#f06600]">
+                            <div className="text-body5 [@media(max-width:1470px)]:text-small1 font-semibold text-secondary-60">
                               {displayName}
                             </div>
-                            <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-[#f06600]">
+                            <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-secondary-60">
                               {v.variance.toFixed(2)}
                             </div>
                           </div>
@@ -881,13 +1019,14 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                     {sortedVariance.length > 0 ? (
                       <div className="absolute inset-0">
                         <ReactECharts
-                          option={buildWithinGroupVarianceChartOption(sortedVariance, typeof window !== "undefined" && window.innerWidth <= 1470)}
+                          option={buildWithinGroupVarianceChartOption(sortedVariance, typeof window !== "undefined" && window.innerWidth <= 1470, hoveredWgIdx)}
                           style={{ height: "100%", width: "100%" }}
+                          onEvents={wgEvents}
                         />
                       </div>
                     ) : (
                       <div className="flex h-full items-center justify-center">
-                        <span className="text-sm text-[#484646]">No data available</span>
+                        <span className="text-body4m text-neutral-30">No data available</span>
                       </div>
                     )}
                   </div>
@@ -928,6 +1067,9 @@ function TSISubgroupSelectionPageContent() {
   const [resultTableData, setResultTableData] = useState<ResultTableItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 포레스트 차트 툴팁 (마우스 추적)
+  const [forestTooltip, setForestTooltip] = useState<{ setIndex: number; x: number; y: number } | null>(null);
 
   // 페이지 마운트 시 API 호출
   useEffect(() => {
@@ -1069,7 +1211,7 @@ function TSISubgroupSelectionPageContent() {
                 }}
               >
                 {/* ── 카드 헤더 / Card header ── */}
-                <div className="mb-[60px] flex-shrink-0 px-4 pt-4 pb-3">
+                <div className="mb-[48px] flex-shrink-0 px-4 pt-4 pb-3">
                   <h2 className="text-body1 text-white">
                     Subgroup Sets Summary
                   </h2>
@@ -1079,7 +1221,7 @@ function TSISubgroupSelectionPageContent() {
                   <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] border bg-white px-4 py-2">
                     {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
                     <div className="flex min-h-0 flex-1 flex-col overflow-hidden ">
-                      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+                      <div className="group/forest flex min-h-0 flex-col overflow-y-auto">
                         {isLoading ? (
                           <div className="flex h-full items-center justify-center">
                             <div className="text-body3 text-white">
@@ -1126,7 +1268,7 @@ function TSISubgroupSelectionPageContent() {
                             return (
                               <div
                                 key={`${set.set_name}_${index}`}
-                                className="border-neutral-80 flex min-h-fit flex-1 border-b last:border-b-0"
+                                className="group/row border-neutral-80 flex min-h-fit border-b last:border-b-0 transition-all duration-200 group-hover/forest:opacity-60 hover:!opacity-100 hover:bg-primary-98"
                               >
                                 {/* 왼쪽 셀: Set 버튼 + Groups (한 행 = 하나의 div, 2개 cell 구조) */}
                                 <div className="border-neutral-80 flex w-[112px] flex-shrink-0 flex-col border-r px-0 py-2 [@media(max-width:1470px)]:py-1 min-h-fit">
@@ -1170,7 +1312,11 @@ function TSISubgroupSelectionPageContent() {
                                   </div>
                                 </div>
                                 {/* 오른쪽 셀: 왼쪽 기준 맞춤 */}
-                                <div className="relative flex min-w-0 flex-1 flex-col min-h-fit py-2 [@media(max-width:1470px)]:py-1 pr-4 pl-2">
+                                <div
+                                  className="group/set relative flex min-w-0 flex-1 flex-col min-h-fit py-2 [@media(max-width:1470px)]:py-1 pr-4 pl-2"
+                                  onMouseMove={(e) => setForestTooltip({ setIndex: index, x: e.clientX, y: e.clientY })}
+                                  onMouseLeave={() => setForestTooltip(null)}
+                                >
                                   {/* Set label 영역과 동일: flex-1 스페이서 */}
                                   <div
                                     className="flex-1 flex-shrink-0"
@@ -1185,7 +1331,7 @@ function TSISubgroupSelectionPageContent() {
                                     {Array.from({ length: 9 }).map((_, i) => (
                                       <span
                                         key={i}
-                                        className="bg-neutral-90/20 h-full w-px flex-shrink-0"
+                                        className="bg-neutral-90/20 group-hover/row:bg-neutral-90/40 h-full w-px flex-shrink-0 transition-colors duration-200"
                                       />
                                     ))}
                                   </div>
@@ -1295,7 +1441,43 @@ function TSISubgroupSelectionPageContent() {
                           })
                         )}
                       </div>
-                      {/* overflow-y-auto */}
+                      {/* 포레스트 차트 툴팁 (fixed, 마우스 추적) */}
+                      {forestTooltip && (() => {
+                        const ttSet = summaryData[forestTooltip.setIndex];
+                        if (!ttSet) return null;
+                        const ttLimit = getDisplayGroupCount(
+                          resultTableData.find((r) => r.set_name === ttSet.set_name)?.of_group,
+                          ttSet.groups.length,
+                        );
+                        const ttGroups = ttSet.groups.slice(0, ttLimit);
+                        return (
+                          <div
+                            className="pointer-events-none fixed z-[9999] rounded-[6px] border border-neutral-80 bg-white px-2.5 py-1.5 shadow-[0px_2px_8px_rgba(0,0,0,0.12)]"
+                            style={{ left: forestTooltip.x + 12, top: forestTooltip.y - 8, whiteSpace: "nowrap" }}
+                          >
+                            {ttGroups.map((g, gi) => {
+                              const groupNum = g.group.replace("group", "");
+                              return (
+                                <div key={gi} className="flex items-start gap-[2px] py-0.5">
+                                  <span
+                                    className="inline-block h-2 w-2 shrink-0 rounded-full mt-[3px]"
+                                    style={{ backgroundColor: GROUP_BAR_COLORS[gi % GROUP_BAR_COLORS.length] }}
+                                  />
+                                  <div className="flex flex-col">
+                                    <span className="text-small2 text-neutral-30">Group {groupNum}</span>
+                                    <div className="flex items-baseline text-neutral-50">
+                                      <span className="text-small2 flex-shrink-0">Mean</span><span className="text-body5m ml-auto pl-2">{g.mean.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex items-baseline text-neutral-50">
+                                      <span className="text-small2 flex-shrink-0">CIWidth</span><span className="text-body5m ml-auto pl-2">[{g.ci_low.toFixed(2)}, {g.ci_high.toFixed(2)}]</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
                       {/* X축 행: 왼쪽 빈 칸 + 오른쪽에만 Slow/Rapid (위쪽 선은 마지막 Set 행 border-b로만 표시) */}
                       <div
                         className={`flex flex-shrink-0 border-t border-neutral-80 ${error ? "invisible" : ""}`}
@@ -1355,13 +1537,10 @@ function TSISubgroupSelectionPageContent() {
               <div className="relative flex min-h-0 flex-1 flex-col p-0">
                 {/* ── 2-A-R-1. 흰색 테이블 카드 / White table card ── */}
                 <div
-                  className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] bg-white px-4 py-2"
-                  style={{
-                    boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-                  }}
+                  className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] bg-white pl-3 pr-1 py-2"
                 >
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                    <div className="min-h-0 w-full flex-1 overflow-auto">
+                    <div className="min-h-0 w-full flex-1 overflow-y-auto" style={{ scrollbarGutter: "stable" }}>
                       {/* 전통적인 HTML 테이블: 좌우 padding 8px 고정, 헤더 컬럼 auto */}
                         <table className="w-full table-fixed border-collapse">
                           <colgroup>
@@ -1523,7 +1702,7 @@ function TSISubgroupSelectionPageContent() {
                                       }}
                                     >
                                       <td
-                                        className={`${TABLE_BODY_CELL_BASE_NO_BORDER} text-center`}
+                                        className={`${TABLE_BODY_CELL_BASE_NO_BORDER} text-center align-middle`}
                                       >
                                         <div
                                           className={
@@ -1541,22 +1720,25 @@ function TSISubgroupSelectionPageContent() {
                                               e.stopPropagation();
                                               toggleRowExpansion(rowNo);
                                             }}
-                                            className="text-neutral-40 hover:text-neutral-30 active:text-neutral-20 inline-flex shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent transition-colors duration-150"
+                                            className="px-3 text-neutral-40 hover:text-neutral-30 active:text-neutral-20 inline-flex shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent transition-colors duration-150"
                                             title={
                                               isExpanded ? "접기" : "펼치기"
                                             }
                                           >
                                             <svg
-                                              viewBox="0 0 20 20"
+                                              viewBox="0 0 24 24"
                                               fill="none"
                                               xmlns="http://www.w3.org/2000/svg"
-                                              className={`w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-40 transition-transform duration-200 ${
+                                              className={`w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-40 transition-transform duration-200 origin-center ${
                                                 isExpanded ? "rotate-180" : ""
                                               }`}
                                             >
                                               <path
-                                                d="M12.0078 16C11.6866 16 11.394 15.8735 11.1299 15.6205L5.31077 9.79886C5.20718 9.6926 5.12949 9.57875 5.07769 9.45731C5.0259 9.33586 5 9.2043 5 9.06262C5 8.86528 5.04661 8.68564 5.13984 8.52372C5.23825 8.3618 5.36774 8.23529 5.5283 8.14421C5.69404 8.04807 5.87532 8 6.07214 8C6.37255 8 6.6367 8.10879 6.86459 8.32638L12.3496 13.8368L11.6659 13.8368L17.1354 8.32638C17.3633 8.10879 17.6274 8 17.9279 8C18.1247 8 18.3034 8.04807 18.4639 8.14421C18.6297 8.2353 18.7592 8.3618 18.8524 8.52372C18.9508 8.68564 19 8.86528 19 9.06262C19 9.34599 18.8964 9.58887 18.6892 9.79127L12.8701 15.6205C12.7458 15.747 12.6112 15.8406 12.4661 15.9013C12.3263 15.9621 12.1735 15.9949 12.0078 16Z"
-                                                fill="currentColor"
+                                                d="M6 9L12 15L18 9"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
                                               />
                                             </svg>
                                           </IconButton>
@@ -1571,11 +1753,14 @@ function TSISubgroupSelectionPageContent() {
                                         >
                                           <RadioButton
                                             checked={isSelected}
-                                            onChange={() =>
+                                            onChange={() => {
                                               setSelectedSetNo(
                                                 isSelected ? "" : rowNo,
-                                              )
-                                            }
+                                              );
+                                              if (!isSelected) {
+                                                toggleRowExpansion(rowNo);
+                                              }
+                                            }}
                                             size={17}
                                           />
                                         </div>
@@ -1598,13 +1783,31 @@ function TSISubgroupSelectionPageContent() {
                                               {row.set_name}
                                             </span>
                                             {row.variance_benefit_label && (
-                                              <Image
-                                                src="/assets/tsi/set-check.svg"
-                                                alt=""
-                                                width={18}
-                                                height={18}
-                                                className="flex-shrink-0"
-                                              />
+                                              <TooltipPrimitive.Provider delayDuration={0}>
+                                                <TooltipPrimitive.Root defaultOpen>
+                                                  <TooltipPrimitive.Trigger asChild>
+                                                    <Image
+                                                      src="/assets/tsi/set-check.svg"
+                                                      alt=""
+                                                      width={18}
+                                                      height={18}
+                                                      className="flex-shrink-0"
+                                                    />
+                                                  </TooltipPrimitive.Trigger>
+                                                  <TooltipPrimitive.Portal>
+                                                    <TooltipPrimitive.Content
+                                                      side="top"
+                                                      sideOffset={6}
+                                                      className="z-50 rounded-[8px] bg-white/90 px-[6px] pt-[2px] pb-[6px] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.3)] backdrop-blur-[65px]"
+                                                    >
+                                                      <span className="text-body5m text-primary-15 tracking-[-0.36px]">
+                                                        Recommend
+                                                      </span>
+                                                      <TooltipPrimitive.Arrow className="fill-white" width={14} height={7} />
+                                                    </TooltipPrimitive.Content>
+                                                  </TooltipPrimitive.Portal>
+                                                </TooltipPrimitive.Root>
+                                              </TooltipPrimitive.Provider>
                                             )}
                                           </span>
                                         </div>
@@ -1682,7 +1885,7 @@ function TSISubgroupSelectionPageContent() {
                                             aria-label={`Refine cutoffs for set ${rowNo}`}
                                             type="button"
                                             size="sm"
-                                            className="!w-7 !h-7 text-neutral-40 hover:text-tertiary-30 active:text-tertiary-20 shrink-0 cursor-pointer rounded border-0 bg-transparent transition-colors duration-150 hover:bg-tertiary-95 active:bg-tertiary-90"
+                                            className="!w-7 !h-7 text-neutral-40 hover:text-primary-30 active:text-primary-100 shrink-0 cursor-pointer rounded border-0 bg-transparent transition-colors duration-150 hover:bg-primary-95 active:bg-tertiary-30"
                                             title="Refine Cutoffs"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -1755,7 +1958,7 @@ function TSISubgroupSelectionPageContent() {
             </div>
           </div>
           {/* ── 2-B. 하단 버튼 영역 / Bottom button area ── */}
-          <div className="flex flex-shrink-0 items-center justify-end pr-3 pb-6 gap-4 ">
+          <div className="flex flex-shrink-0 items-center justify-end pr-3 pb-6 gap-3 ">
             <button
               type="button"
               style={{

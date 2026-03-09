@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import SimpleBar from "simplebar-react";
@@ -20,14 +20,6 @@ import CustomCheckbox from "@/components/ui/custom-checkbox";
  */
 export default function TSIPage() {
   const router = useRouter();
-  const [titleFontSize, setTitleFontSize] = useState(42);
-  useEffect(() => {
-    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
   // ── 파일 업로드 상태 / File upload state ──────────────────────────────
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
@@ -167,28 +159,10 @@ export default function TSIPage() {
 
           {/* ── 1. 페이지 타이틀 / Page title ──────────────────── */}
           <div style={{ flexShrink: 0, padding: "0px 12px 0 12px" }}>
-            <h1
-              style={{
-                fontFamily: "Poppins, Inter, sans-serif",
-                fontSize: titleFontSize,
-                fontWeight: 600,
-                color: "rgb(17,17,17)",
-                letterSpacing: "-1.5px",
-                lineHeight: 1.1,
-                margin: 0,
-              }}
-            >
+            <h1 className="m-0 font-['Poppins',_Inter,_sans-serif] font-semibold text-neutral-10 text-[42px] [@media(max-width:1470px)]:text-[36px] leading-[1.1] tracking-[-1.5px]">
               Data Setting
             </h1>
-            <span
-              style={{
-                fontFamily: "Inter",
-                fontSize: 16,
-                fontWeight: 600,
-                color: "rgb(120,119,118)",
-                letterSpacing: "-0.48px",
-              }}
-            >
+            <span className="font-semibold text-neutral-50" style={{ fontFamily: "Inter", fontSize: 16, letterSpacing: "-0.48px" }}>
               Simulation templates are provided to show the required input
               structure. Please review before proceeding.
             </span>
@@ -277,7 +251,7 @@ export default function TSIPage() {
                             Data Template Download
                           </h3>
                         </div>
-                        <p className="text-body4m text-[#aaaaad] text-center px-0">
+                        <p className="text-body4m text-neutral-60 text-center px-0">
                           Download a guide file that includes optimized data
                           formats and examples for service analysis
                         </p>
@@ -315,7 +289,7 @@ export default function TSIPage() {
                         <h3 className="text-body3 text-neutral-10 text-center mt-4">
                           Click to upload or Drag and drop
                         </h3>
-                        <div className="text-body4m text-[#aaaaad] text-center mt-3 leading-normal">
+                        <div className="text-body4m text-neutral-60 text-center mt-3 leading-normal">
                           svg, xlsx
                           <br />
                           *Maximum file size: n MB per file
@@ -421,7 +395,7 @@ export default function TSIPage() {
                           ) : (
                             /* 데이터 없을 때 빈 상태 / Empty state */
                             <div className="px-5 py-20 flex items-center justify-center h-full min-h-[348px]">
-                              <p className="text-body4 text-[#828993]">
+                              <p className="text-body4 text-neutral-50">
                                 No saved simulations.
                               </p>
                             </div>
@@ -450,7 +424,7 @@ export default function TSIPage() {
                           ) : (
                             /* 데이터 없을 때 빈 상태 / Empty state */
                             <div className="px-5 py-20 flex items-center justify-center h-full min-h-[394px]">
-                              <p className="text-body4 text-[#828993]">
+                              <p className="text-body4 text-neutral-50">
                                 No saved simulations.
                               </p>
                             </div>

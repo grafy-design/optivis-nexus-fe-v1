@@ -56,13 +56,19 @@ export const SHAPSummaryPlotChart = ({
       .map((item) => item.feature)
       .slice(0, 10);
 
-    const chartData = points
-      .filter((d) => featureOrder.includes(d.feature))
+    const filteredPoints = points.filter((d) => featureOrder.includes(d.feature));
+
+    const chartData = filteredPoints
       .map((d, i) => {
         const idx = featureOrder.indexOf(d.feature);
         const y = idx + jitterFromIndex(i);
         return [d.shap, y, d.colorValue, d.feature] as [number, number, number, string];
       });
+
+    // 피처별 시리즈 데이터 분리 (행 단위 강조용)
+    const seriesByFeature = featureOrder.map((feature) =>
+      chartData.filter(([, , , f]) => f === feature)
+    );
 
     const maxAbsShap = chartData.reduce((acc, [x]) => Math.max(acc, Math.abs(x)), 0.1);
     const xLimit = Math.ceil(maxAbsShap * 10) / 10;
@@ -78,9 +84,18 @@ export const SHAPSummaryPlotChart = ({
       const b = Math.round(0xFF + (0x52 - 0xFF) * t);
       return `rgb(${r},${g},${b})`;
     };
+    const interpolateEmphasisColor = (t: number) => {
+      // tertiary-95 #bfb0f8 (low) → tertiary-15 #231368 (high)
+      const r = Math.round(0xBF + (0x23 - 0xBF) * t);
+      const g = Math.round(0xB0 + (0x13 - 0xB0) * t);
+      const b = Math.round(0xF8 + (0x68 - 0xF8) * t);
+      return `rgb(${r},${g},${b})`;
+    };
 
     const baseOption: EChartsOption = {
       animation: true,
+      animationDuration: 300,
+      animationEasing: "cubicOut",
       title: {
         text: "",
         left: 0,
@@ -104,6 +119,10 @@ export const SHAPSummaryPlotChart = ({
       tooltip: {
         trigger: "item",
         padding: [4, 6],
+        borderWidth: 0,
+        borderColor: "transparent",
+        extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
+        axisPointer: { type: "shadow", axis: "y" },
         textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
         formatter: (params) => {
           const item = Array.isArray(params) ? params[0] : params;
@@ -114,7 +133,9 @@ export const SHAPSummaryPlotChart = ({
           const shap = Number(value[0] ?? 0);
           const cv = Number(value[2] ?? 0);
           const name = String(value[3] ?? "");
-          return `${name}<br/>SHAP: ${shap.toFixed(3)}<br/>Color value: ${cv.toFixed(3)}`;
+          const row = (label: string, val: string) =>
+            `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="font-size:9px;font-weight:500">${label}</span><span style="font-size:13px;font-weight:600">${val}</span></div>`;
+          return `<div style="font-family:Inter,sans-serif">${(item as any).marker ?? ""}${name}${row("SHAP", shap.toFixed(3))}${row("Color value", cv.toFixed(3))}</div>`;
         },
       },
       xAxis: {
@@ -145,33 +166,55 @@ export const SHAPSummaryPlotChart = ({
           },
         },
         inverse: true,
+        axisPointer: {
+          show: true,
+          type: "shadow",
+          shadowStyle: { color: "rgba(216, 211, 255, 0.22)" },
+          label: { show: false },
+          snap: true,
+        },
       },
       visualMap: {
         show: false,
         min: colorMin,
         max: colorMax === colorMin ? colorMin + 1 : colorMax,
         dimension: 2,
+        seriesIndex: featureOrder.map((_, i) => i),
         inRange: {
           color: ["#D8D3FF", "#231F52"],
         },
       },
-      series: [
-        {
-          type: "scatter",
-          data: chartData,
-          symbolSize: 7,
+      series: seriesByFeature.map((featureData, i) => ({
+        type: "scatter" as const,
+        name: featureOrder[i],
+        data: featureData,
+        symbolSize: 7,
+        itemStyle: {
+          opacity: 0.7,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          color: (params: any) => {
+            const v = Number(Array.isArray(params.value) ? params.value[2] : 0);
+            const t = (v - colorMin) / colorRange;
+            return interpolateColor(Math.max(0, Math.min(1, t)));
+          },
+        },
+        emphasis: {
+          focus: "series",
           itemStyle: {
-            opacity: 0.9,
+            opacity: 1,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            color: (params: any) => {
+            color: ((params: any) => {
               const v = Number(Array.isArray(params.value) ? params.value[2] : 0);
               const t = (v - colorMin) / colorRange;
-              return interpolateColor(Math.max(0, Math.min(1, t)));
-            },
+              return interpolateEmphasisColor(Math.max(0, Math.min(1, t)));
+            }) as any,
           },
-          emphasis: { scale: 1.05 },
+          scale: 1.1,
         },
-      ],
+        blur: {
+          itemStyle: { opacity: 0.6 },
+        },
+      })),
     };
 
     return { option: baseOption };
