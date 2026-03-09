@@ -43,7 +43,7 @@ export default function PrognosticChart() {
     return `M ${pts[0]} L ${pts.slice(1).join(" L ")} L ${xPos(5)},${PB} L ${xPos(0)},${PB} Z`;
   };
 
-  const gridCols = 6, gridRows = 6;
+  const gridCols = 12, gridRows = 12;
 
   // 화면 픽셀 r 고정 (1440px 기준 80%: outer=17.6, inner=8.448)
   const scale = size.w >= 1470 ? 1.2 : 1;

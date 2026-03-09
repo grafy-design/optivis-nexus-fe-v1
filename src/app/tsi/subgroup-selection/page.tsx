@@ -80,7 +80,7 @@ const getCiText = (
 ) => {
   if (!varianceDecomposition) return "";
   const listItem = varianceDecomposition[varianceDecomposition.length - 1];
-  return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci}) η²=${listItem.eta_square}, ω²=${listItem.omega}`;
+  return `N=${listItem.number}, K=${listItem.variance} VR:${listItem.vr} (${listItem.ci})\nη²=${listItem.eta_square}, ω²=${listItem.omega}`;
 };
 
 /** 표시할 그룹 수를 계산합니다. / Calculates group count, capped at MAX_GROUP_DISPLAY_COUNT. */
@@ -609,6 +609,7 @@ function buildVarianceDecompositionChartOption(
         data: [withinPooled],
         itemStyle: { color: hexToRgba("#231F52", withinActive ? 1 : 0.6), borderRadius: [8, 8, 8, 8] },
         barWidth: varianceBarWidth,
+        emphasis: { disabled: true },
       },
       {
         name: "Explained Total Within",
@@ -617,7 +618,18 @@ function buildVarianceDecompositionChartOption(
         data: [explainedTotal],
         itemStyle: { color: hexToRgba("#AAA5E1", explainedActive ? 1 : 0.6), borderRadius: [8, 8, 8, 8] },
         barWidth: varianceBarWidth,
-        label: { show: false },
+        emphasis: { disabled: true },
+        label: {
+          show: true,
+          position: "top" as const,
+          formatter: () => ciText,
+          color: "#787776",
+          fontSize: 9,
+          fontFamily: "Inter",
+          fontWeight: 500,
+          align: "center" as const,
+          lineHeight: 11.55,
+        },
       },
     ],
   };
@@ -814,9 +826,9 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
       <td colSpan={12} className="border-neutral-80 border-b p-0">
         <div className="bg-[#efeff4] px-4 py-6">
           <div className="flex gap-3 grid grid-cols-[1fr_2fr]">
-            {/* Left Column */}
+            {/* ── 왼쪽 컬럼 / Left Column ── */}
             <div className="flex flex-col gap-3">
-              {/* Disease Progression by Subgroup */}
+              {/* ── 질병 진행 차트 카드 / Disease Progression by Subgroup card ── */}
               <div className="flex flex-col flex-1 rounded-[18px] bg-white/60 p-2 gap-4">
                 <h3 className="text-body4 flex-shrink-0 text-neutral-30 pl-1 pt-1">
                   Disease Progression by Subgroup
@@ -844,7 +856,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   )}
                 </div>
               </div>
-              {/* Number of patients */}
+              {/* ── 환자 수 카드 / Number of Patients card ── */}
               <div className="flex flex-1 flex-col rounded-[18px] bg-white/60 p-2 gap-1">
               <div className="pl-1 pt-1">
                 <h3 className="text-body4 mb-1 flex-shrink-0 text-neutral-30 ">
@@ -902,9 +914,9 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                 </div>
               </div>
             </div>
-            {/* Right Column */}
+            {/* ── 오른쪽 컬럼 / Right Column ── */}
             <div className="bg-primary-15 flex flex-col min-w-0 gap-6 rounded-[18px] p-3">
-              {/* Variance Reduction Explained */}
+              {/* ── 분산 감소 설명 텍스트 / Variance Reduction Explained ── */}
               <div className="flex flex-col gap-2">
                 <h3 className="text-body3m text-white">
                   Variance Reduction Explained
@@ -919,9 +931,9 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   reasonable strategy.
                 </p>
               </div>
-              {/* Two cards in one row */}
+              {/* ── 2열 카드 행 / Two cards in one row ── */}
               <div className="grid grid-cols-2 gap-3">
-                {/* Variance decomposition */}
+                {/* ── 분산 분해 차트 카드 / Variance Decomposition card ── */}
                 <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-3">
                   <div className="flex justify-between gap-2 h-wrap">
                     <div className="flex-shrink-0 [@media(max-width:1480px)]:flex-[3_1_0]">
@@ -979,7 +991,6 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                             />
                           </div>
                         </div>
-                        <p className="mt-1 text-[9px] leading-[1.3] text-neutral-50 break-all">{getCiText(row.variance_decomposition)}</p>
                       </>
                     ) : (
                       <div className="flex h-full items-center justify-center">
@@ -988,7 +999,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                     )}
                   </div>
                 </div>
-                {/* Within-group variance by subgroup */}
+                {/* ── 하위군별 그룹 내 분산 차트 카드 / Within-group Variance by Subgroup card ── */}
                 <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-4">
                   <div className="flex-shrink-0">
                     <h3 className="mb-2 text-body3 text-neutral-20 [@media(max-width:1470px)]:text-body4" style={{lineHeight: "100%"}}>

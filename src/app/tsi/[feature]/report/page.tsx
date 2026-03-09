@@ -20,7 +20,6 @@ import {
   type VarianceStackChartData,
 } from "@/components/charts/tsi-report";
 import { TSISaveModal } from "@/components/tsi/TSISaveModal";
-import { TSIReportHeader } from "@/components/tsi/TSIReportHeader";
 import { getReportByFeature } from "@/services/subgroup-service";
 import type {
   ReportByFeatureResponse,
@@ -587,8 +586,15 @@ function TSIReportPageContent() {
   }, []);
 
   const [forestAspect, setForestAspect] = useState("5 / 1");
+  const [titleFontSize, setTitleFontSize] = useState(42);
   useEffect(() => {
     const update = () => setForestAspect(window.innerWidth > 1470 ? "5 / 1" : "4 / 1");
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
@@ -695,7 +701,7 @@ function TSIReportPageContent() {
         <Loading isLoading />
         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
           {/* ── 로딩 중 메시지 / Loading message ── */}
-          <div className="rounded-[24px] border border-neutral-80 bg-neutral-95 p-6 text-neutral-50">
+          <div className="rounded-[16px] bg-neutral-95 p-4 text-neutral-50">
             리포트 데이터를 조회 중입니다.
           </div>
         </div>
@@ -731,11 +737,41 @@ function TSIReportPageContent() {
       >
 
         {/* ── 1. 페이지 타이틀 + PDF 저장 버튼 / Page title + Save as PDF button ── */}
-        <TSIReportHeader
-          onSaveAsPDF={() => {
-            console.log("[TSI][Report] Save as PDF clicked");
+        <div
+          style={{
+            flexShrink: 0,
+            padding: "0 12px 4px 12px",
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            marginBottom: 24,
           }}
-        />
+        >
+          <div className="flex flex-col gap-1 flex-shrink-0 items-start">
+            <div
+              className="text-neutral-5 text-left"
+              style={{ fontSize: titleFontSize, lineHeight: "120%", fontFamily: "Poppins, Inter, sans-serif", fontWeight: 600, letterSpacing: "-1.5px" }}
+            >
+              Target Subgroup Identification
+            </div>
+            <p className="text-body2m text-neutral-50 text-left">
+              {(() => {
+                const now = new Date();
+                return `${now.getFullYear()}. ${String(now.getMonth() + 1).padStart(2, "0")}. ${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+              })()}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn-tsi btn-tsi-secondary"
+            onClick={() => console.log("[TSI][Report] Save as PDF clicked")}
+          >
+            Save as PDF
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+              <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
 
         {/* ── 2. 리포트 배경 카드 (glass) / Report glass background card ── */}
         <div

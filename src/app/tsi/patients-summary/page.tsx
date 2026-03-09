@@ -227,7 +227,7 @@ export default function TSIPatientsSummaryPage() {
 
                 {/* ── 테이블 헤더 행 / Table header row ────────────────── */}
                 <div
-                  className="rounded-[16px] w-full flex items-center py-[8px]"
+                  className="rounded-[16px] w-full flex items-center pt-[8px] pb-1.5"
                   style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
                 >
                   <div
@@ -300,8 +300,8 @@ export default function TSIPatientsSummaryPage() {
                                 <div />
                               </div>
                               <div className="grid grid-cols-[1fr_1fr_1fr] items-end h-full">
-                                <div className="text-body5m text-right text-primary-50 items-end">Patients</div>
-                                <div className="text-body5m text-right text-primary-50 items-end">%</div>
+                                <div className="text-body5 text-right text-primary-50 items-end">Patients</div>
+                                <div className="text-body5 text-right text-primary-50 items-end">%</div>
                               </div>
                             </div>
 
@@ -333,10 +333,10 @@ export default function TSIPatientsSummaryPage() {
 
                                   {/* Filtered Cohort 값 / Filtered cohort values */}
                                   <div className="grid grid-cols-[1fr_1fr_1fr] items-center h-full">
-                                    <div className="text-body4m text-right tabular-nums text-primary-50">
+                                    <div className="text-body4 text-right tabular-nums text-primary-50">
                                       <AnimatedNumber value={item.filteredCohort.n} format={(v) => Math.round(v).toLocaleString()} />
                                     </div>
-                                    <div className="text-body4m text-right tabular-nums text-primary-50">
+                                    <div className="text-body4 text-right tabular-nums text-primary-50">
                                       <AnimatedNumber value={item.filteredCohort.pct} format={(v) => `${v.toFixed(1)}%`} />
                                     </div>
                                   </div>

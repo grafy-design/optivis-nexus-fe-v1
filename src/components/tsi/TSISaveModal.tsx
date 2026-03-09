@@ -41,7 +41,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
         onClick={(e) => e.stopPropagation()}
         style={{
           position: "relative",
-          width: "480px",
+          width: "420px",
           borderRadius: "24px",
           padding: "20px",
           display: "flex",
@@ -72,7 +72,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
 
           {/* Study Title 입력 / Study Title input */}
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Study Title
             </p>
             <input
@@ -86,7 +86,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
 
           {/* Date 표시 (자동) / Date display (auto) */}
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Date
             </p>
             <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
@@ -96,7 +96,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
 
           {/* Version 표시 / Version display */}
           <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Version
             </p>
             <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
@@ -106,7 +106,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
 
           {/* Description 입력 (최대 30자) / Description input (max 30 chars) */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#484646", letterSpacing: "-0.51px", lineHeight: "17.85px", margin: 0 }}>
+            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Description
             </p>
             <div style={{ background: "#d9d9d9", borderRadius: "12px", padding: "0 20px", height: "36px", display: "flex", alignItems: "center" }}>
@@ -115,7 +115,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
                 value={simDesc}
                 onChange={(e) => setSimDesc(e.target.value.slice(0, 30))}
                 placeholder="Please enter a description."
-                style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "19.5px", color: "#787776", letterSpacing: "-0.585px", background: "none", border: "none", outline: "none", width: "100%" }}
+                style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "15px", color: "#787776", letterSpacing: "-0.45px", background: "none", border: "none", outline: "none", width: "100%" }}
               />
             </div>
           </div>
@@ -127,16 +127,18 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
           {/* Close 버튼 / Close button */}
           <button
             type="button"
+            className="btn-tsi btn-tsi-secondary"
             onClick={onClose}
-            style={{ width: "180px", height: "48px", borderRadius: "36px", border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#231f52", letterSpacing: "-0.51px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}
+            style={{ width: "180px" }}
           >
             Close
           </button>
           {/* Save 버튼 / Save button */}
           <button
             type="button"
+            className="btn-tsi btn-tsi-primary"
             onClick={() => onSave(simName, simDesc)}
-            style={{ width: "180px", height: "48px", borderRadius: "36px", border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: "17px", color: "#ffffff", letterSpacing: "-0.51px", background: "#231f52", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)" }}
+            style={{ width: "180px" }}
           >
             Save
           </button>

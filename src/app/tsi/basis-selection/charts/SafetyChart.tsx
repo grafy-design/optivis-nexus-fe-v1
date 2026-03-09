@@ -31,7 +31,7 @@ export default function SafetyChart() {
   const xPos = (v: number) => PL + v * PW;
   const yPos = (v: number) => PB - v * PH;
 
-  const gridCols = 6, gridRows = 6;
+  const gridCols = 12, gridRows = 12;
 
   const blueDots: [number, number][] = [
     [0.10, 0.18], [0.18, 0.28], [0.22, 0.14], [0.30, 0.22],

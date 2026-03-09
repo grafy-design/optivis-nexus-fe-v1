@@ -83,7 +83,7 @@ export function TSIForestMetricChart({
         let html = `<div style="font-size:12px;font-family:Inter;color:#787776;font-weight:600;margin-bottom:4px">${title}</div>`;
         rows.forEach((row) => {
           const m = row.metrics[metricKey];
-          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${m.color};flex-shrink:0"></span><span style="color:#787776;font-size:9px">${row.groupLabel}</span></span><span style="color:#787776;font-size:13px;font-weight:600">${m.mean.toFixed(1)} [${m.low.toFixed(1)}, ${m.high.toFixed(1)}]</span></div>`;
+          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${m.color};flex-shrink:0"></span><span style="color:#787776;font-size:9px">${row.groupLabel}</span></span><span style="color:#787776;font-size:13px;font-weight:600">${m.mean.toFixed(1)}</span></div>`;
         });
         return html;
       },

@@ -76,7 +76,7 @@ export default function Button({
   };
 
   const sizes = {
-    sm: "h-8 px-3 text-body5 rounded-lg",
+    sm: "h-9 px-3 text-body5 rounded-lg",
     md: "h-[42px] px-5 text-body3 rounded-[21px] [&_*]:text-inherit",
     lg: "h-14 px-6 text-body4 rounded-xl",
   };

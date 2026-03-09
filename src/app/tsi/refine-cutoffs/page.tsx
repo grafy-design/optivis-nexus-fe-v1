@@ -534,6 +534,7 @@ function TSIRefineCutoffsPageContent() {
   const chartErrorBarLineWidth = isSmallScreen ? 1.5 : 3;
   const chartErrorBarCapHalfWidth = isSmallScreen ? 4 : 6;
 
+
   // ── 컷오프 슬라이더 상태 / Cutoff slider state ────────────────────────────
   const [additionalSliders, setAdditionalSliders] = useState<number[]>([]);
   const [cumulativeProportion, setCumulativeProportion] = useState(0);
@@ -1109,7 +1110,7 @@ function TSIRefineCutoffsPageContent() {
           gap: 24,
           marginLeft: "14px",
           marginRight: "14px",
-          paddingBottom: 24,
+          paddingBottom: 10,
         }}
       >
 
@@ -1167,33 +1168,31 @@ function TSIRefineCutoffsPageContent() {
 
               {/* ── 2-A-1. 남색 Subgroup Creation 카드 / Navy Subgroup Creation card ── */}
               <div
-                className="flex flex-shrink-0 flex-col items-start gap-4 rounded-[24px]"
+                className="flex h-fit flex-col items-start gap-4 rounded-[24px] p-4 max-[1470px]:gap-3 max-[1470px]:p-3"
                 style={{
                   background: "var(--primary-15)",
                   width: "100%",
-                  height: "272px",
-                  padding: "16px",
                 }}
               >
                 {/* 엔티티 타입 + 타이틀 / Entity type label + title */}
-                <div className="flex flex-col gap-1">
-                  <span className="text-body5 text-white/70">
+                <div className="flex flex-col -gap-1">
+                  <span className="text-body5 max-[1470px]:text-small1 text-white/70">
                     {featureInfoData?.entity_type ?? "Prognostic"}
                   </span>
-                  <h4 className="text-body1 text-white">Subgroup Creation</h4>
+                  <h4 className="text-body1 max-[1470px]:text-body3 text-white">Subgroup Creation</h4>
                 </div>
 
                 {/* Outcome 레이블 / Outcome label */}
                 <div className="flex flex-col gap-1">
-                  <span className="text-body5 text-white/70">Outcome</span>
-                  <span className="text-body2 font-semibold text-white">
+                  <span className="text-body5 max-[1470px]:text-small1 text-white/70">Outcome</span>
+                  <span className="text-body2 max-[1470px]:text-body4 font-semibold text-white">
                     {featureInfoData?.outcome ?? ""}
                   </span>
                 </div>
 
                 {/* Stratification Month 슬라이더 영역 / Stratification Month slider area */}
-                <div className="flex w-full flex-col gap-2">
-                  <span className="text-body3m text-white">Stratification month</span>
+                <div className="flex w-full flex-col -gap-1">
+                  <span className="text-body5 max-[1470px]:text-small1 text-white/70">Stratification month</span>
 
                   {/* 슬라이더 + 드롭다운 / Slider + dropdown (inline) */}
                   <div className="flex w-full items-start justify-between gap-2">
@@ -1317,7 +1316,7 @@ function TSIRefineCutoffsPageContent() {
                           setHasEverMovedMonth(true);
                         }
                         }
-                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-50 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[8px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-[6px] [&>button>span]:text-left [&>button>span]:font-semibold [&>button>svg]:flex-shrink-0"
+                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-50 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[8px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-0 [&>button>span]:text-left [&>button>span]:font-semibold [&>button>span]:leading-none [&>button>span]:pt-1 [&>button>span]:py-0 [&>button>svg]:flex-shrink-0"
                       />
                     </div>
                   </div>
@@ -1327,9 +1326,8 @@ function TSIRefineCutoffsPageContent() {
                 <button
                   onClick={handleClickApplyCriteria}
                   disabled={!hasEverMovedMonth && !hasAppliedCriteria}
-                  className="btn-tsi btn-tsi-primary whitespace-nowrap"
+                  className="btn-tsi btn-tsi-primary whitespace-nowrap mt-2 max-[1470px]: mt-0 "
                   style={{
-                    marginTop: "auto",
                     marginLeft: "auto",
                   }}
                 >
@@ -1338,29 +1336,33 @@ function TSIRefineCutoffsPageContent() {
               </div>
 
               {/* ── 2-A-2. CDF 컷오프 에디터 / CDF cutoff editor ────── */}
-              <RefineCutoffChartEditor
-                cumulativeProportion={cumulativeProportion}
-                additionalSliders={additionalSliders}
-                onCumulativeProportionChange={setCumulativeProportion}
-                onAdditionalSlidersChange={setAdditionalSliders}
-                maxAdditionalSliders={1}
-                rows={featureInfoData?.rows}
-                outcomeKey={featureInfoData?.outcome}
-                selectedMonth={effectiveAppliedStratificationMonth}
-              />
+              <div className="flex-1 min-h-0 rounded-[24px] overflow-hidden bg-white p-2">
+                <div className="h-full overflow-y-auto flex flex-col gap-4 justify-between">
+                  <div style={{ aspectRatio: windowWidth < 1470 ? "5 / 4" : "1 / 1", paddingTop: 4 }}>
+                    <RefineCutoffChartEditor
+                      cumulativeProportion={cumulativeProportion}
+                      additionalSliders={additionalSliders}
+                      onCumulativeProportionChange={setCumulativeProportion}
+                      onAdditionalSlidersChange={setAdditionalSliders}
+                      maxAdditionalSliders={1}
+                      rows={featureInfoData?.rows}
+                      outcomeKey={featureInfoData?.outcome}
+                      selectedMonth={effectiveAppliedStratificationMonth}
+                    />
+                  </div>
+                  <button
+                    onClick={handleClickGenerateSubGroup}
+                    disabled={!isCutoffDirty && !hasAppliedCriteria}
+                    className="btn-tsi btn-tsi-primary flex-shrink-0"
+                    style={{ marginLeft: "auto", gap: 8, paddingRight: "16px" }}
+                  >
+                    Generate Subgroups
+                    <Play size={16} fill="white" stroke="white" style={{ flexShrink: 0 }} />
+                  </button>
+                </div>
+              </div>
 
             </div>
-
-            {/* Generate Subgroups 버튼 (고정) / Generate Subgroups button (fixed at bottom) */}
-            <button
-              onClick={handleClickGenerateSubGroup}
-              disabled={!isCutoffDirty && !hasAppliedCriteria}
-              className="btn-tsi btn-tsi-primary"
-              style={{ flexShrink: 0, marginLeft: "auto", gap: 8 }}
-            >
-              Generate Subgroups
-              <Play size={16} fill="white" stroke="white" style={{ flexShrink: 0 }} />
-            </button>
           </div>
           {/* ── 왼쪽 카드 닫기 / End left card ── */}
 
@@ -1379,11 +1381,11 @@ function TSIRefineCutoffsPageContent() {
               borderColor: "transparent",
             }}
           >
-            <div className="flex h-full w-full flex-col gap-3">
+            <div className="flex h-full w-full flex-col gap-3 max-[1470px]:gap-2">
 
               {/* Set 타이틀 / Set title */}
               <div className="flex-shrink-0 pl-[04px] pt-[04px]">
-                <h3 className="text-body1 text-primary-15">{setNameFromQuery}</h3>
+                <h3 className="text-body1 text-primary-15 max-[1470px]:text-body4">{setNameFromQuery}</h3>
               </div>
 
               {/* 스크롤 컨테이너: 차트 2개 + 테이블 / Scroll container: 2 charts + table */}

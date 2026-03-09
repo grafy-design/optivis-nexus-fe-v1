@@ -19,23 +19,23 @@ export default function SimulationSearch({ value, onChange }: SimulationSearchPr
     <div
       className="flex items-center"
       style={{
-        width: "min(408px, 100%)",
+        width: "min(360px, 100%)",
         backgroundColor: "#FFFFFF",
         borderRadius: "30px",
-        paddingLeft: "12px",
-        paddingRight: "12px",
-        paddingTop: "8px",
-        paddingBottom: "8px",
-        gap: "10.24px",
+        paddingLeft: "8px",
+        paddingRight: "8px",
+        paddingTop: "6px",
+        paddingBottom: "6px",
+        gap: "10px",
         flexShrink: 0,
       }}
     >
       {/* Search icon - Figma: 20.45×20.64px, color #929090 */}
       <svg
         className="home-simulation-search-icon"
-        width="23"
-        height="23"
-        viewBox="0 0 23 23"
+        width="20"
+        height="16"
+        viewBox="0 0 20 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         style={{ flexShrink: 0 }}
@@ -63,7 +63,7 @@ export default function SimulationSearch({ value, onChange }: SimulationSearchPr
         placeholder="Search"
         style={{
           fontFamily: "Inter",
-          fontSize: "17.5px",
+          fontSize: "15px",
           fontWeight: 600,
           lineHeight: "100%",
           letterSpacing: "-0.585px",

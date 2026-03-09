@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "katex/dist/katex.min.css";
@@ -62,6 +63,11 @@
   justify-content: center;
   transition: background-color 0.15s ease;
   user-select: none;
+}
+@media (max-width: 1469px) {
+  .btn-tsi {
+    height: 32px;
+  }
 }
 
 /* Primary: #F06600 → hover -2단계 → active -4단계 */

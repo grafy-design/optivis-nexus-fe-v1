@@ -37,7 +37,7 @@ export default function DrugResponsivenessChart() {
   const orangeTriPath = `M ${xPos(0)},${yPos(0)} L ${xPos(0)},${yPos(1)} L ${xPos(1)},${yPos(1)} Z`;
   const blueTriPath   = `M ${xPos(0)},${yPos(0)} L ${xPos(1)},${yPos(1)} L ${xPos(1)},${yPos(0)} Z`;
 
-  const gridCols = 6, gridRows = 6;
+  const gridCols = 12, gridRows = 12;
 
   const orangeDots: [number, number][] = [
     [0.34, 0.52], [0.42, 0.62], [0.28, 0.62], [0.38, 0.72],

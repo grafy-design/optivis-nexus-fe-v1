@@ -150,7 +150,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
         {hasColumns ? (
           /* Multi-column: Each column gets its own identical white container */
           (summary.columns as any[]).map((col: any, ci: number) => (
-            <div key={ci} style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff", borderRadius: 16, padding: 14, gap: 12, minWidth: 0, minHeight: 0, overflowY: "auto" }}>
+            <div key={ci} style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff", borderRadius: 16, padding: 14, gap: 12, minWidth: 0 }}>
                {/* 컬럼 헤딩 */}
                <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: 1, flexShrink: 0 }}>
                 {col.heading}

@@ -203,13 +203,11 @@ export function RefineCutoffChartEditor({
   const sliderRef = useRef<HTMLDivElement>(null);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const echartsRef = useRef<any>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const yInputRef = useRef<HTMLInputElement>(null);
   const additionalSliderInputRef = useRef<HTMLInputElement>(null);
 
   const [chartWidth, setChartWidth] = useState(0);
   const [chartHeight, setChartHeight] = useState(400);
-  const [wrapperHeight, setWrapperHeight] = useState(400);
   const [safetyScoreCutoff, setSafetyScoreCutoff] = useState(1.3);
   const [showAddButton, setShowAddButton] = useState(false);
   const [addButtonPosition, setAddButtonPosition] = useState<{
@@ -368,18 +366,6 @@ export function RefineCutoffChartEditor({
     updateChartSize();
     const ro = new ResizeObserver(updateChartSize);
     if (chartContainerRef.current) ro.observe(chartContainerRef.current);
-    return () => ro.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver((entries) => {
-      const h = entries[0]?.contentRect.height;
-      if (h && h > 0) setWrapperHeight(h);
-    });
-    ro.observe(el);
-    setWrapperHeight(el.offsetHeight);
     return () => ro.disconnect();
   }, []);
 
@@ -703,16 +689,9 @@ export function RefineCutoffChartEditor({
   };
 
   return (
-    <div
-      ref={wrapperRef}
-      className="w-full rounded-[24px] p-[8px]"
-      style={{ backgroundColor: "#ffffff", aspectRatio: "1 / 1" }}
-    >
+    <div className="flex h-full flex-col">
       <div
-        className="flex h-full flex-col"
-      >
-        <div
-          ref={chartContainerRef}
+        ref={chartContainerRef}
           className="relative min-h-0 flex-1 overflow-visible"
           onMouseMove={(event) => {
             if (additionalSliders.length >= maxAdditionalSliders) {
@@ -1152,6 +1131,5 @@ export function RefineCutoffChartEditor({
           })}
         </div>
       </div>
-    </div>
   );
 }

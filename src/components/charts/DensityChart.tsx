@@ -141,8 +141,23 @@ const calculateBandwidth = (values: number[], minX: number, maxX: number): numbe
 
 export const DensityChart = ({ data, series, segmented, height = 220, sizeVariant, xAxisName, yAxisName }: DensityChartProps) => {
   const [gapHovered, setGapHovered] = useState(false);
+  const [gapNarrow, setGapNarrow] = useState(false);
   const chartRef = useRef<ReactECharts>(null);
   const peakRangeRef = useRef<{ leftX: number; rightX: number } | null>(null);
+
+  // 피크 간격 픽셀 폭 계산 (좁으면 라벨 외부 배치)
+  const updateGapNarrow = useCallback((instance: any) => {
+    const range = peakRangeRef.current;
+    if (!range || !instance) return;
+    try {
+      const leftPx = instance.convertToPixel({ gridIndex: 0 }, [range.leftX, 0]);
+      const rightPx = instance.convertToPixel({ gridIndex: 0 }, [range.rightX, 0]);
+      if (leftPx && rightPx) {
+        const gapPx = Math.abs(rightPx[0] - leftPx[0]);
+        setGapNarrow(gapPx < 36);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   // 피크 면적 호버 감지 (차트 초기화 후 바인딩)
   const onChartReady = useCallback((instance: any) => {
@@ -163,7 +178,10 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
     const onLeave = () => setGapHovered(false);
     zr.on("mousemove", onMove);
     zr.on("globalout", onLeave);
-  }, []);
+    // 초기 + 리사이즈 시 gap 폭 갱신
+    setTimeout(() => updateGapNarrow(instance), 100);
+    instance.on("finished", () => updateGapNarrow(instance));
+  }, [updateGapNarrow]);
   const sz = sizeVariant ? DENSITY_SIZE_STYLES[sizeVariant] : null;
   const labelFormatter = sz?.labelDecimalPlaces !== undefined
     ? (value: number | string) => Number(value).toFixed(sz.labelDecimalPlaces)
@@ -409,8 +427,8 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
               },
               label: {
                 show: true,
-                position: "insideTop",
-                offset: [0, 4],
+                position: gapNarrow ? "right" : "insideTop",
+                offset: gapNarrow ? [4, 0] : [0, 4],
                 formatter: () => gap.toFixed(1),
                 color: gapHovered ? "#262255" : "#787776",
                 fontSize: 12,

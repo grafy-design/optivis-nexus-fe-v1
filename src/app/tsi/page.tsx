@@ -155,7 +155,7 @@ export default function TSIPage() {
       >
 
         {/* ── 메인 컨테이너 / Main container ─────────────────── */}
-        <div className="relative overflow-hidden flex-1 min-h-0 flex flex-col gap-[24px]">
+        <div className="relative h-full flex-1 min-h-0 flex flex-col gap-[24px]">
 
           {/* ── 1. 페이지 타이틀 / Page title ──────────────────── */}
           <div style={{ flexShrink: 0, padding: "0px 12px 0 12px" }}>
@@ -169,7 +169,7 @@ export default function TSIPage() {
           </div>
 
           {/* ── 2. 내부 컨텐츠 컨테이너 / Inner content container ─ */}
-          <div className="flex flex-1 min-h-0 flex-col gap-0">
+          <div className="flex flex-1 min-h-0 flex-col gap-0 h-full">
 
             {/* ── 2-1. 글래스 카드 배경 / Glass card background ─── */}
             <div
@@ -185,22 +185,22 @@ export default function TSIPage() {
                 borderColor: "transparent",
               }}
             >
-              <div className="flex-1 min-h-0 overflow-auto">
+              <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div
-                  className="relative flex flex-col gap-6"
-                  style={{ minHeight: 244, height: "100%" }}
+                  className="relative flex flex-col flex-1 min-h-0 gap-6"
+                  style={{ minHeight: 244 }}
                 >
 
                   {/* ── 2-1-A. 템플릿 다운로드 + 파일 업로드 영역 / Template download & file upload area ── */}
-                  <div className="flex gap-4 flex-4" style={{ minHeight: 244 }}>
+                  <div className="flex gap-4 min-h-[244px] [@media(max-width:1470px)]:min-h-[184px]" style={{ flex: "0.6 1 0%" }}>
 
                     {/* Data Template Download 카드 / Data template download card (dark navy) */}
                     <div
-                      className="flex-shrink-0 w-[266px] rounded-[24px] p-4 pt-12 flex flex-col justify-between"
-                      style={{ backgroundColor: "#231f52", minHeight: 200 }}
+                      className="flex-shrink-0 rounded-[24px] p-4 flex flex-col justify-between [@media(max-width:1470px)]:p-3"
+                      style={{ backgroundColor: "#231f52", aspectRatio: "1 / 1" }}
                     >
-                      <div className="flex flex-col gap-3">
-                        <div className="flex flex-col gap-[17px] items-center">
+                      <div className="flex h-full justify-center flex-col gap-2 [@media(max-width:1470px)]:gap-1">
+                        <div className="flex flex-col gap-2 items-center">
                           {/* 다운로드 아이콘 SVG / Download icon SVG */}
                           <svg
                             width="32"
@@ -267,8 +267,7 @@ export default function TSIPage() {
 
                     {/* 파일 업로드 카드 / File upload card (white, drag & drop) */}
                     <div
-                      className="flex-1 bg-white rounded-[24px] pt-6 pb-3 px-0 flex flex-col items-center justify-center gap-6"
-                      style={{ minHeight: 244 }}
+                      className="flex-1 bg-white rounded-[24px] pt-6 pb-3 px-0 flex flex-col items-center justify-center gap-6 min-h-[244px] [@media(max-width:1470px)]:min-h-[184px] [@media(max-width:1470px)]:p-4 [@media(max-width:1470px)]:gap-4"
                     >
                       <div className="flex flex-col items-center justify-center">
                         {/* 업로드 아이콘 SVG / Upload icon SVG */}
@@ -286,7 +285,7 @@ export default function TSIPage() {
                             fill="#313030"
                           />
                         </svg>
-                        <h3 className="text-body3 text-neutral-10 text-center mt-4">
+                        <h3 className="text-body3 text-neutral-10 text-center">
                           Click to upload or Drag and drop
                         </h3>
                         <div className="text-body4m text-neutral-60 text-center mt-3 leading-normal">
@@ -319,7 +318,7 @@ export default function TSIPage() {
                             document.getElementById("file-upload")?.click()
                           }
                           className="btn-tsi btn-tsi-purple"
-                          style={{ width: 222 }}
+                          style={{ width: 222, height: 36 }}
                         >
                           File Select
                         </button>
@@ -328,11 +327,11 @@ export default function TSIPage() {
                   </div>
 
                   {/* ── 2-1-B. 첨부 데이터 목록 / Attached data list ── */}
-                  <div className="flex flex-7 min-h-0 flex-col gap-3">
+                  <div className="flex flex-1 min-h-0 flex-col gap-2">
 
                     {/* 섹션 헤더: 타이틀 + 검색창 / Section header: title + search input */}
-                    <div className="flex items-end justify-between">
-                      <h2 className="text-body1 text-neutral-10">Attached Data</h2>
+                    <div className="flex-shrink-0 flex items-end justify-between">
+                      <h2 className="text-body1 text-neutral-10 align-bottom">Attached Data</h2>
                       <SimulationSearch
                         value={searchKeyword}
                         onChange={setSearchKeyword}
@@ -374,62 +373,61 @@ export default function TSIPage() {
                       </div>
 
                       {/* 테이블 바디: 좌/우 2열 배치 / Table body: two columns side by side */}
-                      <div className="flex gap-0 rounded-[24px] bg-white overflow-hidden flex-1 min-h-[280px]">
-
-                        {/* 좌측 열 (0~7번 항목) / Left column (items 0–7) */}
-                        <div className="flex-1 overflow-hidden flex-shrink-0 min-w-0">
-                          {leftTableData.length > 0 ? (
-                            <SimpleBar style={{ maxHeight: "500px" }}>
-                              <div className="px-[16px] py-[12px] min-h-[280px]">
-                                {leftTableData.map((data, index) =>
-                                  renderDataRow(
-                                    data,
-                                    index,
-                                    index === 0,
-                                    index === leftTableData.length - 1,
-                                    "sm",
-                                  ),
-                                )}
-                              </div>
-                            </SimpleBar>
-                          ) : (
-                            /* 데이터 없을 때 빈 상태 / Empty state */
-                            <div className="px-5 py-20 flex items-center justify-center h-full min-h-[348px]">
-                              <p className="text-body4 text-neutral-50">
-                                No saved simulations.
-                              </p>
+                      <div className="flex gap-0 rounded-[24px] flex-1 min-h-0 bg-white overflow-hidden">
+                        <SimpleBar style={{ height: "100%", width: "100%" }}>
+                          <div className="flex gap-0">
+                            {/* 좌측 열 (0~7번 항목) / Left column (items 0–7) */}
+                            <div className="flex-1 flex-shrink-0 min-w-0">
+                              {leftTableData.length > 0 ? (
+                                <div className="px-[16px] py-[12px]">
+                                  {leftTableData.map((data, index) =>
+                                    renderDataRow(
+                                      data,
+                                      index,
+                                      index === 0,
+                                      index === leftTableData.length - 1,
+                                      "sm",
+                                    ),
+                                  )}
+                                </div>
+                              ) : (
+                                /* 데이터 없을 때 빈 상태 / Empty state */
+                                <div className="px-5 py-20 flex items-center justify-center min-h-[348px]">
+                                  <p className="text-body4 text-neutral-50">
+                                    No saved simulations.
+                                  </p>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* 열 구분선 / Column divider */}
-                        <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[12px] mb-[12px]" />
+                            {/* 열 구분선 / Column divider */}
+                            <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[12px] mb-[12px]" />
 
-                        {/* 우측 열 (8번 이후 항목) / Right column (items 8+) */}
-                        <div className="flex-1 overflow-hidden flex-shrink-0 min-w-0">
-                          {rightTableData.length > 0 ? (
-                            <SimpleBar style={{ maxHeight: "500px" }}>
-                              <div className="px-[16px] py-[12px] min-h-[280px]">
-                                {rightTableData.map((data, index) =>
-                                  renderDataRow(
-                                    data,
-                                    index,
-                                    index === 0,
-                                    index === rightTableData.length - 1,
-                                    "md",
-                                  ),
-                                )}
-                              </div>
-                            </SimpleBar>
-                          ) : (
-                            /* 데이터 없을 때 빈 상태 / Empty state */
-                            <div className="px-5 py-20 flex items-center justify-center h-full min-h-[394px]">
-                              <p className="text-body4 text-neutral-50">
-                                No saved simulations.
-                              </p>
+                            {/* 우측 열 (8번 이후 항목) / Right column (items 8+) */}
+                            <div className="flex-1 flex-shrink-0 min-w-0">
+                              {rightTableData.length > 0 ? (
+                                <div className="px-[16px] py-[12px]">
+                                  {rightTableData.map((data, index) =>
+                                    renderDataRow(
+                                      data,
+                                      index,
+                                      index === 0,
+                                      index === rightTableData.length - 1,
+                                      "md",
+                                    ),
+                                  )}
+                                </div>
+                              ) : (
+                                /* 데이터 없을 때 빈 상태 / Empty state */
+                                <div className="px-5 py-20 flex items-center justify-center min-h-[394px]">
+                                  <p className="text-body4 text-neutral-50">
+                                    No saved simulations.
+                                  </p>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        </SimpleBar>
                       </div>
                     </div>
                   </div>
