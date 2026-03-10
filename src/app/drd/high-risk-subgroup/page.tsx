@@ -272,15 +272,15 @@ export default function HighRiskSubgroupPage() {
   };
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+      <div className="drd-page-root">
         {/* {타이틀 영역/Title Area} */}
          {/* ── TOP: Title ───────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0, padding: "0 12px" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <h1 onClick={() => router.push("/drd/default-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+        <div className="flex flex-row items-start justify-between shrink-0 px-3">
+          <div className="flex flex-col">
+            <h1 onClick={() => router.push("/drd/default-setting")} className="drd-page-h1">
               Default Settings
             </h1>
-            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            <span className="drd-page-subtitle">
               Setup Required
             </span>
           </div>
@@ -288,7 +288,7 @@ export default function HighRiskSubgroupPage() {
 
         {/* {컨텐츠 행/Content Row} */}
         {/* ── ② 컨텐츠 행 ──────────────────────────────────────────────── */}
-        <div style={{ display: "flex", flex: 1, gap: "0px",  minHeight: 0, alignItems: "stretch", overflow: "hidden" }}>
+        <div className="drd-content-row">
 
           {/* {왼쪽 패널/Left Panel} */}
           {/* ── 왼쪽 패널 (Navy Glass - 9-slice) ────────────────── */}
@@ -805,12 +805,13 @@ export default function HighRiskSubgroupPage() {
       </div>
       {showSubgroupModal && (
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+          className="modal-backdrop"
           onClick={() => setShowSubgroupModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: "relative", width: 380, borderRadius: 20, padding: "20px 20px 20px", display: "flex", flexDirection: "column", gap: 36, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+            className="modal-panel"
+            style={{ paddingTop: "20px", gap: 36 }}
           >
             {/* 글래스 배경 */}
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: 24, pointerEvents: "none" }}>
@@ -820,7 +821,7 @@ export default function HighRiskSubgroupPage() {
             </div>
 
             {/* 콘텐츠 */}
-            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 24 }}>
+            <div className="relative z-[1] flex flex-col gap-6">
               <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: 19, color: "#250d0dff", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>Go to Create Subgroup</p>
               <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: 15, color: "#484646", letterSpacing: "-0.42px", lineHeight: 1.35, margin: 0 }}>
                 If you create a new subgroup, you will leave this page and all unsaved data will be lost. Do you want to continue?
@@ -828,11 +829,11 @@ export default function HighRiskSubgroupPage() {
             </div>
 
             {/* 버튼 */}
-            <div style={{ position: "relative", zIndex: 1, display: "flex", gap: 8, justifyContent: "center" }}>
-              <button type="button" onClick={() => setShowSubgroupModal(false)} style={{ width: 112, height: 44, borderRadius: 36, border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: 15, color: "#262255", letterSpacing: "-0.45px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+            <div className="relative z-[1] flex gap-2 justify-center">
+              <button type="button" onClick={() => setShowSubgroupModal(false)} className="modal-btn">
                 Cancel
               </button>
-              <button type="button" onClick={() => { setShowSubgroupModal(false); router.push("/tsi"); }} style={{ width: 112, height: 44, borderRadius: 36, border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: 15, color: "#262255", letterSpacing: "-0.45px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+              <button type="button" onClick={() => { setShowSubgroupModal(false); router.push("/tsi"); }} className="modal-btn">
                 Confirm
               </button>
             </div>

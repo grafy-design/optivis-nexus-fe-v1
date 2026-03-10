@@ -1151,8 +1151,7 @@ function TSIRefineCutoffsPageContent() {
           {/* ── 2-A. 왼쪽 카드: 슬라이더 + 컷오프 에디터
                      Left card: slider + cutoff editor ──────────────── */}
           <div
-            className="figma-nine-slice figma-home-panel-left
-            flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden rounded-[36px] p-0"
+            className="figma-nine-slice figma-home-panel-left flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden rounded-[36px] p-0"
             style={{ width: `${leftPanelWidth}px` }}
           >
             <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto">

@@ -767,19 +767,19 @@ export default function SimulationConditionPage() {
           </div>
         </>
       )}
-         <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+         <div className="drd-page-root">
         {/* 타이틀 */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
-          <h1 onClick={() => router.push("/drd/simulation-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+        <div className="shrink-0 px-3">
+          <h1 onClick={() => router.push("/drd/simulation-setting")} className="drd-page-h1">
             Simulation Settings
           </h1>
-          <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+          <span className="drd-page-subtitle">
             Configure simulation parameters
           </span>
         </div>
 
         {/* 두 패널 행 */}
-        <div style={{ display: "flex", flex: 1, alignItems: "stretch", gap: "0px", minHeight: 0 }}>
+        <div className="drd-content-row">
           {/* 왼쪽 패널 */}
           <div
             className="figma-nine-slice figma-home-panel-left

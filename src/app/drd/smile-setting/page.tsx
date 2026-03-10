@@ -901,41 +901,21 @@ export default function SmileSettingPage() {
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">
       
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 24px)",
-          height: "100%",
-          gap: 24,
-          overflow: "hidden",
-          marginLeft: "8px",
-          marginRight: "8px",
-        }}
-      >
+      <div className="drd-page-root">
         {/* 페이지 타이틀 */}
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0, padding: "0 12px" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <h1 onClick={() => router.push("/drd/simulation-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+        <div className="flex flex-row items-start justify-between shrink-0 px-3">
+          <div className="flex flex-col">
+            <h1 onClick={() => router.push("/drd/simulation-setting")} className="drd-page-h1">
               Simulation Settings
             </h1>
-            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            <span className="drd-page-subtitle">
               Configure simulation parameters
             </span>
           </div>
         </div>
 
         {/* 투 컬럼 레이아웃 */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flex: 1,
-            gap: "0px",
-            minHeight: 0,
-            alignItems: "stretch",
-          }}
-        >
+        <div className="drd-content-row">
           {/* ── 왼쪽 패널 (380px) ── 9-slice 글래스 ── */}
          <div
             className="figma-nine-slice figma-home-panel-left
@@ -952,18 +932,7 @@ export default function SmileSettingPage() {
              <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
 
             {/* 헤더 행: 제목 + 버튼들 */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                height: 40,
-                flexShrink: 0,
-                paddingTop: 0,
-                paddingBottom: 0,
-                paddingRight: 0,
-              }}
-            >
+            <div className="flex items-center justify-between h-10 shrink-0">
               <span
                 style={{
                   fontFamily: "Inter, sans-serif",
@@ -977,7 +946,7 @@ export default function SmileSettingPage() {
               >
                 SMILES Setting
               </span>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <div className="flex gap-[10px] items-center">
                 <GlassTestButton onClick={handleTestLoad} />
                 <GlassIconButton>
                   <IconDownloadFile />
@@ -989,28 +958,9 @@ export default function SmileSettingPage() {
             </div>
 
             {/* 컨텐츠 영역 */}
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "row",
-                gap: 12,
-                minHeight: 0,
-                overflow: "hidden",
-              }}
-            >
+            <div className="flex-1 flex flex-row gap-3 min-h-0 overflow-hidden">
               {/* 왼쪽: 검색 바 + Similarity 결과 묶음 */}
-              <div
-                style={{
-                  flex: 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                  minHeight: 0,
-                  minWidth: 0,
-                  overflow: "hidden",
-                }}
-              >
+              <div className="flex-[4] flex flex-col gap-3 min-h-0 min-w-0 overflow-hidden">
               {/* Chemical Structure 검색 바 */}
               <div
                 style={{
@@ -1425,16 +1375,7 @@ export default function SmileSettingPage() {
             </div>
 
             {/* 하단 버튼 */}
-            <div
-              style={{
-                flexShrink: 0,
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-end",
-                gap: 12,
-                alignItems: "center",
-              }}
-            >
+            <div className="shrink-0 flex flex-row justify-end gap-3 items-center">
               <button
                 onClick={() => router.push("/drd/simulation-setting")}
                 style={{

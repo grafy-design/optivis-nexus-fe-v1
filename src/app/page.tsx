@@ -191,20 +191,20 @@ const packageContentMap: Record<string, RightPanelContent> = {
     description:
       "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
     imageUrl: "", // Not used for package video
-    videoUrl: "https://pub-797907feee5143c4a0f4f34c25916ee8.r2.dev/oprimed_movie/2-to.mp4",
-    videoStartOffsetSeconds: 3,
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V2/TP(4-3).mp4",
+    videoStartOffsetSeconds: 0,
     videoPlaybackRate: 0.8,
-    videoScale: 1.08,
+    videoScale: 1,
   },
   "2": {
     title: "Trial Optimizer",
     description:
       "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
     imageUrl: "",
-    videoUrl: "https://pub-797907feee5143c4a0f4f34c25916ee8.r2.dev/oprimed_movie/1-tp.mp4",
-    videoStartOffsetSeconds: 1,
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V2/TO(4-3).mp4",
+    videoStartOffsetSeconds: 0,
     videoPlaybackRate: 0.8,
-    videoScale: 1.24,
+    videoScale: 1,
     videoReverseLoop: true,
   },
   "3": {
@@ -252,16 +252,7 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div
-        style={{
-          display: "flex",
-          gap: "1.986px",
-          width: "100%",
-          flex: 1,          /* 부모(main) flex-1로 100% 높이 */
-          alignItems: "stretch",
-          minHeight: 0,
-        }}
-      >
+      <div className="flex w-full flex-1 items-stretch min-h-0" style={{ gap: "1.986px" }}>
         {/* ── 왼쪽: Package (Figma 470/2391 = 19.66%) ── */}
         <div className="flex flex-col" style={{ 
           flex: "470 1 0",
@@ -317,7 +308,7 @@ export default function HomePage() {
             paddingBottom:"32px",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "21px", flex: 1, overflowY: "auto", minHeight: 0 }}>
+          <div className="flex flex-col flex-1 overflow-y-auto min-h-0" style={{ gap: "21px" }}>
             {rightPanelContent ? (
               <>
                 <HeroPanel
@@ -330,14 +321,14 @@ export default function HomePage() {
                   videoReverseLoop={rightPanelContent.videoReverseLoop}
                   serviceId={selectedServiceId}
                 />
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px", flex: 1, minHeight: 0 }}>
+                <div className="flex flex-col gap-4 flex-1 min-h-0">
                   <SimulationSearch value={searchQuery} onChange={setSearchQuery} />
                   <SimulationTable serviceId={selectedServiceId} searchQuery={searchQuery} extraRows={savedSimulations as any} />
                 </div>
               </>
             ) : selectedPackageId && packageContentMap[selectedPackageId] ? (
               /* Package 선택 시 (Service 미선택) -> 비디오 패널 표시 (Full height) */
-              <div style={{ flex: 1, height: "100%", minHeight: 0 }}>
+              <div className="flex-1 h-full min-h-0">
                 <PackageVideoPanel
                   title={packageContentMap[selectedPackageId].title}
                   description={packageContentMap[selectedPackageId].description}
@@ -349,11 +340,8 @@ export default function HomePage() {
                 />
               </div>
             ) : (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
-                <p
-                  className="home-empty-guide-text"
-                  style={{ fontFamily: "Inter", fontSize: "19.5px", fontWeight: 600, color: "#828993", letterSpacing: "-0.585px" }}
-                >
+              <div className="flex items-center justify-center w-full h-full">
+                <p className="home-guide-text home-empty-guide-text">
                   {selectedPackageId ? "Service를 선택해주세요." : "Package를 선택해주세요."}
                 </p>
                 <style jsx>{`

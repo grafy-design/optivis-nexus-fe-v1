@@ -23,8 +23,8 @@ function LiquidGlassBtn({
 }) {
   const className =
     variant === "template"
-      ? "figma-nine-slice figma-header-btn-template"
-      : "figma-nine-slice figma-header-btn-setting";
+      ? "figma-header-btn-template"
+      : "figma-header-btn-setting";
 
   return (
     <button
@@ -99,7 +99,7 @@ function HelpBtn() {
   return (
     <button
       type="button"
-      className="figma-nine-slice figma-header-btn-help"
+      className="figma-header-btn-help"
       aria-label="Help"
       style={{
         display: "inline-flex",

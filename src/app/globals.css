@@ -798,28 +798,16 @@
   .tsi-page .rounded-\[12px\] { border-radius: 8px; }
 }
 
-.figma-header-btn-template::before {
-  inset: -2px;
-  border-style: none;
-  border-width: 0;
-  border-image: none;
-  background: url("/assets/figma/home/header-btn-template-frame.png") center / 100% 100% no-repeat;
+.figma-header-btn-template {
+  background: url("/assets/figma/home/header-btn-template-frame.png") center / 100% 100% no-repeat !important;
 }
 
-.figma-header-btn-setting::before {
-  inset: -2px;
-  border-style: none;
-  border-width: 0;
-  border-image: none;
-  background: url("/assets/figma/home/header-btn-setting-frame.png") center / 100% 100% no-repeat;
+.figma-header-btn-setting {
+  background: url("/assets/figma/home/header-btn-setting-frame.png") center / 100% 100% no-repeat !important;
 }
 
-.figma-header-btn-help::before {
-  inset: -2px;
-  border-style: none;
-  border-width: 0;
-  border-image: none;
-  background: url("/assets/figma/home/header-help-frame.png") center / 100% 100% no-repeat;
+.figma-header-btn-help {
+  background: url("/assets/figma/home/header-help-frame.png") center / 100% 100% no-repeat !important;
 }
 
 @layer utilities {
@@ -1038,6 +1026,133 @@
       background: rgba(36, 36, 36, 0.5) !important;
     }
   }
+}
+
+/* ── DRD 페이지 공통 ────────────────────────────────────────── */
+
+.drd-page-root {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 24px);
+  height: 100%;
+  gap: 24px;
+  overflow: hidden;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.drd-page-h1 {
+  font-family: "Poppins", "Inter", sans-serif;
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--neutral-5);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin: 0;
+  cursor: pointer;
+}
+
+.drd-page-subtitle {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: -0.48px;
+}
+
+.drd-content-row {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+/* ── 모달 공통 ──────────────────────────────────────────────── */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.modal-panel {
+  position: relative;
+  width: 380px;
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.modal-title {
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-primary);
+  letter-spacing: -0.54px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.modal-label {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-primary);
+  letter-spacing: -0.39px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.modal-input {
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: var(--border-title-divider);
+  padding: 0 14px;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-primary);
+  letter-spacing: -0.39px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-btn {
+  width: 112px;
+  height: 44px;
+  border-radius: 36px;
+  border: none;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--layer-accent);
+  letter-spacing: -0.45px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.10), 0px 0px 0px 0.5px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+/* ── 홈 페이지 ──────────────────────────────────────────────── */
+
+.home-guide-text {
+  font-family: "Inter", sans-serif;
+  font-size: 19.5px;
+  font-weight: 600;
+  color: #828993;
+  letter-spacing: -0.585px;
 }
 
 /* TSI: 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 */

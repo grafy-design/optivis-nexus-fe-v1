@@ -108,15 +108,15 @@ const settingRoutes: Record<DefaultSettingId, string> = {
 function InitialCard({ item, onClick }: { item: any; onClick: () => void }) {
   const Icon = item.icon;
   return (
-    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 24, padding: 16, display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div className="bg-white/60 rounded-[24px] p-4 flex flex-col min-w-0 flex-1">
+      <div className="flex items-center gap-2">
         <Icon size={30} />
         <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: "1" }}>{item.title}</span>
       </div>
       <p style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgb(145,144,146)", letterSpacing: "-0.39px", lineHeight: "1.4", margin: "16px 0 0", flex: 1 }}>
         {item.description}
       </p>
-      <button onClick={onClick} style={{ width: "100%", height: 36, borderRadius: 36, border: "none", cursor: "pointer", background: "#8F8AC4", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 16, flexShrink: 0, paddingTop: 2 }}>
+      <button onClick={onClick} className="w-full h-9 rounded-[36px] border-none cursor-pointer bg-[#8F8AC4] flex items-center justify-center gap-[6px] mt-4 shrink-0 pt-[2px]">
         <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.51px", lineHeight: 1 }}>Setting</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M2.33594 8.33594H14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -138,15 +138,15 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
   const hasColumns = !!summary.columns;
 
   return (
-    <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 24, padding: 16, display: "flex", flexDirection: "column", gap: 12, minWidth: 0, flex: 1, overflow: "hidden" }}>
+    <div className="bg-white/60 rounded-[24px] p-4 flex flex-col gap-3 min-w-0 flex-1 overflow-hidden">
       {/* 헤더 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+      <div className="flex items-center gap-2 shrink-0">
         <IconComplete />
         <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: "1" }}>{item.title}</span>
       </div>
 
       {/* 내용 — 스크롤 영역 */}
-      <div style={{ display: "flex", flex: 1, gap: 8, minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
+      <div className="flex flex-1 gap-2 min-h-0 overflow-y-auto overflow-x-hidden">
         {hasColumns ? (
           /* Multi-column: Each column gets its own identical white container */
           (summary.columns as any[]).map((col: any, ci: number) => (
@@ -197,7 +197,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
       </div>
 
       {/* 버튼 — 하단 고정 */}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, flexShrink: 0 }}>
+      <div className="flex justify-end gap-[10px] shrink-0">
         <button onClick={onReset} style={{ height: 36, paddingLeft: 20, paddingRight: 10, borderRadius: 36, background: "#8f8ac4", border: "none", cursor: "pointer", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           Reset
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -724,21 +724,21 @@ export default function DefaultSettingPage() {
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
       <Loading isLoading={isLoading} />
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px", }}>
+      <div className="drd-page-root">
         {/* {타이틀 영역/Title Area} */}
       {/* 타이틀 */}
-          <div style={{ flexShrink: 0, padding: "0 12px" }}>
-            <h1 onClick={() => router.push("/drd/default-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+          <div className="shrink-0 px-3">
+            <h1 onClick={() => router.push("/drd/default-setting")} className="drd-page-h1">
               Default Settings
             </h1>
-            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            <span className="drd-page-subtitle">
               {allCompleted ? "Setup Complete" : "Setup Required"}
             </span>
           </div>
 
       {/* {메인 레이아웃/Main Layout} */}
       {/* 메인 레이아웃: flex-1로 전체 가용 높이 채움 */}
-      <div style={{ display: "flex", flex: 1, gap: "0px",  minHeight: 0, alignItems: "stretch", overflow: "hidden" }}>
+      <div className="drd-content-row">
 
          
           {/* {왼쪽 패널/Left Panel} */}
@@ -873,7 +873,7 @@ export default function DefaultSettingPage() {
 
           {/* {2x2 그리드/2x2 Grid} */}
           {/* 2×2 그리드 */}
-          <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 12, minHeight: 0, overflow: "hidden" }}>
+          <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-3 min-h-0 overflow-hidden">
             {dynamicSettingItems.map((item) =>
               completedItems[item.id] ? (
                 <CompletedCard key={item.id} item={item} onReset={() => setCompleted(item.id, false)} onEdit={() => router.push(settingRoutes[item.id])} />
@@ -885,7 +885,7 @@ export default function DefaultSettingPage() {
 
           {/* {하단 버튼/Bottom Buttons} */}
           {/* 하단 버튼 */}
-          <div style={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", gap: 12, alignItems: "center"}}>
+          <div className="shrink-0 flex justify-end gap-3 items-center">
             <button disabled={!anyCompleted} onClick={() => anyCompleted && setShowSaveModal(true)} style={{ height: 40, paddingLeft: 28, paddingRight: 28, borderRadius: 36, background: anyCompleted ? "#787776" : "#c6c5c9", border: "none", cursor: anyCompleted ? "pointer" : "not-allowed", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: anyCompleted ? "#ffffff" : "#e2e1e5", letterSpacing: "-0.51px" }}>
               Save Progress
             </button>
@@ -898,8 +898,8 @@ export default function DefaultSettingPage() {
       </div>
 
       {/* 데모 토글 */}
-      <div style={{ display: "none" }}>
-        <div style={{ display: "flex", gap: 4 }}>
+      <div className="hidden">
+        <div className="flex gap-1">
           {dynamicSettingItems.map((item: any) => (
             <button key={item.id} onClick={() => setCompleted(item.id as DefaultSettingId, !completedItems[item.id as DefaultSettingId])}
               style={{ fontSize: 9, padding: "3px 8px", background: completedItems[item.id as DefaultSettingId] ? "#F06600" : "rgba(255,255,255,0.8)", color: completedItems[item.id as DefaultSettingId] ? "#fff" : "#333", border: "1px solid #ccc", borderRadius: 6, cursor: "pointer" }}>
@@ -913,12 +913,12 @@ export default function DefaultSettingPage() {
       {/* Save Simulation 모달 */}
       {showSaveModal && (
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+          className="modal-backdrop"
           onClick={() => setShowSaveModal(false)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{ position: "relative", width: 380, borderRadius: 20, padding: "24px 20px 20px", display: "flex", flexDirection: "column", gap: 20, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
+            className="modal-panel"
           >
             {/* 글래스 배경 */}
             <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: 20, pointerEvents: "none" }}>
@@ -928,38 +928,38 @@ export default function DefaultSettingPage() {
             </div>
 
             {/* 콘텐츠 */}
-            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 20 }}>
-              <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: 18, color: "#484646", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>Save Simulation</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: 13, color: "#484646", letterSpacing: "-0.39px", lineHeight: 1.2, margin: 0 }}>Simulation Name *</p>
+            <div className="relative z-[1] flex flex-col gap-5">
+              <p className="modal-title">Save Simulation</p>
+              <div className="flex flex-col gap-[10px]">
+                <div className="flex flex-col gap-[6px]">
+                  <p className="modal-label">Simulation Name *</p>
                   <input
                     type="text"
                     value={simName}
                     onChange={(e) => setSimName(e.target.value)}
                     placeholder="Write a title"
-                    style={{ height: 40, borderRadius: 12, border: "none", background: "#e2e1e5", padding: "0 14px", fontFamily: "Inter", fontWeight: 500, fontSize: 13, color: "#484646", letterSpacing: "-0.39px", outline: "none", width: "100%", boxSizing: "border-box" }}
+                    className="modal-input"
                   />
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: 13, color: "#484646", letterSpacing: "-0.39px", lineHeight: 1.2, margin: 0 }}>Description</p>
+                <div className="flex flex-col gap-[6px]">
+                  <p className="modal-label">Description</p>
                   <input
                     type="text"
                     value={simDesc}
                     onChange={(e) => setSimDesc(e.target.value.slice(0, 30))}
                     placeholder="Enter a Description (max 30 characters)"
-                    style={{ height: 40, borderRadius: 12, border: "none", background: "#e2e1e5", padding: "0 14px", fontFamily: "Inter", fontWeight: 500, fontSize: 13, color: "#484646", letterSpacing: "-0.39px", outline: "none", width: "100%", boxSizing: "border-box" }}
+                    className="modal-input"
                   />
                 </div>
               </div>
             </div>
 
             {/* 버튼 */}
-            <div style={{ position: "relative", zIndex: 1, display: "flex", gap: 8, justifyContent: "center" }}>
-              <button type="button" onClick={() => setShowSaveModal(false)} style={{ width: 112, height: 44, borderRadius: 36, border: "none", cursor: "pointer", fontFamily: "Inter", fontWeight: 600, fontSize: 15, color: "#262255", letterSpacing: "-0.45px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+            <div className="relative z-[1] flex gap-2 justify-center">
+              <button type="button" onClick={() => setShowSaveModal(false)} className="modal-btn">
                 Close
               </button>
-              <button type="button" onClick={handleSaveSimulation} disabled={!simName.trim()} style={{ width: 112, height: 44, borderRadius: 36, border: "none", cursor: simName.trim() ? "pointer" : "not-allowed", fontFamily: "Inter", fontWeight: 600, fontSize: 15, color: simName.trim() ? "#262255" : "#aaa", letterSpacing: "-0.45px", background: "rgba(255,255,255,0.92)", boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)", backdropFilter: "blur(8px)" }}>
+              <button type="button" onClick={handleSaveSimulation} disabled={!simName.trim()} className="modal-btn" style={{ color: simName.trim() ? undefined : "#aaa", cursor: simName.trim() ? "pointer" : "not-allowed" }}>
                 Save
               </button>
             </div>

@@ -401,15 +401,15 @@ export default function MedicalHistoryPage() {
 
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px", }}>
+      <div className="drd-page-root">
         {/* {타이틀 영역/Title Area} */}
         {/* ── TOP: Title ───────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0, padding: "0 12px" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <h1 onClick={() => router.push("/drd/default-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+        <div className="flex flex-row items-start justify-between shrink-0 px-3">
+          <div className="flex flex-col">
+            <h1 onClick={() => router.push("/drd/default-setting")} className="drd-page-h1">
               Default Settings
             </h1>
-            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            <span className="drd-page-subtitle">
               Setup Required
             </span>
           </div>
@@ -417,7 +417,7 @@ export default function MedicalHistoryPage() {
 
         {/* {컨텐츠 행/Content Row} */}
         {/* ── ② 컨텐츠 행 ──────────────────────────────────────────────── */}
-      <div style={{ display: "flex", flex: 1, gap: "0px",  minHeight: 0, alignItems: "stretch", overflow: "hidden" }}>
+      <div className="drd-content-row">
 
           {/* ── 왼쪽 패널 (Navy Glass - 9-slice) ────────────────── */}
          <div
