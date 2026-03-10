@@ -1202,17 +1202,8 @@ function TSISubgroupSelectionPageContent() {
           >
             {/* ── 2-A-L. 왼쪽 상위 배경 카드 (glass, 30%) / Left glass card ── */}
             <div
-              className="flex min-h-0 flex-[30] min-w-0 flex-col overflow-hidden rounded-[36px] p-0"
-              style={{
-                borderImage:
-                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                borderStyle: "solid",
-                borderTopWidth: "20px",
-                borderBottomWidth: "28px",
-                borderLeftWidth: "24px",
-                borderRightWidth: "24px",
-                borderColor: "transparent",
-              }}
+              className="figma-nine-slice figma-home-panel-left
+              flex min-h-0 flex-[30] min-w-0 flex-col overflow-hidden  p-0"
             >
               {/* ── 2-A-L-1. 남색 카드 (Subgroup Sets Summary) / Navy card ── */}
               <div
@@ -1533,17 +1524,7 @@ function TSISubgroupSelectionPageContent() {
             </div>
             {/* ── 2-A-R. 오른쪽 상위 배경 카드 (glass, 70%) / Right glass card ── */}
             <div
-              className="flex min-h-0 min-w-0 flex-[70] flex-col overflow-hidden rounded-[24px] p-0"
-              style={{
-                borderImage:
-                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                borderStyle: "solid",
-                borderTopWidth: "20px",
-                borderBottomWidth: "28px",
-                borderLeftWidth: "24px",
-                borderRightWidth: "24px",
-                borderColor: "transparent",
-              }}
+              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[70] min-h-0 min-w-0"
             >
               <div className="relative flex min-h-0 flex-1 flex-col p-0">
                 {/* ── 2-A-R-1. 흰색 테이블 카드 / White table card ── */}

@@ -173,17 +173,7 @@ export default function TSIPage() {
 
             {/* ── 2-1. 글래스 카드 배경 / Glass card background ─── */}
             <div
-              className="flex flex-1 min-h-0 flex-col"
-              style={{
-                borderImage:
-                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                borderStyle: "solid",
-                borderTopWidth: "20px",
-                borderBottomWidth: "28px",
-                borderLeftWidth: "24px",
-                borderRightWidth: "24px",
-                borderColor: "transparent",
-              }}
+              className="figma-nine-slice figma-home-panel-middle flex flex-1 min-h-0 flex-col"
             >
               <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
                 <div

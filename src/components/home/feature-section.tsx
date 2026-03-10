@@ -63,24 +63,22 @@ export default function FeatureSection({
      * bg: Liquid Glass (Fill #F5F5F5 r=36 + Glass Effect white r=36)
      */
     <div
-      className={cn("relative flex flex-col figma-nine-slice", panelClass)}
+      className={cn("relative flex flex-col figma-nine-slice gap-3 overflow-hidden", panelClass)}
       style={{
         width: "100%",
         flex: 1,
+        padding:"24px",
+        paddingTop:"20px",
+        paddingBottom:"32px",
         minHeight: 0,
-        padding: "28px",
-        gap: "16px",
-        borderRadius: "36px",
-        overflow: "hidden",
       }}
     >
       {/* Header: "01 Package" / "02 Service" */}
       {/* Figma: Group - 숫자(Inter 500 17px #5F5E5E) + gap + 이름(Inter 500 17px #5F5E5E) */}
       <div
-        className="flex flex-col"
-        style={{ gap: "12px", flexShrink: 0 }}
+        className="flex flex-col gap-3 flex-shirink-0"
       >
-        <div className="flex items-center" style={{ gap: "20.6px" }}>
+        <div className="flex items-center" style={{ gap: "20px" }}>
           <span
             className="home-feature-section-text"
             style={{

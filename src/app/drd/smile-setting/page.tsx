@@ -938,16 +938,8 @@ export default function SmileSettingPage() {
         >
           {/* ── 왼쪽 패널 (380px) ── 9-slice 글래스 ── */}
          <div
-            className="w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-left
+            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
             <SetupSteps
               onSmilesClick={() => router.push("/drd/smile-setting")}
@@ -957,7 +949,7 @@ export default function SmileSettingPage() {
 
           {/* ── 오른쪽 패널 (flex-1) ── 9-slice 글래스 ── */}
          {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-             <div className="drd-right-panel flex-[78] min-w-0 min-h-0 flex flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: "12px", marginLeft: "-6px" }}>
+             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
 
             {/* 헤더 행: 제목 + 버튼들 */}
             <div

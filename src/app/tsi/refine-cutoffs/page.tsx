@@ -1151,18 +1151,9 @@ function TSIRefineCutoffsPageContent() {
           {/* ── 2-A. 왼쪽 카드: 슬라이더 + 컷오프 에디터
                      Left card: slider + cutoff editor ──────────────── */}
           <div
-            className="flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden rounded-[36px] p-0"
-            style={{
-              borderImage:
-                'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              width: `${leftPanelWidth}px`,
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-left
+            flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden rounded-[36px] p-0"
+            style={{ width: `${leftPanelWidth}px` }}
           >
             <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto">
 
@@ -1369,17 +1360,7 @@ function TSIRefineCutoffsPageContent() {
           {/* ── 2-B. 오른쪽 카드: 차트 + 테이블
                      Right card: charts + table ────────────────────── */}
           <div
-            className="flex min-h-0 flex-1 flex-shrink-0 flex-col overflow-hidden rounded-[36px] p-0"
-            style={{
-              borderImage:
-                'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-1 flex-shrink-0 min-h-0"
           >
             <div className="flex h-full w-full flex-col gap-3 max-[1470px]:gap-2">
 

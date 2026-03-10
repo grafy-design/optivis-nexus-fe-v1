@@ -464,6 +464,124 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-background: var(--background);
+
+  /* Semantic Colors - Skeleton */
+  --color-skeleton: var(--skeleton);
+
+  /* Semantic Colors - Title */
+  --color-title-default: var(--title-default);
+  --color-title-accent: var(--title-accent);
+  --color-title-inverted: var(--title-inverted);
+
+  /* Semantic Colors - Text */
+  --color-text-primary: var(--text-primary);
+  --color-text-accent: var(--text-accent);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-active: var(--text-active);
+  --color-text-error-major: var(--text-error-major);
+  --color-text-error-dark: var(--text-error-dark);
+  --color-text-disabled: var(--text-disabled);
+  --color-text-inverted: var(--text-inverted);
+
+  /* Semantic Colors - Border */
+  --color-border-body: var(--border-body);
+  --color-border-title-primary: var(--border-title-primary);
+  --color-border-title-divider: var(--border-title-divider);
+  --color-border-selected: var(--border-selected);
+  --color-border-title-secondary: var(--border-title-secondary);
+  --color-chart-border: var(--chart-border);
+
+  /* Semantic Colors - Icon */
+  --color-icon-primary: var(--icon-primary);
+  --color-icon-inverted: var(--icon-inverted);
+  --color-icon-secondary: var(--icon-secondary);
+  --color-icon-disabled: var(--icon-disabled);
+  --color-icon-on-button: var(--icon-on-button);
+
+  /* Semantic Colors - Table */
+  --color-table-background: var(--table-background);
+  --color-table-selected: var(--table-selected);
+  --color-table-text-head-column: var(--table-text-head-column);
+  --color-table-text-head-row: var(--table-text-head-row);
+  --color-table-text-body: var(--table-text-body);
+  --color-table-head-column-secondary: var(--table-head-column-secondary);
+  --color-table-text-index-primary: var(--table-text-index-primary);
+  --color-table-text-index-secondary: var(--table-text-index-secondary);
+
+  /* Semantic Colors - Chart Axis */
+  --color-chart-axis-border: var(--chart-axis-border);
+  --color-chart-gridlines: var(--chart-gridlines);
+  --color-chart-y-reference-line: var(--chart-y-reference-line);
+
+  /* Semantic Colors - Chart Set00 */
+  --color-chart-set00-traditional: var(--chart-set00-traditional);
+  --color-chart-set00-optivis: var(--chart-set00-optivis);
+  --color-chart-set00-traditional-active: var(--chart-set00-traditional-active);
+  --color-chart-set00-optivis-active: var(--chart-set00-optivis-active);
+
+  /* Semantic Colors - Chart Set01 */
+  --color-chart-set01-group01: var(--chart-set01-group01);
+  --color-chart-set01-group02: var(--chart-set01-group02);
+  --color-chart-set01-group03: var(--chart-set01-group03);
+
+  /* Semantic Colors - Chart Set02 */
+  --color-chart-set02-group01: var(--chart-set02-group01);
+  --color-chart-set02-group02: var(--chart-set02-group02);
+  --color-chart-set02-group03: var(--chart-set02-group03);
+
+  /* Semantic Colors - Chart Set03 */
+  --color-chart-set03-group01: var(--chart-set03-group01);
+  --color-chart-set03-group02: var(--chart-set03-group02);
+  --color-chart-set03-group03: var(--chart-set03-group03);
+
+  /* Semantic Colors - Chart Set04 */
+  --color-chart-set04-group01: var(--chart-set04-group01);
+  --color-chart-set04-group02: var(--chart-set04-group02);
+  --color-chart-set04-group03: var(--chart-set04-group03);
+  --color-chart-set04-group04: var(--chart-set04-group04);
+  --color-chart-set04-group05: var(--chart-set04-group05);
+
+  /* Semantic Colors - Chart Set05 */
+  --color-chart-set05-group01: var(--chart-set05-group01);
+  --color-chart-set05-group02: var(--chart-set05-group02);
+
+  /* Semantic Colors - Chart Set06 */
+  --color-chart-set06-group01: var(--chart-set06-group01);
+  --color-chart-set06-group02: var(--chart-set06-group02);
+  --color-chart-set06-group03: var(--chart-set06-group03);
+
+  /* Semantic Colors - Chart Set07 */
+  --color-chart-set07-group01: var(--chart-set07-group01);
+  --color-chart-set07-group02: var(--chart-set07-group02);
+  --color-chart-set07-group03: var(--chart-set07-group03);
+
+  /* Semantic Colors - Chart Set08 */
+  --color-chart-set08-group01: var(--chart-set08-group01);
+  --color-chart-set08-group02: var(--chart-set08-group02);
+
+  /* Semantic Colors - Chart Text */
+  --color-chart-text-datalabel: var(--chart-text-datalabel);
+  --color-chart-text-axis-value: var(--chart-text-axis-value);
+  --color-chart-text-category-title: var(--chart-text-category-title);
+
+  /* Semantic Colors - Layer */
+  --color-layer-primary: var(--layer-primary);
+  --color-layer-accent: var(--layer-accent);
+  --color-layer-secondary: var(--layer-secondary);
+
+  /* Semantic Colors - Select Item */
+  --color-select-selected: var(--select-selected);
+  --color-select-nonselected: var(--select-nonselected);
+
+  /* Semantic Colors - Label */
+  --color-label-primary: var(--label-primary);
+  --color-label-error: var(--label-error);
+
+  /* Semantic Colors - Menu */
+  --color-menu-enabled: var(--menu-enabled);
+  --color-menu-hover: var(--menu-hover);
+  --color-menu-active: var(--menu-active);
+  --color-menu-selected: var(--menu-selected);
 }
 
 @layer base {
@@ -594,6 +712,8 @@
 
 .figma-nine-slice {
   position: relative;
+  min-width: 116px;  /* left(58) + right(58) */
+  min-height: 134px; /* top(48) + bottom(86) */
 }
 
 .figma-nine-slice::before {
@@ -612,25 +732,70 @@
   z-index: 1;
 }
 
+.figma-home-panel-left,
+.figma-home-panel-middle,
+.figma-home-panel-right {
+  padding: 1rem 1.2rem 1.75rem;
+}
+
+@media (max-width: 1470px) {
+  .figma-home-panel-left,
+  .figma-home-panel-middle,
+  .figma-home-panel-right {
+    padding: 0.8rem 1rem 1.35rem;
+  }
+}
+
 .figma-home-panel-left::before {
-  border-width: 20px 50px 70px 50px;
+  border-width: 24px 58px 66px 58px;
   border-image-source: url("/assets/figma/home/frame-panel-left.png");
-  border-image-slice: 40 100 140 100 fill;
-  border-image-width: 20px 50px 70px 50px;
+  border-image-slice: 104 108 156 108 fill;
+  border-image-width: 48px 58px 86px 58px;
+}
+
+@media (max-width: 1470px) {
+  .figma-home-panel-left::before {
+    border-width: 24px 40px 48px 40px;
+    border-image-width: 36px 40px 60px 40px;
+  }
 }
 
 .figma-home-panel-middle::before {
-  border-width: 20px 50px 70px 50px;
+  border-width: 24px 58px 66px 58px;
   border-image-source: url("/assets/figma/home/frame-panel-middle.png");
-  border-image-slice: 40 100 140 100 fill;
-  border-image-width: 20px 50px 70px 50px;
+  border-image-slice: 96 108 156 108 fill;
+  border-image-width: 48px 58px 86px 58px;
+}
+
+@media (max-width: 1470px) {
+  .figma-home-panel-middle::before {
+    border-width: 24px 40px 48px 40px;
+    border-image-width: 36px 40px 60px 40px;
+  }
 }
 
 .figma-home-panel-right::before {
-  border-width: 20px 50px 70px 50px;
+  border-width: 24px 58px 66px 58px;
   border-image-source: url("/assets/figma/home/frame-panel-right.png");
-  border-image-slice: 40 100 140 100 fill;
-  border-image-width: 20px 50px 70px 50px;
+  border-image-slice: 96 108 156 108 fill;
+  border-image-width: 48px 58px 86px 58px;
+}
+
+@media (max-width: 1470px) {
+  .figma-home-panel-right::before {
+    border-width: 24px 40px 48px 40px;
+    border-image-width: 36px 40px 60px 40px;
+  }
+}
+
+/* TSI 전용: 1470px 이하에서 글래스 패널 제외 내부 컨테이너 radius 2/3 축소 */
+@media (max-width: 1470px) {
+  .tsi-page .rounded-\[24px\] { border-radius: 16px; }
+  .tsi-page .rounded-\[25px\] { border-radius: 17px; }
+  .tsi-page .rounded-\[22px\] { border-radius: 15px; }
+  .tsi-page .rounded-\[18px\] { border-radius: 12px; }
+  .tsi-page .rounded-\[16px\] { border-radius: 11px; }
+  .tsi-page .rounded-\[12px\] { border-radius: 8px; }
 }
 
 .figma-header-btn-template::before {

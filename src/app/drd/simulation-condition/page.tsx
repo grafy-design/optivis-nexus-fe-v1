@@ -782,16 +782,8 @@ export default function SimulationConditionPage() {
         <div style={{ display: "flex", flex: 1, alignItems: "stretch", gap: "0px", minHeight: 0 }}>
           {/* 왼쪽 패널 */}
           <div
-            className="w-[380px] h-flex flex-shrink-0 rounded-[36px] overflow-hidden flex flex-col"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-left
+            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
             <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
               {/* Step 2: SMILES Settings (완료) */}
@@ -840,7 +832,7 @@ export default function SimulationConditionPage() {
 
           {/* 오른쪽 패널 */}
           {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-            <div className="drd-right-panel flex-[78] min-w-0 min-h-0 flex flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: "12px", marginLeft: "-6px" }}>
+            <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
 
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12, position: "relative", zIndex: 1, minHeight: 0, overflow: "auto", minWidth: 600 }}>
               {/* 상단 카드: Select target outcome variable — flex 4.5 */}

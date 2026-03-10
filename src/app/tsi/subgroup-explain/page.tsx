@@ -342,17 +342,8 @@ function TSISubgroupExplainPageContent() {
             {/* ── 2-A-1. 왼쪽 글래스 카드 (Expected Therapeutic Gain)
                          Left glass card (Expected Therapeutic Gain) ─── */}
             <div
-              className="flex min-h-0 w-[400px] [@media(min-width:1470px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
-              style={{
-                borderImage:
-                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                borderStyle: "solid",
-                borderTopWidth: "20px",
-                borderBottomWidth: "28px",
-                borderLeftWidth: "24px",
-                borderRightWidth: "24px",
-                borderColor: "transparent",
-              }}
+              className="figma-nine-slice figma-home-panel-left
+              flex min-h-0 w-[400px] [@media(min-width:1470px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden rounded-[36px] gap-3 p-0"
             >
 
               {/* 파란색 차트 카드: Expected Therapeutic Gain / Blue chart card */}
@@ -425,18 +416,8 @@ function TSISubgroupExplainPageContent() {
             {/* ── 2-A-2. 오른쪽 글래스 카드 (Baseline Driver + 피처 상세)
                          Right glass card (Baseline Driver + feature detail) ── */}
             <div
-              className="flex min-h-0 flex-1 min-w-0 flex-col overflow-y-auto rounded-[36px] p-0"
-              style={{
-                borderImage:
-                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                borderStyle: "solid",
-                borderTopWidth: "20px",
-                borderBottomWidth: "28px",
-                borderLeftWidth: "24px",
-                borderRightWidth: "24px",
-                borderColor: "transparent",
-                paddingBottom: 24,
-              }}
+              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-y-auto flex-1 min-h-0 min-w-0"
+              style={{ paddingBottom: 24 }}
             >
               <div className="flex flex-col min-h-0 flex-1" style={{ gap: 12 }}>
 

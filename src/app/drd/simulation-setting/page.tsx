@@ -455,16 +455,8 @@ export default function SimulationSettingPage() {
 
           {/* ── LEFT PANEL (520px) ─────────── */}
         <div
-            className="w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-left
+            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
             <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
 
@@ -513,7 +505,7 @@ export default function SimulationSettingPage() {
           </div>
 
           {/* ── RIGHT PANEL ────────── */}
-             <div className="drd-right-panel flex-[78] min-w-0 min-h-0 flex flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: "12px", marginLeft: "-6px" }}>
+             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
 
             {/* Cards row */}
             <div style={{ flex: 1, display: "flex", flexDirection: "row", gap: 12, minHeight: 0, paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}>

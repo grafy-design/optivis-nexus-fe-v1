@@ -616,18 +616,8 @@ export default function TSIFilterPage() {
 
         {/* ── 2. 글래스 메인 컨텐츠 영역 / Glass main content area ───── */}
         <div
-          className="flex-1 min-h-0 flex flex-col"
-          style={{
-            borderImage:
-              'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-            borderStyle: "solid",
-            borderTopWidth: "20px",
-            borderBottomWidth: "28px",
-            borderLeftWidth: "24px",
-            borderRightWidth: "24px",
-            borderColor: "transparent",
-            gap: "12px",
-          }}
+          className="figma-nine-slice figma-home-panel-middle flex-1 min-h-0 flex flex-col"
+          style={{ gap: "12px" }}
         >
 
           {/* ── 2-A. 상단 헤더 (Filter 제목 + Go to Simulation 버튼)

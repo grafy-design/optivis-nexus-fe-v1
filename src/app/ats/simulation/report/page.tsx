@@ -482,17 +482,7 @@ export default function ReportPage() {
             {/* LEFT: Results Overview (liquid glass frame) - 고정, 풀높이 */}
             <div className="w-[700px] flex-shrink-0 h-full flex flex-col">
               <div
-                className="relative flex-1 flex flex-col overflow-hidden"
-                style={{
-                  borderImage:
-                    'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                  borderStyle: "solid",
-                  borderTopWidth: "20px",
-                  borderBottomWidth: "28px",
-                  borderLeftWidth: "24px",
-                  borderRightWidth: "24px",
-                  borderColor: "transparent",
-                }}
+                className="figma-nine-slice figma-home-panel-middle relative flex-1 flex flex-col overflow-hidden"
               >
                 <div id="results-overview" className="flex flex-col flex-1 overflow-y-auto min-h-0">
                   <h2 className="text-h2 text-[#2d1067] mb-8 pl-1 pt-1">
@@ -684,17 +674,7 @@ export default function ReportPage() {
             {/* RIGHT: Main content (liquid glass frame) - 독립 스크롤 */}
             <div className="flex-1 min-w-0 h-full flex flex-col" style={{ marginLeft: "-6px" }}>
               <div
-                className="relative flex-1 flex flex-col overflow-hidden"
-                style={{
-                  borderImage:
-                    'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                  borderStyle: "solid",
-                  borderTopWidth: "20px",
-                  borderBottomWidth: "28px",
-                  borderLeftWidth: "24px",
-                  borderRightWidth: "24px",
-                  borderColor: "transparent",
-                }}
+                className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden relative flex-1"
               >
                 <div className="w-full overflow-y-auto flex-1 min-h-0">
                   {/* Trial Design Conditions Summary */}

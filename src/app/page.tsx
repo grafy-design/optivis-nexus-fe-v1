@@ -263,10 +263,8 @@ export default function HomePage() {
         }}
       >
         {/* ── 왼쪽: Package (Figma 470/2391 = 19.66%) ── */}
-        <div style={{
+        <div className="flex flex-col" style={{ 
           flex: "470 1 0",
-          display: "flex",
-          flexDirection: "column",
           minHeight: 0,
           minWidth: "250px",
         }}>
@@ -288,10 +286,8 @@ export default function HomePage() {
         </div>
 
         {/* ── 가운데: Service (Figma 469/2391 = 19.62%) ── */}
-        <div style={{
+        <div className="flex flex-col" style={{ 
           flex: "469 1 0",
-          display: "flex",
-          flexDirection: "column",
           minHeight: 0,
           minWidth: "250px",
         }}>
@@ -311,16 +307,14 @@ export default function HomePage() {
          * padding 28px, gap 21px
          */}
         <div
-          className="figma-nine-slice figma-home-panel-right"
+          className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden"
           style={{
             flex: "1452 1 0",
             minWidth: "500px",
             minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
-            padding: "28px",
-            borderRadius: "36px",
-            overflow: "hidden",
+            padding:"24px",
+            paddingTop:"20px",
+            paddingBottom:"32px",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "21px", flex: 1, overflowY: "auto", minHeight: 0 }}>

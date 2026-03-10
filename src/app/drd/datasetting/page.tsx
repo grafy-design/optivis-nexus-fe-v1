@@ -152,16 +152,17 @@ export default function TSIPage() {
         <div className="flex flex-col gap-3 flex-1 min-h-0">
           {/* Main Card with Glass Background */}
           <div
-            className="flex flex-col gap-6 flex-1 min-h-0"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-right"
+          style={{
+            flex: "1452 1 0",
+            minWidth: "500px",
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            padding: "28px",
+            borderRadius: "36px",
+            overflow: "hidden",
+          }}
           >
             <div className="flex flex-col gap-6 h-full">
               {/* Data Template Download & File Upload Section */}
@@ -329,16 +330,7 @@ export default function TSIPage() {
                   <div className="flex gap-0 rounded-[18px] bg-white overflow-hidden min-h-[280px] flex-shrink-0">
                     {/* Left Table */}
                      <div
-            className="drd-left-panel flex-[22] min-w-[280px] min-h-0"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-left.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-left flex-[22] min-w-[280px] min-h-0"
           >
                       {leftTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
@@ -393,7 +385,7 @@ export default function TSIPage() {
                     <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[26px] mb-[26px]" />
 
                     {/* Right Table */}
-                     <div className="drd-right-panel flex-[78] min-w-0 min-h-0" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: "12px" }}>
+                     <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px" }}>
                       {rightTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
                           <div className="py-[20px] px-[32px] min-h-[280px]">

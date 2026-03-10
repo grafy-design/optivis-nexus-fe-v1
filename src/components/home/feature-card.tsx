@@ -68,19 +68,19 @@ export default function FeatureCard({
     }
   } else {
     if (disabled) {
-      cardBg = "linear-gradient(180deg, rgba(226,226,226,0.95) 0%, rgba(215,215,215,0.92) 100%)";
-      cardBorder = "1px solid rgba(196,196,196,0.92)";
-      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.45)";
+      cardBg = "linear-gradient(180deg, rgba(226,226,226,0.1) 0%, rgba(215,215,215,0.92) 100%)";
+      cardBorder = "1px solid rgba(196,196,196,0.1)";
+      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.1)";
     } else if (isSelected || isHovered) {
       // Service card selected/hovered: lavender glass background
       cardBg = "linear-gradient(180deg, rgba(232,230,255,0.8) 0%, rgba(220,218,255,0.75) 100%)";
-      cardBorder = "1px solid rgba(100,88,220,0.4)";
-      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.9)";
+      cardBorder = "1px solid rgba(100,88,220,0.1)";
+      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.1)";
     } else {
       // Default: white background
-      cardBg = "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,248,248,0.90) 100%)";
-      cardBorder = "1px solid rgba(255,255,255,0.8)";
-      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.9)";
+      cardBg = "#ffffff";
+      cardBorder = "1px solid rgba(255,255,255,0.2)";
+      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.2)";
     }
   }
 
@@ -163,7 +163,6 @@ export default function FeatureCard({
         background: cardBg,
         border: cardBorder,
         boxShadow: cardShadow,
-        backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
         transform: isPackage && isHovered && !isSelected && !disabled ? "translateY(-4px)" : "none",

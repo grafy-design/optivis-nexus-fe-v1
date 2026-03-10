@@ -308,16 +308,8 @@ export default function PatientDiseaseInfoPage() {
           {/* {왼쪽 패널/Left Panel} */}
           {/* ── 왼쪽 패널: Navy Liquid Glass ────────────────── */}
            <div
-            className="w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-            }}
+            className="figma-nine-slice figma-home-panel-left
+            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
 
             {/* {필터링된 환자 카드/Filtered Patients Card} */}
@@ -411,7 +403,7 @@ export default function PatientDiseaseInfoPage() {
 
           {/* {오른쪽 패널/Right Panel} */}
          {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-           <div className="drd-right-panel flex-[78] min-w-0 min-h-0 flex flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: "12px", marginLeft: "-6px"}}>
+           <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
 
               {/* 상단 섹션: 제목 + Reset */}
               <div className="flex justify-between items-center shrink-0 pl-[8px] pr-0 h-[40px]" style={{ paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}>

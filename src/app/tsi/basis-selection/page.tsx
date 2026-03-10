@@ -178,17 +178,7 @@ function TSIBasisSelectionPageContent() {
 
         {/* ── 2. 메인 카드 영역 (글래스 배경) / Main card area (glass background) ── */}
         <div
-          className="rounded-[36px] overflow-show flex flex-1 min-h-0"
-          style={{
-            borderImage:
-              'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-            borderStyle: "solid",
-            borderTopWidth: "20px",
-            borderBottomWidth: "28px",
-            borderLeftWidth: "24px",
-            borderRightWidth: "24px",
-            borderColor: "transparent",
-          }}
+          className="figma-nine-slice figma-home-panel-middle flex flex-1 min-h-0"
         >
           <div className="flex w-full h-full gap-4">
 

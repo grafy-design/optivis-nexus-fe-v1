@@ -255,14 +255,7 @@ export function RightPanel({
   return (
     <div className="w-full h-full min-h-0">
       <div
-        className="relative w-full h-full min-h-[880px] flex flex-col overflow-visible"
-        style={{
-          borderImage:
-            'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-          borderStyle: "solid",
-          borderWidth: "24px",
-          borderColor: "transparent",
-        }}
+        className="figma-nine-slice figma-home-panel-middle relative w-full h-full min-h-[880px] flex flex-col overflow-visible"
       >
         <div className="flex flex-col w-full h-full p-0">
           {/* Top Section - Tab Bar and Legend */}

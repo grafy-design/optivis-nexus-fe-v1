@@ -775,16 +775,7 @@ function TSIReportPageContent() {
 
         {/* ── 2. 리포트 배경 카드 (glass) / Report glass background card ── */}
         <div
-          className="flex h-wrap flex-shrink-0 flex-col rounded-[36px] gap-8"
-          style={{
-            borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-            borderStyle: "solid",
-            borderTopWidth: "20px",
-            borderBottomWidth: "28px",
-            borderLeftWidth: "24px",
-            borderRightWidth: "24px",
-            borderColor: "transparent",
-          }}
+          className="figma-nine-slice figma-home-panel-middle flex h-wrap flex-shrink-0 flex-col gap-8"
         >
 
           {/* ── 2-1. 전략 비교 섹션 / Section 1: Stratification Strategy Comparison ── */}

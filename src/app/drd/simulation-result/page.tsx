@@ -1330,18 +1330,8 @@ export default function SimulationResultPage() {
         >
           {/* 왼쪽 패널: 시뮬레이션 전략 목록 / Left Panel: Simulation Strategies */}
           <div
-            className="w-[380px] flex-shrink-0 rounded-[36px] gap-[28px] overflow-hidden flex flex-col"
-            style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
-
-            paddingBottom: "4px"
-            }}
+            className="figma-nine-slice figma-home-panel-middle w-[380px] flex-shrink-0 rounded-[36px] gap-[28px] overflow-hidden flex flex-col"
+            style={{ paddingBottom: "4px" }}
           >
             {/* 전략 목록 헤더 타이틀 / Strategies Section Title */}
             <div
@@ -1490,15 +1480,8 @@ export default function SimulationResultPage() {
 
            {/* 오른쪽 패널: 요약 및 차트 영역 / Right Panel: Summary & Charts */}
            <div
-            className="drd-left-panel flex-1 min-w-[280px] min-h-0 flex flex-col"
+            className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-1 min-w-[280px] min-h-0"
             style={{
-              borderImage: 'url("/assets/figma/home/frame-panel-left.png") 72 fill / 36px / 0 stretch',
-              borderStyle: "solid",
-              borderTopWidth: "20px",
-              borderBottomWidth: "28px",
-              borderLeftWidth: "24px",
-              borderRightWidth: "24px",
-              borderColor: "transparent",
               gap: "24px",
               marginLeft: "-6px",
             }}

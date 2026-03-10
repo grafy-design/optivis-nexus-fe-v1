@@ -184,17 +184,7 @@ export default function TSIPatientsSummaryPage() {
 
             {/* ── 2-1. 글래스 배경 카드 / Glass background card ───────────── */}
             <div
-              className="flex flex-1 min-h-0 flex-col gap-0.5"
-              style={{
-                borderImage:
-                  'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
-                borderStyle: "solid",
-                borderTopWidth: "20px",
-                borderBottomWidth: "28px",
-                borderLeftWidth: "24px",
-                borderRightWidth: "24px",
-                borderColor: "transparent",
-              }}
+              className="figma-nine-slice figma-home-panel-middle flex flex-1 min-h-0 flex-col gap-0.5"
             >
 
               {/* ── 2-1-A. 숫자 요약 행 / Stats summary row ─────────────── */}

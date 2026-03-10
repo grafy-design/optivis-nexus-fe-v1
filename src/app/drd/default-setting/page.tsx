@@ -744,8 +744,11 @@ export default function DefaultSettingPage() {
           {/* {왼쪽 패널/Left Panel} */}
           {/* ── 왼쪽 패널 (Navy Glass - 9-slice) ────────────────── */}
           <div
-            className=" drd-left-pannel w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col" style={{borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent"}}
+            className="figma-nine-slice figma-home-panel-left
+            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
+
+            
             {/* {필터링된 환자 카드/Filtered Patients Card} */}
             {/* Filtered Patients 카드 (내부) */}
             <div className="shrink-0 h-[250px] relative rounded-[24px] overflow-hidden flex flex-col p-[16px] shadow-[0px_0px_2px_0px_rgba(0,0,0,0.1)]">
@@ -866,7 +869,7 @@ export default function DefaultSettingPage() {
 
         {/* {오른쪽 패널/Right Panel} */}
         {/* ── 오른쪽 패널 ──────────────────────────────────────────────── */}
-        <div className="drd-right-panel flex-[78] min-w-0 min-h-0 flex flex-col" style={{ borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch', borderStyle: "solid", borderTopWidth: "20px", borderBottomWidth: "28px", borderLeftWidth: "24px", borderRightWidth: "24px", borderColor: "transparent", gap: "12px", marginLeft: "-6px"}}>
+        <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
 
           {/* {2x2 그리드/2x2 Grid} */}
           {/* 2×2 그리드 */}
