@@ -201,7 +201,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
         <button onClick={onReset} style={{ height: 36, paddingLeft: 20, paddingRight: 10, borderRadius: 36, background: "#8f8ac4", border: "none", cursor: "pointer", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           Reset
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/basics/Contents=Reset, Size=16.svg" alt="" width={18} height={18} style={{ display: "block", filter: "brightness(0) invert(1)" }} />
+          <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} style={{ display: "block", filter: "brightness(0) invert(1)" }} />
         </button>
         <button onClick={onEdit} style={{ height: 36, paddingLeft: 20, paddingRight: 14, borderRadius: 36, background: "#8f8ac4", border: "none", cursor: "pointer", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
           Edit

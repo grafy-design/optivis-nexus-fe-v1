@@ -206,8 +206,8 @@ function DropdownCell({
         <img
           src={
             open
-              ? "/icons/disclosure/Property 1=Open, Size=18.svg"
-              : "/icons/disclosure/Property 1=Close, Size=18.svg"
+              ? "/icons/disclosure/open-18.svg"
+              : "/icons/disclosure/close-18.svg"
           }
           alt=""
           width={18}

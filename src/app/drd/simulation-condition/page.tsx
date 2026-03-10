@@ -794,7 +794,7 @@ export default function SimulationConditionPage() {
               >
                 <div className="flex items-center gap-[18px]">
                   <div className="shrink-0 flex items-center justify-center">
-                    <img src={simSmilesCompleted ? "/icons/simulation-setting/state=completed, step=smiles, Select=Default, Size=24px.svg" : "/icons/simulation-setting/state=not started, step=smiles, Select=Default, Size=24px.svg"} width={24} height={24} alt="" style={{ flexShrink: 0 }} />
+                    <img src={simSmilesCompleted ? "/icons/simulation-setting/step-smiles-completed.svg" : "/icons/simulation-setting/step-smiles-default.svg"} width={24} height={24} alt="" style={{ flexShrink: 0 }} />
                   </div>
                   <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "#484646" }}>
                     SMILES Settings
@@ -815,7 +815,7 @@ export default function SimulationConditionPage() {
               >
                 <div className="flex items-center gap-[18px]">
                   <div className="shrink-0 flex items-center justify-center">
-                    <img src="/icons/simulation-setting/state=completed, step=simulation, Select=Default, Size=24px.svg" width={24} height={24} alt="" style={{ flexShrink: 0 }} />
+                    <img src="/icons/simulation-setting/step-simulation-completed.svg" width={24} height={24} alt="" style={{ flexShrink: 0 }} />
                   </div>
                   <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "white" }}>
                     Simulation Conditions
@@ -876,7 +876,7 @@ export default function SimulationConditionPage() {
                             <div style={{ position: "relative", flex: 1 }}>
                               <div onClick={(e) => { if (openUnitIdx === i) { setOpenUnitIdx(null); setUnitDropdownPos(null); } else { const rect = (e.currentTarget as HTMLElement).getBoundingClientRect(); setUnitDropdownPos({ top: rect.bottom + 2, left: rect.left, width: rect.width }); setOpenUnitIdx(i); } }} style={{ background: "#efeff4", borderRadius: 8, height: 36, display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 4, cursor: "pointer", gap: 2 }}>
                                 <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 500, color: "#484646", letterSpacing: "-0.68px", lineHeight: 1.1, flex: 1 }}>{unitValues[i]}</span>
-                                <img src="/icons/disclosure/Property 1=Close, Size=18.svg" width={18} height={18} alt="" style={{ flexShrink: 0 }} />
+                                <img src="/icons/disclosure/close-18.svg" width={18} height={18} alt="" style={{ flexShrink: 0 }} />
                               </div>
                             </div>
                             <input type="text" value={monthValues[i]} onChange={(e) => setMonthValues(prev => prev.map((v, idx) => idx === i ? e.target.value : v))} className="placeholder:text-[#c6c5c9]" style={{ flex: 1, minWidth: 0, height: 36, background: "#efeff4", borderRadius: 8, border: "none", paddingLeft: 12, paddingRight: 12, fontFamily: "Inter", fontWeight: 500, fontSize: 17, color: "#484646", letterSpacing: "-0.68px", outline: "none", cursor: "text" }} />
@@ -905,7 +905,7 @@ export default function SimulationConditionPage() {
                       <div onClick={() => setFollowUpOpen((v) => !v)} style={{ background: "#efeff4", borderRadius: 8, height: 28, minWidth: 52, display: "flex", alignItems: "center", paddingLeft: 8, paddingRight: 4, gap: 2, cursor: "pointer", userSelect: "none" }}>
                         <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#484646", letterSpacing: "-0.48px", lineHeight: 1.1, flex: 1 }}>{followUpMonths}</span>
                         <div style={{ width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", transform: followUpOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>
-                          <img src="/icons/disclosure/Property 1=Close, Size=18.svg" width={18} height={18} alt="" />
+                          <img src="/icons/disclosure/close-18.svg" width={18} height={18} alt="" />
                         </div>
                       </div>
                       {followUpOpen && (

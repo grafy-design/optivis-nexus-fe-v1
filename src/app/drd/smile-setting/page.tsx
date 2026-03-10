@@ -184,7 +184,7 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
         <div className="flex items-center gap-[18px]">
           <div className="shrink-0 flex items-center justify-center">
             <Image
-              src="/icons/simulation-setting/state=completed, step=smiles, Select=Default, Size=24px.svg"
+              src="/icons/simulation-setting/step-smiles-completed.svg"
               alt="SMILES Settings"
               width={24}
               height={24}
@@ -211,7 +211,7 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
         <div className="flex items-center gap-[18px]">
           <div className="shrink-0 flex items-center justify-center">
             <Image
-              src="/icons/simulation-setting/state=not started, step=simulation, Select=Default, Size=24px.svg"
+              src="/icons/simulation-setting/step-simulation-default.svg"
               alt="Simulation Conditions"
               width={24}
               height={24}
@@ -774,11 +774,11 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
           onMouseLeave={handleMouseLeave}
           style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
-          <Image src="/icons/basics/Property 1=Data Table, Size=24.svg" alt="Data Table" width={24} height={24} />
+          <Image src="/icons/basics/data-table-24.svg" alt="Data Table" width={24} height={24} />
           {showTooltip && anchorRect && <DrugTooltip name={name} anchorRect={anchorRect} smilesImage={smilesImage} />}
         </div>
         <div onClick={onDelete} style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <Image src="/icons/basics/Property 1=Delete, Size=24.svg" alt="Delete" width={24} height={24} />
+          <Image src="/icons/basics/delete-24.svg" alt="Delete" width={24} height={24} />
         </div>
       </div>
     </div>
@@ -1170,8 +1170,8 @@ export default function SmileSettingPage() {
                             </span>
                             <Image
                               src={sortOpen
-                                ? "/icons/disclosure/Property 1=Open, Size=18.svg"
-                                : "/icons/disclosure/Property 1=Close, Size=18.svg"}
+                                ? "/icons/disclosure/open-18.svg"
+                                : "/icons/disclosure/close-18.svg"}
                               alt={sortOpen ? "open" : "close"}
                               width={18}
                               height={18}

@@ -1100,7 +1100,7 @@ function AERiskContent() {
                   {selectedAE}
                 </span>
                 <img
-                  src={dropdownOpen ? "/icons/disclosure/Property 1=Open, Size=18.svg" : "/icons/disclosure/Property 1=Close, Size=18.svg"}
+                  src={dropdownOpen ? "/icons/disclosure/open-18.svg" : "/icons/disclosure/close-18.svg"}
                   alt="toggle"
                   width={18}
                   height={18}

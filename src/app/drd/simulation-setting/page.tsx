@@ -36,7 +36,7 @@ import { useSimulationStore, type SimulationState, type SimCondData } from "@/st
 function SimCondIconCompleted() {
   return (
     <Image
-      src="/icons/simulation-setting/state=completed, step=simulation, Select=Default, Size=24px.svg"
+      src="/icons/simulation-setting/step-simulation-completed.svg"
       alt="Simulation Conditions"
       width={30}
       height={30}
@@ -49,7 +49,7 @@ function SimCondIconCompleted() {
 function SimCondIconDefault() {
   return (
     <Image
-      src="/icons/simulation-setting/state=not started, step=simulation, Select=Default, Size=24px.svg"
+      src="/icons/simulation-setting/step-simulation-default.svg"
       alt="Simulation Conditions"
       width={30}
       height={30}
@@ -62,7 +62,7 @@ function SimCondIconDefault() {
 function SmilesIconNotStarted() {
   return (
     <Image
-      src="/icons/simulation-setting/state=not started, step=smiles, Select=Default, Size=24px.svg"
+      src="/icons/simulation-setting/step-smiles-default.svg"
       alt="SMILES Settings"
       width={30}
       height={30}
@@ -75,7 +75,7 @@ function SmilesIconNotStarted() {
 function SmilesIconCompleted() {
   return (
     <Image
-      src="/icons/simulation-setting/state=completed, step=smiles, Select=Default, Size=24px.svg"
+      src="/icons/simulation-setting/step-smiles-completed.svg"
       alt="SMILES Settings"
       width={30}
       height={30}
@@ -89,8 +89,8 @@ function SimCondIconLeft({ completed }: { completed: boolean }) {
   return (
     <Image
       src={completed
-        ? "/icons/simulation-setting/state=completed, step=simulation, Select=Default, Size=24px.svg"
-        : "/icons/simulation-setting/state=not started, step=simulation, Select=Default, Size=24px.svg"}
+        ? "/icons/simulation-setting/step-simulation-completed.svg"
+        : "/icons/simulation-setting/step-simulation-default.svg"}
       alt="Simulation Conditions"
       width={24}
       height={24}
@@ -104,8 +104,8 @@ function SmilesIconLeft({ completed }: { completed: boolean }) {
   return (
     <Image
       src={completed
-        ? "/icons/simulation-setting/state=completed, step=smiles, Select=Default, Size=24px.svg"
-        : "/icons/simulation-setting/state=not started, step=smiles, Select=Default, Size=24px.svg"}
+        ? "/icons/simulation-setting/step-smiles-completed.svg"
+        : "/icons/simulation-setting/step-smiles-default.svg"}
       alt="SMILES Settings"
       width={24}
       height={24}
@@ -204,7 +204,7 @@ function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: 
         <div style={{ position: "absolute", inset: 0, borderRadius: 36, backgroundColor: "#8f8ac4" }} />
         <span style={{ position: "relative", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", lineHeight: 1.05, whiteSpace: "nowrap" }}>Reset</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/basics/Contents=Reset, Size=16.svg" alt="" width={18} height={18} style={{ position: "relative", flexShrink: 0, filter: "brightness(0) invert(1)" }} />
+        <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} style={{ position: "relative", flexShrink: 0, filter: "brightness(0) invert(1)" }} />
       </button>
       {/* Edit */}
       <button
@@ -217,7 +217,7 @@ function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: 
         <div style={{ position: "absolute", inset: 0, borderRadius: 36, backgroundColor: "#8f8ac4" }} />
         <span style={{ position: "relative", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", lineHeight: 1.05, whiteSpace: "nowrap" }}>Edit</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/basics/Contents=Add, Size=16.svg" alt="" width={18} height={18} style={{ position: "relative", flexShrink: 0, filter: "brightness(0) invert(1)" }} />
+        <img src="/icons/basics/add-16.svg" alt="" width={18} height={18} style={{ position: "relative", flexShrink: 0, filter: "brightness(0) invert(1)" }} />
       </button>
     </div>
   );

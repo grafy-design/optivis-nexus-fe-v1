@@ -306,7 +306,7 @@ function DropdownCell({
         </span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={open ? "/icons/disclosure/Property 1=Open, Size=18.svg" : "/icons/disclosure/Property 1=Close, Size=18.svg"}
+          src={open ? "/icons/disclosure/open-18.svg" : "/icons/disclosure/close-18.svg"}
           alt=""
           width={18}
           height={18}
