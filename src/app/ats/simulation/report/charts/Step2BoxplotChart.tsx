@@ -8,6 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
+import { tooltipItem } from "@/lib/chart-styles";
 import type { EstimatedTreatmentEffectResult } from "@/services/studyService";
 
 export interface Step2BoxplotChartProps {
@@ -24,6 +25,7 @@ export function Step2BoxplotChart({ apiData }: Step2BoxplotChartProps) {
     : [];
 
   const option = {
+    tooltip: { ...tooltipItem },
     title: chartTitle("Estimated treatment effect"),
     graphic: chartGraphicDivider(320),
     grid: {
@@ -167,7 +169,7 @@ export function Step2BoxplotChart({ apiData }: Step2BoxplotChartProps) {
   };
 
   return (
-    <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden">
+    <div className="flex-1 h-full bg-white rounded-[4px] overflow-hidden">
       <ReactECharts
         notMerge={true}
         lazyUpdate={true}

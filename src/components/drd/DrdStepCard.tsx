@@ -35,11 +35,11 @@ export function DrdStepCard({
     <button
       onClick={onClick}
       className={[
-        "flex flex-col justify-center w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150",
-        isActive ? "" : "hover:bg-[#f9f8fc] active:bg-[#efeff4]",
+        "flex flex-col justify-center w-full p-[16px] rounded-[20px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150",
+        isActive ? "" : "hover:bg-[var(--neutral-98)] active:bg-[var(--neutral-95)]",
       ].join(" ")}
       style={{
-        backgroundColor: isActive ? "#262255" : "transparent",
+        backgroundColor: isActive ? "var(--primary-15)" : "transparent",
         height,
       }}
     >
@@ -49,14 +49,14 @@ export function DrdStepCard({
         </div>
         <span
           className="text-body3"
-          style={{ color: isActive ? "var(--text-inverted)" : "#484646" }}
+          style={{ color: isActive ? "var(--text-inverted)" : "var(--neutral-30)" }}
         >
           {title}
         </span>
       </div>
       <div className="pl-[42px] mt-0">
         <p
-          className="text-small1 leading-[1.1] m-0"
+          className="text-small2 m-0"
           style={{ color: isActive ? "#c9c5c8" : "var(--text-secondary)" }}
         >
           {description}

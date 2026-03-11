@@ -164,7 +164,7 @@ export default function TSIPatientsSummaryPage() {
             >
 
               {/* ── 2-1-A. 숫자 요약 행 / Stats summary row ─────────────── */}
-              <div className="flex flex-row h-wrap items-baseline gap-0 px-[4px] flex-shrink-0 justify-end -mt-2 mb-1 mr-0.5">
+              <div className="flex flex-row h-wrap items-baseline gap-0 px-1 flex-shrink-0 justify-end -mt-1 mb-1 mr-0.5">
                 {/* 전체 분석 인원 레이블 / Total analyzed count label */}
                 <div className="h-wrap text-body4 text-neutral-50 pr-[16px]">
                   Number Analyzed 480 participants
@@ -193,10 +193,10 @@ export default function TSIPatientsSummaryPage() {
 
                 {/* ── 테이블 헤더 행 / Table header row ────────────────── */}
                 <div
-                  className="rounded-[16px] w-full flex items-center pt-[8px] pb-1.5 bg-[var(--table-header-background)]"
+                  className="rounded-[12px] w-full flex items-center pt-[8px] pb-1.5 bg-[var(--table-header-background)]"
                 >
                   <div
-                    className="grid grid-cols-4 -gap-1 px-[12px] w-full"
+                    className="grid grid-cols-4 gap-0 px-[12px] w-full"
                     style={{ alignItems: "center" }}
                   >
                     {/* 컬럼 1: Baseline Characteristics 레이블 */}
@@ -206,7 +206,7 @@ export default function TSIPatientsSummaryPage() {
                     <div />
 
                     {/* 컬럼 3: Full Cohort 헤더 */}
-                    <div className="grid grid-cols-[1fr_2fr_1fr]">
+                    <div className="grid grid-cols-[1fr_1fr_1fr]">
                       <div className="col-span-2 flex flex-col items-end">
                         <div className="text-right text-body3m text-neutral-99 flex-shrink-0">Full Cohort</div>
                         <div className="text-right text-small1 text-neutral-80 flex-shrink-0 -mt-0.25">
@@ -217,8 +217,8 @@ export default function TSIPatientsSummaryPage() {
                     </div>
 
                     {/* 컬럼 4: Filtered Cohort 헤더 */}
-                    <div className="grid grid-cols-[1fr_2fr_1fr]">
-                      <div className="col-span-2 flex flex-col items-end -gap-1">
+                    <div className="grid grid-cols-[1fr_1fr_1fr]">
+                      <div className="col-span-2 flex flex-col items-end">
                         <div className="text-right text-body3m text-neutral-99 flex-shrink-0">Filtered Cohort</div>
                         <div className="text-right text-small1 text-neutral-80 flex-shrink-0 -mt-0.25">
                           N (%) or mean ± sd (min, max)
@@ -250,7 +250,7 @@ export default function TSIPatientsSummaryPage() {
                     ) : (
                       baselineData.map((category, categoryIndex) => (
                         /* ── 카테고리 카드 / Category card ── */
-                        <div key={categoryIndex} className="rounded-[16px] bg-white">
+                        <div key={categoryIndex} className="rounded-[12px] bg-white">
                           <div className="flex flex-col pt-[12px] px-[12px] pb-[8px]">
 
                             {/* 카테고리 헤더 행 / Category header row */}

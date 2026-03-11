@@ -7,7 +7,7 @@ import ArrowIcon from "@/components/ui/arrow-icon";
 import { SingleBarChart } from "@/components/charts/SingleBarChart";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import Button from "@/components/ui/button";
+import SolidButton from "@/components/ui/solid-button";
 import {
   Step1TypeISafetyChart,
   Step2VarianceDeclineChart,
@@ -35,14 +35,14 @@ function StepCard({
   chartContent,
 }: StepCardProps) {
   return (
-    <div className="rounded-[16px] min-h-[512px] p-5 flex flex-col items-start flex-1 bg-[#f5f5f6]">
+    <div className="rounded-[12px] min-h-[512px] p-5 flex flex-col items-start flex-1 bg-[#f5f5f6]">
       {/* Step 버튼 + 타이틀 + Description 영역 */}
       <div className="w-full flex flex-col flex-shrink-0 mb-8">
         {/* Step 버튼 */}
         <div className="mb-3">
-          <button className="px-3 py-1 bg-[#f06600] rounded-[8px] text-body5m text-white h-6">
+          <SolidButton variant="primary" size="s" className="rounded-[4px] px-3 font-medium">
             Step {stepNumber}
-          </button>
+          </SolidButton>
         </div>
         {/* 타이틀 + Description 영역 */}
         <div className="flex flex-col w-full flex-1">
@@ -461,7 +461,7 @@ export default function ReportPage() {
 
   return (
     <>
-      <AppLayout headerType="ats" scaleMode="fit">
+      <AppLayout headerType="ats" scaleMode="none">
         <div id="report-page-root" className="flex flex-col w-full h-full overflow-hidden gap-6">
           
           <div className="shrink-0 px-1">
@@ -469,10 +469,10 @@ export default function ReportPage() {
               id="report-header"
               className="flex flex-col gap-1 flex-shrink-0 items-start"
             >
-              <div className="text-title text-neutral-5 text-left">
+              <div className="text-page-title  text-left">
                 Adaptive Trial Simulation
               </div>
-              <p className="text-body2m text-neutral-50 text-left">
+              <p className="text-page-subtitle text-left">
                 {currentDate}
               </p>
             </div>
@@ -492,7 +492,7 @@ export default function ReportPage() {
                     {/* Insight Summary */}
                     <div className="flex-1 flex flex-col">
                       <div
-                        className="flex flex-col items-center bg-[#231f52] rounded-[16px] w-full flex-1 gap-6"
+                        className="flex flex-col items-center bg-[#231f52] rounded-[12px] w-full flex-1 gap-6"
                         style={{
                           padding: "24px",
                         }}
@@ -568,7 +568,7 @@ export default function ReportPage() {
                             </span>
                           </div>
                         </div>
-                        <div className="bg-white rounded-[16px] p-4 w-full mt-auto flex flex-col">
+                        <div className="bg-white rounded-[12px] p-4 w-full mt-auto flex flex-col">
                           <h3 className="text-h3 text-[#231f52]">
                             {apiData?.sample_size_evaluation?.title || ""}
                           </h3>
@@ -595,7 +595,7 @@ export default function ReportPage() {
                           return (
                             <div
                               key={index}
-                              className="flex flex-col items-center bg-white rounded-[16px] p-3 gap-3"
+                              className="flex flex-col items-center bg-white rounded-[12px] p-3 gap-3"
                             >
                               <div className="flex items-start justify-between w-full">
                                 <div className="flex flex-col gap-1">
@@ -680,7 +680,7 @@ export default function ReportPage() {
                     </h2>
                     <div className="flex gap-4">
                       {/* Endpoints Design Card */}
-                      <div className="flex-1 bg-white rounded-[16px] p-6">
+                      <div className="flex-1 bg-white rounded-[12px] p-6">
                         <div className="mb-4">
                           <div className="flex justify-left mb-4">
                             <div
@@ -700,25 +700,25 @@ export default function ReportPage() {
                             <table className="w-full">
                               <thead>
                                 <tr>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     Endpoint Type
                                   </th>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     No
                                   </th>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     Outcome
                                   </th>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     Type
                                   </th>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     Nominal Power
                                   </th>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     Threshold
                                   </th>
-                                  <th className="text-left py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
                                     Expected Effect size
                                   </th>
                                 </tr>
@@ -768,28 +768,28 @@ export default function ReportPage() {
                                         {index === 0 && (
                                           <td
                                             rowSpan={primaryEndpoints.length}
-                                            className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c] align-top"
+                                            className="py-3 px-4 text-body5m text-neutral-10 align-top"
                                           >
                                             Primary
                                           </td>
                                         )}
-                                        <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                        <td className="py-3 px-4 text-body5m text-neutral-10">
                                           #{index + 1}
                                         </td>
-                                        <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                        <td className="py-3 px-4 text-body5m text-neutral-10">
                                           {endpoint.name}
                                         </td>
-                                        <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                        <td className="py-3 px-4 text-body5m text-neutral-10">
                                           {endpoint.type || "Continuous"}
                                         </td>
-                                        <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                        <td className="py-3 px-4 text-body5m text-neutral-10">
                                           {index === 0
                                             ? `${Math.round(
                                                 nominalPower * 100,
                                               )}%`
                                             : "-"}
                                         </td>
-                                        <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                        <td className="py-3 px-4 text-body5m text-neutral-10">
                                           {endpoint.type === "Binary" &&
                                           endpoint.threshold !== null &&
                                           endpoint.threshold !== undefined
@@ -798,7 +798,7 @@ export default function ReportPage() {
                                         </td>
                                         <td className="py-3 px-4">
                                           <div className="flex items-center gap-2">
-                                            <span className="text-[12px] font-medium leading-[17px] text-[#1c1b1c] whitespace-nowrap">
+                                            <span className="text-body5m text-neutral-10 whitespace-nowrap">
                                               {effectSize.toFixed(1)}
                                             </span>
                                             <div className="flex items-center gap-1 flex-1">
@@ -869,24 +869,24 @@ export default function ReportPage() {
                                       {index === 0 && (
                                         <td
                                           rowSpan={secondaryEndpoints.length}
-                                          className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c] align-top"
+                                          className="py-3 px-4 text-body5m text-neutral-10 align-top"
                                         >
                                           Secondary
                                         </td>
                                       )}
-                                      <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                      <td className="py-3 px-4 text-body5m text-neutral-10">
                                         #{index + 1}
                                       </td>
-                                      <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                      <td className="py-3 px-4 text-body5m text-neutral-10">
                                         {endpoint.name}
                                       </td>
-                                      <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                      <td className="py-3 px-4 text-body5m text-neutral-10">
                                         {endpoint.type || "Continuous"}
                                       </td>
-                                      <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                      <td className="py-3 px-4 text-body5m text-neutral-10">
                                         -
                                       </td>
-                                      <td className="py-3 px-4 text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                      <td className="py-3 px-4 text-body5m text-neutral-10">
                                         {endpoint.type === "Binary" &&
                                         endpoint.threshold !== null &&
                                         endpoint.threshold !== undefined
@@ -895,7 +895,7 @@ export default function ReportPage() {
                                       </td>
                                       <td className="py-3 px-4">
                                         <div className="flex items-center gap-2">
-                                          <span className="text-[12px] font-medium leading-[17px] text-[#1c1b1c] whitespace-nowrap">
+                                          <span className="text-body5m text-neutral-10 whitespace-nowrap">
                                             {effectSize.toFixed(1)}
                                           </span>
                                           <div className="flex items-center gap-1 flex-1">
@@ -927,9 +927,9 @@ export default function ReportPage() {
                       </div>
 
                       {/* Trial Design Card */}
-                      <div className="w-[556px] bg-white rounded-[16px] p-6">
+                      <div className="w-[556px] bg-white rounded-[12px] p-6">
                         <div className="mb-4">
-                          <div className="inline-block px-4 py-1.5 bg-[#ededed] rounded-[100px] mb-4">
+                          <div className="inline-block px-4 py-1.5 bg-[#ededed] rounded-[96px] mb-4">
                             <span className="text-[12px] font-semibold leading-[18.02px] tracking-[-0.51px] text-[#231f52]">
                               Trial Design
                             </span>
@@ -988,7 +988,7 @@ export default function ReportPage() {
                               return (
                                 <div
                                   key={graphItem.id}
-                                  className="flex-1 bg-white rounded-[16px] p-2"
+                                  className="flex-1 bg-white rounded-[12px] p-2"
                                   style={{ height: "378px" }}
                                 >
                                   <div className="h-full flex items-center justify-center overflow-hidden">
@@ -1008,7 +1008,7 @@ export default function ReportPage() {
                     {/* 테이블 */}
                     {(apiData as any)?.result_prec_model && (
                       <>
-                        <div className="bg-white rounded-[16px] p-2 mb-5">
+                        <div className="bg-white rounded-[12px] p-2 mb-5">
                           <div className="overflow-x-auto relative">
                             <table className="w-full">
                               <thead>
@@ -1237,7 +1237,7 @@ export default function ReportPage() {
 
                       {/* 카드 1개 */}
                       <div
-                        className="bg-white rounded-[16px] p-6"
+                        className="bg-white rounded-[12px] p-6"
                         style={{ height: "132px" }}
                       >
                         <div className="h-full flex items-center">
@@ -1251,17 +1251,21 @@ export default function ReportPage() {
                   {/* Footer - 오른쪽 패널 하단 */}
                   <div className="flex items-center justify-end py-6 flex-shrink-0">
                     <div className="flex gap-4">
-                      <button className="px-5 py-2.5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2">
+                      <SolidButton
+                        variant="secondary"
+                        size="m"
+                        className="rounded-[96px]"
+                      >
                         Save Simulation
-                      </button>
-                      <Button
-                        variant="orange"
-                        size="md"
+                      </SolidButton>
+                      <SolidButton
+                        variant="primary"
+                        size="m"
                         onClick={() => router.push("/")}
-                        className="rounded-[100px]"
+                        className="rounded-[96px]"
                       >
                         Go to Main
-                      </Button>
+                      </SolidButton>
                     </div>
                   </div>
                 </div>

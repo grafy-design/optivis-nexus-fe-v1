@@ -8,7 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, tooltipItem } from "@/lib/chart-styles";
 import type { RobustnessProofResult } from "@/services/studyService";
 
 export interface Step3PerformanceGainChartProps {
@@ -70,6 +70,7 @@ export function Step3PerformanceGainChart({
   })();
 
   const option = {
+    tooltip: { ...tooltipItem },
     title: chartTitle("B. Robustness Proof: Performance Gain over Unadjusted"),
     graphic: chartGraphicDivider(320),
     legend: { show: false },
@@ -208,7 +209,7 @@ export function Step3PerformanceGainChart({
   };
 
   return (
-    <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden relative">
+    <div className="flex-1 h-full bg-white rounded-[4px] overflow-hidden relative">
       <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
       <div
         className="absolute text-small1 text-[var(--chart-text-category-title)] gap-[1px]"

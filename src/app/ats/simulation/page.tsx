@@ -696,14 +696,14 @@ export default function SimulationPage() {
   return (
     <>
       <Loading isLoading={isLoading} />
-      <AppLayout headerType="ats" scaleMode="height">
+      <AppLayout headerType="ats" scaleMode="none">
         <div className="flex flex-col w-full h-full overflow-hidden gap-6">
           
           <div className="shrink-0 px-1">
-            <div className="text-title text-neutral-5 text-left">
+            <div className="text-page-title text-left">
               Adaptive Trial Simulation
             </div>
-            <p className="text-body2m text-neutral-50 text-left">
+            <p className="text-page-subtitle text-left">
               Optimize study design
             </p>
           </div>

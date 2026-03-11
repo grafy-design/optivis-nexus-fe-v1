@@ -140,7 +140,7 @@ export default function FeatureCard({
   const iconSrc = (isSelected || (!isPackage && isHovered && !disabled)) && selectedIcon ? selectedIcon : icon;
 
   // 카드 padding / gap - Figma 기준
-  const cardPad = 24; // 모든 방향 24px
+  const cardPad = 20; // 모든 방향 20px
 
   return (
     <div
@@ -151,12 +151,12 @@ export default function FeatureCard({
       onMouseLeave={() => {
         if (!disabled) setIsHovered(false);
       }}
-      className="relative flex flex-col rounded-[24px] w-full flex-1 min-h-[200px] p-6 backdrop-blur-[12px]"
+      className="relative flex flex-col rounded-[20px] w-full flex-1 min-h-[200px] p-5 backdrop-blur-[12px]"
       style={{
         background: cardBg,
         border: cardBorder,
         transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        transform: isPackage && isHovered && !isSelected && !disabled ? "translateY(-4px)" : "none",
+        transform: isHovered && !isSelected && !disabled ? "translateY(-4px)" : "none",
         cursor: disabled ? "default" : "pointer",
       }}
     >
@@ -174,7 +174,7 @@ export default function FeatureCard({
 
       {/* 아이콘: 60x60 원형 프레임 (중간 원 제거를 위해 강제 크롭) */}
       <div
-        className="home-feature-card-icon shrink-0 flex items-center justify-center overflow-hidden rounded-full relative size-[60px] transition-colors duration-200 ease-in-out"
+        className="home-feature-card-icon shrink-0 flex items-center justify-center overflow-hidden rounded-full relative size-[48px] transition-colors duration-200 ease-in-out"
         style={{
           backgroundColor: iconBg,
         }}
@@ -182,8 +182,8 @@ export default function FeatureCard({
         <Image
           src={iconSrc}
           alt={title}
-          width={140}
-          height={140}
+          width={60}
+          height={60}
           className="home-feature-card-icon-img object-cover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
             filter: iconFilter,
@@ -198,7 +198,7 @@ export default function FeatureCard({
       {/* 텍스트 영역: gap 8px */}
       <div className="flex flex-col gap-1">
         {/* 타이틀: Inter 600 19.5px */}
-        <p className="text-body2 text-text-primary m-0 transition-colors duration-200 ease-in-out"
+        <p className="text-body4 text-text-primary transition-colors duration-200 ease-in-out"
           style={{
             color: titleColor,
           }}
@@ -208,8 +208,9 @@ export default function FeatureCard({
 
         {/* 설명: Inter 400 15px */}
         <p
-          className="home-feature-card-desc text-body4m m-0 transition-colors duration-200 ease-in-out"
+          className="home-feature-card-desc text-body5m m-0 transition-colors duration-200 ease-in-out"
           style={{
+            lineHeight: "110%",
             color: descColor,
           }}
         >

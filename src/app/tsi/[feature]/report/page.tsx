@@ -687,7 +687,7 @@ function TSIReportPageContent() {
       <AppLayout headerType="tsi" scaleMode="fit">
         <div className="flex flex-col w-full gap-3">
           {/* ── 필수 파라미터 누락 에러 / Missing required params error ── */}
-          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
+          <div className="rounded-[20px] border border-red-200 bg-red-50 p-6 text-red-700">
             Report 조회에 필요한 파라미터가 누락되었습니다. (`feature`, `taskId`, `subgroupId`)
           </div>
         </div>
@@ -701,7 +701,7 @@ function TSIReportPageContent() {
         <Loading isLoading />
         <div className="flex flex-col w-full gap-3">
           {/* ── 로딩 중 메시지 / Loading message ── */}
-          <div className="rounded-[16px] bg-neutral-95 p-4 text-neutral-50">
+          <div className="rounded-[12px] bg-neutral-95 p-4 text-neutral-50">
             리포트 데이터를 조회 중입니다.
           </div>
         </div>
@@ -714,7 +714,7 @@ function TSIReportPageContent() {
       <AppLayout headerType="tsi" scaleMode="fit">
         <div className="flex flex-col w-full gap-3">
           {/* ── API 조회 에러 메시지 / API fetch error message ── */}
-          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
+          <div className="rounded-[20px] border border-red-200 bg-red-50 p-6 text-red-700">
             {fetchError}
           </div>
         </div>
@@ -778,10 +778,10 @@ function TSIReportPageContent() {
             <div className="flex w-full flex-shrink-0 flex-row gap-4">
 
               {/* ── 2-1-L. Model Based 카드 / Model Based card ── */}
-              <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-4 gap-4">
+              <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[20px] p-4 gap-4">
                 {/* Model Based 라벨 / Model Based badge */}
                 <div className=" flex">
-                  <span className="text-body5m px-4 py-1.5 items-center justify-center rounded-[25px] bg-secondary-60 text-white">
+                  <span className="text-body5m px-4 py-1.5 items-center justify-center rounded-[21px] bg-secondary-60 text-white">
                     Model Based
                   </span>
                 </div>
@@ -800,7 +800,7 @@ function TSIReportPageContent() {
                     rows={modelBasedPanelData.rows}
                   />
                 ) : (
-                  <div className="flex w-full flex-1 items-center justify-center rounded-[16px] bg-white p-4">
+                  <div className="flex w-full flex-1 items-center justify-center rounded-[12px] bg-white p-4">
                     <p className="text-body2m text-neutral-50">
                       Model Based 데이터가 없습니다.
                     </p></div>
@@ -808,10 +808,10 @@ function TSIReportPageContent() {
               </div> 
 
               {/* ── 2-1-R. Feature Based 카드 / Feature Based card ── */}
-              <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[24px] p-4 gap-4">
+              <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[20px] p-4 gap-4">
                 {/* Feature Based 라벨 / Feature Based badge */}
                 <div className="flex">
-                  <span className="text-body5m px-4 py-1.5 items-center justify-center gap-2 rounded-[24px] bg-secondary-60 font-medium text-white">
+                  <span className="text-body5m px-4 py-1.5 items-center justify-center gap-2 rounded-[20px] bg-secondary-60 font-medium text-white">
                     Feature Based
                   </span>
                 </div>
@@ -831,7 +831,7 @@ function TSIReportPageContent() {
                     rows={featureBasedPanelData.rows}
                   />
                 ) : (
-                  <div className="flex w-full h-full items-center justify-center rounded-[16px] bg-white p-4">
+                  <div className="flex w-full h-full items-center justify-center rounded-[12px] bg-white p-4">
                     <p className="text-body2m text-neutral-50">
                       Feature Based 데이터가 없습니다.
                     </p>
@@ -849,7 +849,7 @@ function TSIReportPageContent() {
               <h2 className="text-h4 text-primary-15 mb-4 ml-[4px] flex-shrink-0 ">
                 Stratification Strategy Comparison
               </h2>
-              <div className="flex h-fit w-full flex-col overflow-visible rounded-[24px] bg-white/60 p-3 gap-10">
+              <div className="flex h-fit w-full flex-col overflow-visible rounded-[20px] bg-white/60 p-3 gap-10">
                 {modelComparisonData && featureComparisonData ? (
                   <>
                     {/* 텍스트 영역 / Description text area */}
@@ -864,7 +864,7 @@ function TSIReportPageContent() {
                     <div className="flex w-full flex-shrink-0 gap-2">
 
                       {/* Model Based 차트 패널 (분산 분해 + 그룹 내 분산) / Model Based: variance decomp + within-group variance */}
-                        <div className="flex w-full flex-col overflow-visible rounded-[16px] bg-white p-3">
+                        <div className="flex w-full flex-col overflow-visible rounded-[12px] bg-white p-3">
                           <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-visible">
                             <div className="flex min-h-0 flex-col justify-between overflow-visible">
                               <div className="flex flex-col gap-1 border-b border-neutral-70 pb-1.5">
@@ -892,7 +892,7 @@ function TSIReportPageContent() {
 
                       {/* Feature Based 차트 패널 / Feature Based: variance decomp + within-group variance */}
                      
-                        <div className="flex w-full flex-col overflow-visible rounded-[16px] bg-white p-3">
+                        <div className="flex w-full flex-col overflow-visible rounded-[12px] bg-white p-3">
                           <div className="grid min-h-0 flex-1 grid-cols-2 gap-4 overflow-visible">
                             <div className="flex min-h-0 flex-col overflow-visible gap-3">
                               <div className="flex flex-col gap-0.75 border-b border-neutral-70 pb-1.5 ">
@@ -944,7 +944,7 @@ function TSIReportPageContent() {
               <h2 className="text-h4 text-primary-15 mb-4 ml-[4px] flex-shrink-0">
                 Risk &amp; Response Assessment
               </h2>
-              <div className="flex w-full gap-4 rounded-[24px] bg-white/60 p-3">
+              <div className="flex w-full gap-4 rounded-[20px] bg-white/60 p-3">
 
                 {/* 왼쪽: 타이틀·설명 영역 (1:3 비율) / Left: description area (1:3 ratio) */}
                 <div className="flex h-fit min-w-0 flex-1 flex-col items-start gap-[28px] pl-1 pt-1">
@@ -959,7 +959,7 @@ function TSIReportPageContent() {
                 {/* 오른쪽: 포레스트 플롯 / Right: forest plot */}
                 <div className="flex min-w-0 flex-[3] items-start">
                   {hasRiskResponseData ? (
-                    <div className="min-w-0 w-full rounded-[16px] bg-white p-3" >
+                    <div className="min-w-0 w-full rounded-[12px] bg-white p-3" >
                       <div className="flex min-h-0 w-full flex-col">
                         {riskResponseSets.map((setData, setIdx) => (
                           <div
@@ -1027,7 +1027,7 @@ function TSIReportPageContent() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-[16px] border border-neutral-80 bg-white p-4">
+                    <div className="flex min-h-0 w-full flex-1 items-center justify-center rounded-[12px] border border-neutral-80 bg-white p-4">
                       <p className="text-body2m text-neutral-50">
                         Risk &amp; Response Assessment 데이터가 없습니다.
                       </p>

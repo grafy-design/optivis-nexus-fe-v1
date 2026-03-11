@@ -404,7 +404,7 @@ export const MultiLineWithErrorBar = ({
         const filtered = params.filter((p: any) => !p.seriesName.endsWith(" Error") && p.seriesName !== "Mean" && p.seriesName !== "Center Guide" && p.seriesName !== "Zero Line");
         let html = tooltipTitle(`${month.toFixed(1)} month`);
         filtered.forEach((p: any) => {
-          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:2px">${p.marker}<span style="color:var(--chart-text-axis-value);font-size:9px">${p.seriesName}</span></span><span style="color:var(--chart-text-axis-value);font-size:14px;font-weight:600">${Number(p.value[1]).toFixed(1)}</span></div>`;
+          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:2px">${p.marker}<span style="color:#787776;font-size:9px">${p.seriesName}</span></span><span style="color:#787776;font-size:13px;font-weight:600">${Number(p.value[1]).toFixed(1)}</span></div>`;
         });
         return html;
       },

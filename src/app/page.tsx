@@ -52,7 +52,7 @@ const packages: Package[] = [
     services: [
       {
         id: "7",
-        title: "Patient Outcome Prediction",
+        title: "Conditional Drug Response Prediction",
         description:
           "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
         icon: "/assets/icons/twin-predict.svg", // Reusing parent icon temporarily
@@ -75,7 +75,8 @@ const packages: Package[] = [
         id: "4",
         title: "Adaptive Trial Simulation",
         description:
-          "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
+        "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions."
+          ,
         icon: "/assets/icons/adaptive-trial.svg",
         selectedIcon: "/assets/icons/adaptive-trial-selected.svg",
         variant: "glass" as const,
@@ -84,7 +85,7 @@ const packages: Package[] = [
         id: "5",
         title: "Target Subgroup Identification",
         description:
-          "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+         "Identifies patient subgroups with high treatment responsiveness in advance to support optimal patient selection for clinical trials.",
         icon: "/assets/icons/target-subgroup.svg",
         variant: "glass" as const,
       },
@@ -92,7 +93,7 @@ const packages: Package[] = [
         id: "6",
         title: "Drug Response Prediction Dashboard",
         description:
-          "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
+          "Compares prognosis scenarios by treatment status and presents predicted treatment effects through dashboards.",
         icon: "/assets/icons/drug-response.svg",
         selectedIcon: "/assets/icons/drug-response-selected.svg",
         variant: "glass" as const,
@@ -109,7 +110,7 @@ const packages: Package[] = [
     services: [
       {
         id: "8",
-        title: "Synthetic Control Arm",
+        title: "External Control Arm Generation",
         description:
           "Generates a synthetic control group based on historical data to compare with the experimental arm, reducing the need for placebo patients.",
         icon: "/assets/icons/virtual-control.svg", // Reusing parent icon temporarily
@@ -120,7 +121,7 @@ const packages: Package[] = [
       },
       {
         id: "9",
-        title: "Historical Data Analysis",
+        title: "Prospective Shadowing & Validation",
         description:
           "Analyzes historical clinical trial data to inform current study design and predict potential outcomes.",
         icon: "/assets/icons/virtual-control.svg", // Reusing parent icon temporarily
@@ -251,13 +252,13 @@ export default function HomePage() {
   };
 
   return (
-    <AppLayout>
+    <AppLayout scaleMode="none">
       <div className="flex w-full flex-1 items-stretch min-h-0 gap-1">
         {/* ── 왼쪽: Package (Figma 470/2391 = 19.66%) ── */}
-        <div className="flex flex-col" style={{ 
-          flex: "470 1 0",
+        <div style={{
+          flex: "420 1 0",
           minHeight: 0,
-          minWidth: "250px",
+          minWidth: 0,
         }}>
           <FeatureSection
             title="01 Package"
@@ -277,10 +278,10 @@ export default function HomePage() {
         </div>
 
         {/* ── 가운데: Service (Figma 469/2391 = 19.62%) ── */}
-        <div className="flex flex-col" style={{ 
-          flex: "469 1 0",
+        <div style={{
+          flex: "420 1 0",
           minHeight: 0,
-          minWidth: "250px",
+          minWidth: 0,
         }}>
           <FeatureSection
             title="02 Service"
@@ -298,17 +299,14 @@ export default function HomePage() {
          * padding 28px, gap 21px
          */}
         <div
-          className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden"
+          className="figma-nine-slice figma-home-panel-right flex-col overflow-hidden"
           style={{
-            flex: "1452 1 0",
-            minWidth: "500px",
+            flex: "1600 1 0",
+            minWidth: 0,
             minHeight: 0,
-            padding:"24px",
-            paddingTop:"20px",
-            paddingBottom:"32px",
           }}
         >
-          <div className="flex flex-col flex-1 overflow-y-auto min-h-0" style={{ gap: "21px" }}>
+          <div className="flex flex-col flex-1 overflow-y-auto min-h-0 h-full" style={{ gap: "20px" }}>
             {rightPanelContent ? (
               <>
                 <HeroPanel

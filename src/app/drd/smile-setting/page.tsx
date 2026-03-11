@@ -30,6 +30,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useSimulationStore } from "@/store/simulationStore";
+import { GlassTestButton } from "@/components/ui/glass-button";
 
 // ─── 아이콘 ──────────────────────────────────────────────────────────────────
 
@@ -37,8 +38,8 @@ import { useSimulationStore } from "@/store/simulationStore";
 function IconSearch() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <circle cx="7" cy="7" r="4.5" stroke="#AAAAAD" strokeWidth="1.3" />
-      <path d="M10.5 10.5L13.5 13.5" stroke="#AAAAAD" strokeWidth="1.3" strokeLinecap="round" />
+      <circle cx="7" cy="7" r="4.5" stroke="var(--neutral-70)" strokeWidth="1.3" />
+      <path d="M10.5 10.5L13.5 13.5" stroke="var(--neutral-70)" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -47,7 +48,7 @@ function IconSearch() {
 function IconClear() {
   return (
     <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
-      <circle cx="8" cy="8" r="5.5" fill="#AAAAAD" />
+      <circle cx="8" cy="8" r="5.5" fill="var(--neutral-70)" />
       <path d="M6 6l4 4M10 6l-4 4" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   );
@@ -58,7 +59,7 @@ function IconClear() {
 function IconExpand() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M5 8l5 5 5-5" stroke="#484646" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5 8l5 5 5-5" stroke="var(--neutral-30)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -68,10 +69,10 @@ function IconExpand() {
 function IconDownloadFile() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M11.5 2H5a1.5 1.5 0 00-1.5 1.5v13A1.5 1.5 0 005 18h10a1.5 1.5 0 001.5-1.5V7l-5-5z" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <polyline points="11.5 2 11.5 7 16.5 7" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="10" y1="10" x2="10" y2="15" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" />
-      <polyline points="7.5 12.5 10 15 12.5 12.5" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11.5 2H5a1.5 1.5 0 00-1.5 1.5v13A1.5 1.5 0 005 18h10a1.5 1.5 0 001.5-1.5V7l-5-5z" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="11.5 2 11.5 7 16.5 7" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="10" y1="10" x2="10" y2="15" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" />
+      <polyline points="7.5 12.5 10 15 12.5 12.5" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -80,9 +81,9 @@ function IconDownloadFile() {
 function IconAddFolder() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M18 15.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 15.5V5a1.5 1.5 0 011.5-1.5H7l2 2.5h7.5A1.5 1.5 0 0118 7.5z" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="10" y1="10" x2="10" y2="14" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" />
-      <line x1="8" y1="12" x2="12" y2="12" stroke="#262255" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M18 15.5a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 012 15.5V5a1.5 1.5 0 011.5-1.5H7l2 2.5h7.5A1.5 1.5 0 0118 7.5z" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="10" y1="10" x2="10" y2="14" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" />
+      <line x1="8" y1="12" x2="12" y2="12" stroke="var(--primary-15)" strokeWidth="1.3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -107,55 +108,6 @@ function GlassIconButton({ children, onClick }: { children: React.ReactNode; onC
   );
 }
 
-// ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
-
-/**
- * GlassTestButton — "Test Load" 버튼
- * - 클릭 시 handleTestLoad가 호출되어 샘플 약물 데이터로 상태를 채움
- * - hover/press 시 배경이 바뀌는 글래스 스타일 버튼
- * - disabled 시 반투명 + not-allowed 커서
- */
-function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled?: boolean }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "#C6C5C9" : pressed ? "#3a11d8" : "var(--text-header)";
-  return (
-    <div
-      onClick={!disabled ? onClick : undefined}
-      onMouseEnter={() => !disabled && setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => !disabled && setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      className="relative flex items-center justify-center shrink-0 rounded-full"
-      style={{
-        height: 40,
-        paddingLeft: 20,
-        paddingRight: 20,
-        cursor: disabled ? "not-allowed" : "pointer",
-        boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)",
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      <div className="absolute inset-0 rounded-full" style={{ background: "#333333", mixBlendMode: "color-dodge" }} />
-      <div className="absolute inset-0 rounded-full" style={{ background: bg, transition: "background 0.12s" }} />
-      <div className="absolute inset-0 rounded-full" style={{ border: pressed ? "2px solid rgba(58,17,216,0.19)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
-      <span
-        className="relative text-body3"
-        style={{
-          zIndex: 1,
-          color: textColor,
-          whiteSpace: "nowrap",
-          paddingTop: 2,
-          transition: "color 0.12s",
-        }}
-      >
-        Test Load
-      </span>
-    </div>
-  );
-}
-
 // ─── 왼쪽 패널: 셋업 스텝 ───────────────────────────────────────────────────
 
 /**
@@ -166,13 +118,13 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
  */
 function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => void; onSimCondClick: () => void }) {
   return (
-    <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
+    <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
       <div className="flex flex-col gap-[8px] overflow-y-auto h-full">
       {/* Step 2 - SMILES Settings (Active) */}
       <button
         onClick={onSmilesClick}
-        className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#2e2a66] active:bg-[#1a1738]"
-        style={{ background: "#262255", height: 96, justifyContent: "center" }}
+        className="flex flex-col w-full p-[16px] rounded-[20px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#2e2a66] active:bg-[#1a1738]"
+        style={{ background: "var(--primary-15)", height: 96, justifyContent: "center" }}
       >
         <div className="flex items-center gap-[18px]">
           <div className="shrink-0 flex items-center justify-center">
@@ -184,12 +136,12 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
               className="shrink-0"
             />
           </div>
-          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-inverted)" }}>
+          <span className="text-body3" style={{ color: "var(--text-inverted)" }}>
             SMILES Settings
           </span>
         </div>
         <div className="pl-[42px] mt-0">
-          <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "rgba(255,255,255,0.7)" }}>
+          <p className="text-small1 m-0" style={{ color: "rgba(255,255,255,0.7)" }}>
             Add SMILES strings to define the chemical structures for simulation conditions.
           </p>
         </div>
@@ -198,7 +150,7 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
       {/* Step 1 - Simulation Conditions (Inactive) */}
       <button
         onClick={onSimCondClick}
-        className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
+        className="flex flex-col w-full p-[16px] rounded-[20px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
         style={{ background: "transparent", height: 96, justifyContent: "center" }}
       >
         <div className="flex items-center gap-[18px]">
@@ -211,12 +163,12 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
               className="shrink-0"
             />
           </div>
-          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
+          <span className="text-body3" style={{ color: "var(--text-primary)" }}>
             Simulation Conditions
           </span>
         </div>
         <div className="pl-[42px] mt-0">
-          <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
+          <p className="text-small1 m-0" style={{ color: "var(--text-secondary)" }}>
             Develop a plan to assess the subject&apos;s prognosis based on the entered information.
           </p>
         </div>
@@ -257,15 +209,15 @@ type DrugCardProps = {
 function MoleculeIcon() {
   return (
     <svg width="90" height="80" viewBox="0 0 90 80" fill="none">
-      <circle cx="45" cy="40" r="9" fill="none" stroke="#AAA5E1" strokeWidth="1.5" />
-      <circle cx="24" cy="27" r="7" fill="none" stroke="#AAA5E1" strokeWidth="1.5" />
-      <circle cx="66" cy="27" r="7" fill="none" stroke="#AAA5E1" strokeWidth="1.5" />
-      <circle cx="24" cy="53" r="7" fill="none" stroke="#AAA5E1" strokeWidth="1.5" />
-      <circle cx="66" cy="53" r="7" fill="none" stroke="#AAA5E1" strokeWidth="1.5" />
-      <line x1="36" y1="36" x2="29" y2="30" stroke="#AAA5E1" strokeWidth="1.5" />
-      <line x1="54" y1="36" x2="61" y2="30" stroke="#AAA5E1" strokeWidth="1.5" />
-      <line x1="36" y1="44" x2="29" y2="50" stroke="#AAA5E1" strokeWidth="1.5" />
-      <line x1="54" y1="44" x2="61" y2="50" stroke="#AAA5E1" strokeWidth="1.5" />
+      <circle cx="45" cy="40" r="9" fill="none" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <circle cx="24" cy="27" r="7" fill="none" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <circle cx="66" cy="27" r="7" fill="none" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <circle cx="24" cy="53" r="7" fill="none" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <circle cx="66" cy="53" r="7" fill="none" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <line x1="36" y1="36" x2="29" y2="30" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <line x1="54" y1="36" x2="61" y2="30" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <line x1="36" y1="44" x2="29" y2="50" stroke="var(--primary-70)" strokeWidth="1.5" />
+      <line x1="54" y1="44" x2="61" y2="50" stroke="var(--primary-70)" strokeWidth="1.5" />
       <text x="18" y="31" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">C</text>
       <text x="63" y="31" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">O</text>
       <text x="18" y="57" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">N</text>
@@ -287,7 +239,7 @@ function MoleculeIcon() {
  *   hovered / pressed — 배경색 단계적 변화 (leftBg, labelBg, dataBg)
  */
 function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQuery, addedIndex, onClick }: DrugCardProps) {
-  const rowBorderBottom = "1px solid #AAAAAD";
+  const rowBorderBottom = "1px solid var(--neutral-70)";
   const labelRows = ["SMILES", "Drug name", "MF", "MW"];
   const dataRows = [smiles, drugName, mf, mw];
   const [hovered, setHovered] = useState(false);
@@ -325,11 +277,11 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
   const dataTextColor = (rowIdx: number) => {
     const hasSearch = !!searchQuery?.trim();
     if (rowIdx === 0) {
-      if (!hasSearch) return "#1C1B1B";
-      return "#3A11D8";
+      if (!hasSearch) return "var(--neutral-10)";
+      return "var(--tertiary-40)";
     }
-    if (!hasSearch) return "#1C1B1B";
-    return "#787776";
+    if (!hasSearch) return "var(--neutral-10)";
+    return "var(--neutral-50)";
   };
 
   /**
@@ -363,7 +315,7 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
       onMouseLeave={() => { setHovered(false); setPressed(false); }}
       onMouseDown={() => !isAdded && setPressed(true)}
       onMouseUp={() => setPressed(false)}
-      className="flex w-full shrink-0 overflow-hidden rounded-[18px]"
+      className="flex w-full shrink-0 overflow-hidden rounded-[14px]"
       style={{
         border: cardBorder,
         cursor: isAdded ? "default" : onClick ? "pointer" : "default",
@@ -385,9 +337,9 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
           {/* 유사도 배지 + 번호 */}
           <div className="flex items-center gap-2">
             <div
-              className="flex items-center justify-center rounded-[8px]"
+              className="flex items-center justify-center rounded-[4px]"
               style={{
-                background: isAdded ? "#F06600" : "#AAA5E1",
+                background: isAdded ? "var(--secondary-60)" : "var(--primary-70)",
                 width: 60,
                 height: 26,
               }}
@@ -403,10 +355,10 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
             </div>
             {isAdded && (
               <span
-                className="flex items-center justify-center rounded-[8px] text-body4"
+                className="flex items-center justify-center rounded-[4px] text-body4"
                 style={{
                   color: "white",
-                  background: "#F06600",
+                  background: "var(--secondary-60)",
                   width: 22,
                   height: 22,
                 }}
@@ -450,7 +402,7 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
             <span
               className="text-body4"
               style={{
-                color: "#1C1B1B",
+                color: "var(--neutral-10)",
                 whiteSpace: "nowrap",
               }}
             >
@@ -530,19 +482,19 @@ function DrugTooltip({ name, anchorRect, smilesImage }: { name: string; anchorRe
 
   const content = (
     <div
-      className="fixed flex overflow-hidden pointer-events-none rounded-[24px]"
+      className="fixed flex overflow-hidden pointer-events-none rounded-[20px]"
       style={{
         left: Math.max(8, left),
         top,
         transform: "translateY(-50%)",
         zIndex: 9999,
-        background: "#262255",
+        background: "var(--primary-15)",
         boxShadow: "0 8px 40px rgba(0,0,0,0.28)",
         width: tooltipWidth,
         padding: 12,
       }}
     >
-      <div className="flex overflow-hidden rounded-[16px]">
+      <div className="flex overflow-hidden rounded-[12px]">
       {/* 글래스 오버레이 */}
       <div className="absolute inset-0 pointer-events-none rounded-full" style={{ background: "rgba(38,38,38,0.25)", mixBlendMode: "color-dodge" }} />
       {/* 왼쪽: 분자 구조 */}
@@ -636,7 +588,7 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
 
   return (
     <div
-      className="relative flex items-center w-full rounded-[12px] gap-2"
+      className="relative flex items-center w-full rounded-[8px] gap-2"
       style={{
         background: "white",
         height: 50,
@@ -646,7 +598,7 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
       {/* 오렌지 번호 배지 */}
       <div className="relative shrink-0" style={{ display: "inline-grid", placeItems: "start" }}>
         <div
-          className="rounded-[24px]"
+          className="rounded-[20px]"
           style={{
             background: "var(--secondary-60, #F06600)",
             width: 24,
@@ -672,7 +624,7 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
       <span
         className="flex-1 overflow-hidden text-body4"
         style={{
-          color: "#1C1B1B",
+          color: "var(--neutral-10)",
           whiteSpace: "nowrap",
           textOverflow: "ellipsis",
         }}
@@ -873,7 +825,7 @@ export default function SmileSettingPage() {
               <div className="flex-[4] flex flex-col gap-3 min-h-0 min-w-0 overflow-hidden">
               {/* Chemical Structure 검색 바 */}
               <div
-                className="flex flex-col shrink-0 rounded-[24px] gap-3"
+                className="flex flex-col shrink-0 rounded-[20px] gap-3"
                 style={{
                   background: "white",
                   padding: "11px 16px",
@@ -889,9 +841,9 @@ export default function SmileSettingPage() {
                 </span>
                 <div
                   onClick={() => inputRef.current?.focus()}
-                  className="flex items-center cursor-text rounded-[8px] gap-1"
+                  className="flex items-center cursor-text rounded-[4px] gap-1"
                   style={{
-                    border: `1px solid ${isFocused ? "#4013EE" : "#C6C5C9"}`,
+                    border: `1px solid ${isFocused ? "#4013EE" : "var(--neutral-80)"}`,
                     padding: "0 8px",
                     height: 36,
                   }}
@@ -928,7 +880,7 @@ export default function SmileSettingPage() {
               >
                 {/* 좌: 검색 결과 (네이비 배경) */}
                 <div
-                  className="flex-1 flex flex-col overflow-hidden min-w-0 rounded-[24px]"
+                  className="flex-1 flex flex-col overflow-hidden min-w-0 rounded-[20px]"
                   style={{
                     background: "var(--primary-15, #262255)",
                   }}
@@ -954,7 +906,7 @@ export default function SmileSettingPage() {
                         <span
                           className="text-body4m"
                           style={{
-                            color: "#AAAAAD",
+                            color: "var(--neutral-70)",
                           }}
                         >
                           Sort by
@@ -963,9 +915,9 @@ export default function SmileSettingPage() {
                         <div ref={dropdownRef} className="relative">
                           <div
                             onClick={() => setSortOpen((v) => !v)}
-                            className="flex items-center cursor-pointer select-none rounded-[8px] gap-0.5"
+                            className="flex items-center cursor-pointer select-none rounded-[4px] gap-0.5"
                             style={{
-                              background: "#EFEFF4",
+                              background: "var(--neutral-95)",
                               height: 28,
                               padding: "0 6px 0 8px",
                               minWidth: 100,
@@ -990,12 +942,12 @@ export default function SmileSettingPage() {
                           </div>
                           {sortOpen && (
                             <div
-                              className="absolute w-full overflow-hidden rounded-[8px]"
+                              className="absolute w-full overflow-hidden rounded-[4px]"
                               style={{
                                 top: "calc(100% + 4px)",
                                 right: 0,
-                                background: "#EFEFF4",
-                                border: "1px solid #C6C5C9",
+                                background: "var(--neutral-95)",
+                                border: "1px solid var(--neutral-80)",
                                 zIndex: 100,
                               }}
                             >
@@ -1042,7 +994,7 @@ export default function SmileSettingPage() {
                       <div className="relative" style={{ height: 24 }}>
                         {/* 트랙 배경 + 채워진 트랙 */}
                         <div
-                          className="absolute overflow-hidden rounded-[6px]"
+                          className="absolute overflow-hidden rounded-[2px]"
                           style={{
                             top: "50%",
                             left: 0,
@@ -1051,7 +1003,7 @@ export default function SmileSettingPage() {
                             height: 10,
                           }}
                         >
-                          <div className="absolute inset-0" style={{ background: "#C6C5C9" }} />
+                          <div className="absolute inset-0" style={{ background: "var(--neutral-80)" }} />
                           <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: `${((similarityThreshold - 85) / 15) * 100}%`, background: "var(--secondary-60, #F06600)" }} />
                         </div>
                         {/* 썸 */}
@@ -1063,7 +1015,7 @@ export default function SmileSettingPage() {
                             transform: "translate(-50%, -50%)",
                             width: 24,
                             height: 24,
-                            background: "#F9F8FC",
+                            background: "var(--neutral-98)",
                             boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
                           }}
                         />
@@ -1170,7 +1122,7 @@ export default function SmileSettingPage() {
 
               {/* 우: 저장된 약물 리스트 — 항상 표시 */}
                 <div
-                  className="flex-1 min-w-0 rounded-[24px] overflow-hidden min-h-0"
+                  className="flex-1 min-w-0 rounded-[20px] overflow-hidden min-h-0"
                   style={{
                     background: "rgba(255,255,255,0.6)",
                     padding: "16px 15px",

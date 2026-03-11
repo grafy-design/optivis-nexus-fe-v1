@@ -8,7 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS, BAR_RADIUS } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow } from "@/lib/chart-styles";
 import type { TypeSafetyResult } from "@/services/studyService";
 
 export interface Step1TypeISafetyChartProps {
@@ -23,6 +23,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
     typeSafetyData.length > 0 ? typeSafetyData[0].expected_under_uniform : 0.5;
 
   const option = {
+    tooltip: { ...tooltipAxisShadow },
     title: chartTitle("P-value distribution under H0"),
     graphic: chartGraphicDivider(720),
     legend: { show: false },
@@ -122,7 +123,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
 
   return (
     <div className="w-full h-full relative">
-      <div className="h-full w-full bg-white rounded-[8px] overflow-hidden">
+      <div className="h-full w-full bg-white rounded-[4px] overflow-hidden">
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}

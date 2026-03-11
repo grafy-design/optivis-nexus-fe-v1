@@ -6,12 +6,13 @@ import "simplebar-react/dist/simplebar.min.css";
 import Select from "@/components/ui/select";
 import Slider from "@/components/ui/slider";
 import InfoIcon from "@/components/ui/info-icon";
-import Button from "@/components/ui/button";
+import SolidButton from "@/components/ui/solid-button";
 import HypothesisTypeModal from "@/components/ui/hypothesis-type-modal";
 import AddEndpointsModal, {
   type AddEndpointsSaveData,
   type EndpointItemSave,
 } from "@/components/ui/add-endpoints-modal";
+import ActiveDataIcon from "@/assets/icons/active-data.svg";
 
 const ENDPOINT_OPTIONS = ["ADAS Cog 11", "MMSE", "CDR"];
 
@@ -93,7 +94,7 @@ export function LeftPanel({
         <div className="flex flex-col w-full h-full p-0 min-h-0 gap-4">
           {/* Sample Size Control */}
           <div
-            className="rounded-[18px] p-4 flex-shrink-0"
+            className="rounded-[14px] p-4 flex-shrink-0"
             style={{ background: "var(--primary-15)" }}
           >
             <div className="flex items-center justify-between mb-6">
@@ -223,7 +224,7 @@ export function LeftPanel({
 
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-[var(--layer-secondary)]">
             <div
-              className="relative rounded-[18px] overflow-hidden w-full h-full flex flex-col min-h-0 ">
+              className="relative rounded-[14px] overflow-hidden w-full h-full flex flex-col min-h-0 ">
               <div className="flex-1 min-h-0 overflow-hidden">
                 <SimpleBar className="w-full h-full">
                   <div className="flex flex-col w-full p-4 gap-3">
@@ -238,7 +239,7 @@ export function LeftPanel({
                           </span>
                           <span className="text-body4 text-tertiary-30">*</span>
                         </div>
-                        <div className="bg-neutral-90 rounded-[8px] h-[26px] px-3 flex items-center w-[154px]">
+                        <div className="bg-neutral-90 rounded-[4px] h-[26px] px-3 flex items-center w-[154px]">
                           <input
                             type="text"
                             value={disease}
@@ -269,29 +270,15 @@ export function LeftPanel({
                         <span className="text-body4 text-neutral-5">
                           Endpoints Design
                         </span>
-                        <button
+                        <SolidButton
+                          variant="secondary"
+                          size="s"
+                          icon="plus"
                           onClick={() => setIsAddEndpointsModalOpen(true)}
-                          className="w-6 h-6 rounded-[8px] flex items-center justify-center cursor-pointer flex-shrink-0"
-                        >
-                          <svg
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M0 8C0 3.58172 3.58172 0 8 0H16C20.4183 0 24 3.58172 24 8V16C24 20.4183 20.4183 24 16 24H8C3.58172 24 0 20.4183 0 16V8Z"
-                              fill="var(--icon-on-button)"
-                            />
-                            <path
-                              d="M7.96436 13.5649V11.9097H16.0356V13.5649H7.96436ZM11.1724 16.7363V8.73828H12.8276V16.7363H11.1724Z"
-                              fill="var(--icon-inverted)"
-                            />
-                          </svg>
-                        </button>
+                          className="w-6 h-6 rounded-[4px]"
+                        />
                       </div>
-                      <div className="bg-white rounded-[12px] p-4 flex flex-col gap-2">
+                      <div className="bg-white rounded-[8px] p-4 flex flex-col gap-2">
                         {primaryEndpoints.map((ep, i) => (
                           <div
                             key={`primary-${i}`}
@@ -466,7 +453,7 @@ export function LeftPanel({
                       <div className="text-body4 text-neutral-5">
                         Trial Design
                       </div>
-                      <div className="bg-white rounded-[12px] px-2 py-2 flex flex-col gap-2">
+                      <div className="bg-white rounded-[8px] px-2 py-2 flex flex-col gap-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center">
@@ -570,21 +557,7 @@ export function LeftPanel({
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-2">
-                      <svg
-                        width="19"
-                        height="19"
-                        viewBox="0 0 19 19"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="flex-shrink-0"
-                      >
-                        <path
-                          d="M17.75 4.91667C17.75 6.9425 14.0558 8.58333 9.5 8.58333C4.94417 8.58333 1.25 6.9425 1.25 4.91667M17.75 4.91667C17.75 2.89083 14.0558 1.25 9.5 1.25C4.94417 1.25 1.25 2.89083 1.25 4.91667M17.75 4.91667V9.5M1.25 4.91667V9.5M1.25 9.5C1.25 11.5258 4.94417 13.1667 9.5 13.1667M1.25 9.5V14.0833C1.25 16.1092 4.94417 17.75 9.5 17.75M15 12.25V15M15 15V17.75M15 15H17.75M15 15H12.25"
-                          stroke="var(--neutral-5)"
-                          strokeWidth="1.5"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
+                      <ActiveDataIcon className="flex-shrink-0 text-neutral-5" />
                       <span className="text-body4 text-neutral-5 ">
                         Active Data
                       </span>
@@ -604,17 +577,17 @@ export function LeftPanel({
                     />
                   </div>
                 </div>
-                <Button
-                  variant="orange"
-                  size="md"
+                <SolidButton
+                  variant="primary"
+                  size="m"
                   icon="play"
                   iconPosition="right"
                   onClick={onApply}
                   disabled={isLoading}
-                  className="self-end h-[30px] text-body4"
+                  className="self-end"
                 >
                   {isLoading ? "Loading..." : "Apply"}
-                </Button>
+                </SolidButton>
               </div>
             </div>
           </div>

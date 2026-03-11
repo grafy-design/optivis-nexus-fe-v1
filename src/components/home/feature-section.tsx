@@ -63,28 +63,28 @@ export default function FeatureSection({
      * bg: Liquid Glass (Fill #F5F5F5 r=36 + Glass Effect white r=36)
      */
     <div
-      className={cn("relative flex flex-col figma-nine-slice gap-3 overflow-hidden w-full flex-1 min-h-0 p-6 pt-5 pb-8", panelClass)}
+      className={cn("relative flex flex-col figma-nine-slice gap-3 h-full w-full flex-1 min-h-0 p-6 pt-5 pb-8", panelClass)}
     >
       {/* Header: "01 Package" / "02 Service" */}
       {/* Figma: Group - 숫자(Inter 500 17px #5F5E5E) + gap + 이름(Inter 500 17px #5F5E5E) */}
       <div
-        className="flex flex-col gap-3 flex-shirink-0"
+        className="flex flex-col gap-2 flex-shirink-0 pt-2 pl-1"
       >
-        <div className="flex items-center gap-5">
-          <span className="home-feature-section-text text-[17px] font-medium leading-[19px] text-[#5F5E5E]">
+        <div className="flex items-center gap-4">
+          <span className="home-feature-section-text text-body4m text-[var(--text-secondary)]">
             {sectionNum}
           </span>
-          <span className="home-feature-section-text text-[17px] font-medium leading-[19px] text-[#5F5E5E]">
+          <span className="home-feature-section-text text-body4m text-[var(--text-secondary)] ">
             {sectionName}
           </span>
         </div>
         {/* Figma: Line 806/807 - 414px, color #929090 */}
-        <div className="w-full shrink-0 h-px bg-[#929090]" />
+        <div className="w-full shrink-0 h-px bg-neutral-50" />
       </div>
 
       {/* Feature Cards: gap=16px */}
       <div
-        className={cn("gap-4", shouldUseSlotLayout ? "grid flex-1 min-h-0 overflow-hidden" : "flex flex-col flex-1 overflow-y-auto min-h-0")}
+        className={cn("gap-2", shouldUseSlotLayout ? "grid flex-1 min-h-0 overflow-hidden" : "flex flex-col flex-1 overflow-y-auto min-h-0")}
         style={
           shouldUseSlotLayout
             ? {

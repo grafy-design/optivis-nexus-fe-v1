@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { PrimaryTable } from "@/components/ui/primary-table";
 
 export interface SimulationRow {
   id: string;
@@ -192,34 +193,28 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
   };
 
   return (
-    <div
-      className="flex flex-col w-full gap-3 flex-1 min-h-0"
+    <PrimaryTable
+      size="s"
+      className="w-full gap-2 flex-1 min-h-0"
     >
-      {/* Table Header: Figma 1396×41px bg #000 r=24, padding 24px 좌우 12px 상하 */}
-      <div
-        className="flex items-center rounded-[24px] w-full shrink-0 overflow-hidden h-[41px] bg-table-header-background px-6 py-3"
-      >
-        {/* 컬럼들: Frame 1618872462 - gap 16px (reduced from 32.98px) */}
-        <div
-          className="flex items-center gap-4 w-full"
-        >
+      {/* Table Header: PrimaryTable.Header (size="s") */}
+      <PrimaryTable.Header className="shrink-0 overflow-hidden">
+        <div className="flex items-center gap-4 w-full">
           {columns.map((col, idx) => (
-            <span
-              className="home-simulation-table-header-text min-w-0 overflow-hidden text-[13px] font-semibold leading-[17px] tracking-[-0.3px] text-text-inverted whitespace-nowrap text-ellipsis"
+            <PrimaryTable.HeaderCell
               key={`col-${idx}`}
-              style={{
-                flex: `${col.flex} 1 0px`,
-              }}
+              className="min-w-0 overflow-hidden whitespace-nowrap text-ellipsis"
+              style={{ flex: `${col.flex} 1 0px` }}
             >
               {col.label}
-            </span>
+            </PrimaryTable.HeaderCell>
           ))}
         </div>
-      </div>
+      </PrimaryTable.Header>
 
       {/* Table Body: Figma 1396×606px bg white r=24 */}
       <div
-        className="w-full rounded-[24px] flex-1 overflow-hidden bg-white min-h-[394px] px-2 py-2.5 flex flex-col"
+        className="w-full rounded-[16px] flex-1 overflow-hidden bg-white min-h-[394px] px-2 py-2.5 flex flex-col"
       >
         <div className="overflow-y-auto flex-1 min-h-0">
         {filteredRows.length === 0 ? (
@@ -235,14 +230,14 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
             {filteredRows.map((row, index) => (
               <div
                 key={row.id}
-                className="flex items-center rounded-[16px] gap-4 min-h-[52px] px-3.5 py-2 cursor-grab border border-[rgba(225,225,225,0.9)]"
+                className="flex items-center rounded-[12px] gap-4 min-h-[52px] px-3.5 py-2 cursor-grab border border-[rgba(225,225,225,0.4)]"
                 draggable
                 onDragStart={(event) => handleDragStart(row.id, event)}
                 onDragOver={(event) => handleDragOver(row.id, event)}
                 onDrop={(event) => handleDrop(row.id, event)}
                 onDragEnd={handleDragEnd}
                 style={{
-                  background: "linear-gradient(180deg, rgba(250,250,250,0.95) 0%, rgba(245,245,245,0.92) 100%)",
+                  background: "linear-gradient(180deg, rgba(250,250,250,0.95) 0%, rgba(245,245,245,0.5) 100%)",
                   opacity: draggingRowId === row.id ? 0.66 : 1,
                   boxShadow:
                     draggingRowId === row.id
@@ -256,21 +251,21 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
               >
                 {isATSorTSI ? (
                   <>
-                    <span className="min-w-0 text-[13px] font-semibold text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
-                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
-                    <span className="min-w-0 overflow-hidden text-[13px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "165 1 0px" }}>{row.disease}</span>
-                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
-                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "283 1 0px" }}>{row.description}</span>
-                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "161 1 0px" }}>{row.lastUpdated}</span>
+                    <span className="min-w-0 text-caption text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
+                    <span className="min-w-0 overflow-hidden text-caption text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
+                    <span className="min-w-0 overflow-hidden text-captionm text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "165 1 0px" }}>{row.disease}</span>
+                    <span className="min-w-0 overflow-hidden text-caption text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
+                    <span className="min-w-0 overflow-hidden text-body5m text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "283 1 0px" }}>{row.description}</span>
+                    <span className="min-w-0 overflow-hidden text-body5m text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "161 1 0px" }}>{row.lastUpdated}</span>
                   </>
                 ) : (
                   <>
-                    <span className="min-w-0 text-[13px] font-semibold text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
-                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
-                    <span className="min-w-0 overflow-hidden text-[13px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.population ?? "-"}</span>
-                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
-                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "250 1 0px" }}>{row.description}</span>
-                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "130 1 0px" }}>{row.lastUpdated}</span>
+                    <span className="min-w-0 text-caption text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
+                    <span className="min-w-0 overflow-hidden text-caption text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
+                    <span className="min-w-0 overflow-hidden text-captionm text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.population ?? "-"}</span>
+                    <span className="min-w-0 overflow-hidden text-caption text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
+                    <span className="min-w-0 overflow-hidden text-body5m text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "250 1 0px" }}>{row.description}</span>
+                    <span className="min-w-0 overflow-hidden text-body5m text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "130 1 0px" }}>{row.lastUpdated}</span>
                   </>
                 )}
 
@@ -281,7 +276,7 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
                       type="button"
                       onClick={() => router.push(SERVICE_PATH_MAP[serviceId!])}
                       aria-label="Load saved simulation"
-                      className="rounded-[8px] border-none cursor-pointer flex items-center justify-center shrink-0 size-6 bg-transparent"
+                      className="rounded-[4px] border-none cursor-pointer flex items-center justify-center shrink-0 size-6 bg-transparent"
                     >
                       <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -296,7 +291,7 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
                     type="button"
                     onClick={() => deleteRow(row.id)}
                     aria-label="More options"
-                    className="rounded-[8px] border-none cursor-pointer flex items-center justify-center shrink-0 size-6 bg-transparent"
+                    className="rounded-[4px] border-none cursor-pointer flex items-center justify-center shrink-0 size-6 bg-transparent"
                   >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M10 12C10 12.5304 10.2107 13.0391 10.5858 13.4142C10.9609 13.7893 11.4696 14 12 14C12.5304 14 13.0391 13.7893 13.4142 13.4142C13.7893 13.0391 14 12.5304 14 12C14 11.4696 13.7893 10.9609 13.4142 10.5858C13.0391 10.2107 12.5304 10 12 10C11.4696 10 10.9609 10.2107 10.5858 10.5858C10.2107 10.9609 10 11.4696 10 12ZM10 6C10 6.53043 10.2107 7.03914 10.5858 7.41421C10.9609 7.78929 11.4696 8 12 8C12.5304 8 13.0391 7.78929 13.4142 7.41421C13.7893 7.03914 14 6.53043 14 6C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4C11.4696 4 10.9609 4.21071 10.5858 4.58579C10.2107 4.96086 10 5.46957 10 6ZM10 18C10 18.5304 10.2107 19.0391 10.5858 19.4142C10.9609 19.7893 11.4696 20 12 20C12.5304 20 13.0391 19.7893 13.4142 19.4142C13.7893 19.0391 14 18.5304 14 18C14 17.4696 13.7893 16.9609 13.4142 16.5858C13.0391 16.2107 12.5304 16 12 16C11.4696 16 10.9609 16.2107 10.5858 16.5858C10.2107 16.9609 10 17.4696 10 18Z" fill="var(--icon-primary)"/>
@@ -313,16 +308,12 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
       <style jsx>{`
         /* [TEMP_SCALE_MODE_DISABLE] 차후 반응형 작업 시 복구
         @media (max-width: 1800px) {
-          .home-simulation-table-header-text {
-            font-size: 10px !important;
-          }
-
           .home-simulation-table-empty-text {
             font-size: 16.5px !important;
           }
         }
         */
       `}</style>
-    </div>
+    </PrimaryTable>
   );
 }

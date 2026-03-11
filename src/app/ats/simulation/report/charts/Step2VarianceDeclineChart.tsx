@@ -8,6 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
+import { tooltipItem } from "@/lib/chart-styles";
 import type { VarianceDeclineResult } from "@/services/studyService";
 
 export interface Step2VarianceDeclineChartProps {
@@ -56,6 +57,7 @@ export function Step2VarianceDeclineChart({
   const xMax = 1;
 
   const option = {
+    tooltip: { ...tooltipItem },
     animation: false,
     title: chartTitle("Variance Decline"),
     graphic: chartGraphicDivider(320),
@@ -142,7 +144,7 @@ export function Step2VarianceDeclineChart({
   console.log("yAxis.type", option.yAxis.type);
 
   return (
-    <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden">
+    <div className="flex-1 h-full bg-white rounded-[4px] overflow-hidden">
       <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
     </div>
   );

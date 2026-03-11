@@ -46,7 +46,7 @@ export default function RadioButton({
         )}
       </div>
       {label && (
-        <span className="text-body4m text-secondary">
+        <span className="text-body4m text-[var(--text-secondary)]">
           {label}
         </span>
       )}

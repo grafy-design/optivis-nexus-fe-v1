@@ -37,10 +37,11 @@ import { RightPanel } from "@/components/drd/RightPanel";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
+import { GlassButton, GlassTestButton } from "@/components/ui/glass-button";
 
 
 /** 행 추가 버튼(+)에 사용되는 플러스 아이콘 SVG */
-function IconPlus({ size = 16, color = "#c6c5c9" }: { size?: number; color?: string }) {
+function IconPlus({ size = 16, color = "var(--neutral-80)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
       <path d="M8 3V13M3 8L13 8" stroke={color} strokeWidth="2" strokeLinecap="round" />
@@ -50,10 +51,10 @@ function IconPlus({ size = 16, color = "#c6c5c9" }: { size?: number; color?: str
 
 
 /** 파일 다운로드 아이콘 (현재 비활성화 UI에 표시) */
-function IconFileDownload({ size = 24 }: { size?: number }) {
+function IconFileDownload({ size = 24, color = "var(--neutral-80)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M12 4V16M12 16L8 12M12 16L16 12M4 20H20" stroke="#c6c5c9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 4V16M12 16L8 12M12 16L16 12M4 20H20" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -69,7 +70,7 @@ function IconFolderPlus({ size = 24, color = "var(--text-header)" }: { size?: nu
 }
 
 /** 휴지통 아이콘 — 체크된 행 삭제 버튼에 사용 */
-function IconTrash({ size = 24, color = "#c6c5c9" }: { size?: number; color?: string }) {
+function IconTrash({ size = 24, color = "var(--neutral-80)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <path d="M4 6H20M10 11V17M14 11V17M5 6L6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19L19 6M9 6V4C9 3.4 9.4 3 10 3H14C14.6 3 15 3.4 15 4V6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -116,50 +117,6 @@ function makeEmptySection(id: number): Section {
   return { id, name: `Section ${id}`, feature: "", op: "", value: "" };
 }
 
-/**
- * "Test Load" 버튼 — 누르면 fillTestData()가 실행되어 샘플 필터 데이터가 채워집니다.
- * hover / press 상태에 따라 배경·텍스트 색상이 달라지는 유리 효과 스타일입니다.
- */
-function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
-  const [hovered, setHovered] = React.useState(false);
-  const [pressed, setPressed] = React.useState(false);
-  const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "var(--text-disabled)" : pressed ? "var(--text-active)" : "var(--text-header)";
-  return (
-    <div
-      onMouseEnter={() => !disabled && setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => !disabled && setPressed(true)}
-      onMouseUp={() => { setPressed(false); if (!disabled) onClick?.(); }}
-      className="rounded-full relative flex items-center justify-center shrink-0"
-      style={{
-        height: 40,
-        paddingLeft: 20,
-        paddingRight: 20,
-        cursor: disabled ? "not-allowed" : "pointer",
-        boxShadow: "1px 1px 2px 1px rgba(0,0,0,0.05)",
-        transition: "opacity 0.12s",
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      <div className="rounded-full absolute inset-0"  />
-      <div className="rounded-full absolute inset-0" style={{ background: bg, transition: "background 0.12s" }} />
-      <div className="rounded-full absolute inset-0" style={{ border: pressed ? "2px solid rgba(51, 0, 255, 0.4)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
-      <span
-        className="relative text-body3"
-        style={{
-          zIndex: 1,
-          color: textColor,
-          whiteSpace: "nowrap",
-          paddingTop: 2,
-          transition: "color 0.12s",
-        }}
-      >
-        Test Load
-      </span>
-    </div>
-  );
-}
 
 /**
  * 드롭다운 셀 컴포넌트 — 섹션 행의 Feature·Op·Logic 선택에 사용됩니다.
@@ -211,10 +168,10 @@ function DropdownCell({
       <div
         ref={triggerRef}
         onClick={handleOpen}
-        className="rounded-[8px] gap-1 w-full flex items-center cursor-pointer select-none"
+        className="rounded-[4px] gap-1 w-full flex items-center cursor-pointer select-none"
         style={{
           height: 36,
-          background: "#efeff4",
+          background: "var(--neutral-95)",
           paddingLeft: 12,
           paddingRight: 8,
         }}
@@ -248,8 +205,8 @@ function DropdownCell({
             top: menuPos.top,
             left: menuPos.left,
             width: menuPos.width,
-            background: "#efeff4",
-            border: "1px solid #c6c5c9",
+            background: "var(--neutral-95)",
+            border: "1px solid var(--neutral-80)",
             padding: 8,
             zIndex: 9999,
             maxHeight: 220,
@@ -259,7 +216,7 @@ function DropdownCell({
           {options.map((opt, idx) => (
             <React.Fragment key={opt}>
               {idx > 0 && (
-                <div className="shrink-0" style={{ height: 1, background: "#c6c5c9" }} />
+                <div className="shrink-0" style={{ height: 1, background: "var(--neutral-80)" }} />
               )}
               <button
                 onMouseDown={() => { onChange?.(opt); setOpen(false); }}
@@ -295,14 +252,14 @@ function DropdownCell({
 function IconSearch({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
-      <circle cx="9" cy="9" r="6" stroke="#C7C5C9" strokeWidth="1.5" />
-      <line x1="13.5" y1="13.5" x2="17" y2="17" stroke="#C7C5C9" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="9" cy="9" r="6" stroke="var(--neutral-80)" strokeWidth="1.5" />
+      <line x1="13.5" y1="13.5" x2="17" y2="17" stroke="var(--neutral-80)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
 
 /** 섹션 헤더·카테고리 열림 상태 아이콘 (아래 방향 화살표) */
-function IconChevronDown({ size = 16, color = "#484646" }: { size?: number; color?: string }) {
+function IconChevronDown({ size = 16, color = "var(--neutral-30)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 10" fill="none">
       <path d="M1 1L8 8L15 1" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -311,7 +268,7 @@ function IconChevronDown({ size = 16, color = "#484646" }: { size?: number; colo
 }
 
 /** 섹션 헤더·카테고리 닫힘 상태 아이콘 (오른쪽 방향 화살표) */
-function IconChevronRight({ size = 16, color = "#484646" }: { size?: number; color?: string }) {
+function IconChevronRight({ size = 16, color = "var(--neutral-30)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 10 16" fill="none">
       <path d="M1 1L8 8L1 15" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -1020,17 +977,17 @@ export default function FilterPage() {
             
               {/* {피처 리스트/Feature List} */}
               {/* Feature List (왼쪽 컬럼) */}
-              <div className="w-[272px] shrink-0 flex flex-col gap-[12px]">
+              <div className="w-[272px] shrink-0 flex flex-col gap-[6px]">
                 <div className="px-[4px]">
-                  <span className="text-body2m text-neutral-30">Feature List</span>
+                  <span className="text-body3 text-neutral-30">Feature List</span>
                 </div>
 
                 {/* 리스트 아코디언 + 검색 필드 */}
-                <div className="flex-1 bg-white rounded-[24px] overflow-hidden min-h-0">
+                <div className="flex-1 bg-white rounded-[20px] overflow-hidden min-h-0">
                 <div className="flex flex-col overflow-y-auto h-full">
                   {/* 검색 필드 */}
                   <div ref={searchContainerRef} className="relative shrink-0">
-                    <div className="h-[48px] bg-white flex items-center px-[18px] gap-[8px]" style={{ borderBottom: "1px solid #c7c5c9" }}>
+                    <div className="h-[48px] bg-white flex items-center px-[18px] gap-[8px]" style={{ borderBottom: "1px solid var(--neutral-80)" }}>
                       <IconSearch size={20} />
                       <input
                         ref={searchInputRef}
@@ -1069,7 +1026,7 @@ export default function FilterPage() {
                     {searchDropdownOpen && typeof document !== "undefined" && createPortal(
                       <div
                         ref={searchDropdownRef}
-                        className="rounded-[22px] fixed overflow-y-auto"
+                        className="rounded-[18px] fixed overflow-y-auto"
                         style={{
                           top: searchDropdownPos.top,
                           left: searchDropdownPos.left,
@@ -1082,7 +1039,7 @@ export default function FilterPage() {
                       >
                         {Object.keys(groupedSearchResults).length === 0 ? (
                           <div className="flex items-center justify-center" style={{ height: 48 }}>
-                            <span className="text-captionm" style={{ color: "#aaaaad" }}>
+                            <span className="text-captionm" style={{ color: "var(--neutral-70)" }}>
                               No results found
                             </span>
                           </div>
@@ -1093,7 +1050,7 @@ export default function FilterPage() {
                                 {/* 카테고리 헤더 */}
                                 <div style={{ paddingTop: 4, paddingLeft: 8, paddingRight: 8 }}>
                                   <span className="text-small1" style={{
-                                    color: "#aaaaad",
+                                    color: "var(--neutral-70)",
                                   }}>
                                     {category}
                                   </span>
@@ -1143,10 +1100,10 @@ export default function FilterPage() {
                         >
                           <div className="shrink-0 w-[16px] h-[16px] flex items-center justify-center">
                             {isOpen
-                              ? <IconChevronDown size={14} color={isActive ? "#ffffff" : "#484646"} />
-                              : <IconChevronRight size={14} color={isActive ? "#ffffff" : "#484646"} />}
+                              ? <IconChevronDown size={14} color={isActive ? "#ffffff" : "var(--neutral-30)"} />
+                              : <IconChevronRight size={14} color={isActive ? "#ffffff" : "var(--neutral-30)"} />}
                           </div>
-                          <span className={`font-semibold text-[15px] leading-none tracking-[-0.45px] ${isActive ? "text-white" : "text-neutral-30"}`}>
+                          <span className={`text-body4 ${isActive ? "text-white" : "text-neutral-30"}`}>
                             {cat.name}
                           </span>
                         </div>
@@ -1161,7 +1118,7 @@ export default function FilterPage() {
                                   onClick={() => setActiveFeature(isFeatureActive ? null : f)}
                                   onMouseEnter={() => setHoveredFeature(f)}
                                   onMouseLeave={() => setHoveredFeature(null)}
-                                  className={`h-[44px] flex items-center pl-[44px] text-[15px] font-medium tracking-[-0.45px] border-t border-neutral-80 first:border-none cursor-pointer select-none transition-colors ${
+                                  className={`h-[44px] flex items-center pl-[44px] text-body4m border-t border-neutral-80 first:border-none cursor-pointer select-none transition-colors ${
                                     isFeatureActive
                                       ? "bg-neutral-95 text-[var(--text-header)] font-semibold"
                                       : isFeatureHovered
@@ -1184,22 +1141,22 @@ export default function FilterPage() {
 
               {/* {메인 설정 영역/Main Setting Area} */}
               {/* 메인 설정 영역 (오른쪽 컬럼) */}
-              <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
+              <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
               <div className="flex flex-col gap-[12px] overflow-y-auto h-full">
 
                 {/* 상단 탭 + 액션 버튼 */}
                 <div className="flex justify-between items-center shrink-0">
                   {/* Inclusion / Exclusion 탭 */}
-                  <div className="bg-white p-[4px] rounded-[22px] flex">
+                  <div className="bg-white p-[4px] rounded-[18px] flex">
                     <button
                       onClick={() => { setActiveTab("Inclusion"); setCheckedRows({}); }}
-                      className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${activeTab === "Inclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
+                      className={`h-[36px] px-[18px] rounded-[36px] border-none text-body4 cursor-pointer transition-all ${activeTab === "Inclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
                     >
                       Inclusion
                     </button>
                     <button
                       onClick={() => { setActiveTab("Exclusion"); setCheckedRows({}); }}
-                      className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${activeTab === "Exclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
+                      className={`h-[36px] px-[18px] rounded-[36px] border-none text-body4 cursor-pointer transition-all ${activeTab === "Exclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
                     >
                       Exclusion
                     </button>
@@ -1208,35 +1165,24 @@ export default function FilterPage() {
                   {/* 유리 스타일 버튼들 */}
                   <div className="flex items-center gap-[12px]">
                     <div className="flex gap-[4px]">
-                      {/* IconFileDownload — 비활성화 상태 (3번과 동일) */}
-                      <div className="relative size-[48px] flex items-center justify-center cursor-pointer shrink-0">
-                        <div className="rounded-[36px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                        <IconFileDownload size={24} />
-                      </div>
+                      {/* IconFileDownload */}
+                      <GlassButton height={48} width={48} disabled={!isDeleteEnabled} boxShadow="1px 1px 2px 1px rgba(0,0,0,0.113)">
+                        <IconFileDownload size={24} color={isDeleteEnabled ? "var(--text-header)" : "var(--neutral-80)"} />
+                      </GlassButton>
                       {/* IconFolderPlus — 비활성화 상태 */}
-                      <div className="relative size-[48px] flex items-center justify-center shrink-0" style={{ cursor: "default" }}>
-                        <div className="rounded-[36px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                        <div className="relative z-10"><IconFolderPlus size={24} color="#c6c5c9" /></div>
-                      </div>
+                      <GlassButton height={48} width={48} disabled boxShadow="1px 1px 2px 1px rgba(0,0,0,0.113)">
+                        <IconFolderPlus size={24} color="var(--neutral-80)" />
+                      </GlassButton>
                       {/* IconTrash — 비활성화: 현재 디자인, 활성화: 유리 스타일 */}
-                      <div
-                        className="relative size-[48px] flex items-center justify-center shrink-0"
-                        style={{ cursor: isDeleteEnabled ? "pointer" : "default" }}
-                        onClick={deleteCheckedRows}
-                      >
-                        <div className="rounded-[36px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                        <div className="relative z-10"><IconTrash size={24} color={isDeleteEnabled ? "var(--text-header)" : "#c6c5c9"} /></div>
-                      </div>
+                      <GlassButton onClick={deleteCheckedRows} height={48} width={48} disabled={!isDeleteEnabled} boxShadow="1px 1px 2px 1px rgba(0,0,0,0.113)">
+                        <IconTrash size={24} color={isDeleteEnabled ? "var(--text-header)" : "var(--neutral-80)"} />
+                      </GlassButton>
                     </div>
                     {/* Add Section 버튼 */}
-                    <div
-                      className="relative h-[48px] px-[20px] rounded-[100px] flex items-center gap-[6px] cursor-pointer shrink-0"
-                      onClick={addSection}
-                    >
-                      <div className="rounded-full absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                      <span className="relative z-10 text-body4 text-[var(--text-header)]">Add Section</span>
-                      <div className="relative z-10"><IconPlus size={16} color="var(--text-header)" /></div>
-                    </div>
+                    <GlassButton onClick={addSection} boxShadow="1px 1px 2px 1px rgba(0,0,0,0.113)">
+                      <span className="text-body4 text-[var(--text-header)]">Add Section</span>
+                      <IconPlus size={16} color="var(--text-header)" />
+                    </GlassButton>
                   </div>
                 </div>
 
@@ -1245,15 +1191,15 @@ export default function FilterPage() {
                   {currentSections.map((section: Section) => {
                     const isSectionOpen = currentOpenSections[section.id];
                     return (
-                    <div key={section.id} className="bg-white rounded-[12px] flex flex-col">
+                    <div key={section.id} className="bg-white rounded-[8px] flex flex-col">
                       {/* 섹션 헤더 */}
                       <div
-                        className={`h-[46px] flex items-center px-[21px] gap-[10px] cursor-pointer select-none hover:bg-[#fdfdfd] rounded-[12px] transition-colors ${isSectionOpen ? "rounded-b-none" : ""}`}
-                        style={isSectionOpen ? { borderBottom: "1.5px solid #c7c5c9" } : {}}
+                        className={`h-[46px] flex items-center px-[21px] gap-[10px] cursor-pointer select-none hover:bg-[#fdfdfd] rounded-[8px] transition-colors ${isSectionOpen ? "rounded-b-none" : ""}`}
+                        style={isSectionOpen ? { borderBottom: "1.5px solid var(--neutral-80)" } : {}}
                         onClick={() => toggleSection(section.id)}
                       >
                         <div className={`shrink-0 transition-transform duration-200 ${isSectionOpen ? "rotate-0" : "-rotate-90"}`}>
-                          <IconChevronDown size={14} color="#313030" />
+                          <IconChevronDown size={14} color="var(--neutral-20)" />
                         </div>
                         <span className="text-body4 text-neutral-20">
                           {section.name}
@@ -1286,10 +1232,10 @@ export default function FilterPage() {
                               value={section.value}
                               placeholder="Write input"
                               onChange={e => updateSection(section.id, "value", e.target.value)}
-                              className="placeholder:text-neutral-80 rounded-[8px] min-w-0 border-none cursor-text text-body3m"
+                              className="placeholder:text-neutral-80 rounded-[4px] min-w-0 border-none cursor-text text-body3m"
                               style={{
                                 flex: 4, height: 36,
-                                background: "#efeff4",
+                                background: "var(--neutral-95)",
                                 paddingLeft: 12, paddingRight: 12,
                                 color: "var(--text-primary)",
                                 outline: "none",
@@ -1301,7 +1247,7 @@ export default function FilterPage() {
 
                           {/* 섹션 본문 - 추가 줄 (서브 로직) */}
                           {(section.subRows ?? []).map((row: SubRow, rIdx: number) => (
-                            <div key={rIdx} className="flex items-center h-[50px] px-[24px] gap-[14px]" style={{ borderTop: "1.5px solid #c7c5c9" }}>
+                            <div key={rIdx} className="flex items-center h-[50px] px-[24px] gap-[14px]" style={{ borderTop: "1.5px solid var(--neutral-80)" }}>
                               <CustomCheckbox
                                 checked={!!checkedRows[`${section.id}-sub-${rIdx}`]}
                                 onChange={() => setCheckedRows(prev => ({ ...prev, [`${section.id}-sub-${rIdx}`]: !prev[`${section.id}-sub-${rIdx}`] }))}
@@ -1328,10 +1274,10 @@ export default function FilterPage() {
                                 value={row.value}
                                 placeholder="Write input"
                                 onChange={e => updateSubRow(section.id, rIdx, "value", e.target.value)}
-                                className="placeholder:text-neutral-80 rounded-[8px] min-w-0 border-none cursor-text text-body3m"
+                                className="placeholder:text-neutral-80 rounded-[4px] min-w-0 border-none cursor-text text-body3m"
                                 style={{
                                   flex: 4, height: 36,
-                                  background: "#efeff4",
+                                  background: "var(--neutral-95)",
                                   paddingLeft: 12, paddingRight: 12,
                                   color: "var(--text-primary)",
                                   outline: "none",
@@ -1389,7 +1335,7 @@ export default function FilterPage() {
                   );
 
                   return (
-                    <div className="bg-white p-[16px] rounded-[12px] shrink-0 min-h-[104px] gap-4 flex">
+                    <div className="bg-white p-[16px] rounded-[8px] shrink-0 min-h-[104px] gap-4 flex">
                       {bothHaveData ? (
                         <>
                           <div className="flex-1 min-w-0">{renderLines(inclusionLines, "Inclusion")}</div>

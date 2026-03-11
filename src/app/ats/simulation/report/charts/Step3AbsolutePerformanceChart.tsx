@@ -8,7 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, tooltipItem } from "@/lib/chart-styles";
 import type { AbsolutePerformanceItem } from "@/services/studyService";
 
 export interface Step3AbsolutePerformanceChartProps {
@@ -211,6 +211,7 @@ export function Step3AbsolutePerformanceChart({
     : [];
 
   const option = {
+    tooltip: { ...tooltipItem },
     title: chartTitle("A. Absolute Performance Comparison (Dodged)"),
     graphic: chartGraphicDivider(320),
     legend: { show: false },
@@ -279,7 +280,7 @@ export function Step3AbsolutePerformanceChart({
   };
 
   return (
-    <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden relative">
+    <div className="flex-1 h-full bg-white rounded-[4px] overflow-hidden relative">
       <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
       {hasData && (
         <div

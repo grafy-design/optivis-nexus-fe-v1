@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import RadioButton from "@/components/ui/radio-button";
 import { AppLayout } from "@/components/layout/AppLayout";
-import IconButton from "@/components/ui/icon-button";
+import SolidButton from "@/components/ui/solid-button";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import {
   getSubgroupSummaryList,
@@ -56,13 +56,13 @@ const TABLE_CELL_BASE = "h-[52px] border-b align-middle";
 const TABLE_HEADER_CELL_BASE = "border-b align-middle py-1";
 /** border-l이 없는 헤더 셀 / Header cell without left border */
 const TABLE_HEADER_CELL_BASE_NO_BORDER = `${TABLE_HEADER_CELL_BASE} pr-2 border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
-const TABLE_BODY_CELL_BASE_NO_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5 text-neutral-40`;
+const TABLE_BODY_CELL_BASE_NO_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5m text-neutral-40`;
 /** border-l이 있는 헤더 셀 / Header cell with left border */
 const TABLE_HEADER_CELL_BASE_WITH_BORDER = `${TABLE_HEADER_CELL_BASE} pr-2 border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
-const TABLE_BODY_CELL_BASE_WITH_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5 text-neutral-40`;
+const TABLE_BODY_CELL_BASE_WITH_BORDER = `${TABLE_CELL_BASE} pr-2 border-neutral-80 text-body5m text-neutral-40`;
 /** 마지막 컬럼 헤더 셀 / Last column header cell */
 const TABLE_HEADER_CELL_BASE_LAST = `${TABLE_HEADER_CELL_BASE} border-neutral-30 text-neutral-30 font-semibold break-words leading-tight [font-size:clamp(0.6rem,1vw,0.75rem)]`;
-const TABLE_BODY_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-80 text-body5 text-neutral-40`;
+const TABLE_BODY_CELL_BASE_LAST = `${TABLE_CELL_BASE} border-neutral-80 text-body5m text-neutral-40`;
 /** 내부 div: 세로선 포함, 가운데 정렬 / Inner div with left border, center-aligned */
 const TABLE_INNER_DIV_CENTER =
   "w-full h-fit min-h-[28px] flex items-center justify-center border-l border-neutral-80 pl-2";
@@ -829,12 +829,12 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
             {/* ── 왼쪽 컬럼 / Left Column ── */}
             <div className="flex flex-col gap-3">
               {/* ── 질병 진행 차트 카드 / Disease Progression by Subgroup card ── */}
-              <div className="flex flex-col flex-1 rounded-[18px] bg-white/60 p-2 gap-4">
+              <div className="flex flex-col flex-1 rounded-[14px] bg-white/60 p-2 gap-4">
                 <h3 className="text-body4 flex-shrink-0 text-neutral-30 pl-1 pt-1">
                   Disease Progression by Subgroup
                 </h3>
                 <div
-                  className="relative min-h-0 flex-1 overflow-hidden rounded-[8px] bg-white p-1 w-full pb-[40%] [@media(max-width:1470px)]:pb-[50%]"
+                  className="relative min-h-0 flex-1 overflow-hidden rounded-[4px] bg-white p-1 w-full pb-[40%] [@media(max-width:1470px)]:pb-[50%]"
                 >
                   {filteredProgressionData.length > 0 ? (
                     <div className="absolute inset-0 p-1">
@@ -857,7 +857,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                 </div>
               </div>
               {/* ── 환자 수 카드 / Number of Patients card ── */}
-              <div className="flex flex-1 flex-col rounded-[18px] bg-white/60 p-2 gap-1">
+              <div className="flex flex-1 flex-col rounded-[14px] bg-white/60 p-2 gap-1">
               <div className="pl-1 pt-1">
                 <h3 className="text-body4 mb-1 flex-shrink-0 text-neutral-30 ">
                   Number of patients
@@ -866,7 +866,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   At least {minPatients} patients per group are recommended.
                 </p></div>
                 <div className="mt-auto">
-                  <div className="w-full rounded-[8px] bg-white p-3 overflow-hidden">
+                  <div className="w-full rounded-[4px] bg-white p-3 overflow-hidden">
                   <div className="overflow-auto h-full space-y-0">
                     <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-1 font-semibold text-[#231f52]">
                       <div className="flex-1">
@@ -917,7 +917,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
               </div>
             </div>
             {/* ── 오른쪽 컬럼 / Right Column ── */}
-            <div className="bg-primary-15 flex flex-col min-w-0 gap-6 rounded-[18px] p-3">
+            <div className="bg-primary-15 flex flex-col min-w-0 gap-6 rounded-[14px] p-3">
               {/* ── 분산 감소 설명 텍스트 / Variance Reduction Explained ── */}
               <div className="flex flex-col gap-2">
                 <h3 className="text-body3m text-white">
@@ -936,7 +936,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
               {/* ── 2열 카드 행 / Two cards in one row ── */}
               <div className="grid grid-cols-2 gap-3">
                 {/* ── 분산 분해 차트 카드 / Variance Decomposition card ── */}
-                <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-3">
+                <div className="flex min-w-0 flex-col justify-between rounded-[8px] bg-white p-3 gap-3">
                   <div className="flex justify-between gap-2 h-wrap">
                     <div className="flex-shrink-0 [@media(max-width:1480px)]:flex-[3_1_0]">
                       <h3 className="text-body3 text-neutral-20 [@media(max-width:1470px)]:text-body4 mb-2 tracking-[-0.75px]" style={{lineHeight: "100%"}}>
@@ -1002,7 +1002,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   </div>
                 </div>
                 {/* ── 하위군별 그룹 내 분산 차트 카드 / Within-group Variance by Subgroup card ── */}
-                <div className="flex min-w-0 flex-col justify-between rounded-[12px] bg-white p-3 gap-4">
+                <div className="flex min-w-0 flex-col justify-between rounded-[8px] bg-white p-3 gap-4">
                   <div className="flex-shrink-0">
                     <h3 className="mb-2 text-body3 text-neutral-20 [@media(max-width:1470px)]:text-body4" style={{lineHeight: "100%"}}>
                       Within-group variance by subgroup
@@ -1186,7 +1186,7 @@ function TSISubgroupSelectionPageContent() {
             >
               {/* ── 2-A-L-1. 남색 카드 (Subgroup Sets Summary) / Navy card ── */}
               <div
-                className="bg-primary-15 flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px]"
+                className="bg-primary-15 flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[20px]"
                 style={{
                   boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
                 }}
@@ -1199,7 +1199,7 @@ function TSISubgroupSelectionPageContent() {
                 </div>
                 {/* ── 흰 패널: Set 목록 + 에러바 차트 / White panel: set list + error-bar chart ── */}
                 <div className="flex min-h-0 flex-1 flex-col px-3 pb-3">
-                  <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[16px] border bg-white px-4 py-2">
+                  <div className="border-neutral-80 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border bg-white px-4 py-2">
                     {/* 하나의 div: Set별로 한 행(왼쪽+오른쪽), 구분선 일치 */}
                     <div className="flex min-h-0 flex-1 flex-col overflow-hidden ">
                       <div className="group/forest flex min-h-0 flex-col overflow-y-auto">
@@ -1433,7 +1433,7 @@ function TSISubgroupSelectionPageContent() {
                         const ttGroups = ttSet.groups.slice(0, ttLimit);
                         return (
                           <div
-                            className="pointer-events-none fixed z-[9999] rounded-[6px] border border-neutral-80 bg-white px-2.5 py-1.5 shadow-[0px_2px_8px_rgba(0,0,0,0.12)]"
+                            className="pointer-events-none fixed z-[9999] rounded-[2px] border border-neutral-80 bg-white px-2.5 py-1.5 shadow-[0px_2px_8px_rgba(0,0,0,0.12)]"
                             style={{ left: forestTooltip.x + 12, top: forestTooltip.y - 8, whiteSpace: "nowrap" }}
                           >
                             {ttGroups.map((g, gi) => {
@@ -1508,7 +1508,7 @@ function TSISubgroupSelectionPageContent() {
               <div className="relative flex min-h-0 flex-1 flex-col p-0">
                 {/* ── 2-A-R-1. 흰색 테이블 카드 / White table card ── */}
                 <div
-                  className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[24px] bg-white pl-3 pr-1 py-2"
+                  className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[20px] bg-white pl-3 pr-1 py-2"
                 >
                   <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                     <div className="min-h-0 w-full flex-1 overflow-y-auto" style={{ scrollbarGutter: "stable" }}>
@@ -1680,39 +1680,41 @@ function TSISubgroupSelectionPageContent() {
                                             TABLE_INNER_DIV_CENTER_NO_BORDER
                                           }
                                         >
-                                          <IconButton
+                                          <SolidButton
                                             aria-label={
                                               isExpanded
                                                 ? `Collapse set ${rowNo}`
                                                 : `Expand set ${rowNo}`
                                             }
                                             type="button"
+                                            variant="ghost"
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               toggleRowExpansion(rowNo);
                                             }}
-                                            className="px-3 text-neutral-40 hover:text-neutral-30 active:text-neutral-20 inline-flex shrink-0 cursor-pointer items-center justify-center rounded border-0 bg-transparent transition-colors duration-150"
+                                            className="px-3"
                                             title={
                                               isExpanded ? "접기" : "펼치기"
                                             }
-                                          >
-                                            <svg
-                                              viewBox="0 0 24 24"
-                                              fill="none"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              className={`w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-40 transition-transform duration-200 origin-center ${
-                                                isExpanded ? "rotate-180" : ""
-                                              }`}
-                                            >
-                                              <path
-                                                d="M6 9L12 15L18 9"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                              />
-                                            </svg>
-                                          </IconButton>
+                                            icon={
+                                              <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className={`w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-40 transition-transform duration-200 origin-center ${
+                                                  isExpanded ? "rotate-180" : ""
+                                                }`}
+                                              >
+                                                <path
+                                                  d="M6 9L12 15L18 9"
+                                                  stroke="currentColor"
+                                                  strokeWidth="2"
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                />
+                                              </svg>
+                                            }
+                                          />
                                         </div>
                                       </td>
                                       <td
@@ -1769,7 +1771,7 @@ function TSISubgroupSelectionPageContent() {
                                                     <TooltipPrimitive.Content
                                                       side="top"
                                                       sideOffset={6}
-                                                      className="z-50 rounded-[8px] bg-white/90 px-[6px] pt-[2px] pb-[6px] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.3)] backdrop-blur-[65px]"
+                                                      className="z-50 rounded-[4px] bg-white/90 px-[6px] pt-[2px] pb-[6px] shadow-[0px_0px_8px_0px_rgba(0,0,0,0.3)] backdrop-blur-[65px]"
                                                     >
                                                       <span className="text-body5m text-primary-15 tracking-[-0.36px]">
                                                         Recommend
@@ -1852,11 +1854,12 @@ function TSISubgroupSelectionPageContent() {
                                         className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-center`}
                                       >
                                         <div className={TABLE_INNER_DIV_CENTER}>
-                                          <IconButton
+                                          <SolidButton
                                             aria-label={`Refine cutoffs for set ${rowNo}`}
                                             type="button"
-                                            size="sm"
-                                            className="!w-7 !h-7 text-neutral-40 hover:text-primary-30 active:text-primary-100 shrink-0 cursor-pointer rounded border-0 bg-transparent transition-colors duration-150 hover:bg-primary-95 active:bg-tertiary-30"
+                                            size="s"
+                                            variant="ghost"
+                                            className="!w-7 !h-7"
                                             title="Refine Cutoffs"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -1876,35 +1879,36 @@ function TSISubgroupSelectionPageContent() {
                                                 `/tsi/refine-cutoffs?${query.toString()}`,
                                               );
                                             }}
-                                          >
-                                            <svg
-                                              viewBox="0 0 24 24"
-                                              fill="none"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              className="w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5"
-                                            >
-                                              <g
-                                                style={{
-                                                  mixBlendMode: "plus-darker",
-                                                }}
+                                            icon={
+                                              <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5"
                                               >
-                                                <path
-                                                  d="M3.57812 20.4219V15.6094L15.6094 3.57812L20.4219 8.39062L8.39062 20.4219H3.57812Z"
-                                                  stroke="currentColor"
-                                                  strokeWidth="2"
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                />
-                                                <path
-                                                  d="M12.0156 7.1875L16.8281 12"
-                                                  stroke="currentColor"
-                                                  strokeWidth="2"
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                />
-                                              </g>
-                                            </svg>
-                                          </IconButton>
+                                                <g
+                                                  style={{
+                                                    mixBlendMode: "plus-darker",
+                                                  }}
+                                                >
+                                                  <path
+                                                    d="M3.57812 20.4219V15.6094L15.6094 3.57812L20.4219 8.39062L8.39062 20.4219H3.57812Z"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                  />
+                                                  <path
+                                                    d="M12.0156 7.1875L16.8281 12"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                  />
+                                                </g>
+                                              </svg>
+                                            }
+                                          />
                                         </div>
                                       </td>
                                       <td
@@ -1944,34 +1948,16 @@ function TSISubgroupSelectionPageContent() {
             >
               Save Progress
             </button>
-            <button
-              type="button"
+            <SolidButton
+              variant="primary"
+              size="L"
               disabled={!selectedSetNo}
               onClick={handleSubgroupExplain}
-              className="btn-tsi btn-tsi-primary gap-2"
-              style={{
-                background: selectedSetNo ? "#F06600" : "#c6c5c9",
-                border: "none",
-                cursor: selectedSetNo ? "pointer" : "not-allowed",
-                color: selectedSetNo ? "var(--text-inverted)" : "#e2e1e5",
-                letterSpacing: "-0.45px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              iconPosition="right"
+              icon="play"
             >
               Subgroup Explain
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ flexShrink: 0 }}
-              >
-                <path d="M4 3L13 8L4 13V3Z" fill={selectedSetNo ? "white" : "#e2e1e5"} />
-              </svg>
-            </button>
+            </SolidButton>
           </div>
         </div>
       </div>

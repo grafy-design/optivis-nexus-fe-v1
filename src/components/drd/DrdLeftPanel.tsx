@@ -40,7 +40,7 @@ export function DrdLeftPanel({
       )}
 
       {/* 하단 스텝 카드 스크롤 영역 */}
-      <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
+      <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
         <div className="flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden h-full">
           {steps.map((step) => (
             <DrdStepCard

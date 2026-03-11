@@ -17,7 +17,7 @@ interface SimulationSearchProps {
 export default function SimulationSearch({ value, onChange }: SimulationSearchProps) {
   return (
     <div
-      className="flex items-center rounded-[30px] gap-2.5 shrink-0 w-[min(360px,100%)] bg-white px-2 py-1.5"
+      className="flex items-center rounded-[26px] gap-2.5 shrink-0 w-[min(360px,100%)] bg-white px-2 py-2"
     >
       {/* Search icon - Figma: 20.45×20.64px, color #929090 */}
       <svg

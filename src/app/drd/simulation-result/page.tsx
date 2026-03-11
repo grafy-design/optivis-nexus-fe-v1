@@ -652,7 +652,7 @@ function PrimaryOutcomeTable({
             display: "grid",
             gridTemplateColumns: colWidths.join(" "),
             borderBottom: ri < allRows.length - 1
-              ? `1px solid ${ri === 0 ? COLOR_NEUTRAL_60 : "#c6c5c9"}`
+              ? `1px solid ${ri === 0 ? COLOR_NEUTRAL_60 : "var(--neutral-80)"}`
               : "none",
           }}
         >
@@ -738,7 +738,7 @@ function ResponseProbabilityTable({
           {rows.map((row, idx) => (
             <tr
               key={row.category}
-              style={{ borderTop: idx > 0 ? "1px solid #c6c5c9" : "none" }}
+              style={{ borderTop: idx > 0 ? "1px solid var(--neutral-80)" : "none" }}
             >
               <td className="overflow-hidden" style={{ padding: "0 6px 0 12px", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 12px)", color: "var(--chart-text-axis-value)", letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {row.category}
@@ -1248,7 +1248,7 @@ function AERiskContent({
                 }}
                 className="flex items-center cursor-pointer select-none"
                 style={{
-                  background: "#efeff4",
+                  background: "var(--neutral-95)",
                   borderRadius: "8px",
                   padding: "4px 6px 4px 8px",
                   gap: "2px",
@@ -1256,7 +1256,7 @@ function AERiskContent({
                   height: "28px",
                 }}
               >
-                <span className="flex-1 text-body5m" style={{ color: "#484646" }}>
+                <span className="flex-1 text-body5m" style={{ color: "var(--neutral-30)" }}>
                   {selectedAE || "Unavailable"}
                 </span>
                 <img
@@ -1292,7 +1292,7 @@ function AERiskContent({
                         color: opt === selectedAE ? COLOR_NEUTRAL_30 : COLOR_NEUTRAL_40,
                         background: "#fff",
                         whiteSpace: "nowrap",
-                        borderBottom: idx < aeOptions.length - 1 ? "1px solid #c6c5c9" : "none",
+                        borderBottom: idx < aeOptions.length - 1 ? "1px solid var(--neutral-80)" : "none",
                       }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#f7f7fa"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#fff"; }}
@@ -1525,7 +1525,7 @@ function SimulationResultSkeleton({
           style={{
           }}
         >
-          <div className="shrink-0 flex flex-col" style={{ padding: 6, gap: 16 }}>
+          <div className="shrink-0 flex flex-col gap-02" style={{ padding: 6 }}>
             <h2
               style={{
                 fontWeight: 700,
@@ -1918,7 +1918,7 @@ function SimulationResultPageContent() {
                           width: "14px",
                           height: "14px",
                           borderRadius: "50%",
-                          border: `2px solid ${selected ? COLOR_STRATEGY_A : "#c6c5c9"}`,
+                          border: `2px solid ${selected ? COLOR_STRATEGY_A : "var(--neutral-80)"}`,
                           background: selected ? COLOR_STRATEGY_A : "transparent",
                         }}
                       >

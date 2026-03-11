@@ -95,6 +95,17 @@
 
 /* ────────────────────────────────────────────────────────────── */
 
+/* ── 글래스 원형 아이콘 버튼 오버레이 ────────────────────────── */
+.glassbutton-cir {
+  border-radius: 36px;
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+/* ────────────────────────────────────────────────────────────── */
+
 /* 슬라이더 드래그 중 텍스트 선택 완전 차단 */
 .no-select,
 .no-select * {
@@ -846,7 +857,7 @@
 .figma-home-panel-left,
 .figma-home-panel-middle,
 .figma-home-panel-right {
-  padding: 1rem 1.2rem 1.75rem;
+  padding: 0.9rem 1rem 1.35rem;
 }
 
 @media (max-width: 1470px) {
@@ -858,44 +869,44 @@
 }
 
 .figma-home-panel-left::before {
-  border-width: 24px 58px 66px 58px;
+  border-width:  24px 40px 48px 40px;
   border-image-source: url("/assets/figma/home/frame-panel-left.png");
   border-image-slice: 104 108 156 108 fill;
-  border-image-width: 48px 58px 86px 58px;
+  border-image-width: 36px 40px 60px 40px;
 }
 
 @media (max-width: 1470px) {
   .figma-home-panel-left::before {
-    border-width: 24px 40px 48px 40px;
-    border-image-width: 36px 40px 60px 40px;
+    border-width: 16px 24px 32px 24px;
+    border-image-width: 24px 28px 40px 28px;
   }
 }
 
 .figma-home-panel-middle::before {
-  border-width: 24px 58px 66px 58px;
+  border-width: 24px 40px 48px 40px;
   border-image-source: url("/assets/figma/home/frame-panel-middle.png");
   border-image-slice: 96 108 156 108 fill;
-  border-image-width: 48px 58px 86px 58px;
+  border-image-width: 36px 40px 60px 40px;
 }
 
 @media (max-width: 1470px) {
   .figma-home-panel-middle::before {
-    border-width: 24px 40px 48px 40px;
-    border-image-width: 36px 40px 60px 40px;
+   border-width: 16px 24px 32px 24px;
+    border-image-width: 24px 28px 40px 28px;
   }
 }
 
 .figma-home-panel-right::before {
-  border-width: 24px 58px 66px 58px;
+  border-width: 24px 40px 48px 40px;
   border-image-source: url("/assets/figma/home/frame-panel-right.png");
   border-image-slice: 96 108 156 108 fill;
-  border-image-width: 48px 58px 86px 58px;
+  border-image-width: 36px 40px 60px 40px;
 }
 
 @media (max-width: 1470px) {
   .figma-home-panel-right::before {
-    border-width: 24px 40px 48px 40px;
-    border-image-width: 36px 40px 60px 40px;
+    border-width: 16px 24px 32px 24px;
+    border-image-width: 24px 28px 40px 28px;
   }
 }
 
@@ -963,9 +974,9 @@
 
   /* Typography - Title (Inter SemiBold 48px) */
   .text-title {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 600;
-    line-height: 48px;
+    line-height: 36px;
     letter-spacing: -2.4px;
   }
 
@@ -1044,7 +1055,7 @@
     font-size: 19.5px;
     font-weight: 500;
     line-height: 23.4px;
-    letter-spacing: -0.05px;
+    letter-spacing: -0.35px;
   }
 
   /* Typography - Body3 (Inter Semibold 17px) */
@@ -1097,11 +1108,20 @@
 
   /* Typography - Page Title (Inter Semibold 42px) */
   .text-page-title {
-    font-size: 42px;
+    font-size: 40px;
     font-weight: 600;
     line-height: 100%;
     letter-spacing: -1.26px;
   }
+
+  .text-page-subtitle {
+    font-size: 15px;
+    font-weight: 550;
+    line-height: 110%;
+    letter-spacing: -0.26px;
+    color: "var(--text-secondary)"
+  }
+
 
   /* Typography - Body5 (Inter Semibold 12px) */
   .text-body5 {
@@ -1152,7 +1172,7 @@
   }
   /* Typography - Feature List Title (Inter Semi Bold 600, 19.5px) */
   .text-feature-title {
-    font-size: 19.5px;
+    font-size: 17px;
     font-weight: 600;
     line-height: 23.4px;
     letter-spacing: -0.78px;
@@ -1177,7 +1197,7 @@
   /* Typography - Page Title (Poppins Semi Bold 600, 42px) */
   .text-page-title {
     font-family: "Poppins", "Inter", sans-serif;
-    font-size: 42px;
+    font-size: 40px;
     font-weight: 600;
     color: rgb(17, 17, 17);
     letter-spacing: -1.5px;
@@ -1188,7 +1208,7 @@
   /* Typography - Page Subtitle (Inter Semi Bold 600, 16px) */
   .text-page-subtitle {
     font-family: "Inter", sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--text-secondary);
     letter-spacing: -0.48px;
@@ -1231,25 +1251,6 @@
 }
 
 /* ── DRD 페이지 공통 ────────────────────────────────────────── */
-
-.drd-page-h1 {
-  font-family: "Poppins", "Inter", sans-serif;
-  font-size: 42px;
-  font-weight: 600;
-  color: var(--neutral-5);
-  letter-spacing: -1.5px;
-  line-height: 1.1;
-  margin: 0;
-  cursor: pointer;
-}
-
-.drd-page-subtitle {
-  font-family: "Inter", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: -0.48px;
-}
 
 .drd-content-row {
   display: flex;
@@ -1346,95 +1347,95 @@
   letter-spacing: -0.585px;
 }
 
-/* TSI/DRD: 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 */
+/* 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 (전역) */
 @media (max-width: 1470px) {
-  .tsi-page .text-h4,
-  .drd-page .text-h4 {
+  .text-h3 {
+    font-size: 28px;
+    line-height: 28px;
+    letter-spacing: -0.56px;
+  }
+  .text-h4 {
     font-size: 24px;
     line-height: 23.4px;
     letter-spacing: -0.78px;
   }
-
-  .tsi-page .text-body1,
-  .drd-page .text-body1 {
+  .text-body1 {
     font-size: 19.5px;
     line-height: 23.4px;
     letter-spacing: -0.78px;
   }
-  .tsi-page .text-body1m,
-  .drd-page .text-body1m {
+  .text-body1m {
     font-size: 19.5px;
     line-height: 23.4px;
     font-weight: 500;
     letter-spacing: -0.585px;
   }
-  .tsi-page .text-body2,
-  .drd-page .text-body2 {
+  .text-body2 {
     font-size: 17px;
     line-height: 17.85px;
     letter-spacing: -0.51px;
   }
-  .tsi-page .text-body2m,
-  .drd-page .text-body2m {
+  .text-body2m {
     font-size: 17px;
     line-height: 17.85px;
     font-weight: 500;
     letter-spacing: -0.2px;
   }
-  .tsi-page .text-body3,
-  .drd-page .text-body3 {
+  .text-body3 {
     font-size: 15px;
     line-height: 16.5px;
     letter-spacing: -0.75px;
   }
-  .tsi-page .text-body3m,
-  .drd-page .text-body3m {
+  .text-body3m {
     font-size: 15px;
     line-height: 16.5px;
     letter-spacing: -0.45px;
   }
-  .tsi-page .text-body4,
-  .drd-page .text-body4 {
+  .text-body4 {
     font-size: 12px;
     line-height: 13.2px;
     letter-spacing: -0.36px;
   }
-  .tsi-page .text-body4m,
-  .drd-page .text-body4m {
+  .text-body4m {
     font-size: 12px;
     line-height: 13.2px;
-    font-family: 500;
+    font-weight: 500;
     letter-spacing: -0.2px;
   }
-  .tsi-page .text-caption,
-  .drd-page .text-caption {
+  .text-body5 {
+    font-size: 10.5px;
+    line-height: 120%;
+    letter-spacing: 0px;
+  }
+  .text-body5m {
+    font-size: 10.5px;
+    line-height: 120%;
+    font-weight: 400;
+    letter-spacing: 0px;
+  }
+  .text-caption {
     font-size: 11px;
     line-height: 13.2px;
     letter-spacing: -0.11px;
   }
-  .tsi-page .text-captionm,
-  .drd-page .text-captionm {
+  .text-captionm {
     font-size: 11px;
     line-height: 13.2px;
     letter-spacing: -0.11px;
   }
-  .tsi-page .text-page-title,
-  .drd-page .text-page-title {
-    font-size: 36px;
+  .text-small1 {
+    font-size: 9px;
+    line-height: 120%;
+    letter-spacing: -0.1px;
+  }
+  .text-small2 {
+    font-size: 8px;
+    line-height: 115%;
+    letter-spacing: -0.1px;
+  }
+  .text-page-title {
+    font-size: 28px;
     line-height: 100%;
     letter-spacing: -1.08px;
-  }
-  .tsi-page .text-body5,
-  .drd-page .text-body5 {
-    font-size: 10.5px;
-    line-height: 120%;
-    letter-spacing: 0px;
-  }
-  .tsi-page .text-body5m,
-  .drd-page .text-body5m {
-    font-size: 10.5px;
-    line-height: 120%;
-    font-family: 400;
-    letter-spacing: 0px;
   }
 }

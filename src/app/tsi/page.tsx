@@ -123,17 +123,17 @@ export default function TSIPage() {
               size={16}
             />
           </div>
-          <span className="truncate text-neutral-50 text-body4m">{data.name}</span>
+          <span className="truncate text-neutral-50 text-body5m">{data.name}</span>
         </div>
 
         {/* 환자 수 / Patients (N) */}
-        <span className="flex-[2] min-w-0 truncate text-neutral-50 text-body4m">{data.patients}</span>
+        <span className="flex-[2] min-w-0 truncate text-neutral-50 text-body5m">{data.patients}</span>
 
         {/* 질환명 / Disease */}
-        <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body4m">{data.disease}</span>
+        <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body5m">{data.disease}</span>
 
         {/* 업데이트 날짜 / Update date */}
-        <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body4m">{data.updateDate}</span>
+        <span className="flex-[3] min-w-0 truncate text-neutral-50 text-body5m">{data.updateDate}</span>
       </div>
     );
   };
@@ -153,7 +153,7 @@ export default function TSIPage() {
             <h1 className="m-0 text-page-title ">
               Data Setting
             </h1>
-            <span className="font-semibold text-neutral-50" style={{ fontFamily: "Inter", fontSize: 16, letterSpacing: "-0.48px" }}>
+            <span className="text-page-subtitle" >
               Simulation templates are provided to show the required input
               structure. Please review before proceeding.
             </span>
@@ -177,7 +177,7 @@ export default function TSIPage() {
 
                     {/* Data Template Download 카드 / Data template download card (dark navy) */}
                     <div
-                      className="flex-shrink-0 rounded-[24px] p-4 flex flex-col justify-between [@media(max-width:1470px)]:p-3"
+                      className="flex-shrink-0 rounded-[20px] p-4 flex flex-col justify-between [@media(max-width:1470px)]:p-3"
                       style={{ backgroundColor: "#231f52", aspectRatio: "1 / 1" }}
                     >
                       <div className="flex h-full justify-center flex-col gap-2 [@media(max-width:1470px)]:gap-1">
@@ -248,7 +248,7 @@ export default function TSIPage() {
 
                     {/* 파일 업로드 카드 / File upload card (white, drag & drop) */}
                     <div
-                      className="flex-1 bg-white rounded-[24px] pt-6 pb-3 px-0 flex flex-col items-center justify-center gap-6 min-h-[244px] [@media(max-width:1470px)]:min-h-[184px] [@media(max-width:1470px)]:p-4 [@media(max-width:1470px)]:gap-4"
+                      className="flex-1 bg-white rounded-[20px] pt-6 pb-3 px-0 flex flex-col items-center justify-center gap-6 min-h-[244px] [@media(max-width:1470px)]:min-h-[184px] [@media(max-width:1470px)]:p-4 [@media(max-width:1470px)]:gap-4"
                     >
                       <div className="flex flex-col items-center justify-center">
                         {/* 업로드 아이콘 SVG / Upload icon SVG */}
@@ -324,10 +324,10 @@ export default function TSIPage() {
 
                       {/* 테이블 헤더 행 (좌/우 동일) / Table header row (same for both columns) */}
                       <div
-                        className="rounded-[24px] h-wrap flex items-center py-[8px]"
+                        className="rounded-[20px] h-wrap flex items-center py-2.5"
                         style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
                       >
-                        <div className="flex text-white w-full text-body4m">
+                        <div className="flex text-white w-full text-body5m">
                           {/* 좌측 헤더 / Left header */}
                           <div className="flex items-center flex-1 min-w-0 px-[20px]">
                             <div className="flex items-center gap-4 flex-[3] min-w-0">
@@ -354,7 +354,7 @@ export default function TSIPage() {
                       </div>
 
                       {/* 테이블 바디: 좌/우 2열 배치 / Table body: two columns side by side */}
-                      <div className="flex gap-0 rounded-[24px] flex-1 min-h-0 bg-white overflow-hidden">
+                      <div className="flex gap-0 rounded-[20px] flex-1 min-h-0 bg-white overflow-hidden">
                         <SimpleBar style={{ height: "100%", width: "100%" }}>
                           <div className="flex gap-0">
                             {/* 좌측 열 (0~7번 항목) / Left column (items 0–7) */}

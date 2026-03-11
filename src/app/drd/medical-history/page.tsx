@@ -34,6 +34,7 @@ import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
+import { GlassTestButton } from "@/components/ui/glass-button";
 
 // ── 아이콘 SVG 컴포넌트 ──────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ function IconReset({ size = 24, color = "white" }: { size?: number; color?: stri
   );
 }
 
-function IconChevronDown({ size = 14, color = "#484646" }: { size?: number; color?: string }) {
+function IconChevronDown({ size = 14, color = "var(--neutral-30)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 10" fill="none">
       <path d="M1 1L8 8L15 1" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -87,7 +88,7 @@ function CheckboxItem({
       />
       <span
         className="text-body4m"
-        style={{ color: disabled ? "#AAAAAD" : "var(--text-primary)" }}
+        style={{ color: disabled ? "var(--neutral-70)" : "var(--text-primary)" }}
       >
         {label}
       </span>
@@ -113,7 +114,7 @@ function CategoryGroup({
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <div className="bg-white rounded-[12px] overflow-hidden shrink-0 flex flex-col">
+    <div className="bg-white rounded-[8px] overflow-hidden shrink-0 flex flex-col">
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="flex items-center gap-[12px] px-[12px] py-[8px] h-[46px] shrink-0 border-none bg-transparent cursor-pointer text-left w-full"
@@ -137,52 +138,6 @@ function CategoryGroup({
   );
 }
 
-
-// ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
-
-/**
- * "Test Load" 버튼 — 클릭 시 CKD Stage 전체 + CVD History 전체를 체크하여
- * 체크박스 UI를 빠르게 테스트할 수 있게 합니다.
- */
-function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "var(--text-disabled)" : pressed ? "var(--text-active)" : "var(--text-header)";
-  return (
-    <div
-      onMouseEnter={() => !disabled && setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => !disabled && setPressed(true)}
-      onMouseUp={() => { setPressed(false); if (!disabled) onClick?.(); }}
-      className="rounded-[36px] relative flex items-center justify-center shrink-0"
-      style={{
-        height: 40,
-        paddingLeft: 20,
-        paddingRight: 20,
-        cursor: disabled ? "not-allowed" : "pointer",
-        boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)",
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      <div className="rounded-[36px] absolute inset-0" />
-      <div className="rounded-[36px] absolute inset-0" style={{ background: bg, transition: "background 0.12s" }} />
-      <div className="rounded-[36px] absolute inset-0" style={{ border: pressed ? "2px solid rgba(58,17,216,0.05)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
-      <span
-        className="relative text-body3"
-        style={{
-          zIndex: 1,
-          color: textColor,
-          whiteSpace: "nowrap",
-          paddingTop: 2,
-          transition: "color 0.12s",
-        }}
-      >
-        Test Load
-      </span>
-    </div>
-  );
-}
 
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -238,9 +193,6 @@ export default function MedicalHistoryPage() {
     setChecked(initialChecked);
     setCompleted("medical-history", false);
   };
-  // Reset 버튼 hover/active 상태 (배경색 변화용)
-  const [resetHover, setResetHover] = useState(false);
-  const [resetActive, setResetActive] = useState(false);
 
   // Baseline Status 영역의 체크박스 키 목록
   const baselineKeys = ["ckd", "ckd-1", "ckd-2", "ckd-3", "ckd-4", "ckd-5", "cardiac", "vascular", "metabolism", "renal", "nervous", "eye", "hepato"];
@@ -303,32 +255,13 @@ export default function MedicalHistoryPage() {
                 }))} />
                 {/* Reset 버튼 */}
                 <button
-                  onClick={isDirty ? handleReset : undefined}
-                  onMouseEnter={() => isDirty && setResetHover(true)}
-                  onMouseLeave={() => { setResetHover(false); setResetActive(false); }}
-                  onMouseDown={() => isDirty && setResetActive(true)}
-                  onMouseUp={() => setResetActive(false)}
-                  className="flex items-center justify-center gap-[8px] h-[40px] pl-[20px] pr-[16px] rounded-[36px] border-none relative overflow-hidden"
-                  style={{ cursor: isDirty ? "pointer" : "default" }}
+                  onClick={handleReset}
+                  disabled={!isDirty}
+                  className="btn-tsi btn-tsi-secondary gap-2"
+                  style={{ paddingRight: 16 }}
                 >
-                  <div
-                    className="absolute inset-0 rounded-[36px]"
-                    style={{
-                      background: !isDirty
-                        ? "#c7c5c9"
-                        : resetActive
-                        ? "#313030"
-                        : resetHover
-                        ? "#5f5e5e"
-                        : "#787776",
-                    }}
-                  />
-                  <span className="relative z-10 text-body3" style={{ color: isDirty ? "var(--text-inverted)" : "#e3e1e5" }}>
-                    Reset
-                  </span>
-                  <div className="relative z-10 shrink-0">
-                    <IconReset size={24} color={isDirty ? "#ffffff" : "#e3e1e5"} />
-                  </div>
+                  Reset
+                  <IconReset size={24} color="white" />
                 </button>
               </div>
             </div>
@@ -340,7 +273,7 @@ export default function MedicalHistoryPage() {
               {/* {Baseline Status 섹션/Baseline Status Section} */}
               {/* ── Baseline Status 섹션 ── */}
               <div className=" flex flex-row gap-2 h-full">
-                <div className="flex flex-col h-full rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden gap-[20px] flex-1">
+                <div className="flex flex-col h-full rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden gap-[20px] flex-1">
                 {/* 제목 */}
                 <div className="text-body3 shrink-0">
                   <span className="text-text-primary">Baseline Status</span>
@@ -374,7 +307,7 @@ export default function MedicalHistoryPage() {
 
               {/* {Control Variables 섹션/Control Variables Section} */}
               {/* ── Control Variables 섹션 ── */}
-              <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden min-h-0">
+              <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden min-h-0">
               <div className="flex flex-col gap-[20px] overflow-auto scrollbar-hide h-full">
                 {/* 제목 */}
                 <div className="text-body3 shrink-0">
@@ -414,9 +347,9 @@ export default function MedicalHistoryPage() {
              <div className="shrink-0 flex justify-end gap-[12px]">
               <button
                 onClick={() => router.push("/drd/default-setting")}
-                className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] bg-neutral-50 border-none cursor-pointer"
+                className="btn-tsi btn-tsi-secondary"
               >
-                <span className="text-body3 text-white">Cancel</span>
+                Cancel
               </button>
               <button
                 disabled={!isConfirmEnabled}
@@ -425,13 +358,9 @@ export default function MedicalHistoryPage() {
                   setCompleted("medical-history", true);
                   router.push("/drd/default-setting");
                 }}
-                className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] border-none transition-all"
-                style={{
-                  backgroundColor: isConfirmEnabled ? "#f06600" : "#c7c5c9",
-                  cursor: isConfirmEnabled ? "pointer" : "not-allowed",
-                }}
+                className="btn-tsi btn-tsi-primary"
               >
-                <span className="text-body3 text-white text-center">Confirm</span>
+                Confirm
               </button>
             </div>
           </div>

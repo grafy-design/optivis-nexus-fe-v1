@@ -34,6 +34,7 @@ import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import RadioButton from "@/components/ui/radio-button";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
+import { GlassTestButton } from "@/components/ui/glass-button";
 
 function IconChevronDown({ size = 18 }: { size?: number }) {
   return (
@@ -43,51 +44,6 @@ function IconChevronDown({ size = 18 }: { size?: number }) {
   );
 }
 
-// ─── 글래스 Test 버튼 ───────────────────────────────────────────────────────
-
-/**
- * "Test Load" 버튼 — 클릭 시 Sex + HbA1c + value 모드 + Increase로 샘플 값을 채웁니다.
- */
-function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: () => void }) {
-  const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
-  const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "var(--text-disabled)" : pressed ? "var(--text-active)" : "var(--text-header)";
-  return (
-    <div
-      onClick={() => !disabled && onClick?.()}
-      onMouseEnter={() => !disabled && setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => !disabled && setPressed(true)}
-      onMouseUp={() => setPressed(false)}
-      className="rounded-[36px] relative flex items-center justify-center shrink-0"
-      style={{
-        height: 40,
-        paddingLeft: 20,
-        paddingRight: 20,
-        cursor: disabled ? "not-allowed" : "pointer",
-        boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)",
-        opacity: disabled ? 0.5 : 1,
-      }}
-    >
-      <div className="rounded-[36px] absolute inset-0"  />
-      <div className="rounded-[36px] absolute inset-0" style={{ background: bg, transition: "background 0.12s" }} />
-      <div className="rounded-[36px] absolute inset-0" style={{ border: pressed ? "2px solid rgba(58,17,216,0.19)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
-      <span
-        className="relative text-body3"
-        style={{
-          zIndex: 1,
-          color: textColor,
-          whiteSpace: "nowrap",
-          paddingTop: 2,
-          transition: "color 0.12s",
-        }}
-      >
-        Test Load
-      </span>
-    </div>
-  );
-}
 
 export default function PatientDiseaseInfoPage() {
   const router = useRouter();
@@ -134,9 +90,6 @@ export default function PatientDiseaseInfoPage() {
     setTrendSelection(INITIAL_TREND_SELECTION);
     setCompleted("patient-disease-info", false);
   };
-  // Reset 버튼 hover/active 상태 (배경색 변화용)
-  const [resetHover, setResetHover] = useState(false);
-  const [resetActive, setResetActive] = useState(false);
   
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
@@ -175,7 +128,7 @@ export default function PatientDiseaseInfoPage() {
 
               {/* 상단 섹션: 제목 + Reset */}
               <div className="flex justify-between items-center shrink-0 pl-[8px] pr-0 h-[40px] pt-0 pb-0">
-                <h2 className="font-['Inter'] font-semibold text-[24px] leading-[1.2] text-[var(--text-header)] tracking-[-0.72px] m-0">
+                <h2 className="text-body1 text-[var(--text-header)] m-0">
                   Patient / Disease Info
                 </h2>
                 <div className="flex items-center gap-3">
@@ -186,34 +139,15 @@ export default function PatientDiseaseInfoPage() {
                     setTrendSelection("Increase");
                   }} />
                   <button
-                    onClick={isDirty ? handleReset : undefined}
-                    onMouseEnter={() => isDirty && setResetHover(true)}
-                    onMouseLeave={() => { setResetHover(false); setResetActive(false); }}
-                    onMouseDown={() => isDirty && setResetActive(true)}
-                    onMouseUp={() => setResetActive(false)}
-                    className="flex items-center justify-center gap-[8px] h-[40px] pl-[20px] pr-[16px] rounded-[36px] border-none bg-transparent relative overflow-hidden"
-                    style={{ cursor: isDirty ? "pointer" : "default" }}
+                    onClick={handleReset}
+                    disabled={!isDirty}
+                    className="btn-tsi btn-tsi-secondary gap-2"
+                    style={{ paddingRight: 16 }}
                   >
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: !isDirty
-                          ? "var(--neutral-80)"
-                          : resetActive
-                          ? "var(--neutral-20)"
-                          : resetHover
-                          ? "var(--neutral-40)"
-                          : "var(--neutral-50)",
-                      }}
-                    />
-                    <span className="relative z-10 font-['Inter'] font-semibold text-[17px] tracking-[-0.51px]" style={{ color: isDirty ? "var(--text-inverted)" : "var(--neutral-90)", paddingTop: 2 }}>
-                      Reset
-                    </span>
-                    <div className="relative z-10 shrink-0">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2V4C10.0845 4.00022 8.23272 4.6877 6.78115 5.93749C5.32958 7.18727 4.37462 8.9164 4.08983 10.8106C3.80504 12.7048 4.20934 14.6382 5.22923 16.2596C6.24912 17.881 7.81691 19.0826 9.64763 19.646C11.4783 20.2095 13.4505 20.0974 15.2055 19.3301C16.9606 18.5628 18.3821 17.1913 19.2117 15.4648C20.0413 13.7382 20.2239 11.7714 19.7262 9.9217C19.2286 8.07199 18.0839 6.46223 16.5 5.385V8H14.5V2H20.5V4H18C19.2425 4.93093 20.251 6.13866 20.9453 7.52734C21.6397 8.91601 22.0008 10.4474 22 12Z" fill={isDirty ? "#ffffff" : "var(--neutral-90)"} stroke={isDirty ? "#ffffff" : "var(--neutral-90)"} strokeWidth="0.5"/>
-                      </svg>
-                    </div>
+                    Reset
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                      <path d="M22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2V4C10.0845 4.00022 8.23272 4.6877 6.78115 5.93749C5.32958 7.18727 4.37462 8.9164 4.08983 10.8106C3.80504 12.7048 4.20934 14.6382 5.22923 16.2596C6.24912 17.881 7.81691 19.0826 9.64763 19.646C11.4783 20.2095 13.4505 20.0974 15.2055 19.3301C16.9606 18.5628 18.3821 17.1913 19.2117 15.4648C20.0413 13.7382 20.2239 11.7714 19.7262 9.9217C19.2286 8.07199 18.0839 6.46223 16.5 5.385V8H14.5V2H20.5V4H18C19.2425 4.93093 20.251 6.13866 20.9453 7.52734C21.6397 8.91601 22.0008 10.4474 22 12Z" fill="white" stroke="white" strokeWidth="0.5"/>
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -224,15 +158,15 @@ export default function PatientDiseaseInfoPage() {
 
                 {/* {Baseline Variables 섹션/Baseline Variables Section} */}
                 {/* Baseline Variables 섹션 */}
-                <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden min-h-0">
+                <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden min-h-0">
                   <div className="flex flex-col gap-[20px] overflow-auto scrollbar-hide h-full">
-                  <div className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]">
+                  <div className="text-body3">
                     <span className="text-neutral-30">Baseline Variables </span><span className="text-tertiary-40">*</span>
                   </div>
 
                   <div className="flex flex-col gap-[12px]">
                     {/* Demographic information 그룹 */}
-                    <div className="bg-white rounded-[12px] overflow-hidden shrink-0 flex flex-col pb-[8px]">
+                    <div className="bg-white rounded-[8px] overflow-hidden shrink-0 flex flex-col pb-[8px]">
                       <button
                         onClick={() => toggleSection("demographic")}
                         className="flex items-center gap-[12px] px-[12px] py-[8px] h-[46px] shrink-0 border-none bg-transparent cursor-pointer text-left w-full"
@@ -243,7 +177,7 @@ export default function PatientDiseaseInfoPage() {
                         >
                           <IconChevronDown size={14} />
                         </div>
-                        <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-neutral-30 tracking-[-0.75px]">
+                        <span className="text-body4 text-neutral-30">
                           Demographic information
                         </span>
                       </button>
@@ -256,7 +190,7 @@ export default function PatientDiseaseInfoPage() {
                     </div>
 
                     {/* Measurement 그룹 */}
-                    <div className="bg-white rounded-[12px] overflow-hidden shrink-0 flex flex-col pb-[8px]">
+                    <div className="bg-white rounded-[8px] overflow-hidden shrink-0 flex flex-col pb-[8px]">
                       <button
                         onClick={() => toggleSection("measurement")}
                         className="flex items-center gap-[12px] px-[12px] py-[8px] h-[46px] shrink-0 border-none bg-transparent cursor-pointer text-left w-full"
@@ -267,7 +201,7 @@ export default function PatientDiseaseInfoPage() {
                         >
                           <IconChevronDown size={14} />
                         </div>
-                        <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-text-primary tracking-[-0.75px]">
+                        <span className="text-body4 text-text-primary">
                           Measurement
                         </span>
                       </button>
@@ -285,28 +219,28 @@ export default function PatientDiseaseInfoPage() {
 
                 {/* {Control Variables 섹션/Control Variables Section} */}
                 {/* Control Variables 섹션 */}
-                <div className="flex-1 rounded-[33px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden min-h-0">
+                <div className="flex-1 rounded-[29px] bg-[rgba(255,255,255,0.6)] p-[16px] overflow-hidden min-h-0">
                   <div className="flex flex-col gap-[20px] overflow-auto scrollbar-hide h-full">
-                  <div className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]">
+                  <div className="text-body3">
                     <span className="text-text-primary">Control Variables </span><span className="text-tertiary-40">*</span>
                   </div>
                   
-                  <div className="bg-white rounded-[18px] p-[16px] flex flex-col gap-[12px]">
+                  <div className="bg-white rounded-[14px] p-[16px] flex flex-col gap-[12px]">
                     <div className="flex gap-[12px] h-[18px] items-start">
                       <RadioButton checked={controlMode === "value"} label="Value" onChange={() => setControlMode("value")} />
                       <RadioButton checked={controlMode === "trend"} label="Trend" onChange={() => setControlMode("trend")} />
                     </div>
 
                     {/* 트렌드 선택 상자 */}
-                    <div className="bg-neutral-98 rounded-[8px] px-[12px] py-[10px] flex flex-col gap-[24px]">
-                      <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-neutral-30 tracking-[-0.75px]">
+                    <div className="bg-neutral-98 rounded-[4px] px-[12px] py-[10px] flex flex-col gap-[24px]">
+                      <span className="text-body4 text-neutral-30">
                         Select patients based on value
                       </span>
 
                       <div className="flex flex-col">
                         <div className="flex items-center gap-[8px] pl-[24px] py-[4px]">
-                          <span className="w-[160px] font-['Inter'] font-medium text-[15px] text-neutral-30 tracking-[-0.45px]">HbA1c</span>
-                          <span className="font-['Inter'] font-medium text-[15px] text-neutral-30 tracking-[-0.45px]">Value</span>
+                          <span className="w-[160px] text-body4m text-neutral-30">HbA1c</span>
+                          <span className="text-body4m text-neutral-30">Value</span>
                         </div>
 
                         {[
@@ -316,10 +250,10 @@ export default function PatientDiseaseInfoPage() {
                         ].map((item) => (
                           <div key={item.label} className="border-solid flex items-center gap-[8px] py-[8px] cursor-pointer border-t-[1.5px] border-neutral-80" onClick={() => setTrendSelection(item.label)}>
                             <div onClick={e => e.stopPropagation()}><RadioButton checked={trendSelection === item.label} onChange={() => setTrendSelection(item.label)} /></div>
-                            <span className="w-[160px] font-['Inter'] font-medium text-[15px] text-neutral-30 tracking-[-0.45px]">
+                            <span className="w-[160px] text-body4m text-neutral-30">
                               {item.label}
                             </span>
-                            <span className="font-['Inter'] font-medium text-[15px] text-neutral-60 tracking-[-0.45px]">
+                            <span className="text-body4m text-neutral-60">
                               {item.value}
                             </span>
                           </div>

@@ -49,11 +49,11 @@ export function FilteredPatientsCard({
   const displayRatio = animated ? animatedRatio : filteredRatio;
 
   return (
-    <div className="shrink-0 h-[250px] relative rounded-[24px] overflow-hidden flex flex-col p-[16px] shadow-[0px_0px_2px_0px_rgba(0,0,0,0.1)]">
+    <div className="shrink-0 h-[250px] relative rounded-[20px] overflow-hidden flex flex-col p-[16px] shadow-[0px_0px_2px_0px_rgba(0,0,0,0.1)]">
       {/* Navy 그라디언트 배경 */}
       <div
         className="absolute inset-0 z-0 pointer-events-none"
-        style={{ backgroundImage: "linear-gradient(90deg, #262255 0%, #262255 100%)" }}
+        style={{ backgroundImage: "linear-gradient(90deg, var(--primary-15) 0%, var(--primary-15) 100%)" }}
       />
       <div className="absolute inset-0 bg-[rgba(38,38,38,0.25)] mix-blend-color-dodge z-[1]" />
 
@@ -70,7 +70,7 @@ export function FilteredPatientsCard({
               onClick={onAddDataClick}
               className="flex items-center gap-[4px] h-[30px] px-[14px] py-[8px] rounded-[36px] border-none cursor-pointer relative bg-transparent overflow-hidden"
             >
-              <div className="absolute inset-0 bg-[#f06600] mix-blend-plus-lighter" />
+              <div className="absolute inset-0 bg-[var(--secondary-60)] mix-blend-plus-lighter" />
               <span className="relative z-10 text-body4 text-white mix-blend-screen">
                 Add data
               </span>
@@ -81,9 +81,9 @@ export function FilteredPatientsCard({
 
         {/* 프로그레스 바 */}
         <div style={{ marginTop: "24px" }}>
-          <div className="relative h-[18px] w-full rounded-[12px]" style={{ background: "rgba(255,255,255,0.2)" }}>
+          <div className="relative h-[18px] w-full rounded-[8px]" style={{ background: "rgba(255,255,255,0.2)" }}>
             <div
-              className="absolute left-0 top-0 h-full bg-[#f06600] rounded-[12px] overflow-hidden"
+              className="absolute left-0 top-0 h-full bg-[var(--secondary-60)] rounded-[8px] overflow-hidden"
               style={{ width: `${displayRatio}%` }}
             />
             <div className="absolute inset-0 flex items-center justify-end pr-[11.13px]">

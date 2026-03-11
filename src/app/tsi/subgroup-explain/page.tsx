@@ -9,7 +9,7 @@ import { ScatterSlopeChart } from "@/components/charts/ScatterSlopeChart";
 import { SubgroupProportionChart } from "@/components/charts/SubgroupProportionChart";
 import { Loading } from "@/components/common/Loading";
 import { useRouter, useSearchParams } from "next/navigation";
-import Button from "@/components/ui/button";
+import SolidButton from "@/components/ui/solid-button";
 import {
   ExplainExpectedTherapeuticGainItem,
   ExplainListData,
@@ -301,7 +301,7 @@ function TSISubgroupExplainPageContent() {
 
         {/* 에러 배너 / Error banner */}
         {fetchError && (
-          <div className="rounded-[24px] border border-red-200 bg-red-50 p-4 text-red-700">
+          <div className="rounded-[20px] border border-red-200 bg-red-50 p-4 text-red-700">
             {fetchError}
           </div>
         )}
@@ -324,14 +324,14 @@ function TSISubgroupExplainPageContent() {
 
               {/* 파란색 차트 카드: Expected Therapeutic Gain / Blue chart card */}
               <div
-                className="bg-primary-15 flex min-h-0 w-full flex-[3] flex-col overflow-hidden rounded-[24px] p-3 gap-6"
+                className="bg-primary-15 flex min-h-0 w-full flex-[3] flex-col overflow-hidden rounded-[20px] p-3 gap-6"
                 style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
               >
                 <h2 className="text-body2m flex-shrink-0 text-white pl-[2px]">
                   Expected Therapeutic Gain
                 </h2>
-                <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-[16px] bg-white p-2">
-                  <div className="flex min-h-0 flex-1 rounded-[12px] bg-white">
+                <div className="flex min-h-0 flex-1 flex-col gap-2 rounded-[12px] bg-white p-2">
+                  <div className="flex min-h-0 flex-1 rounded-[8px] bg-white">
                     <MultiRankingBarChart data={expectedTherapeuticGainData} />
                   </div>
                   <div className="flex justify-center">
@@ -342,7 +342,7 @@ function TSISubgroupExplainPageContent() {
 
               {/* 흰색 테이블 카드 / White table card */}
               <div
-                className="flex min-h-0 w-full flex-[2] flex-col overflow-hidden rounded-[24px] bg-white"
+                className="flex min-h-0 w-full flex-[2] flex-col overflow-hidden rounded-[20px] bg-white"
               >
                 <div className="flex min-h-0 flex-1 flex-col py-3 px-3">
 
@@ -401,7 +401,7 @@ function TSISubgroupExplainPageContent() {
 
                   {/* 파란색 SHAP 차트 카드 / Blue SHAP chart card */}
                   <div
-                    className="bg-primary-15 flex flex-1 flex-col gap-6 rounded-[24px] p-3"
+                    className="bg-primary-15 flex flex-1 flex-col gap-6 rounded-[20px] p-3"
                     style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                   >
                     <h2 className="text-body2m flex-shrink-0 text-white pl-[2px]">
@@ -413,12 +413,12 @@ function TSISubgroupExplainPageContent() {
 
                       {/* SHAP Summary Plot 차트 / SHAP Summary Plot chart */}
                       <div className="flex min-w-0 min-h-0 flex-[7] flex-col">
-                        <div className="flex w-full flex-col rounded-[16px] bg-white p-3 gap-6">
+                        <div className="flex w-full flex-col rounded-[12px] bg-white p-3 gap-6">
                           <h3 className="text-body5m text-neutral-50 flex-shrink-0 text-center">
                             {`Baseline Features Explaining Δ${resultData?.outcome ?? "ADAS-Cog"}`}
                           </h3>
                           <div
-                            className="flex w-full rounded-[12px] bg-white"
+                            className="flex w-full rounded-[8px] bg-white"
                             style={{ aspectRatio: "1 / 0.5" }}
                           >
                             <div className="flex-1 min-w-0 min-h-0">
@@ -472,12 +472,12 @@ function TSISubgroupExplainPageContent() {
 
                   {/* 왼쪽 피처 목록 카드 / Left feature list card */}
                   <div
-                    className="flex flex-[2] flex-col overflow-hidden rounded-[24px] bg-white"
+                    className="flex flex-[2] flex-col overflow-hidden rounded-[20px] bg-white"
                 
                   >
                     <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                       {featureList.map((feature, index) => (
-                        <Button
+                        <SolidButton
                           unstyled
                           key={feature}
                           onClick={() => setSelectedFeature(feature)}
@@ -490,7 +490,7 @@ function TSISubgroupExplainPageContent() {
                           }`}
                         >
                           {feature}
-                        </Button>
+                        </SolidButton>
                       ))}
                     </div>
                   </div>
@@ -498,7 +498,7 @@ function TSISubgroupExplainPageContent() {
                   {/* 오른쪽 파란색 상세 카드 (차트 3개 세로 + 설명)
                       Right blue detail card (3 charts vertically + description) */}
                   <div
-                    className="bg-primary-15 flex flex-[8] flex-shrink-0 flex-row gap-3 rounded-[24px] p-3 "
+                    className="bg-primary-15 flex flex-[8] flex-shrink-0 flex-row gap-3 rounded-[20px] p-3 "
                     style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                   >
 
@@ -506,7 +506,7 @@ function TSISubgroupExplainPageContent() {
                     <div className="flex min-w-0 flex-[5] flex-col gap-3">
 
                       {/* 차트 1: Baseline Distribution Histogram */}
-                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2 gap-3">
+                      <div className="flex w-full flex-shrink-0 flex-col rounded-[8px] bg-white px-3 pt-3 pb-2 gap-3">
                         <h3 className="text-body4 text-primary-15 ">
                           Baseline Distribution of {selectedFeature} (Baseline)
                         </h3>
@@ -517,7 +517,7 @@ function TSISubgroupExplainPageContent() {
                       </div>
 
                       {/* 차트 2: ADAS Progression Slope Scatter */}
-                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2 gap-3">
+                      <div className="flex w-full flex-shrink-0 flex-col rounded-[8px] bg-white px-3 pt-3 pb-2 gap-3">
                         <h3 className="text-body4 text-primary-15">
                           ADAS Progression Slope vs. {selectedFeature} (Baseline)
                         </h3>
@@ -528,7 +528,7 @@ function TSISubgroupExplainPageContent() {
                       </div>
 
                       {/* 차트 3: Subgroup Proportion */}
-                      <div className="flex w-full flex-shrink-0 flex-col rounded-[12px] bg-white px-3 pt-3 pb-2 gap-3">
+                      <div className="flex w-full flex-shrink-0 flex-col rounded-[8px] bg-white px-3 pt-3 pb-2 gap-3">
                         <h3 className="text-body4 text-primary-15">
                           Subgroup Proportion by {selectedFeature} (Baseline)
                         </h3>
@@ -573,18 +573,17 @@ function TSISubgroupExplainPageContent() {
           <div
             className="flex flex-shrink-0 items-center justify-end gap-3 pr-1"
           >
-            {/* Save Progress 버튼 / Save Progress button */}
-            <button type="button" className="btn-tsi btn-tsi-secondary ">
+            <SolidButton type="button" variant="secondary" size="L">
               Save Progress
-            </button>
-            {/* View Report 버튼 → Report 페이지 이동 / Navigate to Report page */}
-            <button
+            </SolidButton>
+            <SolidButton
               type="button"
               onClick={handleClickViewReport}
-              className="btn-tsi btn-tsi-primary"
+              variant="primary"
+              size="L"
             >
               View Report
-            </button>
+            </SolidButton>
           </div>
 
         </div>

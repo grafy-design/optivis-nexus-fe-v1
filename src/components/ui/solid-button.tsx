@@ -46,7 +46,7 @@ const Icons = {
   ),
 };
 
-export default function Button({
+export default function SolidButton({
   variant = "primary",
   size = "m",
   icon,
@@ -84,9 +84,9 @@ export default function Button({
 
   // 패딩 로직: 텍스트+아이콘 여부에 따라 달라짐
   const paddingMap: Record<"L" | "m" | "s", string> = {
-    L: isIconOnly ? "p-0" : (hasBoth ? (iconPosition === "left" ? "pl-[20px] pr-[24px]" : "pr-[20px] pl-[24px]") : "px-[24px]"),
-    m: isIconOnly ? "p-0" : (hasBoth ? (iconPosition === "left" ? "pl-[18px] pr-[20px]" : "pr-[18px] pl-[20px]") : "px-[20px]"),
-    s: isIconOnly ? "p-0" : (hasBoth ? (iconPosition === "left" ? "pl-[14px] pr-[12px]" : "pr-[14px] pl-[12px]") : "px-[12px]"),
+    L: isIconOnly ? "p-0" : (hasBoth ? (iconPosition === "left" ? "pl-[14px] pr-[24px]" : "pr-[14px] pl-[24px]") : "px-[24px]"),
+    m: isIconOnly ? "p-0" : (hasBoth ? (iconPosition === "left" ? "pl-[16px] pr-[20px]" : "pr-[16px] pl-[20px]") : "px-[20px]"),
+    s: isIconOnly ? "p-0" : (hasBoth ? (iconPosition === "left" ? "pl-[8px] pr-[12px]" : "pr-[8px] pl-[12px]") : "px-[12px]"),
   };
 
   // 아이콘 렌더링 함수
@@ -127,7 +127,7 @@ export default function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full transition-all select-none border-none cursor-pointer",
+        "inline-flex w-fit items-center justify-center gap-2 rounded-full font-semibold transition-all select-none border-none cursor-pointer",
         "disabled:bg-neutral-80 disabled:text-neutral-90 disabled:cursor-not-allowed disabled:opacity-50",
         variantStyles[variant],
         sizeBaseClasses[normalizedSize],

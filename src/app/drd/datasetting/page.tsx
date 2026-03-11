@@ -164,7 +164,7 @@ export default function TSIPage() {
               <div className="flex gap-6 mb-[22px]">
                 {/* Data Template Download Card */}
                 <div
-                  className="flex-shrink-0 w-[266px] h-[266px] rounded-[24px] p-4 pt-12 flex flex-col justify-between"
+                  className="flex-shrink-0 w-[266px] h-[266px] rounded-[20px] p-4 pt-12 flex flex-col justify-between"
                   style={{ backgroundColor: "#231f52" }}
                 >
                   <div className="flex flex-col gap-3">
@@ -224,20 +224,16 @@ export default function TSIPage() {
                     </p>
                   </div>
                   <Button
-                    variant="orange"
-                    size="md"
-                    className="w-full rounded-[16px]"
-                    style={{
-                      backgroundColor: "var(--secondary-60)",
-                      color: "#e3dfff",
-                    }}
+                    variant="purple"
+                    size="m"
+                    className="w-full rounded-[12px]"
                   >
                     Download
                   </Button>
                 </div>
 
                 {/* File Upload Card - 상하 패딩 24/12, 갭: 아이콘~제목 16, 제목~파일정보 12, 파일정보~버튼 24, 버튼 아래 12 */}
-                <div className="flex-1 bg-white rounded-[24px] pt-6 pb-3 px-0 flex flex-col items-center justify-center h-[266px] gap-6">
+                <div className="flex-1 bg-white rounded-[20px] pt-6 pb-3 px-0 flex flex-col items-center justify-center h-[266px] gap-6">
                   <div className="flex flex-col items-center justify-center">
                     <svg
                       width="32"
@@ -277,13 +273,9 @@ export default function TSIPage() {
                     className="cursor-pointer flex justify-center"
                   >
                     <Button
-                      variant="primary"
-                      size="md"
-                      className="w-[222px] rounded-[24px]"
-                      style={{
-                        backgroundColor: "var(--tertiary-40)",
-                        color: "#e3dfff",
-                      }}
+                      variant="purple"
+                      size="m"
+                      className="w-[222px] rounded-[20px]"
                     >
                       File Select
                     </Button>
@@ -302,7 +294,7 @@ export default function TSIPage() {
                 {/* Data Table */}
                 <div className="flex flex-col gap-[8px]">
                   {/* Table Header - Single header like main page */}
-                  <div className="rounded-[24px] h-[46px] bg-[#231f52] flex items-center">
+                  <div className="rounded-[20px] h-[46px] bg-[#231f52] flex items-center">
                     <div className="flex items-center gap-12 text-body5 text-white w-full">
                       <div className="flex items-center gap-4 pl-[32px]">
                         <div className="w-4" />
@@ -322,7 +314,7 @@ export default function TSIPage() {
                   </div>
 
                   {/* Table Body - Two Tables Side by Side */}
-                  <div className="flex gap-0 rounded-[18px] bg-white overflow-hidden min-h-[280px] flex-shrink-0">
+                  <div className="flex gap-0 rounded-[14px] bg-white overflow-hidden min-h-[280px] flex-shrink-0">
                     {/* Left Table */}
                      <div
             className="flex-[22] min-w-[280px] min-h-0"
@@ -438,17 +430,13 @@ export default function TSIPage() {
           {/* Use Data Button - Outside Card (시뮬레이션 버튼처럼 우측 화살표) */}
           <div className="flex justify-end">
             <Button
-              variant="orange"
-              size="md"
+              variant="primary"
+              size="m"
               icon="play"
               iconPosition="right"
               onClick={handleUseData}
               disabled={selectedData.size === 0}
-              className="rounded-[100px]"
-              style={{
-                backgroundColor: "#f16600",
-                color: "#ffffff",
-              }}
+              className="rounded-[96px]"
             >
               Use Data
             </Button>

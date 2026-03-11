@@ -124,7 +124,7 @@ export default function PackageVideoPanel({
 
   return (
     <div
-      className="relative flex flex-col w-full h-full overflow-hidden rounded-[24px] bg-black"
+      className="relative flex flex-col w-full h-full overflow-hidden rounded-[20px] bg-black"
     >
       {/* Video Background */}
       <video
@@ -149,21 +149,25 @@ export default function PackageVideoPanel({
         I'll add a subtle gradient to ensure text pops against the video.
       */}
       <div
-        className="relative z-10 flex flex-col items-start justify-start gap-4 w-full bg-linear-to-b from-black/60 to-transparent p-10"
+        className="relative z-10 flex flex-col items-start justify-start gap-4 w-full bg-linear-to-b from-black/60 to-transparent p-8"
       >
         <h2
-          className="home-package-video-title font-['Poppins'] font-semibold leading-[1.1] tracking-[-0.02em] text-text-inverted m-0 max-w-[80%]"
+          className="text-page-title m-0 max-w-[80%]"
           style={{
-            fontSize: "clamp(32px, 4vw, 48px)",
+            fontSize: "24px",
+            fontWeight: "500",
+            color: "var(--text-inverted)",
             textShadow: "0px 2px 4px rgba(0,0,0,0.3)",
+            letterSpacing: "-0.5px"
           }}
         >
           {title}
         </h2>
         <p
-          className="home-package-video-desc text-body2m text-text-inverted m-0 max-w-[600px]"
+          className="home-package-video-desc text-body4m text-text-inverted m-0 max-w-[600px]"
           style={{
             textShadow: "0px 1px 2px rgba(0,0,0,0.3)",
+            letterSpacing: "-0.1px"
           }}
         >
           {description}

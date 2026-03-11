@@ -163,7 +163,7 @@ function TSIBasisSelectionPageContent() {
 
             {/* ── 2-A. 왼쪽 카드: 기준 선택 목록 / Left card: basis option list ── */}
             <div
-              className="flex flex-1 [@media(min-width:1471px)]:flex-1 flex-shrink-0 flex-col overflow-hidden bg-white self-start rounded-[24px]"
+              className="flex flex-1 [@media(min-width:1471px)]:flex-1 flex-shrink-0 flex-col overflow-hidden bg-white self-start rounded-[20px]"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
               }}
@@ -226,7 +226,7 @@ function TSIBasisSelectionPageContent() {
                       ? handleGoToSubgroupSelection
                       : handleRightCardClick
                   }
-                  className="bg-primary-15 flex flex-col flex-3 min-w-0 h-full cursor-pointer rounded-[24px] text-left transition-opacity hover:opacity-95 p-4"
+                  className="bg-primary-15 flex flex-col flex-3 min-w-0 h-full cursor-pointer rounded-[20px] text-left transition-opacity hover:opacity-95 p-4"
                 >
                   {/* 설명 텍스트 영역 / Description text area */}
                   <div className="flex flex-shrink-0 flex-col justify-start h-[120px]">
@@ -238,9 +238,9 @@ function TSIBasisSelectionPageContent() {
 
                   {/* 차트 미리보기 영역 / Chart preview area */}
                   <div className="flex flex-col flex-1 min-h-0 w-full" style={{ marginTop: 60 }}>
-                    <div className="flex flex-col flex-1 min-h-0 w-full rounded-[12px] bg-white overflow-visible p-3">
+                    <div className="flex flex-col flex-1 min-h-0 w-full rounded-[8px] bg-white overflow-visible p-3">
                       <div
-                        className="flex-1 min-h-0 w-full overflow-hidden rounded-[8px] border border-neutral-80"
+                        className="flex-1 min-h-0 w-full overflow-hidden rounded-[4px] border border-neutral-80"
                         style={{ height: "100%" }}
                       >
                         <BasisChart basis={previewBasis} />

@@ -1137,7 +1137,7 @@ function TSIRefineCutoffsPageContent() {
 
               {/* ── 2-A-1. 남색 Subgroup Creation 카드 / Navy Subgroup Creation card ── */}
               <div
-                className="flex h-fit flex-col items-start gap-4 rounded-[24px] p-4 max-[1470px]:gap-3 max-[1470px]:p-3"
+                className="flex h-fit flex-col items-start gap-4 rounded-[20px] p-4 max-[1470px]:gap-3 max-[1470px]:p-3"
                 style={{
                   background: "var(--primary-15)",
                   width: "100%",
@@ -1164,7 +1164,7 @@ function TSIRefineCutoffsPageContent() {
                   <span className="text-body5 max-[1470px]:text-small1 text-white/70">Stratification month</span>
 
                   {/* 슬라이더 + 드롭다운 / Slider + dropdown (inline) */}
-                  <div className="flex w-full items-start justify-between gap-2">
+                  <div className="flex w-full items-start justify-between gap-3">
 
                     {/* 슬라이더 트랙 + 눈금 / Slider track + tick marks */}
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -1185,9 +1185,10 @@ function TSIRefineCutoffsPageContent() {
 
                           {/* 슬라이더 핸들 (드래그 가능) / Slider handle (draggable) */}
                           <div
-                            className="absolute top-1/2 h-[24px] w-[24px] -translate-y-1/2 cursor-grab rounded-full border border-[#e2e1e5] bg-[#fcf8f8] shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-[#f9f8fc] active:cursor-grabbing active:bg-[#efeff4] active:border-[#b0afb8]"
+                            className="absolute top-1/2 h-[24px] w-[24px] cursor-grab rounded-full border border-[#e2e1e5] bg-[#fcf8f8] shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-[#f9f8fc] active:cursor-grabbing active:bg-[#efeff4] active:border-[#b0afb8]"
                             style={{
-                              left: `calc(${Math.max(0, Math.min(100, monthPercentage))}% - 12px)`,
+                              left: `${Math.max(0, Math.min(100, monthPercentage))}%`,
+                              transform: `translateX(-${Math.max(0, Math.min(100, monthPercentage))}%) translateY(-50%)`,
                             }}
                             onMouseDown={(e) => {
                               e.preventDefault();
@@ -1285,7 +1286,7 @@ function TSIRefineCutoffsPageContent() {
                           setHasEverMovedMonth(true);
                         }
                         }
-                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-50 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[8px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-0 [&>button>span]:text-left [&>button>span]:font-semibold [&>button>span]:leading-none [&>button>span]:pt-1 [&>button>span]:py-0 [&>button>svg]:flex-shrink-0"
+                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-50 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[4px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-0 [&>button>span]:text-left [&>button>span]:font-semibold [&>button>span]:leading-none [&>button>span]:pt-1 [&>button>span]:py-0 [&>button>svg]:flex-shrink-0"
                       />
                     </div>
                   </div>
@@ -1305,7 +1306,7 @@ function TSIRefineCutoffsPageContent() {
               </div>
 
               {/* ── 2-A-2. CDF 컷오프 에디터 / CDF cutoff editor ────── */}
-              <div className="flex-1 min-h-0 rounded-[24px] overflow-hidden bg-white p-2">
+              <div className="flex-1 min-h-0 rounded-[20px] overflow-hidden bg-white p-2">
                 <div className="h-full overflow-y-auto flex flex-col gap-4 justify-between">
                   <div style={{ aspectRatio: windowWidth < 1470 ? "5 / 4" : "1 / 1", paddingTop: 4 }}>
                     <RefineCutoffChartEditor
@@ -1357,7 +1358,7 @@ function TSIRefineCutoffsPageContent() {
 
                   {/* 차트 1: Disease Progression by Group */}
                   <div
-                    className="flex w-0 min-w-0 flex-1 rounded-[24px] p-[8px]"
+                    className="flex w-0 min-w-0 flex-1 rounded-[20px] p-[8px]"
                     style={{
                       backgroundColor: "var(--primary-15)",
                       boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
@@ -1368,7 +1369,7 @@ function TSIRefineCutoffsPageContent() {
                         Disease Progression by Group
                       </h4>
                       <div
-                        className="flex w-full rounded-[16px] bg-white p-2"
+                        className="flex w-full rounded-[12px] bg-white p-2"
                         style={{ aspectRatio: "2 / 1" }}
                       >
                         <MultiLineWithErrorBar
@@ -1393,7 +1394,7 @@ function TSIRefineCutoffsPageContent() {
 
                   {/* 차트 2: Slope Distribution */}
                   <div
-                    className="flex w-0 min-w-0 flex-1 rounded-[24px] p-[8px]"
+                    className="flex w-0 min-w-0 flex-1 rounded-[20px] p-[8px]"
                     style={{
                       backgroundColor: "var(--primary-15)",
                       boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
@@ -1403,7 +1404,7 @@ function TSIRefineCutoffsPageContent() {
                       <h4 className="text-body2m flex-shrink-0 text-white pt-1.5 pl-2">
                         Slope distribution
                       </h4>
-                      <div className="flex w-full rounded-[16px] bg-white p-2" style={{ aspectRatio: "2 / 1" }}>
+                      <div className="flex w-full rounded-[12px] bg-white p-2" style={{ aspectRatio: "2 / 1" }}>
                         <DensityChart
                           segmented={densitySegmentedData ?? undefined}
                           height="100%"
@@ -1419,7 +1420,7 @@ function TSIRefineCutoffsPageContent() {
 
                 {/* ── 그룹 테이블 / Group table ────────────────────────── */}
                 <div
-                  className="flex flex-1 flex-col rounded-[24px] bg-white"
+                  className="flex flex-1 flex-col rounded-[20px] bg-white"
                   style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
                 >
                   <div className="flex flex-col px-3 py-3">

@@ -226,6 +226,7 @@ export const tooltipBase = {
   padding: [4, 6] as [number, number],
   borderWidth: 0,
   borderColor: "transparent",
+  borderRadius: 6,
   extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
   textStyle: {
     fontFamily: CHART_FONT.familyShort,
@@ -297,9 +298,9 @@ export function tooltipTitle(text: string): string {
   return `<div style="font-size:12px;font-family:Inter;color:#787776;font-weight:600;margin-bottom:4px">${text}</div>`;
 }
 
-/** 툴팁 소제목 행 (9px, 500, 하단 마진) */
+/** 툴팁 소제목 행 — tooltipTitle과 동일 스타일 (12px, 600, #787776) */
 export function tooltipSubTitle(text: string): string {
-  return `<div style="font-size:9px;font-weight:500;margin-bottom:4px">${text}</div>`;
+  return `<div style="font-size:12px;font-family:Inter;color:#787776;font-weight:600;margin-bottom:4px">${text}</div>`;
 }
 
 /** 툴팁 구분선 + 합계 행 */

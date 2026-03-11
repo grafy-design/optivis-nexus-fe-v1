@@ -313,7 +313,7 @@ export function RightPanel({
               {activeTab === "compare" ? (
                 /* Smaller Sample Card - Compare View */
                 <div
-                  className="rounded-[18px] overflow-hidden flex-[3] min-h-0"
+                  className="rounded-[14px] overflow-hidden flex-[3] min-h-0"
                   style={{
                     background: "var(--primary-15)",
                   }}
@@ -387,7 +387,7 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-neutral-100 rounded-[12px]"
+                      className="mt-auto bg-neutral-100 rounded-[8px]"
                       style={{ height: "66%" }}
                     >
                       {chartDataToUse &&
@@ -409,7 +409,7 @@ export function RightPanel({
               ) : /* Sample Size & Power Card - Reduction View */
               isApplied && reductionCharts.length > 0 ? (
                 <div
-                  className="rounded-[18px] overflow-hidden flex-[3] min-h-0 bg-primary-15"
+                  className="rounded-[14px] overflow-hidden flex-[3] min-h-0 bg-primary-15"
                 >
                   <div className="flex flex-col w-full h-full p-4">
                     {/* Card Header */}
@@ -471,7 +471,7 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-neutral-100 rounded-[12px]"
+                      className="mt-auto bg-neutral-100 rounded-[8px]"
                       style={{ height: "66%" }}
                     >
                       <div className="grid grid-cols-2 gap-4 h-full pt-4 px-4 pb-4">
@@ -643,7 +643,7 @@ export function RightPanel({
               <div className="flex gap-4 flex-[2] min-h-0">
                 {/* Smaller N to screen Card */}
                 <div
-                  className="flex-1 min-w-0 rounded-[24px] overflow-hidden bg-layer-secondary"
+                  className="flex-1 min-w-0 rounded-[20px] overflow-hidden bg-layer-secondary"
                 >
                   <div className="flex flex-col w-full h-full p-4">
                     {/* Card Header */}
@@ -735,7 +735,7 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-white/60 rounded-[12px] flex-1 min-h-0"
+                      className="mt-auto bg-white/60 rounded-[8px] flex-1 min-h-0"
                     >
                       {activeTab === "compare" ? (
                         chartDataToUse &&
@@ -798,7 +798,7 @@ export function RightPanel({
 
                 {/* Lower cost Card */}
                 <div
-                  className="flex-1 min-w-0 rounded-[24px] overflow-hidden"
+                  className="flex-1 min-w-0 rounded-[20px] overflow-hidden"
                   style={{
                     backgroundColor: "rgba(255, 255, 255, 0.6)",
                   }}
@@ -892,7 +892,7 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-white/60 rounded-[12px] flex-1 min-h-0"
+                      className="mt-auto bg-white/60 rounded-[8px] flex-1 min-h-0"
                     >
                       {activeTab === "compare" ? (
                         chartDataToUse &&
@@ -958,7 +958,7 @@ export function RightPanel({
             {/* Right Area - OPTIVIS NEXUS vs Traditional Design, Reduction View */}
             <div className="w-[min(34%,460px)] flex-shrink-0 flex flex-col gap-4">
               {/* OPTIVIS NEXUS vs Traditional Design Card */}
-              <div className="bg-white rounded-[24px] flex flex-col flex-1">
+              <div className="bg-white rounded-[20px] flex flex-col flex-1">
                 {/* Title */}
                 <div className="px-4 pt-4 pb-3 flex-shrink-0">
                   <h3 className="text-body2 text-neutral-10">
@@ -1276,7 +1276,7 @@ export function RightPanel({
               </div>
 
               {/* Reduction View Card / Compare View Card */}
-              <div className="bg-white rounded-[24px] flex flex-col flex-1">
+              <div className="bg-white rounded-[20px] flex flex-col flex-1">
                 {/* Title */}
                 <div className="px-4 pt-4 pb-3 flex-shrink-0">
                   <h3 className="text-body2 text-neutral-10">
@@ -1344,7 +1344,7 @@ export function RightPanel({
                         )}
                       </div>
                     ) : (
-                      <div className="flex-1 bg-[#f8f8f8] rounded-[12px] ">
+                      <div className="flex-1 bg-[#f8f8f8] rounded-[8px] ">
                         {/* Empty state */}
                       </div>
                     )
@@ -1385,7 +1385,7 @@ export function RightPanel({
                             </button>
                           </div>
                             <div
-                              className="bg-white rounded-[12px] flex-1 min-h-0"
+                              className="bg-white rounded-[8px] flex-1 min-h-0"
                             >
                             <SmallerSampleChart
                               optivisData={chartDataToUse.smallerSample.optivis}
@@ -1438,7 +1438,7 @@ export function RightPanel({
                               </button>
                             </div>
                             <div
-                              className="bg-white rounded-[12px] flex-1 min-h-0"
+                              className="bg-white rounded-[8px] flex-1 min-h-0"
                             >
                               <SmallerNToScreenChart
                                 optivisData={
@@ -1490,7 +1490,7 @@ export function RightPanel({
                               </button>
                             </div>
                             <div
-                              className="bg-white rounded-[12px] flex-1 min-h-0"
+                              className="bg-white rounded-[8px] flex-1 min-h-0"
                             >
                               <LowerCostChart
                                 optivisData={chartDataToUse.lowerCost.optivis}
@@ -1509,7 +1509,7 @@ export function RightPanel({
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1 bg-[#f8f8f8] rounded-[12px] border border-[#e5e5e5]">
+                    <div className="flex-1 bg-[#f8f8f8] rounded-[8px] border border-[#e5e5e5]">
                       {/* Empty state */}
                     </div>
                   )}

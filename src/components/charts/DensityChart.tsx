@@ -2,9 +2,13 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { ChartSizeVariant } from "./MultiLineWithErrorBar";
+import {
+  tooltipAxisCross,
+  tooltipWrap,
+  tooltipRow,
+} from "@/lib/chart-styles";
 
-const NEUTRAL_30 = "#484646";
-const NEUTRAL_90 = "#e3e1e5";
+const NEUTRAL_50 = "#787776";
 const NEUTRAL_95 = "#efeff4";
 
 type DensitySizeStyle = {
@@ -21,10 +25,10 @@ type DensitySizeStyle = {
 };
 
 const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, DensitySizeStyle> = {
-  XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: "var(--chart-text-axis-value)", numberColor: "var(--chart-text-axis-value)", axisLineColor: "var(--chart-axis-border)", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
-  M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_50, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: NEUTRAL_50, numberColor: NEUTRAL_50, axisLineColor: NEUTRAL_50, axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
+  M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_50, axisWidth: 1, splitLineColor: NEUTRAL_95 },
+  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_50, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
 
 const gaussianKernel = (x: number): number => (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
@@ -265,7 +269,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
 
   // x축 edge label rich text (동적 float 축 범위 대응 — 15% 임계값으로 좌우 끝 tick 감지)
   // X-axis edge label rich text (threshold-based detection for dynamic float axis bounds)
-  const xLabelColor = sz?.numberColor ?? sz?.axisColor ?? "#8A8A94";
+  const xLabelColor = sz?.numberColor ?? sz?.axisColor ?? NEUTRAL_50;
   const xLabelFontSize = sz?.numberFontSize ?? 9;
   const xRange = xMax - xMin;
   const xEdgeThreshold = xRange * 0.15;
@@ -288,25 +292,18 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
     animationDuration: 300,
     animationEasing: "cubicOut",
     tooltip: {
-      trigger: "axis",
+      ...tooltipAxisCross,
       axisPointer: {
-        type: "cross",
-        lineStyle: { color: "#8f8ac4", type: "dashed" },
+        ...tooltipAxisCross.axisPointer,
         label: { show: false },
       },
-      padding: [4, 6], borderWidth: 0, borderColor: "transparent",
-      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
       formatter: (params: any) => {
         const items = Array.isArray(params) ? params : [params];
         const rows = items
           .filter((p: any) => p.seriesName !== "Peak Gap" && !p.seriesName?.includes("Peak"))
-          .map((p: any) => {
-            const val = Number(p.value?.[1] ?? 0).toFixed(1);
-            return `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="display:flex;align-items:center;gap:2px">${p.marker ?? ""}<span style="font-size:9px;font-weight:500">${p.seriesName}</span></span><span style="font-size:14px;font-weight:600">${val}</span></div>`;
-          })
+          .map((p: any) => tooltipRow(p.marker ?? "", p.seriesName, Number(p.value?.[1] ?? 0).toFixed(1)))
           .join("");
-        return `<div style="font-family:Inter,sans-serif;min-width:100px">${rows}</div>`;
+        return tooltipWrap(rows);
       },
     },
     grid: {
@@ -320,7 +317,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       type: "value",
       min: xMin,
       max: xMax,
-      axisLine: { show: true, onZero: false, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, onZero: false, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? NEUTRAL_50, width: sz?.axisWidth ?? 1 } },
       axisTick: { show: false },
       axisLabel: {
         show: !!sz,
@@ -336,7 +333,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       nameLocation: "middle",
       nameGap: 16,
       nameTextStyle: xAxisName ? {
-        color: sz?.axisColor ?? "#484646",
+        color: sz?.axisColor ?? NEUTRAL_50,
         fontSize: sz?.labelFontSize ?? 9,
         fontWeight: sz?.labelFontWeight ?? 400,
         fontFamily: "Inter",
@@ -346,11 +343,11 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       type: "value",
       min: 0,
       max: maxY > 0 ? maxY * 1.35 : 1,
-      axisLine: { show: true, onZero: false, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? "#9B9CA6", width: sz?.axisWidth ?? 1 } },
+      axisLine: { show: true, onZero: false, lineStyle: { color: sz?.axisLineColor ?? sz?.axisColor ?? NEUTRAL_50, width: sz?.axisWidth ?? 1 } },
       axisTick: { show: !!(yAxisName || sz) },
       axisLabel: {
         show: !!sz,
-        color: sz?.numberColor ?? sz?.axisColor ?? "#8A8A94",
+        color: sz?.numberColor ?? sz?.axisColor ?? NEUTRAL_50,
         fontSize: sz?.numberFontSize ?? 9,
         fontWeight: sz?.numberFontWeight,
         fontFamily: "Inter",
@@ -370,7 +367,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
       nameGap: 36,
       nameRotate: 90,
       nameTextStyle: yAxisName ? {
-        color: sz?.axisColor ?? "#484646",
+        color: sz?.axisColor ?? NEUTRAL_50,
         fontSize: sz?.labelFontSize ?? 9,
         fontWeight: sz?.labelFontWeight ?? 400,
         fontFamily: "Inter",
@@ -430,7 +427,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
                 position: gapNarrow ? "right" : "insideTop",
                 offset: gapNarrow ? [4, 0] : [0, 4],
                 formatter: () => gap.toFixed(1),
-                color: gapHovered ? "var(--icon-on-button)" : "var(--chart-text-axis-value)",
+                color: gapHovered ? "#262255" : "#787776",
                 fontSize: 12,
                 fontWeight: gapHovered ? 800 : 600,
                 fontFamily: "Inter",

@@ -6,6 +6,8 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 // Removed import Image from "next/image"; as the module or types can't be found.
 import Select from "@/components/ui/select";
 import Image from "next/image";
+import SolidButton from "@/components/ui/solid-button";
+
 const MULTIPLICITY_OPTIONS = ["Bonferroni", "Holm", "Hochberg"] as const;
 const OUTCOME_OPTIONS = ["ADAS Cog 11", "MMSE", "CDR"];
 const TYPE_OPTIONS = ["Continuous", "Binary"];
@@ -393,68 +395,26 @@ export default function AddEndpointsModal({
                   />
                 </div>
                 <div className="flex gap-4">
-                  <button
-                    type="button"
+                  <SolidButton
                     onClick={handleAddPrimary}
                     disabled={!canAddMore}
-                    className={`rounded-[16px] h-[36px] px-4 text-body4 text-white inline-flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0 ${
-                      canAddMore
-                        ? "bg-[#3a11d8] hover:bg-[#2e09bb] cursor-pointer"
-                        : "bg-[#535252] cursor-not-allowed"
-                    }`}
+                    variant="purple"
+                    size="m"
+                    icon="plus"
+                    className="rounded-[16px]"
                   >
-                    <span className="whitespace-nowrap">Add Primary</span>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      className="flex-shrink-0"
-                    >
-                      <rect width="24" height="24" rx="12" fill={"white"} />
-                      <path
-                        d="M6 12H18"
-                        stroke={canAddMore ? "#3A11D8" : "#535252"}
-                        strokeWidth="2"
-                      />
-                      <path
-                        d="M12 6V18"
-                        stroke={canAddMore ? "#3A11D8" : "#535252"}
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
+                    Add Primary
+                  </SolidButton>
+                  <SolidButton
                     onClick={handleAddSecondary}
                     disabled={!canAddMore}
-                    className={`rounded-[16px] h-[36px] px-4 text-body4 text-white inline-flex items-center justify-center gap-2 whitespace-nowrap flex-shrink-0 ${
-                      canAddMore
-                        ? "bg-[#f06600] hover:bg-[#d85a00] cursor-pointer"
-                        : "bg-[#535252] cursor-not-allowed"
-                    }`}
+                    variant="primary"
+                    size="m"
+                    icon="plus"
+                    className="rounded-[16px]"
                   >
-                    <span className="whitespace-nowrap">Add Secondary</span>
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      className="flex-shrink-0"
-                    >
-                      <rect width="24" height="24" rx="12" fill={"white"} />
-                      <path
-                        d="M6 12H18"
-                        stroke={canAddMore ? "#f06600" : "#535252"}
-                        strokeWidth="2"
-                      />
-                      <path
-                        d="M12 6V18"
-                        stroke={canAddMore ? "#f06600" : "#535252"}
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  </button>
+                    Add Secondary
+                  </SolidButton>
                 </div>
               </div>
 

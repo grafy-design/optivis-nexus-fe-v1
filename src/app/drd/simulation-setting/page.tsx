@@ -131,7 +131,7 @@ function InitialCard({ step, title, required, description, flex, onClick }: {
   step: string; title: string; required?: boolean; description: string; flex?: number; onClick?: () => void;
 }) {
   return (
-    <div className="flex flex-col min-w-0 rounded-[24px] gap-3" style={{
+    <div className="flex flex-col min-w-0 rounded-[20px] gap-3" style={{
       flex: flex ?? 1,
       backgroundColor: "rgba(255,255,255,0.6)",
       padding: 16,
@@ -298,7 +298,7 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
   );
 
   return (
-    <div className="flex flex-col min-w-0 overflow-hidden rounded-[24px] gap-3" style={{
+    <div className="flex flex-col min-w-0 overflow-hidden rounded-[20px] gap-3" style={{
       flex: flex ?? 1,
       backgroundColor: "rgba(255,255,255,0.6)",
       padding: 16,
@@ -316,7 +316,7 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
         {/* Top: summary table + strategy cards — 스크롤 영역 */}
         <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0 gap-3">
           {/* Summary table */}
-          <div className="shrink-0 rounded-[16px]" style={{ background: "white", padding: "4px 16px" }}>
+          <div className="shrink-0 rounded-[12px]" style={{ background: "white", padding: "4px 16px" }}>
             {/* Selected Value — 2행 구조 */}
             <div className="flex items-start gap-3" style={{ paddingTop: 10, paddingBottom: 10 }}>
               <div className="shrink-0" style={{ width: 120 }}>
@@ -360,7 +360,7 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
  */
 function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number; onClick?: () => void; onReset?: () => void; drugs: { name: string }[] }) {
   return (
-    <div className="flex flex-col min-w-0 overflow-hidden rounded-[24px] gap-3" style={{
+    <div className="flex flex-col min-w-0 overflow-hidden rounded-[20px] gap-3" style={{
       flex: flex ?? 1,
       backgroundColor: "rgba(255,255,255,0.6)",
       padding: 16,
@@ -378,7 +378,7 @@ function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number;
         {/* Top: drug list — 스크롤 영역 */}
         <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0 gap-2">
           {/* Drug list */}
-          <div className="flex flex-col shrink-0 rounded-[16px] gap-2" style={{ background: "white", padding: "16px" }}>
+          <div className="flex flex-col shrink-0 rounded-[12px] gap-2" style={{ background: "white", padding: "16px" }}>
             {drugs.map((drug, i) => (
               <div key={i} className="text-caption" style={{ color: "var(--text-primary)" }}>
                 <span>{i + 1} {drug.name}</span>
@@ -417,6 +417,26 @@ export default function SimulationSettingPage() {
   const setSimCondData = useSimulationStore((s: SimulationState) => s.setSimCondData);           // 조건 데이터 초기화 setter
   const smilesData = useSimulationStore((s: SimulationState) => s.smilesData);                   // SMILES 약물 목록
 
+  /** 왼쪽 패널 2-Step 데이터 (Image 기반 아이콘, completed 상태에 따라 전환) */
+  const simSettingSteps: DrdStepItem[] = useMemo(() => [
+    {
+      id: "smiles",
+      icon: ({ size }: { size?: number }) => <SmilesIconLeft completed={simSmilesCompleted} />,
+      title: "SMILES Settings",
+      description: "Add SMILES strings to define the chemical structures for simulation conditions.",
+      isActive: false,
+      route: "/drd/smile-setting",
+    },
+    {
+      id: "simulation-conditions",
+      icon: ({ size }: { size?: number }) => <SimCondIconLeft completed={simCondCompleted} />,
+      title: "Simulation Conditions",
+      description: "Develop a plan to assess the subject's prognosis based on the entered information.",
+      isActive: false,
+      route: "/drd/simulation-condition",
+    },
+  ], [simSmilesCompleted, simCondCompleted]);
+
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">
       <div className="flex flex-col h-full w-full overflow-hidden gap-6">
@@ -437,57 +457,11 @@ export default function SimulationSettingPage() {
         <div className="flex flex-row flex-1 min-h-0 items-stretch gap-1">
 
           {/* ── LEFT PANEL (520px) ─────────── */}
-        <div
-            className="figma-nine-slice figma-home-panel-left
-            drd-left-panel flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
-          >
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
-              <div className="flex flex-col gap-[8px] overflow-y-auto h-full">
-
-              {/* Step 2: SMILES Settings */}
-              <button
-                onClick={() => router.push("/drd/smile-setting")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
-                style={{ background: "transparent", height: 96, justifyContent: "center" }}
-              >
-                <div className="flex items-center gap-[18px]">
-                  <div className="shrink-0 flex items-center justify-center">
-                    <SmilesIconLeft completed={simSmilesCompleted} />
-                  </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
-                    SMILES Settings
-                  </span>
-                </div>
-                <div className="pl-[42px] mt-0">
-                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
-                    Add SMILES strings to define the chemical structures for simulation conditions.
-                  </p>
-                </div>
-              </button>
-
-              {/* Step 1: Simulation Conditions */}
-              <button
-                onClick={() => router.push("/drd/simulation-condition")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
-                style={{ background: "transparent", height: 96, justifyContent: "center" }}
-              >
-                <div className="flex items-center gap-[18px]">
-                  <div className="shrink-0 flex items-center justify-center">
-                    <SimCondIconLeft completed={simCondCompleted} />
-                  </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
-                    Simulation Conditions
-                  </span>
-                </div>
-                <div className="pl-[42px] mt-0">
-                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
-                    Develop a plan to assess the subject&apos;s prognosis based on the entered information.
-                  </p>
-                </div>
-              </button>
-              </div>
-            </div>
-          </div>
+          <DrdLeftPanel
+            showFilteredPatients={false}
+            steps={simSettingSteps}
+            stepCardHeight={96}
+          />
 
           {/* ── RIGHT PANEL ────────── */}
              <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">

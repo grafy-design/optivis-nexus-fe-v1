@@ -57,30 +57,10 @@ export default function FullscreenChartModal({
             {/* Header Section */}
             <div className="absolute top-6 left-6 right-6 z-10 flex items-start justify-between">
               <div className="flex flex-col gap-2">
-                <h2
-                  className="text-neutral-98"
-                  style={{
-                    fontFamily: "Inter",
-                    fontStyle: "normal",
-                    fontWeight: 510,
-                    fontSize: "24px",
-                    letterSpacing: "-0.64px",
-                    lineHeight: "28.8px",
-                  }}
-                >
+                <h2 className="text-neutral-98 text-body1" style={{ letterSpacing: "-0.64px" }}>
                   {title}
                 </h2>
-                <p
-                  className="text-neutral-98"
-                  style={{
-                    fontFamily: "Inter",
-                    fontStyle: "normal",
-                    fontWeight: 590,
-                    fontSize: "15px",
-                    letterSpacing: "-0.6px",
-                    lineHeight: "16.5px",
-                  }}
-                >
+                <p className="text-neutral-98 text-body4" style={{ letterSpacing: "-0.6px" }}>
                   {subtitle}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
@@ -124,14 +104,7 @@ export default function FullscreenChartModal({
                   </svg>
                   <p
                     className="text-neutral-98"
-                    style={{
-                      fontFamily: "Inter",
-                      fontStyle: "normal",
-                      fontWeight: 510,
-                      fontSize: "60px",
-                      letterSpacing: "-1.8px",
-                      lineHeight: "60px",
-                    }}
+                    style={{ fontSize: "60px", fontWeight: 510, letterSpacing: "-1.8px", lineHeight: "60px" }}
                   >
                     {percentage}
                   </p>
@@ -158,34 +131,14 @@ export default function FullscreenChartModal({
                 {/* Legend */}
                 <div className="flex items-center gap-8 mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-[#f06600]" />
-                    <span
-                      style={{
-                        fontFamily: "Inter",
-                        fontStyle: "normal",
-                        fontWeight: 590,
-                        fontSize: "16px",
-                        letterSpacing: "-0.64px",
-                        lineHeight: "19.2px",
-                        color: "#f06600",
-                      }}
-                    >
+                    <div className="w-4 h-4 rounded-full bg-secondary-60" />
+                    <span className="text-body4 text-secondary-60" style={{ letterSpacing: "-0.64px" }}>
                       OPTIVIS NEXUS
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded-full bg-[#231f52]" />
-                    <span
-                      style={{
-                        fontFamily: "Inter",
-                        fontStyle: "normal",
-                        fontWeight: 590,
-                        fontSize: "16px",
-                        letterSpacing: "-0.64px",
-                        lineHeight: "19.2px",
-                        color: "#231f52",
-                      }}
-                    >
+                    <span className="text-body4" style={{ letterSpacing: "-0.64px", color: "#231f52" }}>
                       Traditional Design
                     </span>
                   </div>
@@ -208,33 +161,15 @@ export default function FullscreenChartModal({
                     }}
                     xAxisConfig={{
                       nameGap: 35,
-                      nameTextStyle: {
-                        fontSize: 19.5,
-                        fontWeight: 590,
-                        letterSpacing: -0.78,
-                        color: "#1c1b1c",
-                      },
+                      nameTextStyle: { fontSize: 19.5, fontWeight: 590, letterSpacing: -0.78, color: "#1c1b1b" },
                       scale: true,
-                      axisLabel: {
-                        fontSize: 10,
-                        fontWeight: 510,
-                        color: "#484646",
-                      },
+                      axisLabel: { fontSize: 10, fontWeight: 510, color: "#484646" },
                     }}
                     yAxisConfig={{
                       nameGap: 60,
-                      nameTextStyle: {
-                        fontSize: 19.5,
-                        fontWeight: 590,
-                        letterSpacing: -0.78,
-                        color: "#1c1b1c",
-                      },
+                      nameTextStyle: { fontSize: 19.5, fontWeight: 590, letterSpacing: -0.78, color: "#1c1b1b" },
                       scale: true,
-                      axisLabel: {
-                        fontSize: 10,
-                        fontWeight: 510,
-                        color: "#484646",
-                      },
+                      axisLabel: { fontSize: 10, fontWeight: 510, color: "#484646" },
                     }}
                     showGrid={true}
                     showAxes={true}

@@ -8,7 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS, BAR_RADIUS } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow } from "@/lib/chart-styles";
 import type { DecisionStabilityResult } from "@/services/studyService";
 
 export interface Step4DecisionStabilityChartProps {
@@ -42,6 +42,7 @@ export function Step4DecisionStabilityChart({
   });
 
   const option = {
+    tooltip: { ...tooltipAxisShadow },
     title: chartTitle("Decision Stability across Perturbations"),
     graphic: chartGraphicDivider(720),
     legend: { show: false },
@@ -129,7 +130,7 @@ export function Step4DecisionStabilityChart({
 
   return (
     <div className="w-full h-full relative">
-      <div className="h-full w-full bg-white rounded-[8px] overflow-hidden">
+      <div className="h-full w-full bg-white rounded-[4px] overflow-hidden">
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}

@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
+import DropdownCell from "@/components/ui/dropdown-cell";
+import SolidButton from "@/components/ui/solid-button";
 
 /**
  * TSI Step 2: Filter (Cohort Filter Setup)
@@ -107,188 +109,7 @@ function IconChevronRight({ size = 16, color = "#484646" }: { size?: number; col
   );
 }
 
-// ── 드롭다운 셀 컴포넌트 / Dropdown cell component ───────────────────────────
-
-/**
- * 포탈 기반 드롭다운 셀 — 선택된 값과 옵션 목록을 표시.
- * Portal-based dropdown cell — displays selected value and option list.
- */
-function DropdownCell({
-  value,
-  width,
-  flex,
-  placeholder,
-  options,
-  onChange,
-}: {
-  value: string;
-  width?: number | string;
-  flex?: number | string;
-  placeholder?: boolean;
-  options?: string[];
-  onChange?: (v: string) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-  const [menuPos, setMenuPos] = React.useState<{ top: number; left: number; width: number }>({
-    top: 0,
-    left: 0,
-    width: 0,
-  });
-  const triggerRef = React.useRef<HTMLDivElement>(null);
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
-  const menuRef = React.useRef<HTMLDivElement>(null);
-
-  // 외부 클릭 시 드롭다운 닫기 / Close on outside click
-  React.useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (!wrapperRef.current?.contains(target) && !menuRef.current?.contains(target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
-  /** 트리거 클릭 → 메뉴 위치 계산 후 토글 / Calculate position then toggle open */
-  const handleOpen = () => {
-    if (!triggerRef.current) {
-      setOpen((prev) => !prev);
-      return;
-    }
-    const rect = triggerRef.current.getBoundingClientRect();
-    setMenuPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
-    setOpen((prev) => !prev);
-  };
-
-  return (
-    <div
-      ref={wrapperRef}
-      style={{ position: "relative", width, flex, minWidth: 0, flexShrink: flex ? 1 : 0 }}
-    >
-      {/* 드롭다운 트리거 / Dropdown trigger */}
-      <div
-        ref={triggerRef}
-        onClick={handleOpen}
-        className="rounded-[8px] gap-1"
-        style={{
-          width: "100%",
-          height: 36,
-          background: "#efeff4",
-          display: "flex",
-          alignItems: "center",
-          paddingLeft: 12,
-          paddingRight: 8,
-          cursor: "pointer",
-          userSelect: "none",
-        }}
-      >
-        <span
-          style={{
-            flex: 1,
-            fontFamily: "Inter",
-            fontWeight: 500,
-            fontSize: 15,
-            color: placeholder ? "var(--text-disabled)" : "var(--text-primary)",
-            letterSpacing: "-0.6px",
-            lineHeight: 1.1,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {value}
-        </span>
-        {/* 열림/닫힘 상태 아이콘 / Open/close disclosure icon */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={
-            open
-              ? "/icons/disclosure/open-18.svg"
-              : "/icons/disclosure/close-18.svg"
-          }
-          alt=""
-          width={18}
-          height={18}
-          style={{ flexShrink: 0, display: "block" }}
-        />
-      </div>
-
-      {/* 포탈 드롭다운 메뉴 / Portal dropdown menu */}
-      {open &&
-        options &&
-        options.length > 0 &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div
-            ref={menuRef}
-            className="rounded-[8px] gap-0.5"
-            style={{
-              position: "fixed",
-              top: menuPos.top,
-              left: menuPos.left,
-              width: menuPos.width,
-              background: "#efeff4",
-              border: "1px solid #c6c5c9",
-              padding: 8,
-              display: "flex",
-              flexDirection: "column",
-              zIndex: 9999,
-              maxHeight: 220,
-              overflowY: "auto",
-              boxShadow: "0px 4px 16px rgba(0,0,0,0.10)",
-            }}
-          >
-            {options.map((opt, idx) => (
-              <React.Fragment key={opt}>
-                {idx > 0 && (
-                  <div style={{ height: 1, background: "#c6c5c9", flexShrink: 0 }} />
-                )}
-                <button
-                  onMouseDown={() => {
-                    onChange?.(opt);
-                    setOpen(false);
-                  }}
-                  className="rounded-[4px]"
-                  style={{
-                    height: 36,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingLeft: 4,
-                    paddingRight: 4,
-                    paddingTop: 2,
-                    paddingBottom: 2,
-                    fontFamily: "Inter",
-                    fontWeight: 500,
-                    fontSize: 15,
-                    color: "var(--text-secondary)",
-                    letterSpacing: "-0.6px",
-                    lineHeight: 1.18,
-                    cursor: "pointer",
-                    background: "transparent",
-                    border: "none",
-                    width: "100%",
-                    textAlign: "left",
-                    flexShrink: 0,
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.05)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-                  }}
-                >
-                  {opt}
-                </button>
-              </React.Fragment>
-            ))}
-          </div>,
-          document.body
-        )}
-    </div>
-  );
-}
+// DropdownCell은 @/components/ui/dropdown-cell 에서 import
 
 // ── 타입 정의 / Type definitions ─────────────────────────────────────────────
 
@@ -563,7 +384,7 @@ export default function TSIFilterPage() {
     lines: { logic: string | null; text: string }[],
     label: string
   ) => (
-    <div className="font-medium text-[15px] leading-[1.1] text-neutral-50 tracking-[-0.45px] flex flex-col gap-[4px] font-['Inter']">
+    <div className="text-body4m text-neutral-50 flex flex-col gap-[4px]">
       {lines.map((line, i) => (
         <p key={i} className="m-0">
           {i === 0 ? (
@@ -614,30 +435,15 @@ export default function TSIFilterPage() {
             className="shrink-0 px-[8px] flex items-center justify-between h-[40px]"
             style={{ paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}
           >
-            <h2 className="font-['Inter'] font-semibold text-[24px] leading-[1.2] text-primary-15 tracking-[-0.72px] m-0">
+            <h2 className="text-body1 text-primary-15 m-0">
               Filter
             </h2>
             <div className="flex items-center gap-[12px]">
               {/* Go to Simulation 버튼 → Patients Summary 페이지 이동 */}
               <button
                 onClick={() => router.push("/tsi/patients-summary")}
-                className="rounded-[36px] gap-2"
-                style={{
-                  height: 40,
-                  paddingLeft: 24,
-                  paddingRight: 24,
-                  background: "#F06600",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "Inter",
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: "var(--text-inverted)",
-                  letterSpacing: "-0.45px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                className="btn-tsi btn-tsi-primary gap-2"
+                style={{ paddingRight: 18 }}
               >
                 Go to Simulation
                 <svg
@@ -666,12 +472,12 @@ export default function TSIFilterPage() {
             {/* ── 2-B-1. 왼쪽: Feature List 사이드바 / Left: Feature list sidebar ── */}
             <div className="w-[272px] shrink-0 flex flex-col gap-[12px]">
               <div className="px-[4px]">
-                <span className="font-['Inter'] font-medium text-[19.5px] leading-[1.2] text-neutral-30 tracking-[-0.585px]">
+                <span className="text-body2m text-neutral-30">
                   Feature List
                 </span>
               </div>
 
-              <div className="flex-1 bg-white rounded-[24px] overflow-hidden min-h-0 font-['Inter']">
+              <div className="flex-1 bg-white rounded-[20px] overflow-hidden min-h-0">
               <div className="flex flex-col overflow-y-auto h-full">
 
                 {/* 검색 입력 필드 / Search input field */}
@@ -739,7 +545,7 @@ export default function TSIFilterPage() {
                     createPortal(
                       <div
                         ref={searchDropdownRef}
-                        className="rounded-[22px]"
+                        className="rounded-[18px]"
                         style={{
                           position: "fixed",
                           top: searchDropdownPos.top,
@@ -876,7 +682,7 @@ export default function TSIFilterPage() {
                           )}
                         </div>
                         <span
-                          className={`font-semibold text-[15px] leading-none tracking-[-0.45px] ${
+                          className={`text-body4 ${
                             isActive ? "text-white" : "text-neutral-30"
                           }`}
                         >
@@ -896,7 +702,7 @@ export default function TSIFilterPage() {
                                 onClick={() => setActiveFeature(isFeatureActive ? null : f)}
                                 onMouseEnter={() => setHoveredFeature(f)}
                                 onMouseLeave={() => setHoveredFeature(null)}
-                                className={`h-[44px] flex items-center pl-[44px] text-[15px] font-medium tracking-[-0.45px] border-t border-neutral-80 first:border-none cursor-pointer select-none transition-colors ${
+                                className={`h-[44px] flex items-center pl-[44px] text-body4m border-t border-neutral-80 first:border-none cursor-pointer select-none transition-colors ${
                                   isFeatureActive
                                     ? "bg-[#efeff4] text-primary-15 font-semibold"
                                     : isFeatureHovered
@@ -920,20 +726,20 @@ export default function TSIFilterPage() {
             {/* ── Feature List 사이드바 닫기 / End feature list sidebar ── */}
 
             {/* ── 2-B-2. 오른쪽: 메인 설정 영역 / Right: Main setting area ── */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
+            <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
             <div className="flex flex-col gap-[12px] overflow-y-auto h-full">
 
               {/* ── 탭 바 + 액션 버튼 / Tab bar + action buttons ─────── */}
               <div className="flex justify-between items-center shrink-0">
 
                 {/* Inclusion / Exclusion 탭 / Inclusion / Exclusion tabs */}
-                <div className="bg-white p-[4px] rounded-[22px] flex">
+                <div className="bg-white p-[4px] rounded-[18px] flex">
                   <button
                     onClick={() => {
                       setActiveTab("Inclusion");
                       setCheckedRows({});
                     }}
-                    className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${
+                    className={`h-[36px] px-[18px] rounded-[36px] border-none text-body4 cursor-pointer transition-all ${
                       activeTab === "Inclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"
                     }`}
                   >
@@ -944,7 +750,7 @@ export default function TSIFilterPage() {
                       setActiveTab("Exclusion");
                       setCheckedRows({});
                     }}
-                    className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${
+                    className={`h-[36px] px-[18px] rounded-[36px] border-none text-body4 cursor-pointer transition-all ${
                       activeTab === "Exclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"
                     }`}
                   >
@@ -957,7 +763,7 @@ export default function TSIFilterPage() {
                   <div className="flex gap-[4px]">
                     {/* 파일 다운로드 버튼 / File download button */}
                     <div
-                      className="relative size-[48px] flex items-center justify-center cursor-pointer"
+                      className="relative size-[48px] flex items-center justify-center cursor-pointer "
                       style={{ flexShrink: 0 }}
                     >
                       <div
@@ -1017,7 +823,7 @@ export default function TSIFilterPage() {
 
                   {/* Add Section 버튼 / Add Section button */}
                   <div
-                    className="relative h-[48px] px-[20px] rounded-[100px] flex items-center gap-[6px] cursor-pointer"
+                    className="relative h-[48px] px-[20px] rounded-[96px] flex items-center gap-[6px] cursor-pointer"
                     style={{ flexShrink: 0 }}
                     onClick={addSection}
                   >
@@ -1031,7 +837,7 @@ export default function TSIFilterPage() {
                         border: "1px solid rgba(0,0,0,0.10)",
                       }}
                     />
-                    <span className="relative z-10 font-['Inter'] font-semibold text-[15px] text-primary-15 tracking-[-0.51px]">
+                    <span className="relative z-10 text-body4 text-primary-15">
                       Add Section
                     </span>
                     <div className="relative z-10">
@@ -1046,11 +852,11 @@ export default function TSIFilterPage() {
                 {currentSections.map((section: Section) => {
                   const isSectionOpen = currentOpenSections[section.id];
                   return (
-                    <div key={section.id} className="bg-white rounded-[12px] flex flex-col">
+                    <div key={section.id} className="bg-white rounded-[8px] flex flex-col">
 
                       {/* 섹션 헤더 (클릭 시 접기/펼치기) / Section header (click to toggle) */}
                       <div
-                        className={`h-[46px] flex items-center px-[21px] gap-[10px] cursor-pointer select-none hover:bg-[#fdfdfd] rounded-[12px] transition-colors ${
+                        className={`h-[46px] flex items-center px-[21px] gap-[10px] cursor-pointer select-none hover:bg-[#fdfdfd] rounded-[8px] transition-colors ${
                           isSectionOpen ? "rounded-b-none" : ""
                         }`}
                         style={isSectionOpen ? { borderBottom: "1.5px solid #c7c5c9" } : {}}
@@ -1063,7 +869,7 @@ export default function TSIFilterPage() {
                         >
                           <IconChevronDown size={14} color="#313030" />
                         </div>
-                        <span className="font-['Inter'] font-semibold text-[15px] text-neutral-10 tracking-[-0.45px]">
+                        <span className="text-body4 text-neutral-10">
                           {section.name}
                         </span>
                       </div>
@@ -1102,7 +908,7 @@ export default function TSIFilterPage() {
                               value={section.value}
                               placeholder="Write input"
                               onChange={(e) => updateSection(section.id, "value", e.target.value)}
-                              className="placeholder:text-neutral-80 rounded-[8px]"
+                              className="placeholder:text-neutral-80 rounded-[4px]"
                               style={{
                                 flex: 4,
                                 minWidth: 0,
@@ -1173,7 +979,7 @@ export default function TSIFilterPage() {
                                 onChange={(e) =>
                                   updateSubRow(section.id, rIdx, "value", e.target.value)
                                 }
-                                className="placeholder:text-neutral-80 rounded-[8px]"
+                                className="placeholder:text-neutral-80 rounded-[4px] text-body4ms"
                                 style={{
                                   flex: 4,
                                   minWidth: 0,
@@ -1182,9 +988,6 @@ export default function TSIFilterPage() {
                                   border: "none",
                                   paddingLeft: 12,
                                   paddingRight: 12,
-                                  fontFamily: "Inter",
-                                  fontWeight: 500,
-                                  fontSize: 17,
                                   color: "#484646",
                                   letterSpacing: "-0.68px",
                                   outline: "none",
@@ -1211,7 +1014,7 @@ export default function TSIFilterPage() {
 
               {/* ── 수식 미리보기 / Formula preview ─────────────────────── */}
               <div
-                className="bg-white p-[16px] rounded-[12px] shrink-0 min-h-[104px] gap-4"
+                className="bg-white p-[16px] rounded-[8px] shrink-0 min-h-[104px] gap-4"
                 style={{ display: "flex" }}
               >
                 {bothHaveData ? (
@@ -1243,11 +1046,9 @@ export default function TSIFilterPage() {
             {/* Cancel 버튼 → 이전 페이지 / Cancel: go back */}
             <button
               onClick={() => router.back()}
-              className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] bg-neutral-50 border-none cursor-pointer"
+              className="btn-tsi btn-tsi-secondary"
             >
-              <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px]">
-                Cancel
-              </span>
+              Cancel
             </button>
 
             {/* Confirm 버튼 → Patients Summary 이동 (유효 조건 있을 때만 활성)
@@ -1258,15 +1059,9 @@ export default function TSIFilterPage() {
                 if (!isConfirmEnabled) return;
                 router.push("/tsi/patients-summary");
               }}
-              className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] border-none"
-              style={{
-                background: isConfirmEnabled ? "#f06600" : "#c7c5c9",
-                cursor: isConfirmEnabled ? "pointer" : "not-allowed",
-              }}
+              className="btn-tsi btn-tsi-primary"
             >
-              <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white text-center tracking-[-0.51px]">
-                Confirm
-              </span>
+              Confirm
             </button>
           </div>
 

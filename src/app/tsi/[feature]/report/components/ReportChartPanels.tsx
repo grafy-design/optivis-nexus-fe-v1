@@ -205,7 +205,7 @@ export function StratificationComparisonChartPanel({
   rightBars: VarianceBarsChartData;
 }) {
   return (
-    <div className="w-full h-full bg-[#ECECF1] rounded-[16px] p-4 flex flex-col">
+    <div className="w-full h-full bg-[#ECECF1] rounded-[12px] p-4 flex flex-col">
       <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
         <div className="flex flex-col min-h-0">
           <h4 className="text-h3 text-neutral-20">Variance decomposition</h4>
@@ -215,12 +215,12 @@ export function StratificationComparisonChartPanel({
           </div>
           <div className="mt-1 flex items-center justify-center gap-8 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <span className="w-[48px] h-[14px] rounded-[5px]" style={{ backgroundColor: leftStack.withinColor }} />
+              <span className="w-[48px] h-[14px] rounded-[1px]" style={{ backgroundColor: leftStack.withinColor }} />
               <span className="text-body2m text-neutral-20">Within</span>
             </div>
             <div className="flex items-center gap-2">
               <span
-                className="w-[48px] h-[14px] rounded-[5px]"
+                className="w-[48px] h-[14px] rounded-[1px]"
                 style={{ backgroundColor: leftStack.explainedColor }}
               />
               <span className="text-body2m text-neutral-20">Explained</span>
@@ -248,7 +248,7 @@ export function StratificationComparisonChartPanelAlt({
   rightStack: VarianceStackChartData;
 }) {
   return (
-    <div className="w-full h-full bg-[#ECECF1] rounded-[16px] p-4 flex flex-col">
+    <div className="w-full h-full bg-[#ECECF1] rounded-[12px] p-4 flex flex-col">
       <div className="grid grid-cols-2 gap-4 flex-1 min-h-0">
         <div className="flex flex-col min-h-0">
           <div className="text-body2m text-neutral-30">Separation evidence</div>
@@ -268,12 +268,12 @@ export function StratificationComparisonChartPanelAlt({
           </div>
           <div className="mt-1 flex items-center justify-center gap-8 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <span className="w-[48px] h-[14px] rounded-[5px]" style={{ backgroundColor: rightStack.withinColor }} />
+              <span className="w-[48px] h-[14px] rounded-[1px]" style={{ backgroundColor: rightStack.withinColor }} />
               <span className="text-body2m text-neutral-20">Within</span>
             </div>
             <div className="flex items-center gap-2">
               <span
-                className="w-[48px] h-[14px] rounded-[5px]"
+                className="w-[48px] h-[14px] rounded-[1px]"
                 style={{ backgroundColor: rightStack.explainedColor }}
               />
               <span className="text-body2m text-neutral-20">Explained</span>
@@ -397,7 +397,7 @@ function ForestMetricChart({
 
 export function RiskResponseMatrixChartPanel({ sets }: { sets: RiskResponseSet[] }) {
   return (
-    <div className="flex-1 min-w-0 rounded-[16px] bg-[#ECECF1] border border-[#E5E4EA] p-3">
+    <div className="flex-1 min-w-0 rounded-[12px] bg-[#ECECF1] border border-[#E5E4EA] p-3">
       <div className="w-full h-full flex flex-col min-h-0">
         {sets.map((setData, setIdx) => (
           <div

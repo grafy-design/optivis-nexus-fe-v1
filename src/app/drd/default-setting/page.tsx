@@ -27,7 +27,7 @@ import { makeDefaultSettingStepsWithCompletion } from "@/components/drd/drd-step
 /** 설정 완료 시 카드 헤더에 표시되는 주황색 체크 원형 아이콘 */
 function IconComplete(): React.JSX.Element {
   return (
-    <div className="flex items-center justify-center shrink-0 rounded-full" style={{ width: 30, height: 30, background: "#F06600" }}>
+    <div className="flex items-center justify-center shrink-0 rounded-full" style={{ width: 30, height: 30, background: "var(--secondary-60)" }}>
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M3 9L7 13L15 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
@@ -110,7 +110,7 @@ const settingRoutes: Record<DefaultSettingId, string> = {
 function InitialCard({ item, onClick }: { item: any; onClick: () => void }) {
   const Icon = item.icon;
   return (
-    <div className="bg-white/60 rounded-[24px] p-4 flex flex-col min-w-0 flex-1">
+    <div className="bg-white/60 rounded-[20px] p-4 flex flex-col min-w-0 flex-1">
       <div className="flex items-center gap-2">
         <Icon size={30} />
         <span className="text-body3" style={{ color: "var(--text-primary)" }}>{item.title}</span>
@@ -140,7 +140,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
   const hasColumns = !!summary.columns;
 
   return (
-    <div className="bg-white/60 rounded-[24px] p-4 flex flex-col gap-3 min-w-0 flex-1 overflow-hidden">
+    <div className="bg-white/60 rounded-[20px] p-4 flex flex-col gap-3 min-w-0 flex-1 overflow-hidden">
       {/* 헤더 */}
       <div className="flex items-center gap-2 shrink-0">
         <IconComplete />
@@ -152,7 +152,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
         {hasColumns ? (
           /* Multi-column: Each column gets its own identical white container */
           (summary.columns as any[]).map((col: any, ci: number) => (
-            <div key={ci} className="flex-1 flex flex-col min-w-0 rounded-[16px] gap-3" style={{ background: "#ffffff", padding: 14 }}>
+            <div key={ci} className="flex-1 flex flex-col min-w-0 rounded-[12px] gap-3" style={{ background: "#ffffff", padding: 14 }}>
                {/* 컬럼 헤딩 */}
                <div className="shrink-0 text-body3" style={{ color: "var(--text-primary)" }}>
                 {col.heading}
@@ -178,7 +178,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
           ))
         ) : (
           /* 일반 단일 컨테이너: 헤딩 + 행 테이블 */
-          <div className="flex-1 min-h-0 rounded-[16px] overflow-hidden" style={{ background: "#ffffff", padding: 14 }}>
+          <div className="flex-1 min-h-0 rounded-[12px] overflow-hidden" style={{ background: "#ffffff", padding: 14 }}>
           <div className="flex flex-col justify-start overflow-y-auto gap-3 h-full">
             {summary.heading && (
               <div className="shrink-0 text-body3" style={{ color: "var(--text-primary)" }}>
@@ -187,7 +187,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
             )}
             <div className="flex flex-col">
               {(summary.rows ?? []).map((row: any, i: number) => (
-                <div key={i} className="flex items-center shrink-0 gap-2.5" style={{ height: 36, borderTop: i === 0 ? "none" : "1px solid #C6C5C9" }}>
+                <div key={i} className="flex items-center shrink-0 gap-2.5" style={{ height: 36, borderTop: i === 0 ? "none" : "1px solid var(--neutral-80)" }}>
                   {row.label && (
                     <span className="text-caption" style={{ flex: "0 0 auto", minWidth: 80, color: "var(--text-secondary)" }}>{row.label}</span>
                   )}
@@ -259,26 +259,6 @@ export default function DefaultSettingPage() {
     setSimDesc("");
     setShowSaveModal(false);
   };
-
-  // 필터링 비율(%) 숫자를 부드럽게 카운트업하는 애니메이션
-  // ease-out cubic 곡선으로 처음엔 빠르게, 끝에서 천천히 증가
-  const [animatedRatio, setAnimatedRatio] = React.useState(0);
-  React.useEffect(() => {
-    let start = 0;
-    const target = filteredRatio;
-    const duration = 1000;
-    const startTime = performance.now();
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      start = Math.round(eased * target);
-      setAnimatedRatio(start);
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-    const raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [filteredRatio]);
 
   // 각 설정 항목의 completedSummary를 실제 저장된 값으로 동적으로 채워주는 로직.
   // settingItems 원본을 복사 후, store에서 읽어온 데이터를 기반으로 요약 내용을 덮어씁니다.
@@ -689,131 +669,17 @@ export default function DefaultSettingPage() {
 
          
           {/* {왼쪽 패널/Left Panel} */}
-          {/* ── 왼쪽 패널 (Navy Glass - 9-slice) ────────────────── */}
-          <div
-            className="figma-nine-slice figma-home-panel-left
-            drd-left-panel flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
-          >
-
-            
-            {/* {필터링된 환자 카드/Filtered Patients Card} */}
-            {/* Filtered Patients 카드 (내부) */}
-            <div className="shrink-0 h-[250px] relative rounded-[24px] overflow-hidden flex flex-col p-[16px] shadow-[0px_0px_2px_0px_rgba(0,0,0,0.1)]">
-              {/* 카드 전용 Navy 그라디언트 필 */}
-              <div 
-                className="absolute inset-0 z-0 pointer-events-none" 
-                style={{ 
-                  backgroundImage: "linear-gradient(90deg, #262255 0%, #262255 100%)",
-                }} 
-              />
-              <div className="absolute inset-0 bg-[rgba(38,38,38,0.25)] mix-blend-color-dodge z-[1]" />
-
-              {/* 카드 내용 */}
-              <div className="relative z-10 flex flex-col h-full">
-                {/* 상단: filtered patients + Add data */}
-                <div className="flex justify-between items-start mb-[24px]">
-                  <div className="flex flex-col gap-[4px]">
-                    <span className="font-['Inter'] font-semibold text-[15px] leading-[1.18] text-white tracking-[-0.36px]">
-                      filtered patients
-                    </span>
-                    <span className="font-['Inter'] font-semibold text-[36px] leading-none text-white tracking-[-1.08px]">
-                      {animatedRatio}%
-                    </span>
-                  </div>
-
-                  {/* Add data 버튼 */}
-                  <button onClick={() => router.push("/drd/datasetting")} className="flex items-center gap-[4px] h-[30px] px-[14px] py-[8px] rounded-[36px] border-none cursor-pointer relative bg-transparent overflow-hidden">
-                    <div className="absolute inset-0 bg-secondary-60 mix-blend-plus-lighter" />
-                    <span className="relative z-10 font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] mix-blend-screen">
-                      Add data
-                    </span>
-                    <span className="relative z-10 text-[16px] text-white font-bold mix-blend-screen">+</span>
-                  </button>
-                </div>
-
-                {/* 프로그레스 바 (상단 블록 바로 아래 24px) */}
-                <div className="relative h-[18px] w-full rounded-[12px]" style={{ background: "rgba(255,255,255,0.2)" }}>
-                  <div className="absolute left-0 top-0 h-full bg-secondary-60 rounded-[12px] overflow-hidden" style={{ width: `${animatedRatio}%` }} />
-                  <div className="absolute inset-0 flex items-center justify-end pr-[11.13px]">
-                    <span className="font-['Inter'] font-semibold text-[13px] leading-[1.18] text-white tracking-[-0.36px] text-right" style={{ textShadow: "0 0 6px rgba(0,0,0,0.4)" }}>
-                      {finalCohort.toLocaleString()}/{initialCohort.toLocaleString()} patients
-                    </span>
-                  </div>
-                </div>
-
-                {/* OPMD 섹션: 카드 바닥에 붙음 */}
-                <div className="mt-auto flex flex-col gap-[2px]">
-                  <div className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px]">
-                    OPMD
-                  </div>
-                  <div className="flex gap-[11px]">
-                    <div className="flex gap-[3px] items-center">
-                      <span className="font-['Inter'] font-semibold text-[10px] leading-[1.1] text-white tracking-[-0.4px]">
-                        Initial Cohort
-                      </span>
-                      <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] w-[86px]">
-                        {initialCohort.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex gap-[3px] items-center">
-                      <span className="font-['Inter'] font-semibold text-[10px] leading-[1.1] text-white tracking-[-0.4px]">
-                        Final Cohort
-                      </span>
-                      <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] w-[86px]">
-                        {finalCohort.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* {설정 단계/Setup Steps} */}
-            {/* Setup Steps 하단 영역 (Light Gray/Blue Glass Overlay) */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
-              <div className="flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden h-full">
-              {setupSteps.map((step) => {
-                const isCompleted = completedItems[step.id as DefaultSettingId];
-                return (
-                  <button
-                    key={step.id}
-                    onClick={() => router.push(stepRoutes[step.id])}
-                    className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
-                    style={{ background: "transparent", justifyContent: "center", height: 100 }}
-                  >
-                    <div className="flex items-center gap-[18px]">
-                      {isCompleted ? (
-                        <div className="shrink-0 flex items-center justify-center">
-                          <step.IconOrangeComponent size={24} />
-                        </div>
-                      ) : (
-                        <div className="shrink-0 flex items-center justify-center">
-                          <step.IconComponent size={24} />
-                        </div>
-                      )}
-                      <span
-                        className="text-body3"
-                        style={{ color: step.titleColor }}
-                      >
-                        {step.title}
-                      </span>
-                    </div>
-                    <div className="pl-[42px] mt-0">
-                      <p
-                        className="text-small1 leading-[1.1] m-0"
-                        style={{ color: step.descriptionColor }}
-                      >
-                        {step.description}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-              </div>
-            </div>
-
-
-          </div>
+          {/* ── 왼쪽 패널 (DrdLeftPanel 컴포넌트) ────────────────── */}
+          <DrdLeftPanel
+            steps={makeDefaultSettingStepsWithCompletion(completedItems)}
+            filteredPatientsProps={{
+              filteredRatio,
+              initialCohort: initialCohort,
+              finalCohort: finalCohort,
+              animated: true,
+              onAddDataClick: () => router.push("/drd/datasetting"),
+            }}
+          />
 
 
         {/* {오른쪽 패널/Right Panel} */}
@@ -851,7 +717,7 @@ export default function DefaultSettingPage() {
         <div className="flex gap-1">
           {dynamicSettingItems.map((item: any) => (
             <button key={item.id} onClick={() => setCompleted(item.id as DefaultSettingId, !completedItems[item.id as DefaultSettingId])}
-              className="rounded-[6px]" style={{ fontSize: 9, padding: "3px 8px", background: completedItems[item.id as DefaultSettingId] ? "#F06600" : "rgba(255,255,255,0.8)", color: completedItems[item.id as DefaultSettingId] ? "#fff" : "#333", border: "1px solid #ccc", cursor: "pointer" }}>
+              className="rounded-[2px]" style={{ fontSize: 9, padding: "3px 8px", background: completedItems[item.id as DefaultSettingId] ? "var(--secondary-60)" : "rgba(255,255,255,0.8)", color: completedItems[item.id as DefaultSettingId] ? "#fff" : "#333", border: "1px solid #ccc", cursor: "pointer" }}>
               {item.title.split(" ")[0]}
             </button>
           ))}
@@ -870,10 +736,10 @@ export default function DefaultSettingPage() {
             className="modal-panel"
           >
             {/* 글래스 배경 */}
-            <div aria-hidden="true" className="absolute inset-0 pointer-events-none rounded-[20px]">
-              <div className="absolute inset-0 rounded-[20px]" style={{ background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
-              <div className="absolute inset-0 rounded-[20px]" style={{ background: "rgba(255,255,255,0.88)" }} />
-              <div className="absolute inset-0 rounded-[20px]" style={{ background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
+            <div aria-hidden="true" className="absolute inset-0 pointer-events-none rounded-[16px]">
+              <div className="absolute inset-0 rounded-[16px]" style={{ background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
+              <div className="absolute inset-0 rounded-[16px]" style={{ background: "rgba(255,255,255,0.88)" }} />
+              <div className="absolute inset-0 rounded-[16px]" style={{ background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
             </div>
 
             {/* 콘텐츠 */}
