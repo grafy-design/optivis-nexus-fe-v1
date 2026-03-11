@@ -3,9 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
-import { ATSHeader } from "./ATSHeader";
-import { TSIHeader } from "./TSIHeader";
-import { DrdHeader } from "./DrdHeader";
 import { MainContainer } from "./MainContainer";
 // --- [TEMP_SCALE_START] proportional scaling import ---
 import { useAreaScale } from "@/hooks/useAreaScale";
@@ -34,7 +31,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     if (typeof window === "undefined") {
       return false;
     }
-
     return window.__NEXUS_LAYOUT_READY__ === true;
   });
 
@@ -42,7 +38,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     if (window.__NEXUS_LAYOUT_READY__ !== true) {
       window.__NEXUS_LAYOUT_READY__ = true;
     }
-
     if (!isLayoutReady) {
       setIsLayoutReady(true);
     }
@@ -64,14 +59,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     );
   }
 
-  // drd / tsi: 스케일 없음, 헤더/컨텐츠 모두 고정
-  if (headerType === "drd" || headerType === "tsi") {
-    const headerNode =
-      headerType === "drd" ? (
-        <DrdHeader step={drdStep as 1 | 2 | 3} />
-      ) : (
-        <TSIHeader />
-      );
+  /*
+   * FIGMA LAYOUT RULES:
+   * drd / tsi: No scale, fixed sidebar (88px offset)
+   * default / ats: Scaled, fixed sidebar
+   */
+  const skipScaling = headerType === "drd" || headerType === "tsi";
+
+  if (skipScaling) {
     return (
       <div
         className="relative overflow-hidden gap-0"
@@ -85,13 +80,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         <div
           className="relative flex flex-col overflow-hidden"
           style={{
-            marginLeft: 88,
+            marginLeft: 80,
             width: "calc(100vw - 80px)",
             height: "100vh",
           }}
         >
           <div className="shrink-0 w-full">
-            {headerNode}
+            <Header type={headerType} drdStep={drdStep} />
           </div>
           {/* 컨텐츠 */}
           <div
@@ -105,12 +100,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   }
 
   return (
-    /*
-     * Figma 전체 프레임: 2560×1314px
-     * bg: rgb(231,229,231) = #E7E5E7s
-     * Sidebar: 96px 고정
-     * 나머지: sidebar 이후 영역
-     */
     <div
       className="relative flex flex-col overflow-hidden"
       style={{
@@ -119,25 +108,20 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         backgroundColor: "#E7E5E7",
       }}
     >
-      {/* 사이드바: 줌(zoom)에 영향을 받지 않도록 최상위에 배치 */}
       <Sidebar />
 
-      {/* 나머지 영역: 줌을 적용하여 비례 축소/확대 */}
       <div
         className="relative flex flex-col overflow-hidden"
         style={{
           zoom: scale,
-          width: `calc(${100 / scale}vw - ${88 / scale}px)`,
+          width: `calc(${100 / scale}vw - ${60 / scale}px)`,
           height: `${100 / scale}vh`,
-          marginLeft: `${88 / scale}px`,
+          marginLeft: `${80 / scale}px`,
         }}
       >
-        {headerType === "ats" ? (
-          <ATSHeader />
-        ) : (
-          <Header />
-        )}
-        {/* 컨텐츠 영역: 헤더 아래 나머지 100% 채움 */}
+        <Header type={headerType} />
+        
+        {/* 컨텐츠 영역 */}
         <div
           className="flex-1 overflow-hidden min-w-0 min-h-0 flex flex-col w-full pb-5 "
         >

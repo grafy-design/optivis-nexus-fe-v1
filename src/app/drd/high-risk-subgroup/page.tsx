@@ -138,7 +138,7 @@ export default function HighRiskSubgroupPage() {
             <h1 onClick={() => router.push("/drd/default-setting")} className="text-page-title">
               Default Settings
             </h1>
-            <span className="drd-page-subtitle">
+            <span className="text-page-subtitle">
               Setup Required
             </span>
           </div>

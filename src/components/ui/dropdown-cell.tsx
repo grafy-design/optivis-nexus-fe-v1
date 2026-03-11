@@ -165,7 +165,7 @@ export default function DropdownCell({
             fontSize: s.fontSize,
             color: placeholder ? "var(--text-disabled)" : "var(--text-primary)",
             letterSpacing: s.letterSpacing,
-            lineHeight: 1.1,
+            lineHeight: `${s.triggerHeight}px`,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",

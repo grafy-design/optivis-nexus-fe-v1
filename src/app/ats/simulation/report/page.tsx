@@ -47,7 +47,7 @@ function StepCard({
         {/* 타이틀 + Description 영역 */}
         <div className="flex flex-col w-full flex-1">
           {/* 타이틀 */}
-          <h3 className="text-h3 text-[#1b1b1b] mb-6">{title}</h3>
+          <h3 className="text-h3 text-text-primary mb-6">{title}</h3>
           {/* Description */}
           <p className="text-body3 text-[#666b73] max-w-[500px]">{description}</p>
         </div>
@@ -470,7 +470,7 @@ export default function ReportPage() {
               className="flex flex-col gap-1 flex-shrink-0 items-start"
             >
               <div className="text-page-title  text-left">
-                Adaptive Trial Simulation
+                Analysis Report
               </div>
               <p className="text-page-subtitle text-left">
                 {currentDate}
@@ -572,7 +572,7 @@ export default function ReportPage() {
                           <h3 className="text-h3 text-[#231f52]">
                             {apiData?.sample_size_evaluation?.title || ""}
                           </h3>
-                          <p className="text-body4m text-neutral-5 whitespace-pre-line mt-auto">
+                          <p className="text-body4m text-text-primary whitespace-pre-line mt-auto">
                             {apiData?.sample_size_evaluation?.content || ""}
                           </p>
                         </div>
@@ -700,25 +700,25 @@ export default function ReportPage() {
                             <table className="w-full">
                               <thead>
                                 <tr>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     Endpoint Type
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     No
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     Outcome
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     Type
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     Nominal Power
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     Threshold
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-neutral-10">
+                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
                                     Expected Effect size
                                   </th>
                                 </tr>
@@ -768,28 +768,28 @@ export default function ReportPage() {
                                         {index === 0 && (
                                           <td
                                             rowSpan={primaryEndpoints.length}
-                                            className="py-3 px-4 text-body5m text-neutral-10 align-top"
+                                            className="py-3 px-4 text-body5m text-text-primary align-top"
                                           >
                                             Primary
                                           </td>
                                         )}
-                                        <td className="py-3 px-4 text-body5m text-neutral-10">
+                                        <td className="py-3 px-4 text-body5m text-text-primary">
                                           #{index + 1}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-neutral-10">
+                                        <td className="py-3 px-4 text-body5m text-text-primary">
                                           {endpoint.name}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-neutral-10">
+                                        <td className="py-3 px-4 text-body5m text-text-primary">
                                           {endpoint.type || "Continuous"}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-neutral-10">
+                                        <td className="py-3 px-4 text-body5m text-text-primary">
                                           {index === 0
                                             ? `${Math.round(
                                                 nominalPower * 100,
                                               )}%`
                                             : "-"}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-neutral-10">
+                                        <td className="py-3 px-4 text-body5m text-text-primary">
                                           {endpoint.type === "Binary" &&
                                           endpoint.threshold !== null &&
                                           endpoint.threshold !== undefined
@@ -798,7 +798,7 @@ export default function ReportPage() {
                                         </td>
                                         <td className="py-3 px-4">
                                           <div className="flex items-center gap-2">
-                                            <span className="text-body5m text-neutral-10 whitespace-nowrap">
+                                            <span className="text-body5m text-text-primary whitespace-nowrap">
                                               {effectSize.toFixed(1)}
                                             </span>
                                             <div className="flex items-center gap-1 flex-1">
@@ -869,24 +869,24 @@ export default function ReportPage() {
                                       {index === 0 && (
                                         <td
                                           rowSpan={secondaryEndpoints.length}
-                                          className="py-3 px-4 text-body5m text-neutral-10 align-top"
+                                          className="py-3 px-4 text-body5m text-text-primary align-top"
                                         >
                                           Secondary
                                         </td>
                                       )}
-                                      <td className="py-3 px-4 text-body5m text-neutral-10">
+                                      <td className="py-3 px-4 text-body5m text-text-primary">
                                         #{index + 1}
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-neutral-10">
+                                      <td className="py-3 px-4 text-body5m text-text-primary">
                                         {endpoint.name}
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-neutral-10">
+                                      <td className="py-3 px-4 text-body5m text-text-primary">
                                         {endpoint.type || "Continuous"}
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-neutral-10">
+                                      <td className="py-3 px-4 text-body5m text-text-primary">
                                         -
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-neutral-10">
+                                      <td className="py-3 px-4 text-body5m text-text-primary">
                                         {endpoint.type === "Binary" &&
                                         endpoint.threshold !== null &&
                                         endpoint.threshold !== undefined
@@ -895,7 +895,7 @@ export default function ReportPage() {
                                       </td>
                                       <td className="py-3 px-4">
                                         <div className="flex items-center gap-2">
-                                          <span className="text-body5m text-neutral-10 whitespace-nowrap">
+                                          <span className="text-body5m text-text-primary whitespace-nowrap">
                                             {effectSize.toFixed(1)}
                                           </span>
                                           <div className="flex items-center gap-1 flex-1">
@@ -938,16 +938,16 @@ export default function ReportPage() {
                             <div className="flex gap-14">
                               {/* 왼쪽 컬럼: 레이블 */}
                               <div className="space-y-2.5 flex-shrink-0">
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
                                   Primary Endpoint
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
                                   Hypothesis Type
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
                                   Treatment Arms
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#1c1b1c]">
+                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
                                   Randomization Ratio
                                 </p>
                               </div>

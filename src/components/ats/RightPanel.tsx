@@ -645,16 +645,16 @@ export function RightPanel({
                 <div
                   className="flex-1 min-w-0 rounded-[20px] overflow-hidden bg-layer-secondary"
                 >
-                  <div className="flex flex-col w-full h-full p-4">
+                  <div className="flex flex-col w-full h-full p-4 gap-6">
                     {/* Card Header */}
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between">
                       {activeTab === "compare" ? (
                         <>
-                          <div className="flex flex-col gap-1">
-                            <h3 className="text-body4 text-neutral-15">
+                          <div className="flex flex-col gap-0.5">
+                            <h3 className="text-body4 text-neutral-30">
                               Smaller N to screen
                             </h3>
-                            <p className="text-small1 text-neutral-15">
+                            <p className="text-small1 text-neutral-30">
                               {isApplied && simulationData
                                 ? simulationData.smallerNToScreen.subtitle
                                 : "at the same Power"}
@@ -803,16 +803,16 @@ export function RightPanel({
                     backgroundColor: "rgba(255, 255, 255, 0.6)",
                   }}
                 >
-                  <div className="flex flex-col w-full h-full p-4">
+                  <div className="flex flex-col w-full h-full p-4 gap-6">
                     {/* Card Header */}
-                    <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start justify-between">
                       {activeTab === "compare" ? (
                         <>
-                          <div className="flex flex-col gap-1">
-                            <h3 className="text-body4 text-neutral-15">
+                          <div className="flex flex-col gap-0.5">
+                            <h3 className="text-body4 text-neutral-30">
                               Lower cost
                             </h3>
-                            <p className="text-small1 text-neutral-15">
+                            <p className="text-small1 text-neutral-30">
                               {isApplied && simulationData
                                 ? simulationData.lowerCost.subtitle
                                 : "at the same sample size"}
@@ -961,7 +961,7 @@ export function RightPanel({
               <div className="bg-white rounded-[20px] flex flex-col flex-1">
                 {/* Title */}
                 <div className="px-4 pt-4 pb-3 flex-shrink-0">
-                  <h3 className="text-body2 text-neutral-10">
+                  <h3 className="text-body3 text-text-primary">
                     OPTIVIS NEXUS vs Traditional Design
                   </h3>
                 </div>
@@ -1276,10 +1276,10 @@ export function RightPanel({
               </div>
 
               {/* Reduction View Card / Compare View Card */}
-              <div className="bg-white rounded-[20px] flex flex-col flex-1">
+              <div className="bg-white rounded-[20px] flex flex-col flex-1 gap-10">
                 {/* Title */}
-                <div className="px-4 pt-4 pb-3 flex-shrink-0">
-                  <h3 className="text-body2 text-neutral-10">
+                <div className="px-4 pt-4 pb-3 flex-shrink-0 ">
+                  <h3 className="text-body3 text-text-primary">
                     {activeTab === "compare"
                       ? "Reduction View"
                       : "Compare View"}
@@ -1356,7 +1356,7 @@ export function RightPanel({
                         <div className="flex flex-col gap-2 flex-1 min-h-0">
                           <div className="flex items-start justify-between">
                             <div className="flex flex-col gap-2">
-                              <h4 className="text-body5 text-neutral-10">
+                              <h4 className="text-body5 text-text-primary">
                                 Smaller Sample
                               </h4>
                               {simulationData && (
@@ -1408,7 +1408,7 @@ export function RightPanel({
                           <div className="flex flex-col gap-2">
                             <div className="flex items-start justify-between">
                               <div className="flex flex-col gap-2">
-                                <h4 className="text-body5 text-neutral-10">
+                                <h4 className="text-body5 text-text-primary">
                                   Smaller N to screen
                                 </h4>
                                 {simulationData && (
@@ -1461,7 +1461,7 @@ export function RightPanel({
                           <div className="flex flex-col gap-2">
                             <div className="flex items-start justify-between">
                               <div className="flex flex-col gap-2">
-                                <h4 className="text-body5 text-neutral-10">
+                                <h4 className="text-body5 text-text-primary">
                                   Lower cost
                                 </h4>
                                 {simulationData && (

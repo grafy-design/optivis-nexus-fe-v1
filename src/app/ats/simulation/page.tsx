@@ -701,7 +701,7 @@ export default function SimulationPage() {
           
           <div className="shrink-0 px-1">
             <div className="text-page-title text-left">
-              Adaptive Trial Simulation
+              Trial Design Optimization
             </div>
             <p className="text-page-subtitle text-left">
               Optimize study design

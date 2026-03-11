@@ -148,7 +148,7 @@ function TSIBasisSelectionPageContent() {
             className="text-page-title"
             style={{ fontSize: titleFontSize }}
           >
-            Target Subgroup Identification
+            Subgroup Configuration
           </h1>
           <span className="text-page-subtitle">
             Select a subgroup basis

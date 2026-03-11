@@ -7,6 +7,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 import DropdownCell from "@/components/ui/dropdown-cell";
 import SolidButton from "@/components/ui/solid-button";
+import InputCell from "@/components/ui/input-cell";
 
 /**
  * TSI Step 2: Filter (Cohort Filter Setup)
@@ -903,28 +904,11 @@ export default function TSIFilterPage() {
                               options={opOptions}
                               onChange={(v) => updateSection(section.id, "op", v)}
                             />
-                            <input
-                              type="text"
+                            <InputCell
                               value={section.value}
-                              placeholder="Write input"
-                              onChange={(e) => updateSection(section.id, "value", e.target.value)}
-                              className="placeholder:text-neutral-80 rounded-[4px]"
-                              style={{
-                                flex: 4,
-                                minWidth: 0,
-                                height: 36,
-                                background: "#efeff4",
-                                border: "none",
-                                paddingLeft: 12,
-                                paddingRight: 12,
-                                fontFamily: "Inter",
-                                fontWeight: 500,
-                                fontSize: 17,
-                                color: "var(--text-primary)",
-                                letterSpacing: "-0.68px",
-                                outline: "none",
-                                cursor: "text",
-                              }}
+                              onChange={(v) => updateSection(section.id, "value", v)}
+                              size="l"
+                              flex={4}
                             />
                             {/* 하위 행 추가 버튼 / Add sub-row button */}
                             <div
@@ -972,27 +956,11 @@ export default function TSIFilterPage() {
                                 options={opOptions}
                                 onChange={(v) => updateSubRow(section.id, rIdx, "op", v)}
                               />
-                              <input
-                                type="text"
+                              <InputCell
                                 value={row.value}
-                                placeholder="Write input"
-                                onChange={(e) =>
-                                  updateSubRow(section.id, rIdx, "value", e.target.value)
-                                }
-                                className="placeholder:text-neutral-80 rounded-[4px] text-body4ms"
-                                style={{
-                                  flex: 4,
-                                  minWidth: 0,
-                                  height: 36,
-                                  background: "#efeff4",
-                                  border: "none",
-                                  paddingLeft: 12,
-                                  paddingRight: 12,
-                                  color: "#484646",
-                                  letterSpacing: "-0.68px",
-                                  outline: "none",
-                                  cursor: "text",
-                                }}
+                                onChange={(v) => updateSubRow(section.id, rIdx, "value", v)}
+                                size="l"
+                                flex={4}
                               />
                               {/* 추가 하위 행 버튼 / Add another sub-row */}
                               <div

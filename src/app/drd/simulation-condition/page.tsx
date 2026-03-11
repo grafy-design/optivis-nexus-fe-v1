@@ -707,11 +707,11 @@ export default function SimulationConditionPage() {
       )}
          <div className="flex flex-col h-full gap-6">
         {/* 타이틀 */}
-        <div className="shrink-0 px-1">
+        <div className="flex flex-col items-start justify-between  shrink-0 px-1">
           <h1 onClick={() => router.push("/drd/simulation-setting")} className="text-page-title">
             Simulation Settings
           </h1>
-          <span className="drd-page-subtitle">
+          <span className="text-page-subtitle">
             Configure simulation parameters
           </span>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 
 interface SelectProps {
@@ -30,17 +31,33 @@ export default function Select({
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0, width: 0 });
 
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (selectRef.current && !selectRef.current.contains(target)) {
+      if (
+        selectRef.current && !selectRef.current.contains(target) &&
+        menuRef.current && !menuRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && selectRef.current) {
+      const rect = selectRef.current.getBoundingClientRect();
+      setMenuPos({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
   }, [isOpen]);
 
   const handleSelect = (option: string) => {
@@ -58,7 +75,7 @@ export default function Select({
         onClick={() => !disabled && setIsOpen((v) => !v)}
         disabled={disabled}
         className={cn(
-          "w-full bg-neutral-90 h-[26px] px-3 flex items-center justify-between",
+          "w-full bg-neutral-90 h-[26px] px-3 flex items-center justify-between overflow-visible",
           "text-body5 text-neutral-50",
           "cursor-pointer transition-all rounded-[8px]",
           disabled && "opacity-50 cursor-not-allowed",
@@ -100,10 +117,16 @@ export default function Select({
         )}
       </button>
 
-      {isOpen && options.length > 0 && (
+      {isOpen && options.length > 0 && createPortal(
         <div
-          className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 py-2 bg-neutral-90 rounded-[8px] border border-neutral-80 max-h-[200px] overflow-auto shadow-lg min-w-0"
+          ref={menuRef}
+          className="fixed z-[9999] py-2 bg-neutral-90 rounded-[8px] border border-neutral-80 max-h-[200px] overflow-auto shadow-lg"
           role="listbox"
+          style={{
+            top: menuPos.top,
+            left: menuPos.left,
+            width: menuPos.width,
+          }}
         >
           {options.map((option, index) => {
             const isSelected = value === option;
@@ -135,7 +158,8 @@ export default function Select({
               </div>
             );
           })}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );

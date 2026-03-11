@@ -55,16 +55,25 @@ import {
 } from "@/services/drd-simulation-result-mock-data";
 import type { PlayDrdSimulationData } from "@/services/types/drd-service.types";
 import { useSimulationStore } from "@/store/simulationStore";
+import {
+  CHART_COLORS,
+  CHART_FONT,
+  DRD_COLORS,
+  axisLabelBase,
+  axisNameBase,
+  axisLineWithWidth,
+  axisTickHidden,
+  axisTickVisible,
+  tooltipBase,
+  splitLineHidden,
+  splitLineVisible,
+  tooltipAxisCross,
+  tooltipAxisShadow,
+  tooltipItem,
+} from "@/lib/chart-styles";
+import DropdownCell from "@/components/ui/dropdown-cell";
 
 // ── 차트 컴포넌트 (인라인) ────────────────────────────────────────────────────
-
-// 전략별 차트 컬러 — chart-styles.ts 시맨틱 토큰 참조
-const _COLOR_A = "var(--chart-set06-group01)";
-const _COLOR_B = "var(--chart-set06-group02)";
-const _COLOR_C = "var(--chart-set06-group03)";
-const _N10 = "var(--chart-text-strong)";
-const _N30 = "var(--chart-text-category-title)";
-const _N60 = "var(--chart-axis-muted)";
 
 /**
  * SpaghettiPlotChart — 전략별 HbA1c 감소 궤적을 보여주는 스파게티 플롯
@@ -93,7 +102,7 @@ function SpaghettiPlotChart({
             yAxis: chart.targetLine.value,
             label: { formatter: chart.targetLine.label },
             lineStyle: {
-              color: "var(--chart-drd-markline)",
+              color: DRD_COLORS.markLine,
               type: "dashed" as const,
               width: 1.5,
             },
@@ -104,31 +113,31 @@ function SpaghettiPlotChart({
       xAxis: event.month,
       label: { formatter: event.label },
       lineStyle: {
-        color: _N60,
+        color: CHART_COLORS.NEUTRAL_50,
         type: "dashed" as const,
         width: 1,
       },
     })),
   ];
   const option = {
-    grid: { left: 72, right: 16, top: 24, bottom: 58 },
+    grid: { left: 44, right: 8, top: 8, bottom: 54 },
     xAxis: {
       type: "category" as const,
       data: chart.xAxisValues,
       boundaryGap: false,
-      axisLine: { lineStyle: { color: _N30, width: 1 } }, axisTick: { show: false },
-      axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 },
-      splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.25, type: "solid" as const, width: 1 } },
+      axisLine: axisLineWithWidth, axisTick: axisTickHidden,
+      axisLabel: { ...axisLabelBase, margin: 4 },
+      splitLine: splitLineVisible(),
       name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 28,
-      nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 },
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
     },
     yAxis: {
       type: "value" as const, min: yMin, max: yMax, interval,
-      axisLine: { show: false }, axisTick: { show: false },
-      axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27, formatter: (v: number) => v.toFixed(1) },
-      splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.25, type: "solid" as const, width: 1 } },
-      name: chart.yAxisName, nameLocation: "middle" as const, nameGap: 44,
-      nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 },
+      axisLine: axisLineWithWidth, axisTick: axisTickVisible,
+      axisLabel: { ...axisLabelBase, margin: 6, formatter: (v: number) => v.toFixed(1) },
+      splitLine: splitLineVisible(),
+      name: chart.yAxisName, nameLocation: "middle" as const, nameGap: 28,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
     },
     series: chart.series.map((series, index) => ({
       name: series.strategyLabel,
@@ -146,8 +155,8 @@ function SpaghettiPlotChart({
               symbol: "none",
               animation: false,
               label: {
-                color: _N30,
-                fontFamily: "Inter",
+                color: CHART_COLORS.NEUTRAL_30,
+                fontFamily: CHART_FONT.family,
                 fontSize: 10,
                 fontWeight: 600,
                 backgroundColor: "rgba(255,255,255,0.86)",
@@ -160,7 +169,7 @@ function SpaghettiPlotChart({
     })),
     legend: {
       show: chart.series.length > 0,
-      bottom: 0,
+      bottom: 4,
       icon: "roundRect",
       itemWidth: 24,
       itemHeight: 3,
@@ -169,11 +178,19 @@ function SpaghettiPlotChart({
         itemStyle: { color: series.color },
         lineStyle: { color: series.color },
       })),
-      textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 },
+      textStyle: { color: CHART_COLORS.NEUTRAL_50, fontFamily: CHART_FONT.family, fontSize: 11, fontWeight: 500 },
     },
-    tooltip: { trigger: "axis" as const },
+    tooltip: {
+      ...tooltipAxisCross,
+      backgroundColor: "#ffffff",
+      textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
+      axisPointer: {
+        ...tooltipAxisCross.axisPointer,
+        label: { backgroundColor: "transparent", color: CHART_COLORS.NEUTRAL_50, shadowBlur: 0, shadowColor: "transparent" },
+      },
+    },
   };
-  return <ReactECharts option={option} className="w-full h-full" notMerge />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
 /**
@@ -216,9 +233,23 @@ function HistogramChart({
     1
   );
   const option = {
-    grid: { left: 72, right: 16, top: 12, bottom: 58 },
-    xAxis: { type: "category" as const, data: xLabels, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, interval: 4, formatter: (v: string) => v }, splitLine: { show: false }, name: "Primary Outcome Change (△)", nameLocation: "middle" as const, nameGap: 28, nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    yAxis: { type: "value" as const, min: 0, max: Math.ceil(maxCount * 1.15), interval: Math.max(1, Math.ceil(maxCount / 5)), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: "Patient Count", nameLocation: "middle" as const, nameGap: 44, nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    grid: { left: 44, right: 4, top: 8, bottom: 54 },
+    xAxis: {
+      type: "category" as const, data: xLabels,
+      axisLine: axisLineWithWidth, axisTick: axisTickHidden,
+      axisLabel: { ...axisLabelBase, interval: 4, margin: 4 },
+      splitLine: splitLineHidden,
+      name: "Primary Outcome Change (△)", nameLocation: "middle" as const, nameGap: 28,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
+    },
+    yAxis: {
+      type: "value" as const, min: 0, max: Math.ceil(maxCount * 1.15), interval: Math.max(1, Math.ceil(maxCount / 5)),
+      axisLine: axisLineWithWidth, axisTick: axisTickVisible,
+      axisLabel: { ...axisLabelBase, margin: 6 },
+      splitLine: splitLineVisible(),
+      name: "Patient Count", nameLocation: "middle" as const, nameGap: 28,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
+    },
     series: slots.map((slotData) => ({
       type: "bar" as const,
       data: slotData,
@@ -228,10 +259,18 @@ function HistogramChart({
       emphasis: { disabled: true },
       itemStyle: { opacity: 0.8 },
     })),
-    legend: { show: strategies.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 8, data: strategies.map((strategy) => ({ name: strategy.name, itemStyle: { color: strategy.color } })), textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 } },
-    tooltip: { trigger: "axis" as const },
+    legend: { show: strategies.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 8, data: strategies.map((strategy) => ({ name: strategy.name, itemStyle: { color: strategy.color } })), textStyle: { color: CHART_COLORS.NEUTRAL_50, fontFamily: CHART_FONT.family, fontSize: 11, fontWeight: 500 } },
+    tooltip: {
+      ...tooltipAxisShadow,
+      backgroundColor: "#ffffff",
+      textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
+      axisPointer: {
+        ...tooltipAxisShadow.axisPointer,
+        label: { backgroundColor: "transparent", color: CHART_COLORS.NEUTRAL_50, shadowBlur: 0, shadowColor: "transparent" },
+      },
+    },
   };
-  return <ReactECharts option={option} className="w-full h-full" notMerge />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
 /**
@@ -251,9 +290,23 @@ function BubbleChart({
   const minX = Math.min(...xValues, 0);
   const maxY = Math.max(...yValues, 1);
   const option = {
-    grid: { left: 56, right: 16, top: 12, bottom: 62 },
-    xAxis: { type: "value" as const, min: Math.floor(minX), max: Math.ceil(maxX * 1.1), interval: Math.max(1, Math.ceil((maxX - minX || 1) / 3)), axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: false }, name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 20, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    yAxis: { type: "value" as const, min: 0, max: Math.ceil(maxY * 1.15), interval: Math.max(1, Math.ceil(maxY / 4)), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: chart.yAxisName, nameLocation: "middle" as const, nameGap: 40, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    grid: { left: 36, right: 16, top: 4, bottom: 36 },
+    xAxis: {
+      type: "value" as const, min: Math.floor(minX), max: Math.ceil(maxX * 1.1), interval: Math.max(1, Math.ceil((maxX - minX || 1) / 3)),
+      axisLine: axisLineWithWidth, axisTick: axisTickHidden,
+      axisLabel: { ...axisLabelBase, margin: 4 },
+      splitLine: splitLineHidden,
+      name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 16,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
+    },
+    yAxis: {
+      type: "value" as const, min: 0, max: Math.ceil(maxY * 1.15), interval: Math.max(1, Math.ceil(maxY / 4)),
+      axisLine: axisLineWithWidth, axisTick: axisTickVisible,
+      axisLabel: { ...axisLabelBase, margin: 6 },
+      splitLine: splitLineVisible(),
+      name: chart.yAxisName, nameLocation: "middle" as const, nameGap: 24,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
+    },
     series: chart.points.map((point) => ({
       name: point.strategyLabel,
       type: "scatter" as const,
@@ -264,14 +317,18 @@ function BubbleChart({
         show: true,
         formatter: point.strategyLabel.replace("Strategy ", ""),
         color: "#fff",
-        fontFamily: "Inter",
+        fontFamily: CHART_FONT.family,
         fontSize: 11,
         fontWeight: 700,
       },
     })),
-    tooltip: { trigger: "item" as const },
+    tooltip: {
+      ...tooltipItem,
+      backgroundColor: "#ffffff",
+      textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
+    },
   };
-  return <ReactECharts option={option} className="w-full h-full" notMerge />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
 /**
@@ -294,9 +351,23 @@ function StepLineChart({
     1
   );
   const option = {
-    grid: { left: 56, right: 16, top: 12, bottom: 62 },
-    xAxis: { type: "category" as const, data: seriesSet.xAxisValues, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.15, type: "solid" as const, width: 1 } }, name: "Years since treatment start", nameLocation: "middle" as const, nameGap: 20, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    yAxis: { type: "value" as const, min: 0, max: Math.ceil(maxY * 1.15), interval: Math.max(1, Math.ceil(maxY / 4)), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: yAxisName, nameLocation: "middle" as const, nameGap: 40, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    grid: { left: 40, right: 16, top: 4, bottom: 36 },
+    xAxis: {
+      type: "category" as const, data: seriesSet.xAxisValues,
+      axisLine: axisLineWithWidth, axisTick: axisTickHidden,
+      axisLabel: { ...axisLabelBase, margin: 4 },
+      splitLine: splitLineVisible(),
+      name: "Years since treatment start", nameLocation: "middle" as const, nameGap: 16,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
+    },
+    yAxis: {
+      type: "value" as const, min: 0, max: Math.ceil(maxY * 1.15), interval: Math.max(1, Math.ceil(maxY / 4)),
+      axisLine: axisLineWithWidth, axisTick: axisTickVisible,
+      axisLabel: { ...axisLabelBase, margin: 6 },
+      splitLine: splitLineVisible(),
+      name: yAxisName, nameLocation: "middle" as const, nameGap: 24,
+      nameTextStyle: { ...axisNameBase, fontWeight: 600 },
+    },
     series: seriesSet.series.map((series) => ({
       name: series.strategyLabel,
       type: "line" as const,
@@ -307,10 +378,18 @@ function StepLineChart({
       areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: `${series.color}50` }, { offset: 1, color: `${series.color}08` }] } },
       itemStyle: { color: series.color },
     })),
-    legend: { show: seriesSet.series.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, padding: [0, 0, 2, 0], data: seriesSet.series.map((series) => ({ name: series.strategyLabel, itemStyle: { color: series.color } })), textStyle: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500 } },
-    tooltip: { trigger: "axis" as const },
+    legend: { show: seriesSet.series.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, padding: [0, 0, 2, 0], data: seriesSet.series.map((series) => ({ name: series.strategyLabel, itemStyle: { color: series.color } })), textStyle: { color: CHART_COLORS.NEUTRAL_50, fontFamily: CHART_FONT.family, fontSize: 9, fontWeight: 500 } },
+    tooltip: {
+      ...tooltipAxisCross,
+      backgroundColor: "#ffffff",
+      textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
+      axisPointer: {
+        ...tooltipAxisCross.axisPointer,
+        label: { backgroundColor: "transparent", color: CHART_COLORS.NEUTRAL_50, shadowBlur: 0, shadowColor: "transparent" },
+      },
+    },
   };
-  return <ReactECharts option={option} className="w-full h-full" notMerge />;
+  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
 }
 
 function EmptyCardState({ message }: { message: string }) {
@@ -1145,7 +1224,7 @@ function AERiskContent({
   safetyTradeoffChart: DrdSafetyTradeoffChartViewModel;
 }) {
   const [selectedAE, setSelectedAE] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const aeOptions = aeRiskChart.aeOptions;
   const selectedAESeries =
     selectedAE && aeRiskChart.seriesByAe[selectedAE]
@@ -1239,70 +1318,13 @@ function AERiskContent({
               AE Risk
             </h3>
             {/* Dropdown */}
-            <div className="relative">
-              <div
-                onClick={() => {
-                  if (aeOptions.length > 0) {
-                    setDropdownOpen((value) => !value);
-                  }
-                }}
-                className="flex items-center cursor-pointer select-none"
-                style={{
-                  background: "var(--neutral-95)",
-                  borderRadius: "8px",
-                  padding: "4px 6px 4px 8px",
-                  gap: "2px",
-                  minWidth: "120px",
-                  height: "28px",
-                }}
-              >
-                <span className="flex-1 text-body5m" style={{ color: "var(--neutral-30)" }}>
-                  {selectedAE || "Unavailable"}
-                </span>
-                <img
-                  src={dropdownOpen ? "/icons/disclosure/open-18.svg" : "/icons/disclosure/close-18.svg"}
-                  alt="toggle"
-                  width={18}
-                  height={18}
-                  className="shrink-0"
-                />
-              </div>
-              {dropdownOpen && aeOptions.length > 0 && (
-                <div
-                  className="absolute overflow-hidden"
-                  style={{
-                    top: "calc(100% + 4px)",
-                    right: 0,
-                    background: "#fff",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-                    zIndex: 100,
-                    minWidth: "120px",
-                  }}
-                >
-                  {aeOptions.map((opt, idx) => (
-                    <div
-                      key={opt}
-                      onClick={() => { setSelectedAE(opt); setDropdownOpen(false); }}
-                      className="cursor-pointer"
-                      style={{
-                        padding: "8px 12px",
-                        fontWeight: opt === selectedAE ? 700 : 500,
-                        fontSize: "12px",
-                        color: opt === selectedAE ? COLOR_NEUTRAL_30 : COLOR_NEUTRAL_40,
-                        background: "#fff",
-                        whiteSpace: "nowrap",
-                        borderBottom: idx < aeOptions.length - 1 ? "1px solid var(--neutral-80)" : "none",
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#f7f7fa"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#fff"; }}
-                    >
-                      {opt}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <DropdownCell
+              value={selectedAE || "Unavailable"}
+              options={aeOptions}
+              onChange={(v) => setSelectedAE(v)}
+              size="s"
+              width={120}
+            />
           </div>
           <div
             className="min-h-0 overflow-hidden"
@@ -1842,9 +1864,7 @@ function SimulationResultPageContent() {
 
             {/* 왼쪽 패널: 시뮬레이션 전략 목록 / Left Panel: Simulation Strategies */}
             <div
-              className="figma-nine-slice figma-home-panel-left drd-left-panel flex-shrink-0 rounded-[36px] gap-8 overflow-hidden flex flex-col"
-              style={{
-              }}
+              className="figma-nine-slice figma-home-panel-left flex-shrink-0 rounded-[36px] gap-8 overflow-hidden flex flex-col w-[360px]"
             >
               {/* 전략 목록 헤더 타이틀 / Strategies Section Title */}
               <div
@@ -1855,12 +1875,9 @@ function SimulationResultPageContent() {
                 }}
               >
                 <span
-                  className="relative"
+                  className="relative text-body1 text-[var(--text-header)]"
                   style={{
                     zIndex: 1,
-                    fontWeight: 700,
-                    fontSize: 24,
-                    color: "#262255",
                     letterSpacing: "-1px",
                     lineHeight: 1,
                   }}
@@ -1967,16 +1984,13 @@ function SimulationResultPageContent() {
 
              {/* 오른쪽 패널: 요약 및 차트 영역 / Right Panel: Summary & Charts */}
              <div
-              className="figma-nine-slice figma-home-panel-left flex-1 min-w-[280px] min-h-0 flex flex-col"
+              className="figma-nine-slice figma-home-panel-left flex-1 min-w-[280px] min-h-0 flex flex-col gap-3"
             >
               {/* 요약 텍스트 영역 / Summary Text Area */}
-              <div className="flex flex-col gap-2 shrink-0"
+              <div className="flex flex-col gap-1 shrink-0 text-body1 text-[var(--text-header)]"
                 style={{ padding: 6 }}>
                 <h2
                   style={{
-                    fontWeight: 700,
-                    fontSize: 24,
-                    color: COLOR_PRIMARY,
                     letterSpacing: "-0.9px",
                     lineHeight: 1,
                     margin: 0,
@@ -1984,7 +1998,7 @@ function SimulationResultPageContent() {
                 >
                   Summary
                 </h2>
-                <p className="text-body5 text-text-secondary"
+                <p className="text-body5m text-text-secondary"
                   style={{
                     margin: 0,
                   }}

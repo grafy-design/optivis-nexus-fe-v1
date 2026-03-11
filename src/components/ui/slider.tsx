@@ -143,7 +143,7 @@ export default function Slider({
   return (
     <div className={cn("w-full", className)}>
       <div className="flex items-center gap-2 mb-1 select-none">
-        <span className="text-body5m text-disabled w-[21px]">Min</span>
+        <span className="text-body5m text-text-secondary w-[21px]">Min</span>
         <div className="flex-1 relative">
           <div
             ref={trackRef}
@@ -192,9 +192,9 @@ export default function Slider({
             />
           </div>
         </div>
-        <span className="text-body5m text-disabled w-[23px] text-right">Max</span>
+        <span className="text-body5m text-text-secondary w-[23px] text-right">Max</span>
         {showValue && (
-          <div className="bg-neutral-95 rounded-[8px] h-[24px] px-2 flex items-center justify-center min-w-[36px]">
+          <div className="bg-neutral-95 rounded-[8px] h-[24px] w-[44px] flex items-center justify-center">
             <span className="text-body5 text-neutral-50">
               {valuePrecision !== undefined 
                 ? value.toFixed(valuePrecision) 

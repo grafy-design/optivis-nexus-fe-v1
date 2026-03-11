@@ -31,6 +31,7 @@ import { createPortal } from "react-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useSimulationStore } from "@/store/simulationStore";
 import { GlassTestButton } from "@/components/ui/glass-button";
+import DropdownCell from "@/components/ui/dropdown-cell";
 
 // ─── 아이콘 ──────────────────────────────────────────────────────────────────
 
@@ -732,9 +733,7 @@ export default function SmileSettingPage() {
   const [isFocused, setIsFocused] = useState(false);        // 검색 입력 필드 포커스 여부 (테두리 색 변경용)
   const inputRef = useRef<HTMLInputElement>(null);           // 검색 입력 DOM ref
   const [similarityThreshold, setSimilarityThreshold] = useState(85); // 유사도 필터 슬라이더 (85~100)
-  const [sortOpen, setSortOpen] = useState(false);          // 정렬 드롭다운 열림 여부
   const [sortValue, setSortValue] = useState<"Relevance" | "Similarity">("Relevance"); // 현재 정렬 기준
-  const dropdownRef = useRef<HTMLDivElement>(null);          // 정렬 드롭다운 외부 클릭 감지용 ref
   const [savedDrugList, setSavedDrugList] = useState<{ name: string; smilesImage?: string }[]>([]); // 우측 저장 목록
   // drugData 인덱스 → 추가 순서(1-based) 매핑: 카드 배지 번호 및 isAdded 판별에 사용
   const [addedCardMap, setAddedCardMap] = useState<Record<number, number>>({});
@@ -752,17 +751,6 @@ export default function SmileSettingPage() {
     setSimilarityThreshold(95);
   };
 
-  // 정렬 드롭다운 외부 클릭 시 자동 닫기
-  useEffect(() => {
-    if (!sortOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setSortOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [sortOpen]);
 
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">
@@ -774,7 +762,7 @@ export default function SmileSettingPage() {
             <h1 onClick={() => router.push("/drd/simulation-setting")} className="text-page-title">
               Simulation Settings
             </h1>
-            <span className="drd-page-subtitle">
+            <span className="text-page-subtitle">
               Configure simulation parameters
             </span>
           </div>
@@ -911,72 +899,13 @@ export default function SmileSettingPage() {
                         >
                           Sort by
                         </span>
-                        {/* 드롭다운 */}
-                        <div ref={dropdownRef} className="relative">
-                          <div
-                            onClick={() => setSortOpen((v) => !v)}
-                            className="flex items-center cursor-pointer select-none rounded-[4px] gap-0.5"
-                            style={{
-                              background: "var(--neutral-95)",
-                              height: 28,
-                              padding: "0 6px 0 8px",
-                              minWidth: 100,
-                            }}
-                          >
-                            <span
-                              className="flex-1 text-body5"
-                              style={{
-                                color: "var(--text-primary)",
-                              }}
-                            >
-                              {sortValue}
-                            </span>
-                            <Image
-                              src={sortOpen
-                                ? "/icons/disclosure/open-18.svg"
-                                : "/icons/disclosure/close-18.svg"}
-                              alt={sortOpen ? "open" : "close"}
-                              width={18}
-                              height={18}
-                            />
-                          </div>
-                          {sortOpen && (
-                            <div
-                              className="absolute w-full overflow-hidden rounded-[4px]"
-                              style={{
-                                top: "calc(100% + 4px)",
-                                right: 0,
-                                background: "var(--neutral-95)",
-                                border: "1px solid var(--neutral-80)",
-                                zIndex: 100,
-                              }}
-                            >
-                              {(["Relevance", "Similarity"] as const).map((opt) => (
-                                <div
-                                  key={opt}
-                                  onClick={() => { setSortValue(opt); setSortOpen(false); }}
-                                  className="flex items-center cursor-pointer"
-                                  style={{
-                                    height: 28,
-                                    padding: "0 8px",
-                                    background: sortValue === opt ? "#DDDDE6" : "transparent",
-                                  }}
-                                  onMouseEnter={(e) => { if (sortValue !== opt) (e.currentTarget as HTMLDivElement).style.background = "#E8E8F0"; }}
-                                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = sortValue === opt ? "#DDDDE6" : "transparent"; }}
-                                >
-                                  <span
-                                    className="text-body5"
-                                    style={{
-                                      color: "var(--text-secondary)",
-                                    }}
-                                  >
-                                    {opt}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        <DropdownCell
+                          value={sortValue}
+                          options={["Relevance", "Similarity"]}
+                          onChange={(v) => setSortValue(v as "Relevance" | "Similarity")}
+                          size="sm"
+                          width={120}
+                        />
                       </div>
                     </div>
 

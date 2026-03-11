@@ -654,11 +654,11 @@ export default function DefaultSettingPage() {
       <div className="flex flex-col h-full gap-6">
         {/* {타이틀 영역/Title Area} */}
       {/* 타이틀 */}
-          <div className="shrink-0 px-1">
+          <div className="flex flex-col items-start justify-between  shrink-0 px-1">
             <h1 onClick={() => router.push("/drd/default-setting")} className="text-page-title">
               Default Settings
             </h1>
-            <span className="drd-page-subtitle">
+            <span className="text-page-subtitle">
               {allCompleted ? "Setup Complete" : "Setup Required"}
             </span>
           </div>

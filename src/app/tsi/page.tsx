@@ -12,6 +12,7 @@ import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import SimulationSearch from "@/components/home/simulation-search";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
+import { PrimaryTable } from "@/components/ui/primary-table";
 
 /**
  * TSI (Target Subgroup Identification) 루트 페이지.
@@ -323,20 +324,18 @@ export default function TSIPage() {
                     <div className="flex flex-1 min-h-0 flex-col gap-[8px]">
 
                       {/* 테이블 헤더 행 (좌/우 동일) / Table header row (same for both columns) */}
-                      <div
-                        className="rounded-[20px] h-wrap flex items-center py-2.5"
-                        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-                      >
-                        <div className="flex text-white w-full text-body5m">
+                      <PrimaryTable size="s">
+                      <PrimaryTable.Header>
+                        <div className="flex w-full">
                           {/* 좌측 헤더 / Left header */}
                           <div className="flex items-center flex-1 min-w-0 px-[20px]">
                             <div className="flex items-center gap-4 flex-[3] min-w-0">
                               <div className="w-4 flex-shrink-0" />
-                              <span className="truncate">Data Name</span>
+                              <PrimaryTable.HeaderCell className="truncate">Data Name</PrimaryTable.HeaderCell>
                             </div>
-                            <span className="flex-[2] min-w-0 truncate">Patients (N)</span>
-                            <span className="flex-[3] min-w-0 truncate">Disease</span>
-                            <span className="flex-[3] min-w-0 truncate">Update date</span>
+                            <PrimaryTable.HeaderCell className="flex-[2] min-w-0 truncate">Patients (N)</PrimaryTable.HeaderCell>
+                            <PrimaryTable.HeaderCell className="flex-[3] min-w-0 truncate">Disease</PrimaryTable.HeaderCell>
+                            <PrimaryTable.HeaderCell className="flex-[3] min-w-0 truncate">Update date</PrimaryTable.HeaderCell>
                           </div>
                           {/* 구분선 자리 / Divider placeholder */}
                           <div className="w-[2px] flex-shrink-0" />
@@ -344,14 +343,15 @@ export default function TSIPage() {
                           <div className="flex items-center flex-1 min-w-0 px-[20px]">
                             <div className="flex items-center gap-4 flex-[3] min-w-0">
                               <div className="w-4 flex-shrink-0" />
-                              <span className="truncate">Data Name</span>
+                              <PrimaryTable.HeaderCell className="truncate">Data Name</PrimaryTable.HeaderCell>
                             </div>
-                            <span className="flex-[2] min-w-0 truncate">Patients (N)</span>
-                            <span className="flex-[3] min-w-0 truncate">Disease</span>
-                            <span className="flex-[3] min-w-0 truncate">Update date</span>
+                            <PrimaryTable.HeaderCell className="flex-[2] min-w-0 truncate">Patients (N)</PrimaryTable.HeaderCell>
+                            <PrimaryTable.HeaderCell className="flex-[3] min-w-0 truncate">Disease</PrimaryTable.HeaderCell>
+                            <PrimaryTable.HeaderCell className="flex-[3] min-w-0 truncate">Update date</PrimaryTable.HeaderCell>
                           </div>
                         </div>
-                      </div>
+                      </PrimaryTable.Header>
+                      </PrimaryTable>
 
                       {/* 테이블 바디: 좌/우 2열 배치 / Table body: two columns side by side */}
                       <div className="flex gap-0 rounded-[20px] flex-1 min-h-0 bg-white overflow-hidden">

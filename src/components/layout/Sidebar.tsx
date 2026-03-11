@@ -96,7 +96,7 @@ export const Sidebar = () => {
      * 배경: 없음 (body bg 노출)
      */
     <div
-      className="fixed flex flex-col items-center gap-0 p-6 pr-4 w-wrap h-full"
+      className="fixed flex flex-col items-center gap-0 p-6 pr-2 w-wrap h-full"
     >
       {/* 로고 (상단) */}
       <LogoBtn />

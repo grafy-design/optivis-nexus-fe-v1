@@ -738,7 +738,7 @@ function TSIReportPageContent() {
               className="text-neutral-5 text-left text-page-title"
               style={{ fontSize: titleFontSize, lineHeight: "120%" }}
             >
-              Target Subgroup Identification
+              Subgroup Analysis Report
             </div>
             <p className="text-body2m text-neutral-50 text-left">
               {(() => {

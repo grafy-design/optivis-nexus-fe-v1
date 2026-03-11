@@ -1165,7 +1165,7 @@ function TSISubgroupSelectionPageContent() {
             className="text-page-title"
             style={{ fontSize: titleFontSize }}
           >
-            Target Subgroup Identification
+            Subgroup Determinants Analysis
           </h1>
           <span className="text-page-subtitle">
             Subgroup Selection

@@ -218,8 +218,8 @@ export function LeftPanel({
               })()}
             </div>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-body5m text-neutral-50">Min</span>
-              <span className="text-body5m text-neutral-50">Max</span>
+              <span className="text-body5m text-text-primary0">Min</span>
+              <span className="text-body5m text-text-primary0">Max</span>
             </div>
           </div>
 
@@ -236,12 +236,12 @@ export function LeftPanel({
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <span className="text-body4 text-neutral-5">
+                          <span className="text-body4 text-text-primary">
                             Disease
                           </span>
                           <span className="text-body4 text-tertiary-30">*</span>
                         </div>
-                        <Select
+                        <DropdownCell
                           value={disease}
                           options={[
                             "Alzheimer's disease",
@@ -253,14 +253,14 @@ export function LeftPanel({
                             "Ovarian",
                           ]}
                           onChange={setDisease}
-                          className="w-[154px] [&>button]:h-[26px]"
-                          iconPath="/assets/icons/popover.svg"
+                          size="s"
+                          width={154}
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-body4 text-neutral-5">
+                        <span className="text-body4 text-text-primary">
                           Endpoints Design
                         </span>
                         <SolidButton
@@ -278,7 +278,7 @@ export function LeftPanel({
                             className="flex flex-col gap-2"
                           >
                             <div className="flex items-center justify-between">
-                              <span className="text-body5 text-neutral-40">
+                              <span className="text-body5 text-text-secondary">
                                 Primary Endpoint #{i + 1}
                               </span>
                               <DropdownCell
@@ -298,7 +298,7 @@ export function LeftPanel({
                             </div>
                             <div className="flex flex-col gap-0">
                               <div className="flex items-center">
-                                <span className="text-body5 text-neutral-40">
+                                <span className="text-body5 text-text-secondary">
                                   Expected Effect Size
                                 </span>
                                 <span className="text-body5 text-tertiary-30">
@@ -338,7 +338,7 @@ export function LeftPanel({
                                 className="flex flex-col gap-2"
                               >
                                 <div className="flex items-center justify-between">
-                                  <span className="text-body5 text-neutral-40">
+                                  <span className="text-body5 text-text-secondary">
                                     Secondary Endpoint #{i + 1}
                                   </span>
                                   <DropdownCell
@@ -358,7 +358,7 @@ export function LeftPanel({
                                 </div>
                                 <div className="flex flex-col gap-0">
                                   <div className="flex items-center">
-                                    <span className="text-body5 text-neutral-40">
+                                    <span className="text-body5 text-text-secondary">
                                       Expected Effect Size
                                     </span>
                                     <span className="text-body5 text-tertiary-30">
@@ -395,7 +395,7 @@ export function LeftPanel({
                         ) : null}
                         <div className="flex flex-col gap-0">
                           <div className="flex items-center">
-                            <span className="text-body5 text-neutral-40">
+                            <span className="text-body5 text-text-secondary">
                               Norminal Power
                             </span>
                             <span className="text-body5 text-tertiary-30">
@@ -422,12 +422,12 @@ export function LeftPanel({
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <span className="text-body4 text-neutral-5">
+                          <span className="text-body4 text-text-primary">
                             Treatment Duration
                           </span>
                           <span className="text-body4 text-tertiary-30">*</span>
                         </div>
-                        <Select
+                        <DropdownCell
                           value={treatmentDuration}
                           options={[
                             "3 months",
@@ -440,20 +440,20 @@ export function LeftPanel({
                             "24 months",
                           ]}
                           onChange={setTreatmentDuration}
-                          className="w-[100px] [&>button]:h-[26px]"
-                          iconPath="/assets/icons/chevron-select.svg"
+                          size="s"
+                          width={100}
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <div className="text-body4 text-neutral-5">
+                      <div className="text-body4 text-text-primary">
                         Trial Design
                       </div>
                       <div className="bg-white rounded-[8px] px-2 py-2 flex flex-col gap-2">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center">
-                              <span className="text-body5 text-neutral-40">
+                              <span className="text-body5 text-text-secondary">
                                 Hypothesis Type
                               </span>
                               <span className="text-body5 text-tertiary-30">
@@ -482,7 +482,7 @@ export function LeftPanel({
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            <span className="text-body5 text-neutral-40">
+                            <span className="text-body5 text-text-secondary">
                               Treatment Arms
                             </span>
                             <span className="text-body5 text-tertiary-30">
@@ -517,7 +517,7 @@ export function LeftPanel({
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
-                            <span className="text-body5 text-neutral-40">
+                            <span className="text-body5 text-text-secondary">
                               Randomization Ratio
                             </span>
                             <span className="text-body5 text-tertiary-30">
@@ -540,7 +540,7 @@ export function LeftPanel({
                           />
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-body5 text-neutral-40">
+                          <span className="text-body5 text-text-secondary">
                             Subpopulation
                           </span>
                           <DropdownCell
@@ -561,8 +561,8 @@ export function LeftPanel({
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-2">
-                      <ActiveDataIcon className="flex-shrink-0 text-neutral-5" />
-                      <span className="text-body4 text-neutral-5 ">
+                      <ActiveDataIcon className="flex-shrink-0 text-text-primary" />
+                      <span className="text-body4 text-text-primary ">
                         Active Data
                       </span>
                     </div>

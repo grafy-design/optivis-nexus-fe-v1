@@ -3,5 +3,283 @@
   작성일: 2026-03-10
 =====================================
 
-[이후 수정 사항이 여기에 기록됩니다]
+-------------------------------------
+[2026-03-10] UI 스타일링 / 레이아웃 개선
+-------------------------------------
+
+### globals.css
+- `.drd-left-panel` CSS 클래스 추가 (기본 380px, ≤1470px 에서 300px)
+- `.figma-header-btn-pil` — border-image 3슬라이스(::before) 방식으로 변경 (중앙 fill 영역이 버튼 너비에 맞게 늘어남)
+
+### AppLayout.tsx
+- TSI 페이지 `noPadding` prop 제거 (MainContainer 에서 삭제)
+
+### Header.tsx
+- HelpBtn 에 `?` 아이콘 추가 (DRD 헤더와 동일한 패턴)
+
+### feature-card.tsx
+- 비활성 패키지 카드 배경색 `#484848` → `var(--neutral-80)` 로 변경
+
+### patients-summary/page.tsx
+- `bg-[table-header-background]` → `bg-[var(--table-header-background)]` 구문 수정
+
+### simulation-condition/page.tsx
+- 필터 영역 높이: `flex-1` → `shrink-0 h-[160px] max-[1470px]:h-[120px]` (1470px 이하 반응형)
+- 스크롤 컨테이너에 `min-h-0` 추가 (overflow-y-auto 정상 동작)
+- 좌측 패널 `w-[380px]` → `drd-left-panel` 클래스 적용
+
+### DRD 9개 페이지 (좌측 패널 너비 일괄 변경)
+- simulation-condition, smile-setting, patient-disease-info, medical-history,
+  simulation-result, simulation-setting, default-setting, high-risk-subgroup, filter
+- `w-[380px]` → `drd-left-panel` 클래스로 통일
+
+-------------------------------------
+[2026-03-11] 헤더 리팩토링
+-------------------------------------
+
+### DrdHeader.tsx
+- UnifiedHeader + StepIndicator + DrdActions 조합으로 분리된 컴포넌트 구조로 리팩토링
+- DRD_STEPS 배열에서 스텝 라벨/경로 관리
+
+### StepIndicator.tsx (header/)
+- ATS/DRD 공통 스텝 인디케이터 컴포넌트 추가
+
+### ATSHeader.tsx
+- ATS_STEPS 배열에서 스텝 라벨/경로 관리
+
+-------------------------------------
+[2026-03-11] DRD 폴더 Tailwind 스타일 정리
+-------------------------------------
+
+### Tailwind 임의 hex → 디자인 토큰 치환 (DRD 전체)
+- bg/text/border 클래스의 hex 값을 토큰으로 통일
+  - #f9f8fc→neutral-98, #efeff4→neutral-95, #e3e1e5→neutral-90,
+    #c7c5c9→neutral-80, #787776→neutral-50, #484646→neutral-30,
+    #1c1b1b→neutral-10, #f06600→secondary-60, #262255→primary-15 등
+- 근사값 통일: #e2e1e5→neutral-90, #c6c5c9→neutral-80, #929090→neutral-60 등
+
+### 인라인 스타일 hex → CSS 변수 치환 (DRD 전체)
+- style={{ color: "#484646" }} → style={{ color: "var(--neutral-30)" }} 등
+- 대상: simulation-condition(~50건), filter(21건), smile-setting(17건),
+  medical-history(10건), high-risk-subgroup(10건), simulation-result(8건),
+  default-setting(3건), DrdStepCard(4건), FilteredPatientsCard(3건)
+
+### border 색상 정리 (DRD 전체)
+- border-[#c7c5c9]→border-neutral-80, border-[#e2e1e5]→border-neutral-90 등
+
+### font-['Inter'] → 시맨틱 타이포그래피 클래스 (DRD/TSI)
+- font-['Inter'] text-[15px] font-semibold → text-body4
+- font-['Inter'] text-[15px] font-medium → text-body4m
+- font-['Inter'] text-[17px] font-semibold → text-body3
+- font-['Inter'] text-[19.5px] font-medium → text-body2m
+- font-['Inter'] text-[24px] font-semibold → text-body1
+- 적용: filter, high-risk-subgroup, smile-setting, simulation-condition,
+  patient-disease-info, tsi/filter
+
+### Primary 테이블 body 텍스트 통일
+- 헤더에 radius+배경이 있는 테이블의 body 행 → text-body5m 적용
+- 대상: home/simulation-table, tsi/subgroup-selection, ats/simulation/report
+
+-------------------------------------
+[2026-03-11] DRD Simulation Result 차트 개선
+-------------------------------------
+
+### chart-styles.ts 공통 상수 활용
+- axisTickVisible, tooltipBase import 추가
+
+### 4개 차트 (SpaghettiPlot, Histogram, Bubble, StepLine)
+- Y축 axisTick 표시: axisTickHidden → axisTickVisible
+- Y축 axisLabel margin: 4px 적용
+- tooltip 배경: rgba(255,255,255,0.96), 텍스트 색상 neutral-50
+- axisPointer label: 배경 제거(transparent), 텍스트 neutral-50, shadow 제거
+- ReactECharts: className="w-full h-full" → style={{ width:"100%", height:"100%" }}
+  (부모 컨테이너에 꽉 차게 렌더링)
+
+-------------------------------------
+[2026-03-11] scroll+radius 분리 / 컴포넌트 정리
+-------------------------------------
+
+### medical-history/page.tsx
+- Control Variables 섹션: scroll+radius가 같은 요소에 있던 문제 수정 (외부 wrapper 분리)
+
+### ATS/시뮬레이션 스케일 제거
+- simulation/page.tsx: scaleMode="height" → scaleMode="none"
+- simulation/report/page.tsx: scaleMode="fit" → scaleMode="none"
+- page.tsx (홈): scaleMode="none" 명시 추가
+
+### dropdown-cell.tsx
+- SIZE_CONFIG에 s(28px), l(36px) 사이즈 추가 (기존 sm/md/lg 유지)
+
+### tsi/refine-cutoffs/page.tsx
+- 슬라이더 핸들 가동 범위를 트랙 내부로 제한 (translateX 기법 적용)
+- 슬라이더-드롭다운 간격 gap-2 → gap-3 (4px 증가)
+
+### primary-table.tsx (신규)
+- PrimaryTable compound component 생성
+- 사이즈 체계: s (datasetting 테이블 기준), m (patients-summary 테이블 기준)
+- 서브컴포넌트: Header, HeaderCell, Body, Card, CardHeader, CardHeaderLabel, CardHeaderColumn, Row, RowLabel, RowValue
+- SIZE_CONFIG에 headerBg 필드 추가로 사이즈별 배경색 분리
+
+### simulation-table.tsx (홈)
+- 테이블 헤더를 PrimaryTable.Header (size="s")로 변경
+
+### tsi/page.tsx (datasetting)
+- 테이블 헤더를 PrimaryTable.Header (size="s")로 변경
+
+### ATS 시맨틱 컬러 적용
+- report/page.tsx: text-[#1b1b1b], text-[#1c1b1c] → text-text-primary (5곳)
+- report/page.tsx: text-neutral-10 → text-text-primary (21곳)
+- RightPanel.tsx: text-neutral-10 → text-text-primary (5곳)
+
+### slider.tsx
+- Min/Max 라벨: text-disabled → text-text-secondary
+- 값 표시 박스: min-w-[36px] → w-[44px] 고정 너비
+
+### input-cell.tsx (신규)
+- InputCell 컴포넌트 생성 — 테이블/폼 행 내 텍스트 입력 셀
+- 사이즈 s(28px), m(32px, 기본값), l(36px) / bg-neutral-95
+
+### tsi/filter/page.tsx
+- 하드코딩된 <input> 2곳 → InputCell 컴포넌트로 교체
+
+-------------------------------------
+[2026-03-11] 차트 툴팁 / 드롭다운 통일
+-------------------------------------
+
+### src/components/ui/dropdown-cell.tsx (신규)
+- TSI filter 인라인 DropdownCell → 재사용 컴포넌트로 추출
+- S/M/L 사이즈 지원 (sm: h28/f13, md: h36/f15, lg: h44/f17)
+- Portal 기반 메뉴, className prop 지원
+
+### src/app/tsi/filter/page.tsx
+- 인라인 DropdownCell 제거, 공통 컴포넌트 import로 교체
+
+### src/components/ats/LeftPanel.tsx
+- Select 6개 → DropdownCell size="sm"으로 교체
+- Treatment Duration, Active Data (커스텀 아이콘)은 Select 유지
+
+### src/lib/chart-styles.ts — 툴팁 스펙 통일
+- tooltipBase: borderRadius 6 추가
+- tooltipSubTitle: tooltipTitle과 동일 스타일로 통일 (12px/600/#787776)
+
+### src/components/charts/DensityChart.tsx
+- 툴팁: tooltipAxisCross 공통 import, value 14px→13px
+- 피크 간격 숫자: var() → hex (#787776 평상시, #262255 호버)
+- 축선/축라벨/축이름 fallback 색상 → #787776 (neutral-50) 통일
+- DENSITY_SIZE_STYLES: var() CSS 변수 → hex 직접 값 (Canvas 호환)
+- NEUTRAL_30 상수 삭제 → NEUTRAL_50 (#787776) 통일
+
+### src/components/charts/MultiLineWithErrorBar.tsx
+- 툴팁 value 14px→13px, var() → #787776
+
+### ATS Report 차트 6개 — 툴팁 프리셋 추가
+- Step1TypeISafetyChart: tooltipAxisShadow
+- Step2BoxplotChart, Step2VarianceDeclineChart: tooltipItem
+- Step3AbsolutePerformanceChart, Step3PerformanceGainChart: tooltipItem
+- Step4DecisionStabilityChart: tooltipAxisShadow
+
+-------------------------------------
+[2026-03-11] 글래스 컨테이너 내부 radius -4px
+-------------------------------------
+
+### 전체 페이지/컴포넌트 일괄 적용
+- 글래스 컨테이너(figma-nine-slice) 내부 모든 rounded 값 4px 감소
+  24→20, 22→18, 20→16, 18→14, 16→12, 12→8, 8→4px 등
+- rounded-[36px] (글래스 자체), rounded-full, rounded-[4px] 이하: 유지
+- 대상: src/app/**/*.tsx 25개 + src/components/{ats,drd,home}/*.tsx 12개
+
+-------------------------------------
+[2026-03-11] 홈 페이지 레이아웃
+-------------------------------------
+
+### src/app/page.tsx
+- grid grid-cols-12 → flex 변경 (flex 비율 속성 정상 작동)
+- col-span-* 제거, flex 비율(420/420/1600) 기반 유연 레이아웃
+- minWidth 고정값 제거 → minWidth: 0 (컨테이너 축소 허용)
+
+### src/components/home/feature-card.tsx
+- 호버 애니메이션 (translateY -4px): Package 전용 → Service 카드에도 적용
+
+-------------------------------------
+[2026-03-11] ATS 헤더 버튼 글래스 스타일
+-------------------------------------
+
+### src/components/layout/header/ATSActions.tsx
+- SolidButton → figma-header-btn-pil/cir 글래스 스타일로 교체
+- Make Report: 텍스트/아이콘 primary-15(#262255) 색상
+- Back/Forward 화살표 버튼 제거
+- Help: figma-header-btn-cir 글래스 원형 버튼
+
+### src/components/layout/ATSHeader.tsx
+- onBack, onForward props 제거
+
+-------------------------------------
+[2026-03-11] DRD 좌측 패널 컴포넌트 추출
+-------------------------------------
+
+### 신규 파일
+- `components/drd/FilteredPatientsCard.tsx` — 상단 남색 카드 (프로그레스바 + OPMD 정보)
+- `components/drd/DrdStepCard.tsx` — 스텝 카드 단일 항목 (활성/비활성 스타일)
+- `components/drd/drd-step-data.ts` — 4-Step 상수 + makeDefaultSettingSteps 헬퍼
+- `components/drd/DrdLeftPanel.tsx` — 좌측 패널 조립 컴포넌트
+
+### 수정된 DRD 6개 페이지
+- default-setting, patient-disease-info, filter, high-risk-subgroup, medical-history, simulation-setting
+- 인라인 좌측 패널(아이콘 SVG, setupSteps 배열, stepRoutes 객체) → DrdLeftPanel 컴포넌트로 교체
+
+-------------------------------------
+[2026-03-11] 글로벌 텍스트 크기 축소 + 반응형
+-------------------------------------
+
+### globals.css
+- `.text-page-title` 42px→36px, `.text-page-subtitle` 16px→14px
+- `.text-body1`~`.text-body5`, `.text-body1m`~`.text-body5m` 전체 1~2px 축소
+- `.text-h3`, `.text-h4` 1~2px 축소
+- `@media (min-width: 1470px)` 조건부로 기존 크기 유지
+
+-------------------------------------
+[2026-03-11] 버튼 스타일 통일
+-------------------------------------
+
+### tsi/filter/page.tsx
+- "Go to Simulation" 인라인 스타일 → `btn-tsi btn-tsi-primary`
+- "Cancel" `bg-neutral-50` → `btn-tsi btn-tsi-secondary`
+- "Confirm" 인라인 #f06600 → `btn-tsi btn-tsi-primary`
+
+### drd/medical-history/page.tsx
+- Reset: 커스텀 hover/active 상태 제거 → `btn-tsi btn-tsi-secondary` + `disabled`
+- Cancel `bg-neutral-50` → `btn-tsi btn-tsi-secondary`
+- Confirm `var(--secondary-60)` → `btn-tsi btn-tsi-primary`
+
+### drd/patient-disease-info/page.tsx
+- Reset: 커스텀 hover/active 상태 제거 → `btn-tsi btn-tsi-secondary` + `disabled`
+
+-------------------------------------
+[2026-03-11] patients-summary 테이블 정렬 수정
+-------------------------------------
+
+### tsi/patients-summary/page.tsx
+- 헤더 sub-grid `grid-cols-[1fr_2fr_1fr]` → `grid-cols-[1fr_1fr_1fr]` (바디 행 정렬 일치)
+- 잘못된 `-gap-1` → `gap-0` 수정
+
+-------------------------------------
+[2026-03-11~12] DRD Simulation Result 차트 스타일 통일
+-------------------------------------
+
+### simulation-result/page.tsx — 4개 차트 공통
+- CSS var() 컬러 상수 제거 → chart-styles.ts 공유 스타일로 교체
+  (axisLabelBase, axisNameBase, axisLineWithWidth, axisTickHidden/Visible,
+   splitLineVisible/Hidden, tooltipAxisCross/tooltipAxisShadow/tooltipItem)
+- 축 라벨: #787776, 10px / 축 이름: fontWeight 600
+- X축 라벨 margin 4px, Y축 라벨 margin 6px
+- XY축 모두 axisLine 표시, Y축에만 tick 표시
+- 툴팁 배경: transparent → #ffffff (불투명 흰색)
+- 레전드 텍스트: CHART_COLORS.NEUTRAL_50
+- markLine: DRD_COLORS.markLine
+
+### 차트별 grid / nameGap 최종값
+- SpaghettiPlot: grid 44,8,8,54 / x nameGap 28 / y nameGap 28 / 레전드 bottom 4
+- Histogram: grid 44,4,8,54 / x nameGap 28 / y nameGap 28
+- Bubble: grid 36,16,4,36 / x nameGap 16 / y nameGap 24
+- StepLine: grid 40,16,4,36 / x nameGap 16 / y nameGap 24
 

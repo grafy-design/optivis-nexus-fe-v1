@@ -1114,13 +1114,6 @@
     letter-spacing: -1.26px;
   }
 
-  .text-page-subtitle {
-    font-size: 15px;
-    font-weight: 550;
-    line-height: 110%;
-    letter-spacing: -0.26px;
-    color: "var(--text-secondary)"
-  }
 
 
   /* Typography - Body5 (Inter Semibold 12px) */
@@ -1205,11 +1198,12 @@
     margin: 0;
   }
 
-  /* Typography - Page Subtitle (Inter Semi Bold 600, 16px) */
+  /* Typography - Page Subtitle (Inter Semi Bold 600, 15px) */
   .text-page-subtitle {
     font-family: "Inter", sans-serif;
     font-size: 15px;
     font-weight: 600;
+    line-height: 110%;
     color: var(--text-secondary);
     letter-spacing: -0.48px;
   }

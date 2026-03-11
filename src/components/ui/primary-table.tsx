@@ -6,10 +6,11 @@ import { cn } from "@/lib/cn";
 // ── 사이즈별 스타일 설정 / Size-specific style config ────────────────────────
 const SIZE_CONFIG = {
   s: {
-    // 헤더 (datasetting 테이블 기준)
+    // 헤더 (tsi datasetting 테이블 기준)
     headerRadius: "rounded-[20px]",
-    headerPadding: "h-[46px] px-6",
-    headerText: "text-body5",
+    headerPadding: "py-2.5 px-6",
+    headerBg: "bg-black/60",
+    headerText: "text-body5m",
     headerSubText: "text-small2",
     // 바디 카드
     cardRadius: "rounded-[14px]",
@@ -27,6 +28,7 @@ const SIZE_CONFIG = {
     // 헤더 (patients-summary 테이블 기준)
     headerRadius: "rounded-[12px]",
     headerPadding: "pt-[8px] pb-1.5 px-[12px]",
+    headerBg: "bg-table-header-background",
     headerText: "text-body3m",
     headerSubText: "text-small1",
     // 바디 카드
@@ -83,7 +85,8 @@ function Header({ children, className }: HeaderProps) {
   return (
     <div
       className={cn(
-        "w-full flex items-center bg-table-header-background",
+        "w-full flex items-center",
+        s.headerBg,
         s.headerRadius,
         s.headerPadding,
         className,
