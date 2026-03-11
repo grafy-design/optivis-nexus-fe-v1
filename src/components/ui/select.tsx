@@ -118,13 +118,7 @@ export default function Select({
                     "w-full text-left text-body5 relative flex items-center flex-shrink-0 self-stretch cursor-pointer",
                     isSelected ? "text-neutral-30" : "text-neutral-50",
                   )}
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 590,
-                    letterSpacing: "-0.36px",
-                    lineHeight: "13.2px",
-                    height: "24px",
-                  }}
+                  style={{ height: "24px" }}
                 >
                   <div
                     className={cn(

@@ -56,7 +56,7 @@
   font-family: "Inter", sans-serif;
   font-size: 15px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-inverted);
   letter-spacing: -0.45px;
   display: flex;
   align-items: center;
@@ -64,9 +64,9 @@
   transition: background-color 0.15s ease;
   user-select: none;
 }
-@media (max-width: 1469px) {
+@media (max-width: 1470px) {
   .btn-tsi {
-    height: 32px;
+    height: 36px;
   }
 }
 
@@ -84,6 +84,11 @@
 .btn-tsi-purple             { background-color: #3A11D8; }
 .btn-tsi-purple:hover       { background-color: #2E0DAD; }
 .btn-tsi-purple:active      { background-color: #230A82; }
+
+/* Purple Light: #8F8AC4 → hover → active */
+.btn-tsi-purple-light       { background-color: #8F8AC4; }
+.btn-tsi-purple-light:hover { background-color: #7B76B0; }
+.btn-tsi-purple-light:active{ background-color: #68639D; }
 
 /* Disabled (공통) */
 .btn-tsi:disabled           { background-color: #C6C5C9; cursor: not-allowed; }
@@ -222,8 +227,9 @@
 
   /* Text */
   --text-primary: #484646;
-  --text-accent: #262625;
   --text-secondary: #787776;
+  --text-accent: #262625;
+  --text-header: #262255;
   --text-active: #3A11D8;
   --text-error-major: #FF5449;
   --text-error-dark: #DE3730;
@@ -241,11 +247,12 @@
   /* Icon */
   --icon-primary: #787776;
   --icon-inverted: #FFFFFF;
-  --icon-secondary: #AAAAAD;
-  --icon-disabled: #AAAAAD;
+  --icon-secondary: #acaaad;
+  --icon-disabled: #acaaad;
   --icon-on-button: #262255;
 
   /* Table */
+  --table-header-background: rgba(0, 0, 0, 0.6);
   --table-background: #FFFFFF;
   --table-selected: #F3EEFF;
   --table-text-head-column: #484646;
@@ -309,12 +316,110 @@
   /* Chart - Text */
   --chart-text-datalabel: #FFFFFF;
   --chart-text-axis-value: #787776;
-  --chart-text-category-title: #262625;
+  --chart-text-category-title: #484646;
+  --chart-text-strong: #1c1b1b;
+
+  /* Chart - Neutral (축/라벨 보조) */
+  --chart-axis-muted: #929090;
+  --chart-axis-subtle: #5f5e5e;
+  --chart-legend-border: #AEA9B1;
+  --chart-legend-text: #484646;
+
+  /* Chart - ATS Report */
+  --chart-ats-markline: #704ef3;
+  --chart-ats-gradient-top: #E9DDFF;
+  --chart-ats-standard-bar: #A692D6;
+  --chart-ats-splitline: #E8E8E8;
+  --chart-ats-divider: #E5E5E5;
+  --chart-ats-ns-zone: rgba(0,0,0,0.06);
+  --chart-ats-guide-dashed: #999999;
+
+  /* Chart - DRD */
+  --chart-drd-markline: #7a7793;
+
+  /* Chart - Infrastructure (splitline, guideline, tooltip) */
+  --chart-splitline-subtle: #efeff4;
+  --chart-splitline: #e3e1e5;
+  --chart-splitline-alt: #E2E1E5;
+  --chart-splitline-dashed: #efeff4;
+  --chart-guideline: #D2D2DA;
+  --chart-guideline-alt: #c7c5c9;
+  --chart-hover-text: #262255;
+  --chart-tooltip-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --chart-hover-shadow: rgba(150,150,150,0.08);
+
+  /* Chart - Group (MultiLineWithErrorBar 기본 팔레트) */
+  --chart-group-01: #F07A22;
+  --chart-group-02: #4B3DF2;
+  --chart-group-03: #262255;
+  --chart-group-04: #E04A7A;
+  --chart-group-05: #8C62FF;
+  --chart-group-06: #2F89FC;
+  --chart-group-07: #F1B316;
+
+  /* Chart - Histogram (보라 그라데이션 팔레트) */
+  --chart-histogram-01: rgba(203, 198, 232, 0.9);
+  --chart-histogram-02: rgba(176, 170, 220, 0.9);
+  --chart-histogram-03: rgba(150, 143, 200, 0.9);
+  --chart-histogram-04: rgba(124, 116, 180, 0.9);
+  --chart-histogram-05: rgba(58, 52, 110, 0.95);
+  --chart-histogram-06: rgba(40, 37, 86, 0.95);
+
+  /* Chart - Subgroup Proportion */
+  --chart-subgroup-01: rgba(176,170,220,0.9);
+  --chart-subgroup-02: rgba(124,116,180,0.9);
+  --chart-subgroup-03: rgba(58,52,110,0.95);
+  --chart-subgroup-04: rgba(40,37,86,0.95);
+  --chart-subgroup-emphasis-01: #a18af4;
+  --chart-subgroup-emphasis-02: #7654f0;
+  --chart-subgroup-emphasis-03: #3609a1;
+  --chart-subgroup-emphasis-04: #231368;
+
+  /* Chart - Scatter */
+  --chart-scatter-01: rgba(90, 83, 160, 0.6);
+  --chart-scatter-02: rgba(166, 160, 220, 0.6);
+  --chart-scatter-emphasis-01: rgba(90, 83, 160, 1);
+  --chart-scatter-emphasis-02: rgba(166, 160, 220, 1);
+
+  /* Chart - SHAP */
+  --chart-shap-low: #D8D3FF;
+  --chart-shap-high: #231F52;
+  --chart-shap-emphasis-low: #BFB0F8;
+  --chart-shap-emphasis-high: #231368;
+
+  /* Chart - TSI Report (Model Based) */
+  --chart-report-model-risk-01: #A6A3E3;
+  --chart-report-model-risk-02: #6E6AA7;
+  --chart-report-model-risk-03: #272354;
+  --chart-report-model-within: #9C97D0;
+  --chart-report-model-explained: #26225B;
+  --chart-report-model-bar-high: #26225B;
+  --chart-report-model-bar-mid: #7A74AC;
+  --chart-report-model-bar-low: #A39ED5;
+
+  /* Chart - TSI Report (Feature Based) */
+  --chart-report-feature-risk-01: #26225B;
+  --chart-report-feature-risk-02: #EF6A00;
+  --chart-report-feature-risk-03: #4327E6;
+  --chart-report-feature-within: #B7B7BC;
+  --chart-report-feature-explained: #EF6A00;
+  --chart-report-feature-bar-high: #4327E6;
+  --chart-report-feature-bar-mid: #EF6A00;
+  --chart-report-feature-bar-low: #26225B;
+
+  /* Chart - Cutoff Segments */
+  --chart-cutoff-line-01: #f97316;
+  --chart-cutoff-line-02: #919092;
+  --chart-cutoff-line-03: #262255;
+  --chart-cutoff-area-01: rgba(249,115,22,0.1);
+  --chart-cutoff-area-02: rgba(145,144,146,0.1);
+  --chart-cutoff-area-03: rgba(38,34,85,0.1);
 
   /* Layer */
   --layer-primary: #FFFFFF;
   --layer-accent: #262255;
   --layer-secondary: rgba(255, 255, 255, 0.6);
+  
 
   /* Radius */
   --radius-none: 0px;
@@ -477,6 +582,7 @@
   --color-text-primary: var(--text-primary);
   --color-text-accent: var(--text-accent);
   --color-text-secondary: var(--text-secondary);
+  --color-text-header: var(--text-header);
   --color-text-active: var(--text-active);
   --color-text-error-major: var(--text-error-major);
   --color-text-error-dark: var(--text-error-dark);
@@ -499,6 +605,7 @@
   --color-icon-on-button: var(--icon-on-button);
 
   /* Semantic Colors - Table */
+  --color-table-header-background: var(--table-header-background);
   --color-table-background: var(--table-background);
   --color-table-selected: var(--table-selected);
   --color-table-text-head-column: var(--table-text-head-column);
@@ -507,6 +614,10 @@
   --color-table-head-column-secondary: var(--table-head-column-secondary);
   --color-table-text-index-primary: var(--table-text-index-primary);
   --color-table-text-index-secondary: var(--table-text-index-secondary);
+
+  /* Semantic Colors - Chart Legend */
+  --color-chart-legend-text: var(--chart-legend-text);
+  --color-chart-legend-border: var(--chart-legend-border);
 
   /* Semantic Colors - Chart Axis */
   --color-chart-axis-border: var(--chart-axis-border);
@@ -788,26 +899,57 @@
   }
 }
 
-/* TSI 전용: 1470px 이하에서 글래스 패널 제외 내부 컨테이너 radius 2/3 축소 */
+/* TSI/DRD: 1470px 이하에서 글래스 패널 제외 내부 컨테이너 radius 2/3 축소 */
 @media (max-width: 1470px) {
-  .tsi-page .rounded-\[24px\] { border-radius: 16px; }
-  .tsi-page .rounded-\[25px\] { border-radius: 17px; }
-  .tsi-page .rounded-\[22px\] { border-radius: 15px; }
-  .tsi-page .rounded-\[18px\] { border-radius: 12px; }
-  .tsi-page .rounded-\[16px\] { border-radius: 11px; }
-  .tsi-page .rounded-\[12px\] { border-radius: 8px; }
+  .tsi-page .rounded-\[24px\], .drd-page .rounded-\[24px\] { border-radius: 16px; }
+  .tsi-page .rounded-\[25px\], .drd-page .rounded-\[25px\] { border-radius: 17px; }
+  .tsi-page .rounded-\[22px\], .drd-page .rounded-\[22px\] { border-radius: 15px; }
+  .tsi-page .rounded-\[18px\], .drd-page .rounded-\[18px\] { border-radius: 12px; }
+  .tsi-page .rounded-\[16px\], .drd-page .rounded-\[16px\] { border-radius: 11px; }
+  .tsi-page .rounded-\[12px\], .drd-page .rounded-\[12px\] { border-radius: 8px; }
 }
 
-.figma-header-btn-template {
-  background: url("/assets/figma/home/header-btn-template-frame.png") center / 100% 100% no-repeat !important;
+/* DRD 좌측 패널 너비 */
+.drd-left-panel {
+  width: 380px;
+}
+@media (max-width: 1470px) {
+  .drd-left-panel { width: 300px; }
 }
 
-.figma-header-btn-setting {
-  background: url("/assets/figma/home/header-btn-setting-frame.png") center / 100% 100% no-repeat !important;
+
+.figma-header-btn-pil {
+  position: relative;
+  margin-top: -2px;
+  margin-left: -4px;
+  margin-right: -4px;
+  margin-bottom: -6px;
 }
 
-.figma-header-btn-help {
-  background: url("/assets/figma/home/header-help-frame.png") center / 100% 100% no-repeat !important;
+.figma-header-btn-pil::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-style: solid;
+  border-color: transparent;
+  border-width: 0 30px 0 30px;
+  border-image-source: url("/assets/glass-button-pil.png");
+  border-image-slice: 0 25% 0 25% fill;
+  border-image-width: 0 50px 0 30%;
+}
+
+.figma-header-btn-pil > * {
+  position: relative;
+  z-index: 1;
+}
+
+.figma-header-btn-cir {
+  background: url("/assets/glass-button-cir.png") center / 100% 100% no-repeat !important;
+  margin-top: -2px;
+  margin-left: -4px;
+  margin-right: -4px;
+  margin-bottom: -6px;
 }
 
 @layer utilities {
@@ -894,7 +1036,7 @@
     font-size: 19.5px;
     font-weight: 600;
     line-height: 23.4px;
-    letter-spacing: -0.78px;
+    letter-spacing: -0.1px;
   }
 
   /* Typography - Body2m (Inter Medium 19.5px) */
@@ -902,7 +1044,7 @@
     font-size: 19.5px;
     font-weight: 500;
     line-height: 23.4px;
-    letter-spacing: -0.585px;
+    letter-spacing: -0.05px;
   }
 
   /* Typography - Body3 (Inter Semibold 17px) */
@@ -926,7 +1068,7 @@
     font-size: 15px;
     font-weight: 600;
     line-height: 16.5px;
-    letter-spacing: -0.75px;
+    letter-spacing: -0.05px;
   }
 
   /* Typography - Body4m (Inter Medium 15px) */
@@ -934,7 +1076,31 @@
     font-size: 15px;
     font-weight: 500;
     line-height: 16.5px;
-    letter-spacing: -0.45px;
+    letter-spacing: -0.05px;
+  }
+
+  /* Typography - Caption (Inter Semibold 13px) */
+  .text-caption {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 15.6px;
+    letter-spacing: -0.13px;
+  }
+
+  /* Typography - Captionm (Inter Medium 13px) */
+  .text-captionm {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 15.6px;
+    letter-spacing: -0.13px;
+  }
+
+  /* Typography - Page Title (Inter Semibold 42px) */
+  .text-page-title {
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 100%;
+    letter-spacing: -1.26px;
   }
 
   /* Typography - Body5 (Inter Semibold 12px) */
@@ -968,6 +1134,22 @@
     line-height: 115%;
     letter-spacing: -0.1px;
   }
+
+  /* Typography - Caption (Inter Semibold 13px) */
+  .text-caption {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 115%;
+    letter-spacing: -0.39px;
+  }
+
+  /* Typography - Caption Medium (Inter Medium 13px) */
+  .text-captionm {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 115%;
+    letter-spacing: -0.39px;
+  }
   /* Typography - Feature List Title (Inter Semi Bold 600, 19.5px) */
   .text-feature-title {
     font-size: 19.5px;
@@ -990,6 +1172,26 @@
     font-weight: 500;
     line-height: 17.85px;
     letter-spacing: -0.51px;
+  }
+
+  /* Typography - Page Title (Poppins Semi Bold 600, 42px) */
+  .text-page-title {
+    font-family: "Poppins", "Inter", sans-serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: rgb(17, 17, 17);
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  /* Typography - Page Subtitle (Inter Semi Bold 600, 16px) */
+  .text-page-subtitle {
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: -0.48px;
   }
 
   /* Liquid Glass Effect - Based on Figma Design */
@@ -1029,17 +1231,6 @@
 }
 
 /* ── DRD 페이지 공통 ────────────────────────────────────────── */
-
-.drd-page-root {
-  display: flex;
-  flex-direction: column;
-  width: calc(100% - 24px);
-  height: 100%;
-  gap: 24px;
-  overflow: hidden;
-  margin-left: 8px;
-  margin-right: 8px;
-}
 
 .drd-page-h1 {
   font-family: "Poppins", "Inter", sans-serif;
@@ -1155,63 +1346,92 @@
   letter-spacing: -0.585px;
 }
 
-/* TSI: 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 */
+/* TSI/DRD: 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 */
 @media (max-width: 1470px) {
-  .tsi-page .text-h4 {
+  .tsi-page .text-h4,
+  .drd-page .text-h4 {
     font-size: 24px;
     line-height: 23.4px;
     letter-spacing: -0.78px;
   }
 
-  .tsi-page .text-body1 {
+  .tsi-page .text-body1,
+  .drd-page .text-body1 {
     font-size: 19.5px;
     line-height: 23.4px;
     letter-spacing: -0.78px;
   }
-  .tsi-page .text-body1m {
+  .tsi-page .text-body1m,
+  .drd-page .text-body1m {
     font-size: 19.5px;
     line-height: 23.4px;
     font-weight: 500;
     letter-spacing: -0.585px;
   }
-  .tsi-page .text-body2 {
+  .tsi-page .text-body2,
+  .drd-page .text-body2 {
     font-size: 17px;
     line-height: 17.85px;
     letter-spacing: -0.51px;
   }
-  .tsi-page .text-body2m {
+  .tsi-page .text-body2m,
+  .drd-page .text-body2m {
     font-size: 17px;
     line-height: 17.85px;
     font-weight: 500;
     letter-spacing: -0.2px;
   }
-  .tsi-page .text-body3 {
+  .tsi-page .text-body3,
+  .drd-page .text-body3 {
     font-size: 15px;
     line-height: 16.5px;
     letter-spacing: -0.75px;
   }
-  .tsi-page .text-body3m {
+  .tsi-page .text-body3m,
+  .drd-page .text-body3m {
     font-size: 15px;
     line-height: 16.5px;
     letter-spacing: -0.45px;
   }
-  .tsi-page .text-body4 {
+  .tsi-page .text-body4,
+  .drd-page .text-body4 {
     font-size: 12px;
     line-height: 13.2px;
     letter-spacing: -0.36px;
   }
-  .tsi-page .text-body4m {
+  .tsi-page .text-body4m,
+  .drd-page .text-body4m {
     font-size: 12px;
     line-height: 13.2px;
     font-family: 500;
     letter-spacing: -0.2px;
   }
-  .tsi-page .text-body5 {
+  .tsi-page .text-caption,
+  .drd-page .text-caption {
+    font-size: 11px;
+    line-height: 13.2px;
+    letter-spacing: -0.11px;
+  }
+  .tsi-page .text-captionm,
+  .drd-page .text-captionm {
+    font-size: 11px;
+    line-height: 13.2px;
+    letter-spacing: -0.11px;
+  }
+  .tsi-page .text-page-title,
+  .drd-page .text-page-title {
+    font-size: 36px;
+    line-height: 100%;
+    letter-spacing: -1.08px;
+  }
+  .tsi-page .text-body5,
+  .drd-page .text-body5 {
     font-size: 10.5px;
     line-height: 120%;
     letter-spacing: 0px;
   }
-  .tsi-page .text-body5m {
+  .tsi-page .text-body5m,
+  .drd-page .text-body5m {
     font-size: 10.5px;
     line-height: 120%;
     font-family: 400;

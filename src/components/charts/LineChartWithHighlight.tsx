@@ -415,7 +415,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
 
   return (
     <div
-      style={{ position: "relative", height: "100%", width: "100%" }}
+      className="relative h-full w-full"
       onClick={handleChartClick}
     >
       <ReactECharts
@@ -434,8 +434,8 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
       {/* 클릭 위치에 표시되는 툴팁 */}
       {showTooltip && tooltipVisible && (optivisPoint || traditionalPoint) && (
         <div
+          className="absolute"
           style={{
-            position: "absolute",
             left: `${tooltipPosition.x}px`,
             top: `${tooltipPosition.y}px`,
             backgroundColor: "rgba(0, 0, 0, 0.7)",
@@ -451,25 +451,23 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
           {optivisPoint && (
             <div style={{ marginBottom: "8px" }}>
               <div
+                className="flex items-center"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
                   marginBottom: "4px",
                 }}
               >
                 <div
+                  className="rounded-full shrink-0"
                   style={{
                     width: "16px",
                     height: "16px",
-                    borderRadius: "50%",
                     backgroundColor: optivisColor,
                     marginRight: "8px",
-                    flexShrink: 0,
                   }}
                 />
                 <span className="text-body4 text-white">OPTIVIS</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div className="flex justify-end">
                 <span className="text-body4 text-neutral-98">
                   {Math.round(optivisPoint[0])} , {optivisPoint[1].toFixed(2)}
                 </span>
@@ -480,25 +478,23 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
           {traditionalPoint && (
             <div>
               <div
+                className="flex items-center"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
                   marginBottom: "4px",
                 }}
               >
                 <div
+                  className="rounded-full shrink-0"
                   style={{
                     width: "16px",
                     height: "16px",
-                    borderRadius: "50%",
                     backgroundColor: traditionalColor,
                     marginRight: "8px",
-                    flexShrink: 0,
                   }}
                 />
                 <span className="text-body4 text-white">Traditional</span>
               </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <div className="flex justify-end">
                 <span className="text-body4 text-neutral-98">
                   {Math.round(traditionalPoint[0])} ,{" "}
                   {traditionalPoint[1].toFixed(2)}

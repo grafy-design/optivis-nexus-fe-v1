@@ -4,15 +4,22 @@ import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceStackChartData } from "./types";
 import { useState, useEffect, useMemo } from "react";
-
-const NEUTRAL_50 = "#787776";
-
-function hexToRgba(hex: string, alpha: number) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
+import {
+  hexToRgba,
+  CHART_COLORS,
+  CHART_FONT,
+  tooltipAxisShadowLight,
+  tooltipDotRow,
+  tooltipTotalRow,
+  axisLineWithWidth,
+  axisTickWithLength,
+  splitLineHidden,
+  gridStackedVariance,
+  animationDefault,
+  legendBottom,
+  BAR_RADIUS,
+  edgeLabelFormatter,
+} from "@/lib/chart-styles";
 
 export function TSIStackedVarianceChart({
   data,
@@ -40,76 +47,49 @@ export function TSIStackedVarianceChart({
   const explainedActive = hoveredSeries === null || hoveredSeries === 1;
 
   const option: EChartsOption = {
-    animation: true,
-    animationDuration: 300,
-    animationEasing: "cubicOut",
+    ...animationDefault,
     tooltip: {
-      trigger: "axis",
-      axisPointer: { type: "shadow", z: -1, shadowStyle: { color: "rgba(150,150,150,0.08)" } },
-      padding: [4, 6],
-      borderWidth: 0,
-      borderColor: "transparent",
-      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
-      confine: true,
+      ...tooltipAxisShadowLight,
       formatter: () => {
         const total = data.within + data.explained;
-        const row = (dot: string, label: string, val: string) =>
-          `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0"></span><span style="color:#787776;font-size:9px">${label}</span></span><span style="color:#787776;font-size:13px;font-weight:600">${val}</span></div>`;
-        return row(data.withinColor, "Within", data.within.toFixed(1)) +
-          row(data.explainedColor, "Explained", data.explained.toFixed(1)) +
-          `<div style="display:flex;justify-content:space-between;padding:1px 0;border-top:1px solid #e3e1e5;margin-top:2px;padding-top:3px"><span style="color:#787776;font-size:9px">Total</span><span style="color:#787776;font-size:13px;font-weight:600">${total.toFixed(1)}</span></div>`;
+        return tooltipDotRow(data.withinColor, "Within", data.within.toFixed(1)) +
+          tooltipDotRow(data.explainedColor, "Explained", data.explained.toFixed(1)) +
+          tooltipTotalRow("Total", total.toFixed(1));
       },
     },
-    legend: {
-      show: true,
-      bottom: 0,
-      itemWidth: 48,
-      itemHeight: 14,
-      itemGap: 24,
-      icon: "roundRect",
-      textStyle: {
-        color: NEUTRAL_50,
-        fontSize: 9,
-        fontFamily: "Inter",
-      },
-    },
-    grid: { left: 16, right: 6, top: 10, bottom: 24, containLabel: true },
+    legend: legendBottom,
+    grid: gridStackedVariance,
     xAxis: {
       type: "category",
       data: [""],
       axisLabel: { show: false },
       axisTick: { show: false },
-      splitLine: { show: false },
-      axisLine: { show: true, lineStyle: { color: NEUTRAL_50, width: 1 } },
+      splitLine: splitLineHidden,
+      axisLine: axisLineWithWidth,
     },
     yAxis: {
       type: "value",
       min: 0,
       max: data.max,
       interval: data.ticks.length > 1 ? data.ticks[1] - data.ticks[0] : 5,
-      axisLine: { show: true, lineStyle: { color: NEUTRAL_50, width: 1 } },
-      axisTick: { show: true, length: 4, lineStyle: { color: NEUTRAL_50 } },
+      axisLine: axisLineWithWidth,
+      axisTick: axisTickWithLength(4),
       axisLabel: {
         show: true,
-        color: NEUTRAL_50,
+        color: CHART_COLORS.NEUTRAL_50,
         fontSize: 9,
-        fontFamily: "Inter",
-        formatter: (value: number) => {
-          if (value === 0) return `${value.toFixed(1)}\n`;
-          if (Math.abs(value - data.max) < 0.001) return `\n${value.toFixed(1)}`;
-          return value.toFixed(1);
-        },
+        fontFamily: CHART_FONT.familyShort,
+        formatter: edgeLabelFormatter(data.max, 0, (v) => v.toFixed(1)),
       },
-      splitLine: { show: false },
+      splitLine: splitLineHidden,
       name: yAxisLabel,
       nameLocation: "middle",
       nameGap: 32,
       nameRotate: 90,
       nameTextStyle: {
-        color: NEUTRAL_50,
+        color: CHART_COLORS.NEUTRAL_50,
         fontSize: nameFontSize,
-        fontFamily: "Inter",
+        fontFamily: CHART_FONT.familyShort,
       },
     },
     series: [
@@ -121,7 +101,7 @@ export function TSIStackedVarianceChart({
         data: [data.within],
         itemStyle: {
           color: hexToRgba(data.withinColor, withinActive ? 1 : 0.6),
-          borderRadius: [12, 12, 12, 12],
+          borderRadius: BAR_RADIUS.allLarge,
         },
       },
       {
@@ -132,15 +112,15 @@ export function TSIStackedVarianceChart({
         data: [data.explained],
         itemStyle: {
           color: hexToRgba(data.explainedColor, explainedActive ? 1 : 0.6),
-          borderRadius: [12, 12, 12, 12],
+          borderRadius: BAR_RADIUS.allLarge,
         },
         label: {
           show: true,
           position: "top",
           formatter: () => data.vrLabel,
-          color: NEUTRAL_50,
+          color: CHART_COLORS.NEUTRAL_50,
           fontSize: labelFontSize,
-          fontFamily: "Inter",
+          fontFamily: CHART_FONT.familyShort,
           fontWeight: hoveredSeries !== null ? 700 : 500,
         },
       },

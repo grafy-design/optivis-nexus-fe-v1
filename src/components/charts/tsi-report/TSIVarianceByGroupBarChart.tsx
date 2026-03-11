@@ -4,15 +4,20 @@ import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceBarsChartData } from "./types";
 import { useState, useEffect, useMemo } from "react";
-
-const NEUTRAL_50 = "#787776";
-
-function hexToRgba(hex: string, alpha: number) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
+import {
+  hexToRgba,
+  CHART_COLORS,
+  CHART_FONT,
+  tooltipAxisShadowLight,
+  tooltipDotRow,
+  axisLineWithWidth,
+  axisTickWithLength,
+  splitLineHidden,
+  gridVarianceByGroup,
+  animationDefault,
+  BAR_RADIUS,
+  edgeLabelFormatter,
+} from "@/lib/chart-styles";
 
 export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { data: VarianceBarsChartData; yAxisLabel?: string }) {
   const [nameFontSize, setNameFontSize] = useState(9);
@@ -33,37 +38,26 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
   const maxValue = Math.max(...data.bars.map((b) => b.value));
 
   const option: EChartsOption = {
-    animation: true,
-    animationDuration: 300,
-    animationEasing: "cubicOut",
+    ...animationDefault,
     tooltip: {
-      trigger: "axis",
-      axisPointer: { type: "shadow", z: -1, shadowStyle: { color: "rgba(150,150,150,0.08)" } },
-      padding: [4, 6],
-      borderWidth: 0,
-      borderColor: "transparent",
-      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
-      confine: true,
+      ...tooltipAxisShadowLight,
       formatter: () => {
-        let html = ``;
-        data.bars.forEach((bar) => {
-          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${bar.color};flex-shrink:0"></span><span style="color:#787776;font-size:9px">${bar.label}</span></span><span style="color:#787776;font-size:13px;font-weight:600">${bar.value.toFixed(1)} (${bar.weightLabel})</span></div>`;
-        });
-        return html;
+        return data.bars.map((bar) =>
+          tooltipDotRow(bar.color, bar.label, `${bar.value.toFixed(1)} (${bar.weightLabel})`)
+        ).join("");
       },
     },
-    grid: { left: 18, right: 6, top: 4, bottom: 0, containLabel: true },
+    grid: gridVarianceByGroup,
     xAxis: {
       type: "category",
       data: data.bars.map((bar) => bar.label),
-      axisLine: { show: true, lineStyle: { color: NEUTRAL_50, width: 1 } },
+      axisLine: axisLineWithWidth,
       axisTick: { show: false },
       axisLabel: {
         show: true,
-        color: NEUTRAL_50,
+        color: CHART_COLORS.NEUTRAL_50,
         fontSize: 9,
-        fontFamily: "Inter",
+        fontFamily: CHART_FONT.familyShort,
         margin: 8,
       },
     },
@@ -72,28 +66,24 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
       min: 0,
       max: data.max,
       interval: data.ticks.length > 1 ? data.ticks[1] - data.ticks[0] : 10,
-      axisLine: { show: true, lineStyle: { color: NEUTRAL_50, width: 1 } },
-      axisTick: { show: true, length: 4, lineStyle: { color: NEUTRAL_50 } },
+      axisLine: axisLineWithWidth,
+      axisTick: axisTickWithLength(4),
       axisLabel: {
         show: true,
-        color: NEUTRAL_50,
+        color: CHART_COLORS.NEUTRAL_50,
         fontSize: 9,
-        fontFamily: "Inter",
-        formatter: (value: number) => {
-          if (value === 0) return `${value}\n`;
-          if (Math.abs(value - data.max) < 0.001) return `\n${value}`;
-          return value.toString();
-        },
+        fontFamily: CHART_FONT.familyShort,
+        formatter: edgeLabelFormatter(data.max, 0, (v) => v.toString()),
       },
-      splitLine: { show: false },
+      splitLine: splitLineHidden,
       name: yAxisLabel,
       nameLocation: "middle",
       nameGap: 28,
       nameRotate: 90,
       nameTextStyle: {
-        color: NEUTRAL_50,
+        color: CHART_COLORS.NEUTRAL_50,
         fontSize: nameFontSize,
-        fontFamily: "Inter",
+        fontFamily: CHART_FONT.familyShort,
       },
     },
     series: [
@@ -108,7 +98,7 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
             value: bar.value,
             itemStyle: {
               color: hexToRgba(bar.color, opacity),
-              borderRadius: [8, 8, 8, 8],
+              borderRadius: BAR_RADIUS.allMedium,
               borderColor: bar.highlight ? hexToRgba("#8A47FF", opacity) : "transparent",
               borderWidth: bar.highlight ? 3 : 0,
             },
@@ -118,12 +108,12 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
               distance: 2,
               formatter: bar.weightLabel,
               color: hoveredIdx === null
-                ? (Math.abs(bar.value - maxValue) < 0.001 ? bar.color : NEUTRAL_50)
+                ? (Math.abs(bar.value - maxValue) < 0.001 ? bar.color : CHART_COLORS.NEUTRAL_50)
                 : isActive
-                  ? (Math.abs(bar.value - maxValue) < 0.001 ? bar.color : NEUTRAL_50)
-                  : hexToRgba(NEUTRAL_50, 0.6),
+                  ? (Math.abs(bar.value - maxValue) < 0.001 ? bar.color : CHART_COLORS.NEUTRAL_50)
+                  : hexToRgba(CHART_COLORS.NEUTRAL_50, 0.6),
               fontSize: labelFontSize,
-              fontFamily: "Inter",
+              fontFamily: CHART_FONT.familyShort,
               fontWeight: 600,
             },
           };
@@ -132,7 +122,7 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
           symbol: "none",
           silent: true,
           lineStyle: {
-            color: "#c7c5c9",
+            color: CHART_COLORS.GUIDE_LINE_ALT,
             width: 1.5,
             type: [4, 3],
           },
@@ -141,9 +131,9 @@ export function TSIVarianceByGroupBarChart({ data, yAxisLabel = "CIWidth" }: { d
             position: "insideEndTop",
             offset: [6, 0],
             formatter: `Total Var = ${data.threshold.toFixed(2)}`,
-            color: NEUTRAL_50,
+            color: CHART_COLORS.NEUTRAL_50,
             fontSize: labelFontSize,
-            fontFamily: "Inter",
+            fontFamily: CHART_FONT.familyShort,
           },
           data: [{ yAxis: data.threshold }],
         },

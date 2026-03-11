@@ -16,13 +16,13 @@ export default function Input({
   return (
     <div className="relative flex items-center w-full">
       {icon && (
-        <div className="absolute left-[18px] flex items-center text-[#5f5e5e] z-10">
+        <div className="absolute left-[18px] flex items-center text-icon-primary z-10">
           {icon}
         </div>
       )}
       <input
         className={cn(
-          "w-full rounded-[100px] bg-white py-[12px] text-[#5f5e5e] placeholder:text-feature-search placeholder:text-[#5f5e5e] focus:outline-none focus:ring-2 focus:ring-offset-2",
+          "w-full rounded-[100px] bg-white py-[12px] text-neutral-40 placeholder:text-feature-search placeholder:text-neutral-40 focus:outline-none focus:ring-2 focus:ring-offset-2",
           icon ? "pl-[42px] pr-[18px]" : "px-[18px]",
           rightIcon && "pr-10",
           className
@@ -40,7 +40,7 @@ export default function Input({
         {...props}
       />
       {rightIcon && (
-        <div className="absolute right-4 flex items-center text-[#5f5e5e]">
+        <div className="absolute right-4 flex items-center text-icon-primary">
           {rightIcon}
         </div>
       )}

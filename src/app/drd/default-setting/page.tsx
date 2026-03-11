@@ -20,12 +20,14 @@ import { useDefaultSettingStore, type DefaultSettingId } from "@/store/defaultSe
 import { useSimulationStore, type EndpointItem } from "@/store/simulationStore";
 import { Loading } from "@/components/common/Loading";
 import { callMLStudyDesign, type PrimaryEndpointData, type SecondaryEndpointData, type StudyParameters } from "@/services/studyService";
-import { IconVirusGray, IconFunnelGray, IconAsteriskGray, IconClockGray, IconVirusOrange, IconFunnelActive, IconAsteriskOrange, IconClockOrange } from "@/components/ui/drd-step-icons";
+import { IconVirusGray, IconFunnelGray, IconAsteriskGray, IconClockGray } from "@/components/ui/drd-step-icons";
+import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
+import { makeDefaultSettingStepsWithCompletion } from "@/components/drd/drd-step-data";
 
 /** 설정 완료 시 카드 헤더에 표시되는 주황색 체크 원형 아이콘 */
 function IconComplete(): React.JSX.Element {
   return (
-    <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#F06600", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div className="flex items-center justify-center shrink-0 rounded-full" style={{ width: 30, height: 30, background: "#F06600" }}>
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M3 9L7 13L15 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
@@ -111,13 +113,13 @@ function InitialCard({ item, onClick }: { item: any; onClick: () => void }) {
     <div className="bg-white/60 rounded-[24px] p-4 flex flex-col min-w-0 flex-1">
       <div className="flex items-center gap-2">
         <Icon size={30} />
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: "1" }}>{item.title}</span>
+        <span className="text-body3" style={{ color: "var(--text-primary)" }}>{item.title}</span>
       </div>
-      <p style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgb(145,144,146)", letterSpacing: "-0.39px", lineHeight: "1.4", margin: "16px 0 0", flex: 1 }}>
+      <p className="text-captionm" style={{ color: "rgb(145,144,146)", margin: "16px 0 0", flex: 1 }}>
         {item.description}
       </p>
-      <button onClick={onClick} className="w-full h-9 rounded-[36px] border-none cursor-pointer bg-[#8F8AC4] flex items-center justify-center gap-[6px] mt-4 shrink-0 pt-[2px]">
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.51px", lineHeight: 1 }}>Setting</span>
+      <button onClick={onClick} className="btn-tsi btn-tsi-purple-light w-full gap-[6px] mt-4 shrink-0 pt-[2px]" style={{ height: 36 }}>
+        <span className="text-body3">Setting</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M2.33594 8.33594H14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M8.33594 2.33594V14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -142,7 +144,7 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
       {/* 헤더 */}
       <div className="flex items-center gap-2 shrink-0">
         <IconComplete />
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: "1" }}>{item.title}</span>
+        <span className="text-body3" style={{ color: "var(--text-primary)" }}>{item.title}</span>
       </div>
 
       {/* 내용 — 스크롤 영역 */}
@@ -150,22 +152,22 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
         {hasColumns ? (
           /* Multi-column: Each column gets its own identical white container */
           (summary.columns as any[]).map((col: any, ci: number) => (
-            <div key={ci} style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff", borderRadius: 16, padding: 14, gap: 12, minWidth: 0 }}>
+            <div key={ci} className="flex-1 flex flex-col min-w-0 rounded-[16px] gap-3" style={{ background: "#ffffff", padding: 14 }}>
                {/* 컬럼 헤딩 */}
-               <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: 1, flexShrink: 0 }}>
+               <div className="shrink-0 text-body3" style={{ color: "var(--text-primary)" }}>
                 {col.heading}
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
+              <div className="flex flex-col flex-1 min-w-0 gap-1">
                 {(col.rows as any[]).map((row: any, ri: number) => (
-                  <div key={ri} style={{ height: 17, display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                  <div key={ri} className="flex items-center shrink-0 gap-2" style={{ height: 17 }}>
                     {row.label && (
-                      <span style={{ flex: "0 0 auto", fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.39px", lineHeight: 1, whiteSpace: "nowrap" }}>
+                      <span className="text-caption" style={{ flex: "0 0 auto", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
                         {row.label}
                       </span>
                     )}
                     {row.value && (
-                      <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgb(72,70,70)", letterSpacing: "-0.39px", lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <span className="overflow-hidden text-captionm" style={{ color: "var(--text-primary)", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
                         {row.value}
                       </span>
                     )}
@@ -176,34 +178,36 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
           ))
         ) : (
           /* 일반 단일 컨테이너: 헤딩 + 행 테이블 */
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, background: "#ffffff", borderRadius: 16, padding: 14, justifyContent: "flex-start", gap: 12, overflowY: "auto" }}>
+          <div className="flex-1 min-h-0 rounded-[16px] overflow-hidden" style={{ background: "#ffffff", padding: 14 }}>
+          <div className="flex flex-col justify-start overflow-y-auto gap-3 h-full">
             {summary.heading && (
-              <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", flexShrink: 0 }}>
+              <div className="shrink-0 text-body3" style={{ color: "var(--text-primary)" }}>
                 {summary.heading}
               </div>
             )}
-            <div style={{ display: "flex", flexDirection: "column" }}>
+            <div className="flex flex-col">
               {(summary.rows ?? []).map((row: any, i: number) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", height: 36, gap: 10, flexShrink: 0, borderTop: i === 0 ? "none" : "1px solid #C6C5C9" }}>
+                <div key={i} className="flex items-center shrink-0 gap-2.5" style={{ height: 36, borderTop: i === 0 ? "none" : "1px solid #C6C5C9" }}>
                   {row.label && (
-                    <span style={{ flex: "0 0 auto", minWidth: 80, fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.39px", lineHeight: 1 }}>{row.label}</span>
+                    <span className="text-caption" style={{ flex: "0 0 auto", minWidth: 80, color: "var(--text-secondary)" }}>{row.label}</span>
                   )}
-                  <span style={{ flex: 1, fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgb(72,70,70)", letterSpacing: "-0.39px", lineHeight: 1 }}>{row.value}</span>
+                  <span className="flex-1 text-captionm" style={{ color: "var(--text-primary)" }}>{row.value}</span>
                 </div>
               ))}
             </div>
+          </div>
           </div>
         )}
       </div>
 
       {/* 버튼 — 하단 고정 */}
       <div className="flex justify-end gap-[10px] shrink-0">
-        <button onClick={onReset} style={{ height: 36, paddingLeft: 20, paddingRight: 10, borderRadius: 36, background: "#8f8ac4", border: "none", cursor: "pointer", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+        <button onClick={onReset} className="btn-tsi btn-tsi-purple-light gap-1.5 text-body4" style={{ height: 36, paddingLeft: 20, paddingRight: 10 }}>
           Reset
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} style={{ display: "block", filter: "brightness(0) invert(1)" }} />
         </button>
-        <button onClick={onEdit} style={{ height: 36, paddingLeft: 20, paddingRight: 14, borderRadius: 36, background: "#8f8ac4", border: "none", cursor: "pointer", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+        <button onClick={onEdit} className="btn-tsi btn-tsi-purple-light gap-1.5 text-body4" style={{ height: 36, paddingLeft: 20, paddingRight: 14 }}>
           Edit
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M9 3.375V14.625" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -215,63 +219,6 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
   );
 }
 
-const stepRoutes: Record<string, string> = {
-  "patient-disease-info": "/drd/patient-disease-info",
-  "filter": "/drd/filter",
-  "high-risk-subgroup": "/drd/high-risk-subgroup",
-  "medical-history": "/drd/medical-history",
-};
-
-// ── 데이터 설정 ───────────────────────────────────────────────────────────
-// 왼쪽 패널의 설정 단계 목록. 현재 페이지(default-setting)에서는 모두 비활성 상태.
-// 각 하위 설정 페이지에서는 해당 항목만 isActive: true로 강조 표시됩니다.
-
-const setupSteps = [
-  {
-    id: "patient-disease-info",
-    IconComponent: IconVirusGray,
-    IconOrangeComponent: IconVirusOrange,
-    isActive: false,
-    title: "Patient/Disease Info",
-    description: "Define patient groups by fixing simulation conditions and selecting control variables. Patient groups can be specified using demographic information, laboratory data, and vital signs",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-  {
-    id: "filter",
-    IconComponent: IconFunnelGray,
-    IconOrangeComponent: IconFunnelActive,
-    isActive: false,
-    title: "Filter",
-    description: "Define patient groups through direct feature-based filtering. Filtering conditions are applied to selected features to construct patient groups.",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-  {
-    id: "high-risk-subgroup",
-    IconComponent: IconAsteriskGray,
-    IconOrangeComponent: IconAsteriskOrange,
-    isActive: false,
-    title: "High-Risk Subgroub",
-    description: "Select high-risk subgroups based on disease progression slopes. Prognostic scoring and loading of prior subgroup definitions are supported.",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-  {
-    id: "medical-history",
-    IconComponent: IconClockGray,
-    IconOrangeComponent: IconClockOrange,
-    isActive: false,
-    title: "Medical History",
-    description: "Define patient groups based on clinical history and risk profiles. Patient groups can be selected using diagnoses, comorbidities, risk factors, and key medical history.",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-];
 
 
 // ── 메인 페이지 ──────────────────────────────────────────────────────────────
@@ -724,11 +671,11 @@ export default function DefaultSettingPage() {
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
       <Loading isLoading={isLoading} />
-      <div className="drd-page-root">
+      <div className="flex flex-col h-full gap-6">
         {/* {타이틀 영역/Title Area} */}
       {/* 타이틀 */}
-          <div className="shrink-0 px-3">
-            <h1 onClick={() => router.push("/drd/default-setting")} className="drd-page-h1">
+          <div className="shrink-0 px-1">
+            <h1 onClick={() => router.push("/drd/default-setting")} className="text-page-title">
               Default Settings
             </h1>
             <span className="drd-page-subtitle">
@@ -738,14 +685,14 @@ export default function DefaultSettingPage() {
 
       {/* {메인 레이아웃/Main Layout} */}
       {/* 메인 레이아웃: flex-1로 전체 가용 높이 채움 */}
-      <div className="drd-content-row">
+      <div className="drd-content-row gap-1">
 
          
           {/* {왼쪽 패널/Left Panel} */}
           {/* ── 왼쪽 패널 (Navy Glass - 9-slice) ────────────────── */}
           <div
             className="figma-nine-slice figma-home-panel-left
-            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
+            drd-left-panel flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
 
             
@@ -776,7 +723,7 @@ export default function DefaultSettingPage() {
 
                   {/* Add data 버튼 */}
                   <button onClick={() => router.push("/drd/datasetting")} className="flex items-center gap-[4px] h-[30px] px-[14px] py-[8px] rounded-[36px] border-none cursor-pointer relative bg-transparent overflow-hidden">
-                    <div className="absolute inset-0 bg-[#f06600] mix-blend-plus-lighter" />
+                    <div className="absolute inset-0 bg-secondary-60 mix-blend-plus-lighter" />
                     <span className="relative z-10 font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] mix-blend-screen">
                       Add data
                     </span>
@@ -786,7 +733,7 @@ export default function DefaultSettingPage() {
 
                 {/* 프로그레스 바 (상단 블록 바로 아래 24px) */}
                 <div className="relative h-[18px] w-full rounded-[12px]" style={{ background: "rgba(255,255,255,0.2)" }}>
-                  <div className="absolute left-0 top-0 h-full bg-[#f06600] rounded-[12px] overflow-hidden" style={{ width: `${animatedRatio}%` }} />
+                  <div className="absolute left-0 top-0 h-full bg-secondary-60 rounded-[12px] overflow-hidden" style={{ width: `${animatedRatio}%` }} />
                   <div className="absolute inset-0 flex items-center justify-end pr-[11.13px]">
                     <span className="font-['Inter'] font-semibold text-[13px] leading-[1.18] text-white tracking-[-0.36px] text-right" style={{ textShadow: "0 0 6px rgba(0,0,0,0.4)" }}>
                       {finalCohort.toLocaleString()}/{initialCohort.toLocaleString()} patients
@@ -823,14 +770,15 @@ export default function DefaultSettingPage() {
 
             {/* {설정 단계/Setup Steps} */}
             {/* Setup Steps 하단 영역 (Light Gray/Blue Glass Overlay) */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto overflow-x-hidden min-h-0">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
+              <div className="flex flex-col gap-[8px] overflow-y-auto overflow-x-hidden h-full">
               {setupSteps.map((step) => {
                 const isCompleted = completedItems[step.id as DefaultSettingId];
                 return (
                   <button
                     key={step.id}
                     onClick={() => router.push(stepRoutes[step.id])}
-                    className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
+                    className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
                     style={{ background: "transparent", justifyContent: "center", height: 100 }}
                   >
                     <div className="flex items-center gap-[18px]">
@@ -844,7 +792,7 @@ export default function DefaultSettingPage() {
                         </div>
                       )}
                       <span
-                        className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]"
+                        className="text-body3"
                         style={{ color: step.titleColor }}
                       >
                         {step.title}
@@ -852,7 +800,7 @@ export default function DefaultSettingPage() {
                     </div>
                     <div className="pl-[42px] mt-0">
                       <p
-                        className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0"
+                        className="text-small1 leading-[1.1] m-0"
                         style={{ color: step.descriptionColor }}
                       >
                         {step.description}
@@ -861,15 +809,16 @@ export default function DefaultSettingPage() {
                   </button>
                 );
               })}
+              </div>
             </div>
 
-            
+
           </div>
 
 
         {/* {오른쪽 패널/Right Panel} */}
         {/* ── 오른쪽 패널 ──────────────────────────────────────────────── */}
-        <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
+        <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
 
           {/* {2x2 그리드/2x2 Grid} */}
           {/* 2×2 그리드 */}
@@ -886,10 +835,10 @@ export default function DefaultSettingPage() {
           {/* {하단 버튼/Bottom Buttons} */}
           {/* 하단 버튼 */}
           <div className="shrink-0 flex justify-end gap-3 items-center">
-            <button disabled={!anyCompleted} onClick={() => anyCompleted && setShowSaveModal(true)} style={{ height: 40, paddingLeft: 28, paddingRight: 28, borderRadius: 36, background: anyCompleted ? "#787776" : "#c6c5c9", border: "none", cursor: anyCompleted ? "pointer" : "not-allowed", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: anyCompleted ? "#ffffff" : "#e2e1e5", letterSpacing: "-0.51px" }}>
+            <button disabled={!anyCompleted} onClick={() => anyCompleted && setShowSaveModal(true)} className="btn-tsi btn-tsi-secondary" style={{ paddingLeft: 28, paddingRight: 28 }}>
               Save Progress
             </button>
-            <button disabled={!anyCompleted} onClick={() => router.push("/drd/simulation-setting")} style={{ height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36, background: anyCompleted ? "#F06600" : "#c6c5c9", border: "none", cursor: anyCompleted ? "pointer" : "not-allowed", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: anyCompleted ? "#ffffff" : "#e2e1e5", letterSpacing: "-0.51px" }}>
+            <button disabled={!anyCompleted} onClick={() => router.push("/drd/simulation-setting")} className="btn-tsi btn-tsi-primary">
               Apply to Analysis
             </button>
           </div>
@@ -902,7 +851,7 @@ export default function DefaultSettingPage() {
         <div className="flex gap-1">
           {dynamicSettingItems.map((item: any) => (
             <button key={item.id} onClick={() => setCompleted(item.id as DefaultSettingId, !completedItems[item.id as DefaultSettingId])}
-              style={{ fontSize: 9, padding: "3px 8px", background: completedItems[item.id as DefaultSettingId] ? "#F06600" : "rgba(255,255,255,0.8)", color: completedItems[item.id as DefaultSettingId] ? "#fff" : "#333", border: "1px solid #ccc", borderRadius: 6, cursor: "pointer" }}>
+              className="rounded-[6px]" style={{ fontSize: 9, padding: "3px 8px", background: completedItems[item.id as DefaultSettingId] ? "#F06600" : "rgba(255,255,255,0.8)", color: completedItems[item.id as DefaultSettingId] ? "#fff" : "#333", border: "1px solid #ccc", cursor: "pointer" }}>
               {item.title.split(" ")[0]}
             </button>
           ))}
@@ -921,10 +870,10 @@ export default function DefaultSettingPage() {
             className="modal-panel"
           >
             {/* 글래스 배경 */}
-            <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: 20, pointerEvents: "none" }}>
-              <div style={{ position: "absolute", inset: 0, borderRadius: 20, background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: 20, background: "rgba(255,255,255,0.88)" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: 20, background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
+            <div aria-hidden="true" className="absolute inset-0 pointer-events-none rounded-[20px]">
+              <div className="absolute inset-0 rounded-[20px]" style={{ background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
+              <div className="absolute inset-0 rounded-[20px]" style={{ background: "rgba(255,255,255,0.88)" }} />
+              <div className="absolute inset-0 rounded-[20px]" style={{ background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
             </div>
 
             {/* 콘텐츠 */}

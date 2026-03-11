@@ -17,62 +17,38 @@ interface SimulationSearchProps {
 export default function SimulationSearch({ value, onChange }: SimulationSearchProps) {
   return (
     <div
-      className="flex items-center"
-      style={{
-        width: "min(360px, 100%)",
-        backgroundColor: "#FFFFFF",
-        borderRadius: "30px",
-        paddingLeft: "8px",
-        paddingRight: "8px",
-        paddingTop: "6px",
-        paddingBottom: "6px",
-        gap: "10px",
-        flexShrink: 0,
-      }}
+      className="flex items-center rounded-[30px] gap-2.5 shrink-0 w-[min(360px,100%)] bg-white px-2 py-1.5"
     >
       {/* Search icon - Figma: 20.45×20.64px, color #929090 */}
       <svg
-        className="home-simulation-search-icon"
+        className="home-simulation-search-icon shrink-0"
         width="20"
         height="16"
         viewBox="0 0 20 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ flexShrink: 0 }}
       >
         <circle
           cx="10"
           cy="10"
           r="6.5"
-          stroke="#929090"
+          stroke="var(--icon-secondary)"
           strokeWidth="1.8"
         />
         <path
           d="M15 15L20 20"
-          stroke="#929090"
+          stroke="var(--icon-secondary)"
           strokeWidth="1.8"
           strokeLinecap="round"
         />
       </svg>
 
       <input
-        className="home-simulation-search-text"
+        className="home-simulation-search-text w-full border-none text-[15px] font-semibold leading-none tracking-[-0.585px] text-[#929090] bg-transparent outline-none"
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search"
-        style={{
-          fontFamily: "Inter",
-          fontSize: "15px",
-          fontWeight: 600,
-          lineHeight: "100%",
-          letterSpacing: "-0.585px",
-          color: "#929090",
-          width: "100%",
-          border: "none",
-          background: "transparent",
-          outline: "none",
-        }}
       />
 
       <style jsx>{`

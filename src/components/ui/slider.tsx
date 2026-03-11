@@ -35,10 +35,10 @@ export default function Slider({
   // 핸들 상태별 스타일 (DRD ResizablePill 참고)
   const knobState = disabled ? "disabled" : isDragging ? "pressed" : isHovered ? "hover" : "default";
   const knobStyles = {
-    default:  { bg: "#efeff4", border: "#c6c5c9", fill: "#231f52", track: "#e2e1e5" },
-    hover:    { bg: "#e2e1e8", border: "#b0afb8", fill: "#231f52", track: "#e2e1e5" },
-    pressed:  { bg: "rgba(58,17,216,0.3)", border: "rgba(58,17,216,0.5)", fill: "#3a11d8", track: "#e2e1e5" },
-    disabled: { bg: "#f5f5f7", border: "#e2e1e5", fill: "#c6c5c9", track: "#e2e1e5" },
+    default:  { bg: "var(--neutral-95)", border: "var(--text-disabled)", fill: "#231f52", track: "var(--neutral-90)" },
+    hover:    { bg: "#e2e1e8", border: "#b0afb8", fill: "#231f52", track: "var(--neutral-90)" },
+    pressed:  { bg: "rgba(58,17,216,0.3)", border: "rgba(58,17,216,0.5)", fill: "var(--tertiary-40)", track: "var(--neutral-90)" },
+    disabled: { bg: "#f5f5f7", border: "var(--neutral-90)", fill: "var(--text-disabled)", track: "var(--neutral-90)" },
   }[knobState];
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -143,13 +143,12 @@ export default function Slider({
   return (
     <div className={cn("w-full", className)}>
       <div className="flex items-center gap-2 mb-1 select-none">
-        <span className="text-body5m text-[#c9c6c5] w-[21px]">Min</span>
+        <span className="text-body5m text-disabled w-[21px]">Min</span>
         <div className="flex-1 relative">
           <div
             ref={trackRef}
             className="relative h-[24px] flex items-center cursor-pointer select-none"
             onMouseDown={handleMouseDown}
-            style={{ userSelect: "none" }}
           >
             {/* Track */}
             <div
@@ -168,17 +167,17 @@ export default function Slider({
               {[0, 1, 2, 3, 4].map((tick) => (
                 <div
                   key={tick}
-                  className="w-1 h-1 rounded-full bg-[#e2e1e5]"
+                  className="w-1 h-1 rounded-full bg-neutral-90"
                 />
               ))}
             </div>
 
             {/* Knob/Handle */}
             <div
+              className="absolute"
               onMouseEnter={() => !disabled && setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               style={{
-                position: "absolute",
                 width: 38,
                 height: 24,
                 borderRadius: 9999,
@@ -193,10 +192,10 @@ export default function Slider({
             />
           </div>
         </div>
-        <span className="text-body5m text-[#c9c6c5] w-[23px] text-right">Max</span>
+        <span className="text-body5m text-disabled w-[23px] text-right">Max</span>
         {showValue && (
-          <div className="bg-[#ebebf0] rounded-[8px] h-[24px] px-2 flex items-center justify-center min-w-[36px]">
-            <span className="text-body5 text-[#787776]">
+          <div className="bg-neutral-95 rounded-[8px] h-[24px] px-2 flex items-center justify-center min-w-[36px]">
+            <span className="text-body5 text-neutral-50">
               {valuePrecision !== undefined 
                 ? value.toFixed(valuePrecision) 
                 : value.toFixed(1)}

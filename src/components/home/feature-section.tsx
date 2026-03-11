@@ -63,80 +63,38 @@ export default function FeatureSection({
      * bg: Liquid Glass (Fill #F5F5F5 r=36 + Glass Effect white r=36)
      */
     <div
-      className={cn("relative flex flex-col figma-nine-slice gap-3 overflow-hidden", panelClass)}
-      style={{
-        width: "100%",
-        flex: 1,
-        padding:"24px",
-        paddingTop:"20px",
-        paddingBottom:"32px",
-        minHeight: 0,
-      }}
+      className={cn("relative flex flex-col figma-nine-slice gap-3 overflow-hidden w-full flex-1 min-h-0 p-6 pt-5 pb-8", panelClass)}
     >
       {/* Header: "01 Package" / "02 Service" */}
       {/* Figma: Group - 숫자(Inter 500 17px #5F5E5E) + gap + 이름(Inter 500 17px #5F5E5E) */}
       <div
         className="flex flex-col gap-3 flex-shirink-0"
       >
-        <div className="flex items-center" style={{ gap: "20px" }}>
-          <span
-            className="home-feature-section-text"
-            style={{
-              fontFamily: "Inter",
-              fontSize: "17px",
-              fontWeight: 500,
-              lineHeight: "19px",
-              color: "#5F5E5E",
-            }}
-          >
+        <div className="flex items-center gap-5">
+          <span className="home-feature-section-text text-[17px] font-medium leading-[19px] text-[#5F5E5E]">
             {sectionNum}
           </span>
-          <span
-            className="home-feature-section-text"
-            style={{
-              fontFamily: "Inter",
-              fontSize: "17px",
-              fontWeight: 500,
-              lineHeight: "19px",
-              color: "#5F5E5E",
-            }}
-          >
+          <span className="home-feature-section-text text-[17px] font-medium leading-[19px] text-[#5F5E5E]">
             {sectionName}
           </span>
         </div>
         {/* Figma: Line 806/807 - 414px, color #929090 */}
-        <div
-          style={{
-            width: "100%",
-            height: "1px",
-            backgroundColor: "#929090",
-            flexShrink: 0,
-          }}
-        />
+        <div className="w-full shrink-0 h-px bg-[#929090]" />
       </div>
 
       {/* Feature Cards: gap=16px */}
       <div
-        className={cn(shouldUseSlotLayout ? "grid" : "flex flex-col")}
+        className={cn("gap-4", shouldUseSlotLayout ? "grid flex-1 min-h-0 overflow-hidden" : "flex flex-col flex-1 overflow-y-auto min-h-0")}
         style={
           shouldUseSlotLayout
             ? {
                 gridTemplateRows: `repeat(${slotRows}, minmax(0, 1fr))`,
-                gap: "16px",
-                flex: 1,
-                minHeight: 0,
-                overflow: "hidden",
               }
-            : {
-                gap: "16px",
-                flex: 1,
-                overflowY: "auto",
-                minHeight: 0,
-              }
+            : undefined
         }
       >
         {displayedFeatures.map((feature) => (
-          <div key={feature.id} style={{ minHeight: 0, display: shouldUseSlotLayout ? "flex" : "block" }}>
+          <div key={feature.id} className={cn("min-h-0", shouldUseSlotLayout ? "flex" : "block")}>
             <FeatureCard
               title={feature.title}
               description={feature.description}

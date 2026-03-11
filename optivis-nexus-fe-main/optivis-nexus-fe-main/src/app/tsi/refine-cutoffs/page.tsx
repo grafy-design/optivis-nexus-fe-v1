@@ -1,0 +1,1343 @@
+"use client";
+
+import { Suspense, useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Loading } from "@/components/common/Loading";
+import Select from "@/components/ui/select";
+import {
+  MultiLineWithErrorBar,
+  type ErrorBarGroup,
+} from "@/components/charts/MultiLineWithErrorBar";
+import { DensityChart } from "@/components/charts/DensityChart";
+import { RefineCutoffChartEditor } from "./components/RefineCutoffChartEditor";
+import { Play } from "lucide-react";
+import {
+  getIdentificationFeatureInfo,
+  getIdentificationSetInfo,
+  saveSubgroupIdentification,
+  type IdentificationFeatureInfoData,
+  type IdentificationFeatureInfoRow,
+  type IdentificationSetInfoData,
+} from "@/services/subgroup-service";
+
+const MONTH_STEP = 3;
+const DEFAULT_MONTH_MIN = 3;
+const DEFAULT_MONTH_MAX = 24;
+const DEFAULT_INITIAL_MONTH = 12;
+
+type CdfPoint = [x: number, y: number];
+type CutoffAxisType = "x_value" | "y_percent";
+type CutoffPoint = { x: number; y: number };
+type TableGroupRow = {
+  groupName: string;
+  color: string;
+  patientsN: number;
+  xLabel: string;
+  yLabel: string;
+};
+type GroupMeta = {
+  key: string;
+  label: string;
+  color: string;
+  originalGroup?: string;
+};
+
+const DEFAULT_GROUP_COLORS = ["#f97316", "#919092", "#262255", "#14A38B", "#E04A7A"];
+
+const resolveGroupColors = (groupCount: number): string[] => {
+  if (groupCount <= 0) return [];
+  if (groupCount === 1) return ["#262255"];
+  if (groupCount === 2) return ["#f97316", "#262255"];
+  if (groupCount === 3) return ["#f97316", "#919092", "#262255"];
+
+  return Array.from(
+    { length: groupCount },
+    (_, index) => DEFAULT_GROUP_COLORS[index % DEFAULT_GROUP_COLORS.length]
+  );
+};
+
+const normalizeGroupKey = (group: string | null | undefined, fallbackIndex: number): string => {
+  const normalized = (group ?? "").trim().toLowerCase();
+  if (normalized) {
+    return normalized;
+  }
+  return `group${fallbackIndex + 1}`;
+};
+
+const formatGroupLabel = (group: string | null | undefined, fallbackIndex: number): string => {
+  const normalized = (group ?? "").trim();
+  if (!normalized) {
+    return `Group ${fallbackIndex + 1}`;
+  }
+
+  const digits = normalized.match(/\d+/);
+  if (digits) {
+    return `Group ${digits[0]}`;
+  }
+
+  const plain = normalized.replace(/_/g, " ");
+  return plain.charAt(0).toUpperCase() + plain.slice(1);
+};
+
+const groupKeySortValue = (key: string): number => {
+  const digits = key.match(/\d+/);
+  if (!digits) return Number.MAX_SAFE_INTEGER;
+  const parsed = Number(digits[0]);
+  return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+};
+
+const buildMonthMarks = (monthMin: number, monthMax: number): number[] => {
+  const safeMin = Number.isFinite(monthMin) ? monthMin : DEFAULT_MONTH_MIN;
+  const safeMax = Number.isFinite(monthMax) ? monthMax : DEFAULT_MONTH_MAX;
+  const min = Math.min(safeMin, safeMax);
+  const max = Math.max(safeMin, safeMax);
+
+  const marks: number[] = [];
+  for (let month = min; month <= max; month += MONTH_STEP) {
+    marks.push(month);
+  }
+
+  if (marks.length === 0 || marks[0] !== min) {
+    marks.unshift(min);
+  }
+  if (marks[marks.length - 1] !== max) {
+    marks.push(max);
+  }
+
+  return [...new Set(marks)].sort((a, b) => a - b);
+};
+
+const findClosestMonthMark = (value: number, marks: number[]): number => {
+  if (marks.length === 0) return DEFAULT_INITIAL_MONTH;
+
+  let closest = marks[0];
+  let minDiff = Math.abs(marks[0] - value);
+
+  for (let i = 1; i < marks.length; i++) {
+    const diff = Math.abs(marks[i] - value);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = marks[i];
+    }
+  }
+
+  return closest;
+};
+
+const parseNumber = (value: string | number | null | undefined): number | null => {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === "string") {
+    const parsed = Number(value.replace(/%/g, "").trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const resolveAxisType = (data: IdentificationFeatureInfoData | null): CutoffAxisType => {
+  const raw = data?.axis_type ?? data?.cutoff_axis_type;
+  return raw === "x_value" ? "x_value" : "y_percent";
+};
+
+const resolveChartFeatureKey = (
+  rows: IdentificationFeatureInfoRow[],
+  outcomeKey?: string
+): string | null => {
+  if (rows.length === 0) {
+    return null;
+  }
+  const firstRow = rows[0];
+  const keys = Object.keys(firstRow);
+  const deltaKey = keys.find((key) => key.toLowerCase().includes("delta_"));
+  if (deltaKey) return deltaKey;
+  if (outcomeKey && outcomeKey in firstRow) return outcomeKey;
+  return keys.find((key) => key !== "rid" && key !== "month") ?? null;
+};
+
+const buildCdfData = (
+  rows: IdentificationFeatureInfoRow[],
+  outcomeKey: string | undefined,
+  selectedMonth: number
+): CdfPoint[] => {
+  const monthRows = rows.filter((row) => row.month === selectedMonth);
+  const sourceRows = monthRows.length > 0 ? monthRows : rows;
+  const featureKey = resolveChartFeatureKey(sourceRows, outcomeKey);
+  if (!featureKey) return [];
+
+  const values = sourceRows
+    .map((row) => parseNumber(row[featureKey]))
+    .filter((value): value is number => value !== null)
+    .sort((a, b) => a - b);
+
+  if (values.length === 0) return [];
+  return values.map((x, index): CdfPoint => [x, ((index + 1) / values.length) * 100]);
+};
+
+const findClosestYForX = (cdfData: CdfPoint[], x: number): number => {
+  if (cdfData.length === 0) return 0;
+  let closest = cdfData[0];
+  let minDiff = Math.abs(cdfData[0][0] - x);
+  for (let i = 1; i < cdfData.length; i++) {
+    const diff = Math.abs(cdfData[i][0] - x);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = cdfData[i];
+    }
+  }
+  return closest[1];
+};
+
+const findClosestXForY = (cdfData: CdfPoint[], y: number): number => {
+  if (cdfData.length === 0) return 0;
+  let closest = cdfData[0];
+  let minDiff = Math.abs(cdfData[0][1] - y);
+  for (let i = 1; i < cdfData.length; i++) {
+    const diff = Math.abs(cdfData[i][1] - y);
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = cdfData[i];
+    }
+  }
+  return closest[0];
+};
+
+const buildInitialCutoffPoints = (
+  data: IdentificationFeatureInfoData,
+  axisType: CutoffAxisType,
+  cdfData: CdfPoint[]
+): CutoffPoint[] => {
+  const xs = data.cutoff_x
+    .map((value) => parseNumber(value))
+    .filter((value): value is number => value !== null);
+  const ys = data.cutoff_y
+    .map((value) => parseNumber(value))
+    .filter((value): value is number => value !== null);
+
+  const points: CutoffPoint[] = [];
+
+  if (axisType === "x_value") {
+    xs.slice(0, 2).forEach((x) => {
+      const y = cdfData.length > 0 ? findClosestYForX(cdfData, x) : 0;
+      points.push({ x, y: Math.max(0, Math.min(100, Number(y.toFixed(2)))) });
+    });
+  } else {
+    ys.slice(0, 2).forEach((rawY) => {
+      const y = Math.max(0, Math.min(100, Number(rawY.toFixed(2))));
+      const x = cdfData.length > 0 ? findClosestXForY(cdfData, y) : 0;
+      points.push({ x, y });
+    });
+  }
+
+  return points.sort((a, b) => a.x - b.x).slice(0, 2);
+};
+
+const DEFAULT_DISEASE_Y_AXIS = { min: 0, max: 5, interval: 1 };
+
+const roundAxisValue = (value: number): number => {
+  const rounded = Number(value.toFixed(6));
+  return Object.is(rounded, -0) ? 0 : rounded;
+};
+
+const getNiceAxisInterval = (range: number): number => {
+  if (!Number.isFinite(range) || range <= 0) {
+    return DEFAULT_DISEASE_Y_AXIS.interval;
+  }
+
+  const roughStep = range / 4;
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const normalized = roughStep / magnitude;
+
+  let niceNormalized = 1;
+  if (normalized <= 1) {
+    niceNormalized = 1;
+  } else if (normalized <= 2) {
+    niceNormalized = 2;
+  } else if (normalized <= 2.5) {
+    niceNormalized = 2.5;
+  } else if (normalized <= 5) {
+    niceNormalized = 5;
+  } else {
+    niceNormalized = 10;
+  }
+
+  return roundAxisValue(niceNormalized * magnitude);
+};
+
+const buildDiseaseYAxis = (dataGroup: ErrorBarGroup[]) => {
+  const points = dataGroup.flat();
+  if (points.length === 0) {
+    return DEFAULT_DISEASE_Y_AXIS;
+  }
+
+  const minWithError = Math.min(...points.map(([, mean, error]) => mean - error));
+  const maxWithError = Math.max(...points.map(([, mean, error]) => mean + error));
+
+  if (!Number.isFinite(minWithError) || !Number.isFinite(maxWithError)) {
+    return DEFAULT_DISEASE_Y_AXIS;
+  }
+
+  const includeNegative = minWithError < 0;
+  const baselineMin = includeNegative ? minWithError : 0;
+  const span = Math.max(maxWithError - baselineMin, 1);
+  const interval = getNiceAxisInterval(span);
+  const padding = interval * 0.5;
+
+  const min = includeNegative
+    ? Math.floor((minWithError - padding) / interval) * interval
+    : DEFAULT_DISEASE_Y_AXIS.min;
+  let max = Math.ceil((maxWithError + padding) / interval) * interval;
+
+  if (max <= min) {
+    max = min + interval;
+  }
+
+  return {
+    min: roundAxisValue(min),
+    max: roundAxisValue(max),
+    interval,
+  };
+};
+
+function WhitePlaceholderBox({ className = "" }: { className?: string }) {
+  return <div className={`h-full w-full rounded-[12px] bg-white ${className}`.trim()} />;
+}
+
+
+/**
+ * TSI: Refine CutoffsO
+ * 구조: 타이틀은 카드 밖, 왼쪽/오른쪽 카드
+ * - 왼쪽 카드: 남색 카드에 슬라이더 (ATS LeftPanel 참고)
+ * - 오른쪽 카드: 차트와 테이블
+ */
+
+function TSIRefineCutoffsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [titleFontSize, setTitleFontSize] = useState(42);
+  const [windowWidth, setWindowWidth] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth : 1920
+  );
+
+  useEffect(() => {
+    const update = () => setTitleFontSize(window.innerWidth > 1470 ? 42 : 36);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const taskId = searchParams.get("taskId") ?? "";
+  const subgroupId = searchParams.get("subgroupId");
+  const setNameFromQuery = searchParams.get("setName") ?? "Set 1";
+  const initialMonthFromQuery = (() => {
+    const parsed = Number.parseInt(searchParams.get("month") || "", 10);
+    return Number.isFinite(parsed) ? parsed : DEFAULT_INITIAL_MONTH;
+  })();
+  const [stratificationMonth, setStratificationMonth] = useState<number>(initialMonthFromQuery);
+  const [appliedStratificationMonth, setAppliedStratificationMonth] =
+    useState<number>(initialMonthFromQuery);
+  const [applyCriteriaVersion, setApplyCriteriaVersion] = useState(0);
+
+  const [additionalSliders, setAdditionalSliders] = useState<number[]>([]);
+  const [featureInfoData, setFeatureInfoData] = useState<IdentificationFeatureInfoData | null>(
+    null
+  );
+  const [setInfoData, setSetInfoData] = useState<IdentificationSetInfoData | null>(null);
+
+  const [cumulativeProportion, setCumulativeProportion] = useState(0);
+  const [_initialCumulativeProportion, setInitialCumulativeProportion] = useState(0);
+  const [_initialAdditionalSliders, setInitialAdditionalSliders] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasGenerateSubgroupsResponse, setHasGenerateSubgroupsResponse] = useState(false);
+  const [hasAppliedCriteria, setHasAppliedCriteria] = useState(false);
+  const leftPanelWidth = windowWidth < 1470 ? 520 * 0.75 : 520;
+  const isSmallScreen = windowWidth < 1470;
+  const chartSymbolSize = isSmallScreen ? 10 : 12;
+  const chartLineWidth = isSmallScreen ? 2 : 3;
+  const chartErrorBarLineWidth = isSmallScreen ? 1.5 : 3;
+  const chartErrorBarCapHalfWidth = isSmallScreen ? 4 : 6;
+
+  const minMonth = useMemo(() => {
+    const parsed = Number(featureInfoData?.month_min);
+    return Number.isFinite(parsed) ? parsed : DEFAULT_MONTH_MIN;
+  }, [featureInfoData?.month_min]);
+  const maxMonth = useMemo(() => {
+    const parsed = Number(featureInfoData?.month_max);
+    if (!Number.isFinite(parsed)) {
+      return DEFAULT_MONTH_MAX;
+    }
+    return Math.max(parsed, minMonth);
+  }, [featureInfoData?.month_max, minMonth]);
+  const monthMarks = useMemo(() => buildMonthMarks(minMonth, maxMonth), [maxMonth, minMonth]);
+  const effectivePendingStratificationMonth = useMemo(
+    () => findClosestMonthMark(stratificationMonth, monthMarks),
+    [monthMarks, stratificationMonth]
+  );
+  const effectiveAppliedStratificationMonth = useMemo(
+    () => findClosestMonthMark(appliedStratificationMonth, monthMarks),
+    [appliedStratificationMonth, monthMarks]
+  );
+  useEffect(() => {
+    if (effectivePendingStratificationMonth !== stratificationMonth) {
+      setStratificationMonth(effectivePendingStratificationMonth);
+    }
+  }, [effectivePendingStratificationMonth, stratificationMonth]);
+
+  useEffect(() => {
+    if (effectiveAppliedStratificationMonth !== appliedStratificationMonth) {
+      setAppliedStratificationMonth(effectiveAppliedStratificationMonth);
+    }
+  }, [appliedStratificationMonth, effectiveAppliedStratificationMonth]);
+
+  const cutoffAxisType = useMemo(() => resolveAxisType(featureInfoData), [featureInfoData]);
+
+  const cdfData = useMemo(
+    () =>
+      buildCdfData(
+        featureInfoData?.rows ?? [],
+        featureInfoData?.outcome,
+        effectiveAppliedStratificationMonth
+      ),
+    [effectiveAppliedStratificationMonth, featureInfoData]
+  );
+
+  const sortedCutoffY = useMemo(
+    () => [cumulativeProportion, ...additionalSliders].sort((a, b) => a - b),
+    [additionalSliders, cumulativeProportion]
+  );
+
+  const cutoffXNumbers = useMemo(
+    () => sortedCutoffY.map((y) => findClosestXForY(cdfData, y)),
+    [cdfData, sortedCutoffY]
+  );
+
+  const cutoffXValues = useMemo(() => cutoffXNumbers.map((x) => x.toFixed(2)), [cutoffXNumbers]);
+
+  const cutoffYValues = useMemo(
+    () => sortedCutoffY.map((y) => `${Number(y.toFixed(2))}%`),
+    [sortedCutoffY]
+  );
+
+  const hasFeatureCutoffData = useMemo(() => {
+    if (!featureInfoData) {
+      return false;
+    }
+    const hasCutoffX = (featureInfoData.cutoff_x ?? []).some((value) => parseNumber(value) !== null);
+    const hasCutoffY = (featureInfoData.cutoff_y ?? []).some((value) => parseNumber(value) !== null);
+    return hasCutoffX || hasCutoffY;
+  }, [featureInfoData]);
+
+  const showCutoffEditor = (featureInfoData?.rows?.length ?? 0) > 0 || cdfData.length > 0;
+  const canRenderCutoffEditor = hasFeatureCutoffData && showCutoffEditor;
+
+  useEffect(() => {
+    setHasGenerateSubgroupsResponse(false);
+  }, [cutoffAxisType, cutoffXValues, cutoffYValues, effectiveAppliedStratificationMonth]);
+
+  const diseaseDisplayMonth = useMemo(() => {
+    const monthFromSetInfo = Number(setInfoData?.month);
+    if (Number.isFinite(monthFromSetInfo) && monthFromSetInfo > 0) {
+      return monthFromSetInfo;
+    }
+    return effectiveAppliedStratificationMonth;
+  }, [effectiveAppliedStratificationMonth, setInfoData?.month]);
+
+  const setInfoGroupMeta = useMemo<GroupMeta[]>(() => {
+    if (!setInfoData) return [];
+
+    const orderedKeys: string[] = [];
+    const keyToOriginalGroup = new Map<string, string>();
+    const seen = new Set<string>();
+
+    const appendGroup = (group: string | null | undefined) => {
+      const key = normalizeGroupKey(group, orderedKeys.length);
+      if (seen.has(key)) return;
+      seen.add(key);
+      orderedKeys.push(key);
+      keyToOriginalGroup.set(key, (group ?? "").trim());
+    };
+
+    [...(setInfoData.result_table ?? [])]
+      .sort((a, b) => a.no - b.no)
+      .forEach((row) => appendGroup(row.group));
+
+    [...(setInfoData.disease_progression ?? [])]
+      .sort((a, b) => {
+        const groupA = normalizeGroupKey(a.group, 0);
+        const groupB = normalizeGroupKey(b.group, 0);
+        const byGroup = groupKeySortValue(groupA) - groupKeySortValue(groupB);
+        if (byGroup !== 0) return byGroup;
+        return a.month - b.month;
+      })
+      .forEach((row) => appendGroup(row.group));
+
+    [...(setInfoData.slope_distribution ?? [])]
+      .sort((a, b) => {
+        const groupA = normalizeGroupKey(a.group, 0);
+        const groupB = normalizeGroupKey(b.group, 0);
+        return groupKeySortValue(groupA) - groupKeySortValue(groupB);
+      })
+      .forEach((row) => appendGroup(row.group));
+
+    const colors = resolveGroupColors(orderedKeys.length);
+    return orderedKeys.map((key, index) => ({
+      key,
+      label: formatGroupLabel(keyToOriginalGroup.get(key), index),
+      color: colors[index] ?? DEFAULT_GROUP_COLORS[index % DEFAULT_GROUP_COLORS.length],
+      originalGroup: keyToOriginalGroup.get(key),
+    }));
+  }, [setInfoData]);
+
+  const setInfoGroupMetaByKey = useMemo(
+    () => new Map(setInfoGroupMeta.map((meta) => [meta.key, meta])),
+    [setInfoGroupMeta]
+  );
+
+  const setInfoTableRows = useMemo<TableGroupRow[]>(() => {
+    if (!setInfoData?.result_table?.length) return [];
+
+    const sortedRows = [...setInfoData.result_table].sort((a, b) => a.no - b.no);
+    const fallbackColors = resolveGroupColors(sortedRows.length);
+
+    return sortedRows.map((row, index) => {
+      const key = normalizeGroupKey(row.group, index);
+      const meta = setInfoGroupMetaByKey.get(key);
+      return {
+        groupName: meta?.label ?? formatGroupLabel(row.group, index),
+        color: meta?.color ?? fallbackColors[index] ?? DEFAULT_GROUP_COLORS[index],
+        patientsN: row.patient_number,
+        xLabel: row.delta_outcome,
+        yLabel: row.cumulative_proportion,
+      };
+    });
+  }, [setInfoData, setInfoGroupMetaByKey]);
+
+  const hasSetInfoApiData = useMemo(() => {
+    if (!setInfoData) return false;
+
+    return (
+      (setInfoData.result_table?.length ?? 0) > 0 ||
+      (setInfoData.disease_progression?.length ?? 0) > 0 ||
+      (setInfoData.slope_distribution?.length ?? 0) > 0
+    );
+  }, [setInfoData]);
+
+  const activeGroupMeta = hasSetInfoApiData ? setInfoGroupMeta : [];
+  const activeTableRows = hasSetInfoApiData ? setInfoTableRows : [];
+
+  const diseaseChartData = useMemo<{
+    dataGroup: ErrorBarGroup[];
+    labels: string[];
+    colors: string[];
+  }>(() => {
+    if (!setInfoData?.disease_progression?.length) {
+      return {
+        dataGroup: [],
+        labels: [],
+        colors: [],
+      };
+    }
+
+    const grouped = new Map<string, ErrorBarGroup>();
+    const keyToOriginalGroup = new Map<string, string>();
+
+    setInfoData.disease_progression.forEach((row, index) => {
+      const key = normalizeGroupKey(row.group, index);
+      keyToOriginalGroup.set(key, row.group);
+
+      const error = Math.max((row.ci_high - row.ci_low) / 2, 0);
+      const points = grouped.get(key) ?? [];
+      points.push([row.month, Number(row.mean.toFixed(6)), Number(error.toFixed(6))]);
+      grouped.set(key, points);
+    });
+
+    if (grouped.size === 0) {
+      return {
+        dataGroup: [],
+        labels: [],
+        colors: [],
+      };
+    }
+
+    const activeKeys = activeGroupMeta.map((meta) => meta.key).filter((key) => grouped.has(key));
+    const remainingKeys = [...grouped.keys()]
+      .filter((key) => !activeKeys.includes(key))
+      .sort((a, b) => groupKeySortValue(a) - groupKeySortValue(b));
+    const orderedKeys = [...activeKeys, ...remainingKeys];
+    const fallbackColors = resolveGroupColors(orderedKeys.length);
+
+    return {
+      dataGroup: orderedKeys.map((key) => (grouped.get(key) ?? []).sort((a, b) => a[0] - b[0])),
+      labels: orderedKeys.map((key, index) => {
+        const found = setInfoGroupMetaByKey.get(key);
+        return found?.label ?? formatGroupLabel(keyToOriginalGroup.get(key) ?? key, index);
+      }),
+      colors: orderedKeys.map((key, index) => {
+        const found = setInfoGroupMetaByKey.get(key);
+        return found?.color ?? fallbackColors[index] ?? DEFAULT_GROUP_COLORS[index];
+      }),
+    };
+  }, [activeGroupMeta, setInfoData, setInfoGroupMetaByKey]);
+
+  const diseaseXAxisMax = DEFAULT_MONTH_MAX;
+
+  const diseaseYAxis = useMemo(
+    () => buildDiseaseYAxis(diseaseChartData.dataGroup),
+    [diseaseChartData]
+  );
+
+  const densitySegmentedData = useMemo<{
+    values: number[];
+    boundaries: number[];
+    colors: string[];
+    labels: string[];
+  } | null>(() => {
+    if (!setInfoData?.slope_distribution?.length) {
+      return null;
+    }
+
+    const values = setInfoData.slope_distribution.flatMap((row) =>
+      (row.slope ?? []).filter((value): value is number => Number.isFinite(value))
+    );
+
+    if (values.length === 0) {
+      return null;
+    }
+
+    const boundaries = (setInfoData.cutoff_x ?? [])
+      .map((value) => parseNumber(value))
+      .filter((value): value is number => value !== null)
+      .sort((a, b) => a - b)
+      .slice(0, 2);
+
+    const segmentCount = Math.max(boundaries.length + 1, activeGroupMeta.length || 0);
+    const fallbackColors = resolveGroupColors(segmentCount);
+
+    return {
+      values,
+      boundaries,
+      colors: Array.from(
+        { length: segmentCount },
+          (_, index) => activeGroupMeta[index]?.color ?? fallbackColors[index] ?? "#262255"
+      ),
+      labels: Array.from(
+        { length: segmentCount },
+        (_, index) => activeGroupMeta[index]?.label ?? `Group ${index + 1}`
+      ),
+    };
+  }, [activeGroupMeta, setInfoData]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    if (!taskId || !subgroupId) {
+      setFeatureInfoData(null);
+      setSetInfoData(null);
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      try {
+        let setInfoParams: {
+          month: string;
+          axisType: CutoffAxisType;
+          cutoffX: string[];
+          cutoffY: string[];
+        } | null = null;
+
+        try {
+          const requestedMonth = effectiveAppliedStratificationMonth;
+          const res = await getIdentificationFeatureInfo(
+            taskId,
+            subgroupId,
+            requestedMonth.toString()
+          );
+
+          if (isCancelled) return;
+          setFeatureInfoData(res.data);
+
+          const responseMonthMarks = buildMonthMarks(res.data.month_min, res.data.month_max);
+          const resolvedMonth = findClosestMonthMark(requestedMonth, responseMonthMarks);
+          if (resolvedMonth !== requestedMonth) {
+            setAppliedStratificationMonth(resolvedMonth);
+            setStratificationMonth(resolvedMonth);
+            return;
+          }
+
+          const nextAxisType = resolveAxisType(res.data);
+          const nextCdfData = buildCdfData(res.data.rows, res.data.outcome, resolvedMonth);
+          const initialCutoffPoints = buildInitialCutoffPoints(res.data, nextAxisType, nextCdfData);
+          const initialCutoffYValues = initialCutoffPoints
+            .map((point) => Number(point.y.toFixed(2)))
+            .sort((a, b) => a - b);
+          const initialCutoffXValues = initialCutoffYValues
+            .map((y) => findClosestXForY(nextCdfData, y))
+            .map((x) => x.toFixed(2));
+          const initialCutoffYLabels = initialCutoffYValues.map((y) => `${Number(y.toFixed(2))}%`);
+
+          const nextPrimaryCutoffY = initialCutoffYValues[0];
+          if (nextPrimaryCutoffY === undefined) {
+            setCumulativeProportion(0);
+            setInitialCumulativeProportion(0);
+            setAdditionalSliders([]);
+            setInitialAdditionalSliders([]);
+            setSetInfoData(null);
+            return;
+          }
+          const nextAdditionalCutoffs = initialCutoffYValues.slice(1, 2);
+
+          setCumulativeProportion(nextPrimaryCutoffY);
+          setInitialCumulativeProportion(nextPrimaryCutoffY);
+          setAdditionalSliders(nextAdditionalCutoffs);
+          setInitialAdditionalSliders(nextAdditionalCutoffs);
+
+          setInfoParams = {
+            month: resolvedMonth.toString(),
+            axisType: nextAxisType,
+            cutoffX: initialCutoffXValues,
+            cutoffY: initialCutoffYLabels,
+          };
+        } catch (_error) {
+          if (isCancelled) return;
+          setFeatureInfoData(null);
+          setSetInfoData(null);
+          return;
+        }
+
+        if (!setInfoParams) return;
+
+        try {
+          const setInfoResponse = await getIdentificationSetInfo(
+            taskId,
+            subgroupId,
+            setInfoParams.month,
+            setInfoParams.axisType,
+            setInfoParams.cutoffX,
+            setInfoParams.cutoffY
+          );
+
+          if (isCancelled) return;
+          setSetInfoData(setInfoResponse.data);
+        } catch (_error) {
+          if (isCancelled) return;
+          setSetInfoData(null);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    setSetInfoData(null);
+    fetchData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [applyCriteriaVersion, effectiveAppliedStratificationMonth, subgroupId, taskId]);
+
+  // 슬라이더 값 계산 (feature/info의 month_min ~ month_max 범위)
+  const monthRange = Math.max(maxMonth - minMonth, 1);
+  const monthPercentage = ((effectivePendingStratificationMonth - minMonth) / monthRange) * 100;
+  const isMonthDirty = effectivePendingStratificationMonth !== effectiveAppliedStratificationMonth;
+  const isCutoffDirty = useMemo(() => {
+    if (
+      Number(cumulativeProportion.toFixed(2)) !== Number(_initialCumulativeProportion.toFixed(2))
+    ) {
+      return true;
+    }
+    if (additionalSliders.length !== _initialAdditionalSliders.length) {
+      return true;
+    }
+    return additionalSliders.some(
+      (value, index) =>
+        Number(value.toFixed(2)) !== Number((_initialAdditionalSliders[index] ?? 0).toFixed(2))
+    );
+  }, [additionalSliders, cumulativeProportion, _initialAdditionalSliders, _initialCumulativeProportion]);
+  const canGenerateSubgroups =
+    Boolean(
+      taskId &&
+        subgroupId &&
+        canRenderCutoffEditor &&
+        (isCutoffDirty || hasAppliedCriteria)
+    ) && !isLoading;
+  const canSaveRefineCutoff = Boolean(subgroupId) && !isLoading && hasGenerateSubgroupsResponse;
+  const shouldRenderSetInfoSection = hasSetInfoApiData || isLoading;
+
+  const handleClickApplyCriteria = () => {
+    if (!taskId || !subgroupId) {
+      return;
+    }
+
+    setAppliedStratificationMonth(effectivePendingStratificationMonth);
+    setApplyCriteriaVersion((prev) => prev + 1);
+    setHasAppliedCriteria(true);
+    setHasGenerateSubgroupsResponse(false);
+  };
+
+  const handleClickGenerateSubGroup = async () => {
+    if (!canGenerateSubgroups || !taskId || !subgroupId) {
+      return;
+    }
+
+    const requestParams = {
+      task_id: taskId,
+      subgroup_id: subgroupId,
+      month: effectiveAppliedStratificationMonth.toString(),
+      axis_type: cutoffAxisType,
+      cutoff_x: cutoffXValues,
+      cutoff_y: cutoffYValues,
+    };
+
+    setHasGenerateSubgroupsResponse(false);
+    setIsLoading(true);
+
+    try {
+      const response = await getIdentificationSetInfo(
+        requestParams.task_id,
+        requestParams.subgroup_id,
+        requestParams.month,
+        requestParams.axis_type,
+        requestParams.cutoff_x,
+        requestParams.cutoff_y
+      );
+
+      setSetInfoData(response.data);
+      setHasGenerateSubgroupsResponse(true);
+    } catch (_error) {
+      setSetInfoData(null);
+      setHasGenerateSubgroupsResponse(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOnSaveRefineCutoff = async () => {
+    if (!subgroupId) {
+      return;
+    }
+
+    const parsedSubgroupId = Number.parseInt(subgroupId, 10);
+    if (!Number.isFinite(parsedSubgroupId)) {
+      return;
+    }
+
+    const parsedCutoffRawVersion = Number.parseInt(featureInfoData?.cutoff_raw_json?.[0] ?? "", 10);
+    const cutoffRawVersion = Number.isFinite(parsedCutoffRawVersion) ? parsedCutoffRawVersion : 1;
+
+    const requestParams = {
+      subgroupId: parsedSubgroupId,
+      cutoffAxisType,
+      cutoffRawVersion,
+      cutoffX: cutoffXValues,
+      cutoffY: cutoffYValues,
+      month: effectiveAppliedStratificationMonth,
+    };
+    const requestBody = {
+      subgroup_id: requestParams.subgroupId,
+      cutoff_axis_type: requestParams.cutoffAxisType,
+      cutoff_raw_version: requestParams.cutoffRawVersion,
+      cutoff_x: requestParams.cutoffX,
+      cutoff_y: requestParams.cutoffY,
+      month: requestParams.month,
+    };
+
+    // 저장 이벤트 연결 전에 파라미터를 먼저 콘솔로 확인한다.
+    console.log("[handleOnSaveRefineCutoff] requestBody", requestBody);
+
+    setIsLoading(true);
+
+    try {
+      await saveSubgroupIdentification(
+        requestParams.subgroupId,
+        requestParams.cutoffAxisType,
+        requestParams.cutoffRawVersion,
+        requestParams.cutoffX,
+        requestParams.cutoffY,
+        requestParams.month
+      );
+
+      const nextQuery = new URLSearchParams(searchParams.toString());
+      nextQuery.set("month", String(requestParams.month));
+      if (taskId) {
+        nextQuery.set("taskId", taskId);
+      }
+      const queryString = nextQuery.toString();
+      router.push(
+        queryString ? `/tsi/subgroup-selection?${queryString}` : "/tsi/subgroup-selection"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AppLayout headerType="tsi">
+      <Loading isLoading={isLoading} />
+      <style jsx global>{`
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type="number"] {
+          -moz-appearance: textfield;
+        }
+      `}</style>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "calc(100% - 28px)",
+          height: "100%",
+          gap: 24,
+          marginLeft: "14px",
+          marginRight: "14px",
+          paddingBottom: 24,
+        }}
+      >
+        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <h1
+            style={{
+              fontFamily: "Poppins, Inter, sans-serif",
+              fontSize: titleFontSize,
+              fontWeight: 600,
+              color: "rgb(17,17,17)",
+              letterSpacing: "-1.5px",
+              lineHeight: 1.1,
+              margin: 0,
+            }}
+          >
+            Target Subgroup Identification
+          </h1>
+          <span
+            style={{
+              fontFamily: "Inter",
+              fontSize: 16,
+              fontWeight: 600,
+              color: "rgb(120,119,118)",
+              letterSpacing: "-0.48px",
+            }}
+          >
+            Refine Cutoffs
+          </span>
+        </div>
+
+        <div
+          className="flex min-h-0 flex-1 flex-row flex-nowrap items-stretch"
+          style={{ minWidth: 0, gap: 0 }}
+        >
+          <div
+            className="flex min-h-0 min-w-0 flex-none flex-col gap-3 overflow-hidden rounded-[36px] p-0"
+            style={{
+              borderImage:
+                'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
+              width: `${leftPanelWidth}px`,
+              borderStyle: "solid",
+              borderTopWidth: "20px",
+              borderBottomWidth: "28px",
+              borderLeftWidth: "24px",
+              borderRightWidth: "24px",
+              borderColor: "transparent",
+            }}
+          >
+            <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto">
+              <div
+                className="flex h-fit flex-shrink-0 flex-col items-start gap-4 rounded-[24px] p-4 max-[1470px]:gap-3 max-[1470px]:p-3"
+                style={{
+                  background: "var(--primary-15)",
+                  width: "100%",
+                }}
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="text-body5 text-white/70 max-[1470px]:text-small1">
+                    {featureInfoData?.entity_type ?? "Prognostic"}
+                  </span>
+                  <h4 className="text-body1 text-white max-[1470px]:text-body3">
+                    Subgroup Creation
+                  </h4>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <span className="text-body5 text-white/70 max-[1470px]:text-small1">
+                    Outcome
+                  </span>
+                  <span className="text-body2 font-semibold text-white max-[1470px]:text-body4">
+                    {featureInfoData?.outcome ?? ""}
+                  </span>
+                </div>
+
+                <div className="flex w-full flex-col gap-1">
+                  <span className="text-body5 text-white/70 max-[1470px]:text-small1">
+                    Stratification month
+                  </span>
+                  <div className="flex w-full items-start justify-between gap-2">
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
+                      <div
+                        className="relative flex h-[24px] items-center select-none"
+                        style={{ userSelect: "none", width: "100%" }}
+                      >
+                        <div className="relative h-[12px] w-full rounded-full bg-neutral-50">
+                          <div
+                            className="absolute top-0 left-0 h-[12px] rounded-full"
+                            style={{
+                              width: `${Math.max(0, Math.min(100, monthPercentage))}%`,
+                              background: "#f06600",
+                            }}
+                          />
+                          <div
+                            className="absolute top-1/2 h-[24px] w-[24px] -translate-y-1/2 cursor-grab rounded-full border border-[#e2e1e5] bg-[#fcf8f8] shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)] transition-colors duration-150 hover:bg-[#f9f8fc] active:cursor-grabbing active:bg-[#efeff4]"
+                            style={{
+                              left: `calc(${Math.max(0, Math.min(100, monthPercentage))}% - 12px)`,
+                            }}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const slider = e.currentTarget.parentElement?.parentElement;
+                              if (!slider) return;
+                              const preventSelect = (event: Event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                return false;
+                              };
+                              const preventDrag = (event: DragEvent) => {
+                                event.preventDefault();
+                                return false;
+                              };
+                              const handleMouseMove = (moveEvent: MouseEvent) => {
+                                moveEvent.preventDefault();
+                                const rect = slider.getBoundingClientRect();
+                                const x = moveEvent.clientX - rect.left;
+                                const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+                                const rawMonth = minMonth + (percentage / 100) * (maxMonth - minMonth);
+                                const nextMonth = findClosestMonthMark(rawMonth, monthMarks);
+                                setStratificationMonth(nextMonth);
+                              };
+                              const handleMouseUp = (upEvent: MouseEvent) => {
+                                upEvent.preventDefault();
+                                upEvent.stopPropagation();
+                                document.removeEventListener("mousemove", handleMouseMove);
+                                document.removeEventListener("mouseup", handleMouseUp);
+                                document.removeEventListener("selectstart", preventSelect);
+                                document.removeEventListener("select", preventSelect);
+                                document.removeEventListener("dragstart", preventDrag);
+                                const bodyStyle = document.body.style;
+                                bodyStyle.removeProperty("user-select");
+                                bodyStyle.removeProperty("-webkit-user-select");
+                                bodyStyle.removeProperty("-moz-user-select");
+                                bodyStyle.removeProperty("-ms-user-select");
+                                document.body.classList.remove("no-select");
+                              };
+                              const bodyStyle = document.body.style;
+                              bodyStyle.setProperty("user-select", "none");
+                              bodyStyle.setProperty("-webkit-user-select", "none");
+                              bodyStyle.setProperty("-moz-user-select", "none");
+                              bodyStyle.setProperty("-ms-user-select", "none");
+                              document.body.classList.add("no-select");
+                              document.addEventListener("mousemove", handleMouseMove, {
+                                passive: false,
+                              });
+                              document.addEventListener("mouseup", handleMouseUp, {
+                                passive: false,
+                              });
+                              document.addEventListener("selectstart", preventSelect);
+                              document.addEventListener("select", preventSelect);
+                              document.addEventListener("dragstart", preventDrag);
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div
+                        className="text-body5 relative overflow-hidden text-white/70"
+                        style={{ width: "100%", height: "13px" }}
+                      >
+                        {monthMarks.map((month, index) => {
+                          const labelPercentage = ((month - minMonth) / monthRange) * 100;
+                          const isFirst = index === 0;
+                          const isLast = index === monthMarks.length - 1;
+                          let transformValue = "translateX(-50%)";
+                          if (isFirst) transformValue = "translateX(0)";
+                          else if (isLast) transformValue = "translateX(-100%)";
+
+                          return (
+                            <span
+                              key={month}
+                              className="absolute text-center whitespace-nowrap"
+                              style={{ left: `${labelPercentage}%`, transform: transformValue }}
+                            >
+                              {month}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="flex-shrink-0">
+                      <Select
+                        value={effectivePendingStratificationMonth.toString()}
+                        options={monthMarks.map((month) => month.toString())}
+                        onChange={(value) =>
+                          setStratificationMonth(
+                            findClosestMonthMark(Number.parseInt(value, 10), monthMarks)
+                          )
+                        }
+                        className="[&>button]:bg-neutral-95 [&>button>span]:text-body5 [&>button>span]:text-neutral-50 w-[52px] [&>button]:h-[24px] [&>button]:items-center [&>button]:justify-between [&>button]:rounded-[8px] [&>button]:border-0 [&>button]:px-2 [&>button]:py-0 [&>button>span]:text-left [&>button>span]:font-semibold [&>button>span]:leading-none [&>button>span]:pt-1 [&>button>span]:py-0 [&>button>svg]:flex-shrink-0"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleClickApplyCriteria}
+                  className={`btn-tsi whitespace-nowrap ${isMonthDirty ? "btn-tsi-primary" : "btn-tsi-secondary"}`}
+                  style={{ marginLeft: "auto", marginTop: "8px" }}
+                >
+                  Apply Criteria
+                </button>
+              </div>
+
+              <div className="flex-1 min-h-0 overflow-hidden rounded-[24px] bg-white p-2">
+                <div className="flex h-full flex-col justify-between gap-4 overflow-y-auto">
+                  <div
+                    style={{
+                      aspectRatio: windowWidth < 1470 ? "5 / 4" : "1 / 1",
+                      paddingTop: 4,
+                    }}
+                  >
+                    {showCutoffEditor ? (
+                      <RefineCutoffChartEditor
+                        cumulativeProportion={cumulativeProportion}
+                        additionalSliders={additionalSliders}
+                        initialCumulativeProportion={_initialCumulativeProportion}
+                        initialAdditionalSliders={_initialAdditionalSliders}
+                        onCumulativeProportionChange={setCumulativeProportion}
+                        onAdditionalSlidersChange={setAdditionalSliders}
+                        maxAdditionalSliders={1}
+                        rows={featureInfoData?.rows}
+                        outcomeKey={featureInfoData?.outcome}
+                        selectedMonth={effectiveAppliedStratificationMonth}
+                      />
+                    ) : null}
+                  </div>
+
+                  <button
+                    onClick={handleClickGenerateSubGroup}
+                    disabled={!canGenerateSubgroups}
+                    className="btn-tsi btn-tsi-primary flex-shrink-0"
+                    style={{ marginLeft: "auto", gap: 8, paddingRight: "16px" }}
+                  >
+                    Generate Subgroups
+                    <Play size={16} fill="white" stroke="white" style={{ flexShrink: 0 }} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="flex min-h-0 flex-1 flex-shrink-0 flex-col overflow-hidden rounded-[36px] p-0"
+            style={{
+              borderImage:
+                'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
+              borderStyle: "solid",
+              borderTopWidth: "20px",
+              borderBottomWidth: "28px",
+              borderLeftWidth: "24px",
+              borderRightWidth: "24px",
+              borderColor: "transparent",
+            }}
+          >
+            <div className="flex h-full w-full flex-col gap-3">
+              <div className="flex-shrink-0 pl-[4px] pt-[4px]">
+                <h3 className="text-body1 text-primary-15">{setNameFromQuery}</h3>
+              </div>
+
+              <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+                {shouldRenderSetInfoSection ? (
+                  <>
+                    <div className="flex min-w-0 flex-shrink-0 gap-3">
+                      <div
+                        className="flex w-0 min-w-0 flex-1 rounded-[24px] p-[8px]"
+                        style={{
+                          backgroundColor: "var(--primary-15)",
+                          boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div className="flex min-h-0 w-full flex-col gap-6">
+                          <h4 className="text-body2m flex-shrink-0 pt-1.5 pl-2 text-white">
+                            Disease Progression by Group
+                          </h4>
+                          <div
+                            className="flex w-full rounded-[16px] bg-white p-2"
+                            style={{ aspectRatio: "2 / 1" }}
+                          >
+                            {isLoading ? (
+                              <WhitePlaceholderBox className="rounded-[16px]" />
+                            ) : (
+                              <MultiLineWithErrorBar
+                                dataGroup={diseaseChartData.dataGroup}
+                                seriesLabels={diseaseChartData.labels}
+                                colors={diseaseChartData.colors}
+                                showTooltip={false}
+                                filledSymbol
+                                lineWidth={chartLineWidth}
+                                symbolSize={chartSymbolSize}
+                                errorBarLineWidth={chartErrorBarLineWidth}
+                                errorBarCapHalfWidth={chartErrorBarCapHalfWidth}
+                                height="100%"
+                                sizeVariant="S"
+                                grid={{ left: 22, right: 8, top: 2, bottom: 14 }}
+                                xAxis={{
+                                  min: 0,
+                                  max: diseaseXAxisMax,
+                                  interval: 3,
+                                  name: "Month",
+                                  nameGap: 18,
+                                  onZero: false,
+                                  alignEdgeLabels: true,
+                                }}
+                                yAxis={{
+                                  min: diseaseYAxis.min,
+                                  max: diseaseYAxis.max,
+                                  interval: diseaseYAxis.interval,
+                                  name: "Disease progression score",
+                                  nameGap: 28,
+                                  showLabels: true,
+                                  showTick: true,
+                                  zeroLineColor: "#c7c5c9",
+                                  alignEdgeLabels: true,
+                                }}
+                                guideLineX={diseaseDisplayMonth}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div
+                        className="flex w-0 min-w-0 flex-1 rounded-[24px] p-[8px]"
+                        style={{
+                          backgroundColor: "var(--primary-15)",
+                          boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
+                        }}
+                      >
+                        <div className="flex min-h-0 w-full flex-col gap-6">
+                          <h4 className="text-body2m flex-shrink-0 pt-1.5 pl-2 text-white">
+                            Slope distribution
+                          </h4>
+                          <div
+                            className="flex w-full rounded-[16px] bg-white p-2"
+                            style={{ aspectRatio: "2 / 1" }}
+                          >
+                            {isLoading ? (
+                              <WhitePlaceholderBox className="rounded-[16px]" />
+                            ) : (
+                              <DensityChart
+                                segmented={densitySegmentedData ?? undefined}
+                                height="100%"
+                                showTooltip={false}
+                                sizeVariant="S"
+                                xAxisName="Slope"
+                                yAxisName="Density"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className="flex flex-1 flex-col rounded-[24px] bg-white"
+                      style={{ boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)" }}
+                    >
+                      {isLoading ? (
+                        <div className="flex h-full w-full p-4">
+                          <WhitePlaceholderBox className="rounded-[16px]" />
+                        </div>
+                      ) : (
+                        <div className="flex flex-col px-3 py-3">
+                          <div className="border-neutral-50 flex flex-shrink-0 items-center gap-4 border-b pb-[8px]">
+                            <div className="text-body4 text-neutral-30 flex-[8] font-semibold">No.</div>
+                            <div className="text-body4 text-neutral-30 flex-[24] font-semibold">Group</div>
+                            <div className="text-body4 text-neutral-30 flex-[18] font-semibold">
+                              Patients N
+                            </div>
+                            <div className="text-body4 text-neutral-30 flex-[29] font-semibold">
+                              △ Outcome (x)
+                            </div>
+                            <div className="text-body4 text-neutral-30 flex-[21] font-semibold">
+                              Cumulative Proportion (y)
+                            </div>
+                          </div>
+
+                          <div className="flex-shrink-0">
+                            {activeTableRows.map((row, index) => (
+                              <div
+                                key={`${row.groupName}-${index}`}
+                                className={`flex items-center gap-4 py-[8px] ${
+                                  index < activeTableRows.length - 1 ? "border-neutral-80 border-b" : ""
+                                }`}
+                              >
+                                <div className="text-body5 text-neutral-50 flex-[8]">{index + 1}</div>
+                                <div className="flex flex-[24] items-center gap-2">
+                                  <div
+                                    className="h-3 w-3 flex-shrink-0 rounded-full"
+                                    style={{ backgroundColor: row.color }}
+                                  />
+                                  <span className="text-body5 text-neutral-50">{row.groupName}</span>
+                                </div>
+                                <div className="text-body5 text-neutral-50 flex-[18]">
+                                  {row.patientsN}
+                                </div>
+                                <div className="text-body5 text-neutral-50 flex-[29]">{row.xLabel}</div>
+                                <div className="text-body5 text-neutral-50 flex-[21]">{row.yLabel}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
+              <div className="flex flex-shrink-0 justify-end gap-2">
+                <button
+                  onClick={handleOnSaveRefineCutoff}
+                  disabled={!canSaveRefineCutoff}
+                  className="btn-tsi btn-tsi-primary"
+                >
+                  Save
+                </button>
+                <button
+                  disabled={!canSaveRefineCutoff}
+                  className="btn-tsi btn-tsi-primary"
+                >
+                  Save As
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
+
+export default function TSIRefineCutoffsPage() {
+  return (
+    <Suspense fallback={null}>
+      <TSIRefineCutoffsPageContent />
+    </Suspense>
+  );
+}

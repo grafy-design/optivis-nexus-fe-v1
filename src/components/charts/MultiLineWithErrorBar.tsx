@@ -3,6 +3,22 @@
 import React, { useState, useRef, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import {
+  hexToRgba,
+  CHART_COLORS,
+  CHART_FONT,
+  GROUP_COLORS,
+  tooltipBase,
+  tooltipTitle,
+  axisNameBase,
+  splitLineHidden,
+  animationWithUpdate,
+  buildLineGradient,
+  xAxisEdgeLabelRich,
+  edgeLabelFormatter,
+} from "@/lib/chart-styles";
+export { type ChartSizeVariant } from "@/lib/chart-styles";
+import { CHART_SIZE_STYLES, type ChartSizeVariant } from "@/lib/chart-styles";
 
 export type ErrorBarPoint = [x: number, y: number, error: number];
 
@@ -30,31 +46,6 @@ interface AxisConfig {
   onZero?: boolean;
   zeroLineColor?: string;
 }
-
-export type ChartSizeVariant = "XS" | "S" | "M" | "L";
-
-const NEUTRAL_30 = "#484646";
-const NEUTRAL_95 = "#efeff4";
-
-type ChartSizeStyle = {
-  labelFontSize: number;
-  labelFontWeight: number;
-  numberFontSize: number;
-  numberFontWeight?: number;
-  axisColor: string;
-  numberColor?: string;
-  axisLineColor?: string;
-  axisWidth: number;
-  splitLineColor: string;
-  labelDecimalPlaces?: number;
-};
-
-const CHART_SIZE_STYLES: Record<ChartSizeVariant, ChartSizeStyle> = {
-  XS: { labelFontSize: 9, labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: "#787776", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
-  M:  { labelFontSize: 15, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-};
 
 interface GridConfig {
   left?: number;
@@ -84,27 +75,6 @@ interface MultiLineWithErrorBarProps {
   grid?: GridConfig;
 }
 
-const DEFAULT_GROUP_COLORS = [
-  "#F07A22",
-  "#4B3DF2",
-  "#262255",
-  "#E04A7A",
-  "#8C62FF",
-  "#2F89FC",
-  "#F1B316",
-];
-
-const hexToRgba = (hex: string, alpha: number): string => {
-  if (hex.startsWith("rgba(") || hex.startsWith("rgb(")) return hex;
-  const h = hex.replace("#", "");
-  const n = h.length === 3 ? h.split("").map((c) => `${c}${c}`).join("") : h;
-  const r = parseInt(n.slice(0, 2), 16);
-  const g = parseInt(n.slice(2, 4), 16);
-  const b = parseInt(n.slice(4, 6), 16);
-  if ([r, g, b].some((v) => Number.isNaN(v))) return `rgba(120,120,120,${alpha})`;
-  return `rgba(${r},${g},${b},${alpha})`;
-};
-
 export const MultiLineWithErrorBar = ({
   dataGroup,
   seriesLabels,
@@ -118,7 +88,7 @@ export const MultiLineWithErrorBar = ({
   xAxis,
   yAxis,
   guideLineX = 12,
-  guideLineColor = "#D2D2DA",
+  guideLineColor = CHART_COLORS.GUIDE_LINE,
   guideLineWidth = 1,
   guideLineType = "dashed",
   sizeVariant,
@@ -141,7 +111,7 @@ export const MultiLineWithErrorBar = ({
   const yAxisMax = yAxis?.max ?? computedYMax;
   const yAxisRange = Math.max(1, yAxisMax - yAxisMin);
   const yInterval = yAxis?.interval ?? Math.max(1, Math.ceil(yAxisRange / 4));
-  const groupColors = colors && colors.length > 0 ? colors : DEFAULT_GROUP_COLORS;
+  const groupColors = colors && colors.length > 0 ? colors : [...GROUP_COLORS];
   const [hoveredGroup, setHoveredGroup] = useState<number | null>(null);
   const [hoveredX, setHoveredX] = useState<number | null>(null);
   const chartRef = useRef<any>(null);
@@ -209,24 +179,6 @@ export const MultiLineWithErrorBar = ({
     return Math.max(0, 1 - (Math.abs(x - hoveredX) / xRange) * 4);
   };
 
-  // 라인 그라디언트 생성 — 호버 그래프는 넓은 범위, 비호버는 좁은 범위
-  const buildLineGradient = (color: string, isActive: boolean): any => {
-    if (hoveredX === null) return color;
-    const center = (hoveredX - xAxisMin) / xRange;
-    const spread = isActive ? 0.38 : 0.18;
-    const peakA = isActive ? 1 : 0.45;
-    const baseA = isActive ? 0.4 : 0.06;
-    const fs = Math.max(0, center - spread);
-    const fe = Math.min(1, center + spread);
-    const stops: { offset: number; color: string }[] = [];
-    if (fs > 0.001) stops.push({ offset: 0, color: hexToRgba(color, baseA) });
-    stops.push({ offset: fs, color: hexToRgba(color, baseA) });
-    stops.push({ offset: center, color: hexToRgba(color, peakA) });
-    stops.push({ offset: fe, color: hexToRgba(color, baseA) });
-    if (fe < 0.999) stops.push({ offset: 1, color: hexToRgba(color, baseA) });
-    return { type: "linear", x: 0, y: 0, x2: 1, y2: 0, colorStops: stops };
-  };
-
   const dynamicSeries: NonNullable<EChartsOption["series"]> = groups.flatMap((group, index) => {
     const color = groupColors[index % groupColors.length];
     const groupName = seriesLabels?.[index] ?? `Group ${index + 1}`;
@@ -251,7 +203,7 @@ export const MultiLineWithErrorBar = ({
         symbol: filledSymbol ? "circle" : "emptyCircle",
         symbolSize,
         itemStyle: filledSymbol ? { color, borderColor: color, borderWidth: 1 } : { color },
-        lineStyle: { width: lineWidth, color: buildLineGradient(color, isActive) },
+        lineStyle: { width: lineWidth, color: buildLineGradient(color, hoveredX, xAxisMin, xAxisMax, isActive) },
         emphasis: {
           focus: "series",
           itemStyle: { opacity: 1, borderWidth: 2, borderColor: color, color },
@@ -327,7 +279,7 @@ export const MultiLineWithErrorBar = ({
       data: meanData,
       smooth: false,
       showSymbol: false,
-      lineStyle: { color: "#787776", width: lineWidth, type: [4, 2] as number[] },
+      lineStyle: { color: CHART_COLORS.NEUTRAL_50, width: lineWidth, type: [4, 2] as number[] },
       symbol: "none" as const,
       silent: true,
       tooltip: { show: false },
@@ -374,10 +326,10 @@ export const MultiLineWithErrorBar = ({
         ]
       : [];
 
-  // y축 edge label 정렬용 변수 / Y-axis edge label variables
-  const yLabelColor = yAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#787776";
+  // y축 edge label 정렬용 변수
+  const yLabelColor = yAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? CHART_COLORS.NEUTRAL_50;
   const yLabelFontSize = yAxis?.fontSize ?? sz?.numberFontSize ?? 9;
-  const yLabelFontFamily = yAxis?.fontFamily ?? "Inter";
+  const yLabelFontFamily = yAxis?.fontFamily ?? CHART_FONT.familyShort;
   // inverse=true 이면 min이 상단, max가 하단; inverse=false이면 반대
   const yTopValue = yAxis?.inverse ? yAxisMin : yAxisMax;
   const yBottomValue = yAxis?.inverse ? yAxisMax : yAxisMin;
@@ -385,21 +337,19 @@ export const MultiLineWithErrorBar = ({
     ? (value: number | string) => {
         const num = Number(value);
         const base = labelFormatter ? labelFormatter(num) : String(num);
-        // 상단 레이블: 빈 줄 추가 → 텍스트 블록 전체가 tick 기준 아래로 이동
         if (Math.abs(num - yTopValue) < 0.001) return `\n${base}`;
-        // 하단 레이블: 뒤에 빈 줄 추가 → 텍스트 블록 전체가 tick 기준 위로 이동
         if (Math.abs(num - yBottomValue) < 0.001) return `${base}\n`;
         return base;
       }
     : labelFormatter;
 
-  // x축 edge label rich text 설정 / X-axis edge label rich text config
-  const xLabelColor = xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? "#787776";
+  // x축 edge label rich text 설정
+  const xLabelColor = xAxis?.labelColor ?? sz?.numberColor ?? sz?.axisColor ?? CHART_COLORS.NEUTRAL_50;
   const xLabelFontSize = xAxis?.fontSize ?? sz?.numberFontSize ?? 9;
-  const xLabelFontFamily = xAxis?.fontFamily ?? "Inter";
+  const xLabelFontFamily = xAxis?.fontFamily ?? CHART_FONT.familyShort;
   // x축 hover 시 해당 tick 라벨 컬러만 primary-15로 변경
   const xAxisLabelConfig = (() => {
-    const hoverStyle = { color: "#262255", fontSize: xLabelFontSize, fontWeight: 600, fontFamily: xLabelFontFamily };
+    const hoverStyle = { color: CHART_COLORS.PRIMARY_15, fontSize: xLabelFontSize, fontWeight: 600, fontFamily: xLabelFontFamily };
     const rich: any = { hover: hoverStyle };
 
     if (xAxis?.alignEdgeLabels) {
@@ -431,14 +381,14 @@ export const MultiLineWithErrorBar = ({
       trigger: "axis" as const,
       axisPointer: {
         type: "cross" as const,
-        lineStyle: { color: "#787776", type: "dashed" },
-        crossStyle: { color: "#787776", type: "dashed" },
+        lineStyle: { color: CHART_COLORS.NEUTRAL_50, type: "dashed" },
+        crossStyle: { color: CHART_COLORS.NEUTRAL_50, type: "dashed" },
         label: {
           show: true,
           backgroundColor: "transparent",
-          color: "#262255",
+          color: CHART_COLORS.PRIMARY_15,
           fontSize: sz?.numberFontSize ?? 10,
-          fontFamily: "Inter",
+          fontFamily: CHART_FONT.familyShort,
           fontWeight: sz?.numberFontWeight ?? 500,
           formatter: (params: any) => {
             if (params.axisDimension === "x") return "";
@@ -446,18 +396,15 @@ export const MultiLineWithErrorBar = ({
           },
         },
       },
-      padding: [4, 6],
-      borderWidth: 0,
-      borderColor: "transparent",
-      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600, color: "#787776" },
+      ...tooltipBase,
+      textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
       formatter: (params: any) => {
         if (!Array.isArray(params) || params.length === 0) return "";
         const month = Number(params[0].value[0]);
         const filtered = params.filter((p: any) => !p.seriesName.endsWith(" Error") && p.seriesName !== "Mean" && p.seriesName !== "Center Guide" && p.seriesName !== "Zero Line");
-        let html = `<div style="font-size:12px;font-family:Inter;color:#787776;font-weight:600;margin-bottom:4px">${month.toFixed(1)} month</div>`;
+        let html = tooltipTitle(`${month.toFixed(1)} month`);
         filtered.forEach((p: any) => {
-          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:2px">${p.marker}<span style="color:#787776;font-size:9px">${p.seriesName}</span></span><span style="color:#787776;font-size:14px;font-weight:600">${Number(p.value[1]).toFixed(1)}</span></div>`;
+          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:2px">${p.marker}<span style="color:var(--chart-text-axis-value);font-size:9px">${p.seriesName}</span></span><span style="color:var(--chart-text-axis-value);font-size:14px;font-weight:600">${Number(p.value[1]).toFixed(1)}</span></div>`;
         });
         return html;
       },
@@ -478,7 +425,7 @@ export const MultiLineWithErrorBar = ({
       splitLine: {
         show: xAxis?.splitLine ?? false,
         lineStyle: {
-          color: xAxis?.splitLineColor ?? sz?.splitLineColor ?? "#D8D7DF",
+          color: xAxis?.splitLineColor ?? sz?.splitLineColor ?? CHART_COLORS.SPLIT_LINE_DASHED,
           width: 1,
         },
       },
@@ -489,10 +436,10 @@ export const MultiLineWithErrorBar = ({
       nameLocation: "middle",
       nameGap: xAxis?.nameGap ?? 24,
       nameTextStyle: {
-        color: xAxis?.nameColor ?? sz?.axisColor ?? "#787776",
+        color: xAxis?.nameColor ?? sz?.axisColor ?? CHART_COLORS.NEUTRAL_50,
         fontSize: xAxis?.nameFontSize ?? sz?.labelFontSize ?? 9,
         fontWeight: xAxis?.nameFontSize ? undefined : sz?.labelFontWeight,
-        fontFamily: xAxis?.fontFamily ?? "Inter",
+        fontFamily: xAxis?.fontFamily ?? CHART_FONT.familyShort,
       },
     },
     yAxis: {
@@ -504,7 +451,7 @@ export const MultiLineWithErrorBar = ({
       splitLine: {
         show: yAxis?.splitLine ?? false,
         lineStyle: {
-          color: yAxis?.splitLineColor ?? sz?.splitLineColor ?? "#D8D7DF",
+          color: yAxis?.splitLineColor ?? sz?.splitLineColor ?? CHART_COLORS.SPLIT_LINE_DASHED,
           width: 1,
         },
       },
@@ -523,16 +470,14 @@ export const MultiLineWithErrorBar = ({
       nameGap: yAxis?.nameGap ?? 28,
       nameRotate: yAxis?.nameRotate ?? 90,
       nameTextStyle: {
-        color: yAxis?.nameColor ?? sz?.axisColor ?? "#787776",
+        color: yAxis?.nameColor ?? sz?.axisColor ?? CHART_COLORS.NEUTRAL_50,
         fontSize: yAxis?.nameFontSize ?? sz?.labelFontSize ?? 8,
         fontWeight: yAxis?.nameFontSize ? undefined : sz?.labelFontWeight,
-        fontFamily: yAxis?.fontFamily ?? "Inter",
+        fontFamily: yAxis?.fontFamily ?? CHART_FONT.familyShort,
         align: "center",
       },
     },
-    animationDuration: 300,
-    animationDurationUpdate: 150,
-    animationEasing: "cubicOut",
+    ...animationWithUpdate,
     series: [
       ...zeroLineSeries,
       ...guideSeries,

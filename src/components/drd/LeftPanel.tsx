@@ -106,7 +106,6 @@ export function LeftPanel({
             {/* Slider */}
             <div
               className="relative select-none"
-              style={{ userSelect: "none" }}
             >
               <div
                 className="h-[12px] rounded-full bg-neutral-50"
@@ -222,14 +221,12 @@ export function LeftPanel({
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-[var(--layer-secondary)]">
             <div
-              className="relative rounded-[18px] overflow-hidden w-full h-full flex flex-col min-h-0 bg-neutral-95"
-              style={{ backgroundColor: "var(--neutral-95)" }}
-            >
+              className="relative rounded-[18px] overflow-hidden w-full h-full flex flex-col min-h-0 ">
               <div className="flex-1 min-h-0 overflow-hidden">
                 <SimpleBar className="w-full h-full">
-                  <div className="flex flex-col w-full p-4 gap-3 bg-neutral-95">
+                  <div className="flex flex-col w-full p-4 gap-3">
                     <div className="text-body2 text-black flex-shrink-0">
                       Simulation Setting
                     </div>
@@ -285,11 +282,11 @@ export function LeftPanel({
                           >
                             <path
                               d="M0 8C0 3.58172 3.58172 0 8 0H16C20.4183 0 24 3.58172 24 8V16C24 20.4183 20.4183 24 16 24H8C3.58172 24 0 20.4183 0 16V8Z"
-                              fill="#231F52"
+                              fill="var(--icon-on-button)"
                             />
                             <path
                               d="M7.96436 13.5649V11.9097H16.0356V13.5649H7.96436ZM11.1724 16.7363V8.73828H12.8276V16.7363H11.1724Z"
-                              fill="white"
+                              fill="var(--icon-inverted)"
                             />
                           </svg>
                         </button>

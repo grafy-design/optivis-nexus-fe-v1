@@ -1102,50 +1102,29 @@ function TSIRefineCutoffsPageContent() {
 
       {/* ── 외부 래퍼 / Outer wrapper ──────────────────────────────────── */}
       <div
+        className="flex flex-col w-full h-full gap-6"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "100%",
-          gap: 24,
-          marginLeft: "14px",
-          marginRight: "14px",
           paddingBottom: 10,
         }}
       >
 
         {/* ── 1. 페이지 타이틀 / Page title ──────────────────────────── */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+        <div className="shrink-0 px-1">
           <h1
-            style={{
-              fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: titleFontSize,
-              fontWeight: 600,
-              color: "rgb(17,17,17)",
-              letterSpacing: "-1.5px",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
+            className="text-page-title"
+            style={{ fontSize: titleFontSize }}
           >
             Target Subgroup Identification
           </h1>
-          <span
-            style={{
-              fontFamily: "Inter",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "rgb(120,119,118)",
-              letterSpacing: "-0.48px",
-            }}
-          >
+          <span className="text-page-subtitle">
             Refine Cutoffs
           </span>
         </div>
 
         {/* ── 2. 왼쪽/오른쪽 카드 영역 / Left/Right card area ─────────── */}
         <div
-          className="flex flex-row flex-nowrap items-stretch flex-1 min-h-0"
-          style={{ minWidth: 0, gap: 0 }}
+          className="flex flex-row flex-nowrap items-stretch flex-1 min-h-0 gap-1"
+          style={{ minWidth: 0 }}
         >
 
           {/* ── 2-A. 왼쪽 카드: 슬라이더 + 컷오프 에디터
@@ -1343,8 +1322,8 @@ function TSIRefineCutoffsPageContent() {
                   <button
                     onClick={handleClickGenerateSubGroup}
                     disabled={!isCutoffDirty && !hasAppliedCriteria}
-                    className="btn-tsi btn-tsi-primary flex-shrink-0"
-                    style={{ marginLeft: "auto", gap: 8, paddingRight: "16px" }}
+                    className="btn-tsi btn-tsi-primary flex-shrink-0 gap-2"
+                    style={{ marginLeft: "auto", paddingRight: "16px" }}
                   >
                     Generate Subgroups
                     <Play size={16} fill="white" stroke="white" style={{ flexShrink: 0 }} />

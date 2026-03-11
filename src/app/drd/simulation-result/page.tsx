@@ -22,21 +22,49 @@
  */
 "use client";
 
-import { useState, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import ReactECharts from "@/components/charts/DynamicECharts";
+import {
+  EMPTY_DRD_SIMULATION_RESULT_VIEW_MODEL,
+  mapDrdSimulationResult,
+  type DrdAERiskChartViewModel,
+  type DrdAERiskSeriesSetViewModel,
+  type DrdCounterfactualChartViewModel,
+  type DrdPrimaryOutcomeRowViewModel,
+  type DrdResponseProbabilityRowViewModel,
+  type DrdSafetyTradeoffChartViewModel,
+  type DrdSimulationResultViewModel,
+  type DrdTrajectoryChartViewModel,
+} from "@/lib/drd-simulation-result-mapper";
+import {
+  convertDrdSimulationPlayToNonResponderSection,
+  EMPTY_DRD_NON_RESPONDER_SECTION,
+  type DrdNonResponderFeatureViewModel,
+  type DrdNonResponderSectionViewModel,
+} from "@/lib/drd-simulation-play-converter";
+import {
+  DRD_SIMULATION_RESULT_MOCK_NON_RESPONDER_SECTION,
+  DRD_SIMULATION_RESULT_MOCK_POPULATION_SUMMARY,
+  DRD_SIMULATION_RESULT_MOCK_STRATEGIES,
+  DRD_SIMULATION_RESULT_MOCK_SUMMARY_TEXT,
+  DRD_SIMULATION_RESULT_MOCK_VIEW_MODEL,
+  DRD_SIMULATION_RESULT_USE_MOCK,
+} from "@/services/drd-simulation-result-mock-data";
+import type { PlayDrdSimulationData } from "@/services/types/drd-service.types";
+import { useSimulationStore } from "@/store/simulationStore";
 
 // ── 차트 컴포넌트 (인라인) ────────────────────────────────────────────────────
 
-// 전략별 차트 컬러 (내부 차트 전용)
-const _COLOR_A = "#3a11d8";
-const _COLOR_B = "#f06600";
-const _COLOR_C = "#24c6c9";
-const _N10 = "#1c1b1b";
-const _N30 = "#484646";
-const _N60 = "#929090";
+// 전략별 차트 컬러 — chart-styles.ts 시맨틱 토큰 참조
+const _COLOR_A = "var(--chart-set06-group01)";
+const _COLOR_B = "var(--chart-set06-group02)";
+const _COLOR_C = "var(--chart-set06-group03)";
+const _N10 = "var(--chart-text-strong)";
+const _N30 = "var(--chart-text-category-title)";
+const _N60 = "var(--chart-axis-muted)";
 
 /**
  * SpaghettiPlotChart — 전략별 HbA1c 감소 궤적을 보여주는 스파게티 플롯
@@ -44,38 +72,108 @@ const _N60 = "#929090";
  * - Y축: HbA1c 감소량 (0~-4)
  * - 전략 A(파랑)/B(주황)/C(청록) 3개 라인 + 점선 마커
  */
-function SpaghettiPlotChart() {
-  const months = [0, 3, 6, 9, 12, 15, 18, 21, 24];
-  const strategyB = [0, -0.3, -0.8, -1.4, -1.8, -2.2, -2.6, -2.7, -2.5];
-  const strategyA = [0, -0.1, -0.4, -0.9, -1.5, -2.0, -2.4, -2.6, -2.4];
-  const strategyCyan = [0, 0.1, -0.1, -0.6, -1.0, -1.8, -2.2, -2.3, -2.2];
+function SpaghettiPlotChart({
+  chart,
+}: {
+  chart: DrdTrajectoryChartViewModel;
+}) {
+  const yValues = chart.series.flatMap((series) =>
+    series.data.filter((value): value is number => value !== null)
+  );
+  const minValue = yValues.length > 0 ? Math.min(...yValues) : 0;
+  const maxValue = yValues.length > 0 ? Math.max(...yValues, 0) : 0;
+  const valueRange = Math.max(Math.abs(maxValue - minValue), 1);
+  const yMin = Math.floor((minValue - valueRange * 0.15) * 2) / 2;
+  const yMax = Math.ceil((maxValue + valueRange * 0.15) * 2) / 2;
+  const interval = valueRange <= 2 ? 0.5 : 1;
+  const markLineData = [
+    ...(chart.targetLine
+      ? [
+          {
+            yAxis: chart.targetLine.value,
+            label: { formatter: chart.targetLine.label },
+            lineStyle: {
+              color: "var(--chart-drd-markline)",
+              type: "dashed" as const,
+              width: 1.5,
+            },
+          },
+        ]
+      : []),
+    ...chart.verticalEvents.map((event) => ({
+      xAxis: event.month,
+      label: { formatter: event.label },
+      lineStyle: {
+        color: _N60,
+        type: "dashed" as const,
+        width: 1,
+      },
+    })),
+  ];
   const option = {
     grid: { left: 72, right: 16, top: 24, bottom: 58 },
     xAxis: {
-      type: "category" as const, data: months, boundaryGap: false,
+      type: "category" as const,
+      data: chart.xAxisValues,
+      boundaryGap: false,
       axisLine: { lineStyle: { color: _N30, width: 1 } }, axisTick: { show: false },
       axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 },
       splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.25, type: "solid" as const, width: 1 } },
-      name: "Time since symptom onset (Months)", nameLocation: "middle" as const, nameGap: 28,
-      nameTextStyle: { color: "#1c1b1b", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 },
+      name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 28,
+      nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 },
     },
     yAxis: {
-      type: "value" as const, min: -4, max: 0, interval: 2,
+      type: "value" as const, min: yMin, max: yMax, interval,
       axisLine: { show: false }, axisTick: { show: false },
       axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27, formatter: (v: number) => v.toFixed(1) },
       splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.25, type: "solid" as const, width: 1 } },
-      name: "Reduction in HbA1c", nameLocation: "middle" as const, nameGap: 44,
-      nameTextStyle: { color: "#1c1b1b", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 },
+      name: chart.yAxisName, nameLocation: "middle" as const, nameGap: 44,
+      nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 },
     },
-    series: [
-      { name: "B: Add-on", type: "line" as const, data: strategyB, smooth: true, symbol: "none", lineStyle: { color: _COLOR_A, width: 2.5 }, itemStyle: { color: _COLOR_A }, markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop" as const, formatter: "B: Add-on", color: _COLOR_A, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, lineStyle: { color: _COLOR_A, type: "dashed" as const, width: 1, opacity: 0.6 }, data: [{ xAxis: 9 }] } },
-      { name: "A: Switch", type: "line" as const, data: strategyA, smooth: true, symbol: "none", lineStyle: { color: _COLOR_B, width: 2.5 }, itemStyle: { color: _COLOR_B }, markLine: { silent: true, symbol: "none", label: { show: true, position: "insideEndTop" as const, formatter: "A: Switch", color: _COLOR_B, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, lineStyle: { color: _COLOR_B, type: "dashed" as const, width: 1, opacity: 0.6 }, data: [{ xAxis: 15 }] } },
-      { name: "C", type: "line" as const, data: strategyCyan, smooth: true, symbol: "none", lineStyle: { color: _COLOR_C, width: 2.5 }, itemStyle: { color: _COLOR_C }, markLine: { silent: true, symbol: "none", label: { show: true, position: "insideStartTop" as const, formatter: "Target : -1.0% at Month 12", color: "#AAAAAD", fontFamily: "Inter", fontSize: 9, fontWeight: 500, distance: [0, 4] }, lineStyle: { color: "#AAAAAD", type: "dotted" as const, width: 1.5 }, data: [{ yAxis: -1.0, name: "Target : -1.0% at Month 12" }] } },
-    ],
-    legend: { show: true, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, data: [{ name: "B: Add-on", itemStyle: { color: _COLOR_A }, lineStyle: { color: _COLOR_A } }, { name: "A: Switch", itemStyle: { color: _COLOR_B }, lineStyle: { color: _COLOR_B } }], textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 } },
-    tooltip: { show: false },
+    series: chart.series.map((series, index) => ({
+      name: series.strategyLabel,
+      type: "line" as const,
+      data: series.data,
+      smooth: true,
+      symbol: "none",
+      connectNulls: false,
+      lineStyle: { color: series.color, width: 2.5 },
+      itemStyle: { color: series.color },
+      markLine:
+        index === 0 && markLineData.length > 0
+          ? {
+              silent: true,
+              symbol: "none",
+              animation: false,
+              label: {
+                color: _N30,
+                fontFamily: "Inter",
+                fontSize: 10,
+                fontWeight: 600,
+                backgroundColor: "rgba(255,255,255,0.86)",
+                padding: [2, 6],
+                borderRadius: 4,
+              },
+              data: markLineData,
+            }
+          : undefined,
+    })),
+    legend: {
+      show: chart.series.length > 0,
+      bottom: 0,
+      icon: "roundRect",
+      itemWidth: 24,
+      itemHeight: 3,
+      data: chart.series.map((series) => ({
+        name: series.strategyLabel,
+        itemStyle: { color: series.color },
+        lineStyle: { color: series.color },
+      })),
+      textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 },
+    },
+    tooltip: { trigger: "axis" as const },
   };
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
+  return <ReactECharts option={option} className="w-full h-full" notMerge />;
 }
 
 /**
@@ -83,39 +181,44 @@ function SpaghettiPlotChart() {
  * - X축: Primary Outcome Change(△HbA1c), Y축: 환자 수
  * - 각 x 위치에서 전략별 값을 크기 기준 내림차순 slot으로 레이어링해 중첩 막대 표현
  */
-function HistogramChart() {
-  const xLabels = ["-2.0","-1.9","-1.8","-1.7","-1.6","-1.5","-1.4","-1.3","-1.2","-1.1","-1.0","-0.9","-0.8","-0.7","-0.6","-0.5","-0.4","-0.3","-0.2","-0.1","0.0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0"];
-  const rawA = [0,0,0,0,0,1,1,2,5,9,11,12,14,24,25,19,22,23,30,48,46,22,11,5,0,0,0,0,0,0,0];
-  const rawB = [0,0,0,0,3,3,4,5,13,14,18,19,23,31,32,23,28,27,36,48,29,18,12,9,0,0,0,0,0,0,0];
-  const rawC = [6,6,7,8,9,10,11,12,13,14,16,17,18,20,21,22,23,24,26,29,35,42,48,43,38,30,22,17,14,11,9];
-
-  const strategies = [
-    { name: "Strategy A", color: _COLOR_A, data: rawA },
-    { name: "Strategy B", color: _COLOR_B, data: rawB },
-    { name: "Strategy C", color: _COLOR_C, data: rawC },
-  ];
+function HistogramChart({
+  chart,
+}: {
+  chart: DrdCounterfactualChartViewModel;
+}) {
+  const xLabels = chart.bins.map((bin) => bin.toFixed(1));
+  const strategies = chart.series.map((series) => ({
+    name: series.strategyLabel,
+    color: series.color,
+    data: series.counts,
+  }));
 
   // 각 x 위치마다 값 크기 기준 내림차순 rank → slot0=최대, slot1=중간, slot2=최소
   // slot별 데이터: { value: 실제값, itemStyle: { color: 해당전략색 } }
   const n = xLabels.length;
-  const slots: { value: number; itemStyle: { color: string; borderRadius: number[] } }[][] = [[], [], []];
+  const slots: { value: number; itemStyle: { color: string; borderRadius: number[] } }[][] =
+    strategies.map(() => []);
 
   for (let xi = 0; xi < n; xi++) {
-    const ranked = [0, 1, 2]
-      .map((si) => ({ si, v: strategies[si].data[xi] }))
+    const ranked = strategies
+      .map((strategy, index) => ({ index, v: strategy.data[xi] }))
       .sort((a, b) => b.v - a.v); // 내림차순: 큰 값이 slot0(뒤에 그려짐)
     ranked.forEach((item, rank) => {
       slots[rank].push({
         value: item.v,
-        itemStyle: { color: strategies[item.si].color, borderRadius: [2, 2, 0, 0] },
+        itemStyle: { color: strategies[item.index].color, borderRadius: [2, 2, 0, 0] },
       });
     });
   }
 
+  const maxCount = Math.max(
+    ...chart.series.flatMap((series) => series.counts),
+    1
+  );
   const option = {
     grid: { left: 72, right: 16, top: 12, bottom: 58 },
-    xAxis: { type: "category" as const, data: xLabels, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, interval: 4, formatter: (v: string) => v }, splitLine: { show: false }, name: "Primary Outcome Change (△)", nameLocation: "middle" as const, nameGap: 28, nameTextStyle: { color: "#1c1b1b", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    yAxis: { type: "value" as const, min: 0, max: 50, interval: 10, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: "Patient Count", nameLocation: "middle" as const, nameGap: 44, nameTextStyle: { color: "#1c1b1b", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    xAxis: { type: "category" as const, data: xLabels, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, interval: 4, formatter: (v: string) => v }, splitLine: { show: false }, name: "Primary Outcome Change (△)", nameLocation: "middle" as const, nameGap: 28, nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    yAxis: { type: "value" as const, min: 0, max: Math.ceil(maxCount * 1.15), interval: Math.max(1, Math.ceil(maxCount / 5)), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: "Patient Count", nameLocation: "middle" as const, nameGap: 44, nameTextStyle: { color: "var(--chart-text-strong)", fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
     series: slots.map((slotData) => ({
       type: "bar" as const,
       data: slotData,
@@ -125,10 +228,10 @@ function HistogramChart() {
       emphasis: { disabled: true },
       itemStyle: { opacity: 0.8 },
     })),
-    legend: { show: true, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 8, data: [{ name: "Strategy A", itemStyle: { color: _COLOR_A } }, { name: "Strategy B", itemStyle: { color: _COLOR_B } }, { name: "Strategy C", itemStyle: { color: _COLOR_C } }], textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 } },
-    tooltip: { show: false },
+    legend: { show: strategies.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 8, data: strategies.map((strategy) => ({ name: strategy.name, itemStyle: { color: strategy.color } })), textStyle: { color: _N30, fontFamily: "Inter", fontSize: 11, fontWeight: 500 } },
+    tooltip: { trigger: "axis" as const },
   };
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
+  return <ReactECharts option={option} className="w-full h-full" notMerge />;
 }
 
 /**
@@ -137,19 +240,38 @@ function HistogramChart() {
  * - 버블 크기: 상대적 빈도/위험 규모를 시각적으로 표현
  * - A(파랑)/B(주황)/C(청록) 세 전략을 각각 원 하나로 표현
  */
-function BubbleChart() {
+function BubbleChart({
+  chart,
+}: {
+  chart: DrdSafetyTradeoffChartViewModel;
+}) {
+  const xValues = chart.points.map((point) => point.xValue);
+  const yValues = chart.points.map((point) => point.yValue);
+  const maxX = Math.max(...xValues, 1);
+  const minX = Math.min(...xValues, 0);
+  const maxY = Math.max(...yValues, 1);
   const option = {
     grid: { left: 56, right: 16, top: 12, bottom: 62 },
-    xAxis: { type: "value" as const, min: 0, max: 10, interval: 5, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: false }, name: "△HbA1c", nameLocation: "middle" as const, nameGap: 20, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    yAxis: { type: "value" as const, min: 0, max: 8, interval: 2, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: "AE probability(%)", nameLocation: "middle" as const, nameGap: 40, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    series: [
-      { type: "scatter" as const, data: [[2.5,2.8]], symbolSize: 46, itemStyle: { color: _COLOR_C, opacity: 0.85 }, label: { show: true, formatter: "C", color: "#fff", fontFamily: "Inter", fontSize: 11, fontWeight: 700 } },
-      { type: "scatter" as const, data: [[3.5,2.2]], symbolSize: 62, itemStyle: { color: _COLOR_A, opacity: 0.88 }, label: { show: true, formatter: "A", color: "#fff", fontFamily: "Inter", fontSize: 11, fontWeight: 700 } },
-      { type: "scatter" as const, data: [[8.5,6.0]], symbolSize: 96, itemStyle: { color: _COLOR_B, opacity: 0.9 }, label: { show: true, formatter: "B", color: "#fff", fontFamily: "Inter", fontSize: 13, fontWeight: 700 } },
-    ],
-    tooltip: { show: false },
+    xAxis: { type: "value" as const, min: Math.floor(minX), max: Math.ceil(maxX * 1.1), interval: Math.max(1, Math.ceil((maxX - minX || 1) / 3)), axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: false }, name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 20, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    yAxis: { type: "value" as const, min: 0, max: Math.ceil(maxY * 1.15), interval: Math.max(1, Math.ceil(maxY / 4)), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: chart.yAxisName, nameLocation: "middle" as const, nameGap: 40, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    series: chart.points.map((point) => ({
+      name: point.strategyLabel,
+      type: "scatter" as const,
+      data: [[point.xValue, point.yValue]],
+      symbolSize: point.symbolSize,
+      itemStyle: { color: point.color, opacity: 0.88 },
+      label: {
+        show: true,
+        formatter: point.strategyLabel.replace("Strategy ", ""),
+        color: "#fff",
+        fontFamily: "Inter",
+        fontSize: 11,
+        fontWeight: 700,
+      },
+    })),
+    tooltip: { trigger: "item" as const },
   };
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
+  return <ReactECharts option={option} className="w-full h-full" notMerge />;
 }
 
 /**
@@ -158,24 +280,62 @@ function BubbleChart() {
  * - 아래쪽에 그라데이션 면적(areaStyle) 적용
  * - AE Risk 탭의 "AE Risk" 카드 내부에 표시됨
  */
-function StepLineChart() {
-  const xData = [0,1,2,3,4,5,6,7,8,9,10];
-  const dataA = [0,0.2,0.6,1.2,2.0,3.0,6.0,6.4,6.8,7.2,7.8];
-  const dataB = [0,0.3,0.9,1.8,3.0,4.5,6.0,6.5,7.0,7.5,8.0];
-  const dataC = [0,0.1,0.3,0.7,1.2,2.0,2.8,3.6,4.2,4.8,5.2];
+function StepLineChart({
+  seriesSet,
+  yAxisName,
+}: {
+  seriesSet: DrdAERiskSeriesSetViewModel;
+  yAxisName: string;
+}) {
+  const maxY = Math.max(
+    ...seriesSet.series.flatMap((series) =>
+      series.data.filter((value): value is number => value !== null)
+    ),
+    1
+  );
   const option = {
     grid: { left: 56, right: 16, top: 12, bottom: 62 },
-    xAxis: { type: "category" as const, data: xData, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.15, type: "solid" as const, width: 1 } }, name: "Years since treatment start", nameLocation: "middle" as const, nameGap: 20, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    yAxis: { type: "value" as const, min: 0, max: 8, interval: 2, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: "AE probability(%)", nameLocation: "middle" as const, nameGap: 40, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
-    series: [
-      { name: "Strategy A", type: "line" as const, step: "end" as const, data: dataA, symbol: "none", lineStyle: { color: _COLOR_A, width: 2 }, areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: `${_COLOR_A}50` }, { offset: 1, color: `${_COLOR_A}08` }] } }, itemStyle: { color: _COLOR_A } },
-      { name: "Strategy B", type: "line" as const, step: "end" as const, data: dataB, symbol: "none", lineStyle: { color: _COLOR_B, width: 2 }, areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: `${_COLOR_B}50` }, { offset: 1, color: `${_COLOR_B}08` }] } }, itemStyle: { color: _COLOR_B } },
-      { name: "Strategy C", type: "line" as const, step: "end" as const, data: dataC, symbol: "none", lineStyle: { color: _COLOR_C, width: 2 }, areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: `${_COLOR_C}50` }, { offset: 1, color: `${_COLOR_C}08` }] } }, itemStyle: { color: _COLOR_C } },
-    ],
-    legend: { show: true, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, padding: [0, 0, 2, 0], data: [{ name: "Strategy A", itemStyle: { color: _COLOR_A } }, { name: "Strategy B", itemStyle: { color: _COLOR_B } }, { name: "Strategy C", itemStyle: { color: _COLOR_C } }], textStyle: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500 } },
-    tooltip: { show: false },
+    xAxis: { type: "category" as const, data: seriesSet.xAxisValues, axisLine: { lineStyle: { color: _N60, width: 1 } }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.15, type: "solid" as const, width: 1 } }, name: "Years since treatment start", nameLocation: "middle" as const, nameGap: 20, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    yAxis: { type: "value" as const, min: 0, max: Math.ceil(maxY * 1.15), interval: Math.max(1, Math.ceil(maxY / 4)), axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500, letterSpacing: -0.27 }, splitLine: { show: true, lineStyle: { color: _N60, opacity: 0.2, type: "solid" as const, width: 1 } }, name: yAxisName, nameLocation: "middle" as const, nameGap: 40, nameTextStyle: { color: _N10, fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: -0.55 } },
+    series: seriesSet.series.map((series) => ({
+      name: series.strategyLabel,
+      type: "line" as const,
+      step: "end" as const,
+      data: series.data,
+      symbol: "none",
+      lineStyle: { color: series.color, width: 2 },
+      areaStyle: { color: { type: "linear" as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: `${series.color}50` }, { offset: 1, color: `${series.color}08` }] } },
+      itemStyle: { color: series.color },
+    })),
+    legend: { show: seriesSet.series.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, padding: [0, 0, 2, 0], data: seriesSet.series.map((series) => ({ name: series.strategyLabel, itemStyle: { color: series.color } })), textStyle: { color: _N30, fontFamily: "Inter", fontSize: 9, fontWeight: 500 } },
+    tooltip: { trigger: "axis" as const },
   };
-  return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
+  return <ReactECharts option={option} className="w-full h-full" notMerge />;
+}
+
+function EmptyCardState({ message }: { message: string }) {
+  return (
+    <div
+      className="w-full h-full min-h-0 flex items-center justify-center box-border"
+      style={{
+        borderRadius: "10px",
+        border: "1px solid rgba(38,34,85,0.12)",
+        background: "rgba(255,255,255,0.72)",
+        padding: "24px",
+      }}
+    >
+      <p
+        className="text-captionm"
+        style={{
+          margin: 0,
+          color: COLOR_NEUTRAL_30,
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </p>
+    </div>
+  );
 }
 
 // ── 이미지 경로 ───────────────────────────────────────────────────────────────
@@ -183,15 +343,15 @@ const imgFrame1618873826 = "/figma-assets/159570a2cd4a5962c7b68be950ef1ec97d5cd2
 
 
 // ── 전역 색상 상수 ────────────────────────────────────────────────────────────
-const COLOR_STRATEGY_A = "#3a11d8";  // 전략 A 색상 (파랑)
-const COLOR_STRATEGY_B = "#f06600";  // 전략 B 색상 (주황)
-const COLOR_STRATEGY_C = "#24c6c9";  // 전략 C 색상 (청록)
-const COLOR_PRIMARY    = "#262255";  // 메인 브랜드 컬러 (짙은 남색)
-const COLOR_NEUTRAL_10 = "#1c1b1b";  // 중립 10단계 (거의 검정)
-const COLOR_NEUTRAL_30 = "#484646";  // 중립 30단계 (진한 회색)
-const COLOR_NEUTRAL_40 = "#5f5e5e";  // 중립 40단계
-const COLOR_NEUTRAL_60 = "#929090";  // 중립 60단계 (중간 회색)
-const COLOR_TABLE_BODY = "#787776";  // 테이블 본문 텍스트 색상
+const COLOR_STRATEGY_A = "var(--chart-set06-group01)";  // 전략 A (파랑)
+const COLOR_STRATEGY_B = "var(--chart-set06-group02)";  // 전략 B (주황)
+const COLOR_STRATEGY_C = "var(--chart-set06-group03)";  // 전략 C (청록)
+const COLOR_PRIMARY    = "var(--chart-set00-traditional)";  // 메인 브랜드 컬러
+const COLOR_NEUTRAL_10 = "var(--chart-text-strong)";     // 중립 10단계
+const COLOR_NEUTRAL_30 = "var(--chart-text-category-title)"; // 중립 30단계
+const COLOR_NEUTRAL_40 = "var(--chart-axis-subtle)";     // 중립 40단계
+const COLOR_NEUTRAL_60 = "var(--chart-axis-muted)";      // 중립 60단계
+const COLOR_TABLE_BODY = "var(--chart-text-axis-value)";  // 테이블 본문 텍스트
 
 // ── 전략 카드 툴팁 ────────────────────────────────────────────────────────────
 
@@ -232,35 +392,29 @@ function StrategyInfoTooltip({ data, anchorRect }: { data: StrategyTooltipData; 
 
   const content = (
     <div
+      className="fixed pointer-events-none overflow-hidden flex flex-col"
       style={{
-        position: "fixed",
         left,
         top,
         transform: "translateY(-50%)",
         zIndex: 9999,
-        pointerEvents: "none",
         width: 378,
         borderRadius: 24,
-        overflow: "hidden",
         boxShadow: "0 8px 40px rgba(0,0,0,0.14)",
         background: "white",
         padding: `${PADDING - 8}px ${PADDING}px ${PADDING}px`,
-        display: "flex",
-        flexDirection: "column",
         gap: 0,
       }}
     >
       {/* X축 레이블 */}
       <div
+        className="flex justify-between"
         style={{
-          display: "flex",
           marginLeft: LEFT_W,
           marginBottom: 6,
-          justifyContent: "space-between",
-          fontFamily: "Inter, sans-serif",
           fontWeight: 500,
           fontSize: 11,
-          color: "#929090",
+          color: "var(--chart-axis-muted)",
           letterSpacing: "-0.44px",
         }}
       >
@@ -268,24 +422,22 @@ function StrategyInfoTooltip({ data, anchorRect }: { data: StrategyTooltipData; 
       </div>
 
       {/* 행 목록: 좌측 텍스트 + 우측 바 */}
-      <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 0 }}>
+      <div className="relative flex flex-col" style={{ gap: 0 }}>
         {/* 수직 그리드 라인 (바 영역 위에 오버레이) */}
-        <div style={{ position: "absolute", top: 0, bottom: 0, left: LEFT_W, right: 0, display: "flex", justifyContent: "space-between", pointerEvents: "none" }}>
+        <div className="absolute flex justify-between pointer-events-none" style={{ top: 0, bottom: 0, left: LEFT_W, right: 0 }}>
           {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ width: 1, background: "rgba(0,0,0,0.10)", height: "100%" }} />
+            <div key={i} className="h-full" style={{ width: 1, background: "rgba(0,0,0,0.10)" }} />
           ))}
         </div>
 
         {rows.map((row, i) =>
           row.type === "label" ? (
-            <div key={i} style={{ display: "flex", alignItems: "center", height: 22, marginTop: i === 0 ? 0 : 10 }}>
-              <span style={{
+            <div key={i} className="flex items-center" style={{ height: 22, marginTop: i === 0 ? 0 : 10 }}>
+              <span className="shrink-0" style={{
                 width: LEFT_W,
-                flexShrink: 0,
-                fontFamily: "Inter, sans-serif",
                 fontWeight: 500,
                 fontSize: 11,
-                color: "#929090",
+                color: "var(--chart-axis-muted)",
                 letterSpacing: "-0.44px",
                 lineHeight: 1.1,
               }}>
@@ -293,25 +445,18 @@ function StrategyInfoTooltip({ data, anchorRect }: { data: StrategyTooltipData; 
               </span>
             </div>
           ) : (
-            <div key={i} style={{ display: "flex", alignItems: "center", height: 24, marginTop: 4 }}>
+            <div key={i} className="flex items-center" style={{ height: 24, marginTop: 4 }}>
               {/* 좌측: 아이템 이름 */}
-              <span style={{
+              <span className="shrink-0 overflow-hidden text-caption" style={{
                 width: LEFT_W,
-                flexShrink: 0,
-                fontFamily: "Inter, sans-serif",
-                fontWeight: 600,
-                fontSize: 13,
-                color: "#1c1b1b",
-                letterSpacing: "-0.52px",
-                lineHeight: 1.15,
+                color: "var(--chart-text-strong)",
                 whiteSpace: "nowrap",
-                overflow: "hidden",
                 textOverflow: "ellipsis",
               }}>
                 {(row as { text: string }).text}
               </span>
               {/* 우측: 바 */}
-              <div style={{ flex: 1, position: "relative", height: "100%", display: "flex", alignItems: "center" }}>
+              <div className="flex-1 relative h-full flex items-center">
                 <div style={{
                   height: 8,
                   borderRadius: 4,
@@ -361,19 +506,16 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
 
   return (
     <div
+      className="relative shrink-0 w-full"
       style={{
-        position: "relative",
         background: "#ffffff",
         borderRadius: "16px",
-        flexShrink: 0,
-        width: "100%",
       }}
     >
       {/* 헤더 */}
       <div
+        className="flex items-center"
         style={{
-          display: "flex",
-          alignItems: "center",
           gap: "8px",
           padding: "8px 16px 8px",
           borderBottom: `2px solid ${lineColor}`,
@@ -382,7 +524,6 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
       >
         <span
           style={{
-            fontFamily: "Inter",
             fontWeight: 700,
             fontSize: 17,
             color: nameColor,
@@ -399,7 +540,7 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
           alt="info"
           width={16}
           height={16}
-          style={{ flexShrink: 0, cursor: "pointer" }}
+          className="shrink-0 cursor-pointer"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         />
@@ -408,10 +549,9 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
         )}
       </div>
       {/* 콘텐츠 */}
-      <div style={{ padding: "12px 16px 12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+      <div className="flex flex-col" style={{ padding: "12px 16px 12px", gap: "4px" }}>
         <p
           style={{
-            fontFamily: "Inter",
             fontWeight: 500,
             fontSize: "clamp(7px, 0.85vw, 13px)",
             color: COLOR_NEUTRAL_10,
@@ -422,12 +562,12 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
         >
           {target}
         </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0px" }}>
+        <div className="flex flex-col" style={{ gap: "0px" }}>
           {drugs.map((drug, i) => (
             <p
               key={i}
+              className="flex items-center"
               style={{
-                fontFamily: "Inter",
                 fontWeight: 500,
                 fontSize: "clamp(7px, 0.8vw, 11px)",
                 color: COLOR_NEUTRAL_40,
@@ -436,19 +576,16 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
                 margin: 0,
                 paddingLeft: "16px",
                 height: "1.4em",
-                display: "flex",
-                alignItems: "center",
               }}
             >
               {i + 1}. {drug}
             </p>
           ))}
           {extraDrug && (
-            <div style={{ display: "flex", alignItems: "center", gap: "4px", paddingLeft: "16px", height: "1.4em" }}>
+            <div className="flex items-center" style={{ gap: "4px", paddingLeft: "16px", height: "1.4em" }}>
               <img src={imgFrame1618873826} alt="" style={{ height: "11px", objectFit: "contain" }} />
               <p
                 style={{
-                  fontFamily: "Inter",
                   fontWeight: 500,
                   fontSize: "clamp(7px, 0.8vw, 11px)",
                   color: COLOR_NEUTRAL_40,
@@ -472,41 +609,48 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
  * - 열: Strategy / Mean / 95% CI / Median / NNT* / NNT at Week 24
  * - 행: 전략 A / B / C 각각의 HbA1c 변화량 통계
  */
-function PrimaryOutcomeTable() {
+function PrimaryOutcomeTable({
+  rows,
+}: {
+  rows: DrdPrimaryOutcomeRowViewModel[];
+}) {
   const headers = ["Strategy", "Mean", "95% CI", "Median", "NNT*", "NNT at Week 24"];
   const colWidths = ["16%", "13%", "19%", "13%", "12%", "27%"];
-  const rows = [
-    { strategy: "A", mean: "-1.1%", ci: "(-0.9, -1.3)", median: "-1.0", nnt: "6.2", nntW24: "48% (CI 44~52%)" },
-    { strategy: "B", mean: "-0.6%", ci: "(-0.9, -1.3)", median: "-0.5", nnt: "11.4", nntW24: "26% (CI 22~30%)" },
-    { strategy: "C", mean: "-0.6%", ci: "(-0.9, -1.3)", median: "-0.5", nnt: "11.4", nntW24: "26% (CI 22~30%)" },
-  ];
   const allRows = [
     { cells: headers, isHeader: true },
-    ...rows.map((r) => ({ cells: [r.strategy, r.mean, r.ci, r.median, r.nnt, r.nntW24], isHeader: false, isLast: false })),
+    ...rows.map((row) => ({
+      cells: [
+        row.strategyKey,
+        row.meanText,
+        row.ciText,
+        row.medianText,
+        row.nntText,
+        row.nntWeek24Text,
+      ],
+      isHeader: false,
+      isLast: false,
+    })),
   ];
   // mark last data row
   (allRows[allRows.length - 1] as { isLast?: boolean }).isLast = true;
 
   return (
     <div
+      className="overflow-y-auto overflow-x-hidden h-full"
       style={{
         background: "#fff",
         borderRadius: "8px",
-        overflowY: "auto",
-        overflowX: "hidden",
-        height: "100%",
         display: "grid",
-        gridTemplateRows: "repeat(4, 1fr)",
-        fontFamily: "Inter",
+        gridTemplateRows: `repeat(${Math.max(allRows.length, 1)}, 1fr)`,
       }}
     >
       {allRows.map((row, ri) => (
         <div
           key={ri}
+          className="items-center"
           style={{
             display: "grid",
             gridTemplateColumns: colWidths.join(" "),
-            alignItems: "center",
             borderBottom: ri < allRows.length - 1
               ? `1px solid ${ri === 0 ? COLOR_NEUTRAL_60 : "#c6c5c9"}`
               : "none",
@@ -515,13 +659,13 @@ function PrimaryOutcomeTable() {
           {row.cells.map((cell, ci) => (
             <div
               key={ci}
+              className="overflow-hidden"
               style={{
                 fontWeight: row.isHeader ? 700 : ci === 0 ? 600 : 400,
                 fontSize: row.isHeader ? "clamp(7px, 0.8vw, 13px)" : "clamp(7px, 0.8vw, 11px)",
                 color: row.isHeader ? COLOR_PRIMARY : COLOR_TABLE_BODY,
                 padding: ci === 0 ? "0 6px 0 12px" : ci === 5 ? "0 12px 0 6px" : "0 6px",
                 letterSpacing: row.isHeader ? "-0.42px" : "-0.39px",
-                overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
@@ -541,47 +685,20 @@ function PrimaryOutcomeTable() {
  * - 열: Category / 전략 A / 전략 B / 전략 C
  * - 가장 높은 확률의 전략은 굵은 텍스트 + 전략 색상으로 강조
  */
-function ResponseProbabilityTable() {
-  const rows = [
-    {
-      label: "Strong responder",
-      a: { val: "32%(399)", bold: true, color: COLOR_STRATEGY_A },
-      b: { val: "25%(275)", bold: false, color: COLOR_TABLE_BODY },
-      c: { val: "25%(275)", bold: false, color: COLOR_TABLE_BODY },
-    },
-    {
-      label: "Partial responder",
-      a: { val: "21%(262)", bold: false, color: COLOR_TABLE_BODY },
-      b: { val: "28%(298)", bold: false, color: COLOR_TABLE_BODY },
-      c: { val: "28%(298)", bold: false, color: COLOR_TABLE_BODY },
-    },
-    {
-      label: "Non responder",
-      a: { val: "18%(225)", bold: false, color: COLOR_TABLE_BODY },
-      b: { val: "37%(420)", bold: true, color: COLOR_STRATEGY_B },
-      c: { val: "37%(420)", bold: true, color: COLOR_STRATEGY_C },
-    },
-    {
-      label: "Deteriorator",
-      a: { val: "6%(75)", bold: false, color: COLOR_TABLE_BODY },
-      b: { val: "10%(88)", bold: false, color: COLOR_TABLE_BODY },
-      c: { val: "10%(88)", bold: false, color: COLOR_TABLE_BODY },
-    },
-  ];
-
+function ResponseProbabilityTable({
+  rows,
+}: {
+  rows: DrdResponseProbabilityRowViewModel[];
+}) {
   return (
     <div
+      className="overflow-y-auto overflow-x-hidden h-full flex flex-col"
       style={{
         background: "#fff",
         borderRadius: "8px",
-        overflowY: "auto",
-        overflowX: "hidden",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
-      <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "Inter", tableLayout: "fixed", height: "100%" }}>
+      <table className="w-full h-full" style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
         <colgroup>
           <col style={{ width: "34%" }} />
           <col style={{ width: "22%" }} />
@@ -590,7 +707,7 @@ function ResponseProbabilityTable() {
         </colgroup>
         <thead>
           <tr style={{ borderBottom: `1px solid ${COLOR_NEUTRAL_60}`, height: "25%" }}>
-            <th style={{ padding: "8px 6px 8px 12px", textAlign: "left", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 13px)", color: COLOR_PRIMARY, letterSpacing: "-0.42px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <th className="overflow-hidden" style={{ padding: "8px 6px 8px 12px", textAlign: "left", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 13px)", color: COLOR_PRIMARY, letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               Category
             </th>
             {[
@@ -607,10 +724,10 @@ function ResponseProbabilityTable() {
                   fontSize: "clamp(7px, 0.8vw, 13px)",
                   color,
                   letterSpacing: "-0.42px",
-                  overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                 }}
+                className="overflow-hidden"
               >
                 {label}
               </th>
@@ -620,29 +737,31 @@ function ResponseProbabilityTable() {
         <tbody>
           {rows.map((row, idx) => (
             <tr
-              key={row.label}
+              key={row.category}
               style={{ borderTop: idx > 0 ? "1px solid #c6c5c9" : "none" }}
             >
-              <td style={{ padding: "0 6px 0 12px", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 12px)", color: "#787776", letterSpacing: "-0.42px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {row.label}
+              <td className="overflow-hidden" style={{ padding: "0 6px 0 12px", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 12px)", color: "var(--chart-text-axis-value)", letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {row.category}
               </td>
-              {[row.a, row.b, row.c].map(({ val, bold, color }, ci) => (
+              {[row.strategyA, row.strategyB, row.strategyC].map(
+                ({ text, highlight, color }, ci) => (
                 <td
                   key={ci}
+                  className="overflow-hidden"
                   style={{
                     padding: ci === 2 ? "0 12px 0 6px" : "0 6px",
-                    fontWeight: bold ? 700 : 400,
+                    fontWeight: highlight ? 700 : 400,
                     fontSize: "clamp(7px, 0.8vw, 11px)",
-                    color,
+                    color: highlight ? color : COLOR_TABLE_BODY,
                     letterSpacing: "-0.39px",
-                    overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {val}
+                  {text}
                 </td>
-              ))}
+                )
+              )}
             </tr>
           ))}
         </tbody>
@@ -658,33 +777,28 @@ interface NonResponderTableProps {
   strategyName: string;
   nameColor: string;
   lineColor: string;
+  features: DrdNonResponderFeatureViewModel[];
 }
 
-function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderTableProps) {
-  const features = [
-    { rank: "1", condition: "DM duration > 7y", score: "0.32" },
-    { rank: "2", condition: "Age > 70", score: "0.31" },
-    { rank: "3", condition: "CKD stage ??3", score: "0.18" },
-  ];
+function NonResponderTable({
+  strategyName,
+  nameColor,
+  lineColor,
+  features,
+}: NonResponderTableProps) {
   return (
     <div
+      className="relative overflow-hidden flex-1 min-w-0 flex flex-col"
       style={{
-        position: "relative",
         background: "#fff",
         borderRadius: "12px",
-        overflow: "hidden",
-        flex: "1 1 0",
-        minWidth: 0,
         minHeight: "112px",
-        display: "flex",
-        flexDirection: "column",
       }}
     >
       {/* 헤더 */}
       <div style={{ padding: "8px 0 0 0" }}>
         <span
           style={{
-            fontFamily: "Inter",
             fontWeight: 700,
             fontSize: 17,
             color: nameColor,
@@ -700,10 +814,10 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
       {/* 구분선 */}
       <div style={{ height: "1px", background: lineColor, margin: "8px 0 0" }} />
       {/* 테이블 */}
-      <div style={{ padding: "0", flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "Inter", height: "100%", tableLayout: "fixed" }}>
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto" style={{ padding: "0" }}>
+        <table className="w-full h-full" style={{ borderCollapse: "collapse", tableLayout: "fixed" }}>
           <thead style={{ height: `${100 / (features.length + 1)}%` }}>
-            <tr style={{ height: "100%" }}>
+            <tr className="h-full">
               {["Rank", "Feature condition", "Impact score"].map((h, hi) => (
                 <th
                   key={h}
@@ -725,7 +839,7 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
               ))}
             </tr>
           </thead>
-          <tbody style={{ height: "100%" }}>
+          <tbody className="h-full">
             {features.map((f, i) => (
               <tr key={i} style={{ borderTop: "1px solid #d4d3d6", height: `${100 / (features.length + 1)}%` }}>
                 {[f.rank, f.condition, f.score].map((cell, ci) => (
@@ -758,47 +872,40 @@ function NonResponderTable({ strategyName, nameColor, lineColor }: NonResponderT
  * - 상단: Primary Outcome 카드 + Response Probability 카드
  * - 하단: Simulated Trajectory 스파게티 플롯 + Counterfactual Comparison 히스토그램
  */
-function EfficacyContent() {
+function EfficacyContent({
+  resultViewModel,
+}: {
+  resultViewModel: DrdSimulationResultViewModel;
+}) {
   return (
     <div
+      className="flex flex-col w-full flex-1 min-h-0 overflow-hidden"
       style={{
-        display: "flex",
-        flexDirection: "column",
         gap: "clamp(10px, 1.2vw, 16px)",
-        width: "100%",
-        flex: 1,
-        minHeight: 0,
-        overflow: "hidden",
       }}
     >
       {/* 상단 행: Primary Outcome 카드 + Response Probability 카드 / Top Row: Primary Outcome Card + Response Probability Card */}
       <div
+        className="flex items-stretch min-h-0"
         style={{
-          display: "flex",
           gap: 12,
-          alignItems: "stretch",
           flex: 2.25,
-          minHeight: 0,
         }}
       >
         {/* Primary Outcome 카드 (평균/CI/NNT 통계 테이블) / Primary Outcome Card (Mean/CI/NNT Table) */}
         <div
+          className="flex-1 flex flex-col min-w-0"
           style={{
-            flex: 1,
             background: COLOR_PRIMARY,
             borderRadius: "22px",
             padding: "8px 16px 16px",
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-start", paddingTop: "4px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div className="flex-1 flex items-start" style={{ paddingTop: "4px" }}>
+            <div className="flex items-center" style={{ gap: "8px" }}>
               <h3
                 style={{
-                  fontFamily: "Inter",
                   fontWeight: 700,
                   fontSize: "clamp(13px, 1.4vw, 22px)",
                   color: "#fff",
@@ -814,15 +921,16 @@ function EfficacyContent() {
                 alt="info"
                 width={16}
                 height={16}
-                style={{ flexShrink: 0, filter: "brightness(0) invert(1) opacity(0.6)" }}
+                className="shrink-0"
+                style={{ filter: "brightness(0) invert(1) opacity(0.6)" }}
               />
             </div>
           </div>
           {/* 하단 4/4: NNT 텍스트 + 테이블 */}
-          <div style={{ flex: 4, display: "flex", flexDirection: "column", gap: "6px", minHeight: 0 }}>
+          <div className="flex flex-col min-h-0" style={{ flex: 4, gap: "6px" }}>
             <p
+              className="shrink-0 flex items-center justify-end"
               style={{
-                fontFamily: "Inter",
                 fontWeight: 400,
                 fontSize: "clamp(10px, 0.9vw, 13px)",
                 color: "rgba(255,255,255,0.75)",
@@ -830,38 +938,36 @@ function EfficacyContent() {
                 lineHeight: 1.2,
                 margin: 0,
                 textAlign: "right",
-                flexShrink: 0,
                 height: "20px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
               }}
             >
-              *NNT to achieve HbA1c &lt; 7.0%
+              *NNT at Week 24
             </p>
-            <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
-              <PrimaryOutcomeTable />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {resultViewModel.primaryOutcomeRows.length > 0 ? (
+                <PrimaryOutcomeTable rows={resultViewModel.primaryOutcomeRows} />
+              ) : (
+                <EmptyCardState
+                  message={resultViewModel.primaryOutcomeEmptyMessage}
+                />
+              )}
             </div>
           </div>
         </div>
 
         {/* Response Probability 카드 (반응군 분류 확률 테이블) / Response Probability Card (Responder Classification Table) */}
         <div
+          className="flex-1 flex flex-col min-w-0"
           style={{
-            flex: 1,
             background: "rgba(255,255,255,0.6)",
             borderRadius: "22px",
             padding: "8px 16px 16px",
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-start", paddingTop: "4px" }}>
+          <div className="flex-1 flex items-start" style={{ paddingTop: "4px" }}>
             <h3
               style={{
-                fontFamily: "Inter",
                 fontWeight: 700,
                 fontSize: "clamp(13px, 1.4vw, 22px)",
                 color: COLOR_PRIMARY,
@@ -874,19 +980,27 @@ function EfficacyContent() {
             </h3>
           </div>
           {/* 하단 4/4: legend + 테이블 */}
-          <div style={{ flex: 4, display: "flex", flexDirection: "column", gap: "6px", minHeight: 0 }}>
+          <div className="flex flex-col min-h-0" style={{ flex: 4, gap: "6px" }}>
             {/* legend: 오른쪽 정렬, 원형 3개 묶음 + "High Score" 텍스트 */}
-            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "6px", flexShrink: 0, height: "20px" }}>
+            <div className="flex justify-end items-center shrink-0" style={{ gap: "6px", height: "20px" }}>
               {/* 원형 컨테이너 3개 묶음 */}
-              <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+              <div className="flex items-center" style={{ gap: "4px" }}>
                 <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: COLOR_STRATEGY_A }} />
                 <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: COLOR_STRATEGY_B }} />
                 <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: COLOR_STRATEGY_C }} />
               </div>
-              <span style={{ fontFamily: "Inter", fontSize: "clamp(10px, 0.9vw, 13px)", color: COLOR_NEUTRAL_10 }}>High Score</span>
+              <span className="text-body5 text-[var(--chart-legend-text)]">High Score</span>
             </div>
-            <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
-              <ResponseProbabilityTable />
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {resultViewModel.responseProbabilityRows.length > 0 ? (
+                <ResponseProbabilityTable
+                  rows={resultViewModel.responseProbabilityRows}
+                />
+              ) : (
+                <EmptyCardState
+                  message={resultViewModel.responseProbabilityEmptyMessage}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -894,69 +1008,53 @@ function EfficacyContent() {
 
       {/* 하단 행: Simulated Trajectory + Counterfactual Comparison / Bottom Row: Trajectory Chart + Histogram Chart */}
       <div
+        className="flex items-stretch min-h-0"
         style={{
           background: COLOR_PRIMARY,
           borderRadius: "24px",
           padding: "16px",
-          display: "flex",
           gap: "clamp(10px, 1vw, 16px)",
-          alignItems: "stretch",
           flex: 3,
-          minHeight: 0,
         }}
       >
         {/* 시뮬레이션 궤적 차트 카드 (스파게티 플롯) / Simulated Trajectory Chart Card (Spaghetti Plot) */}
         <div
+          className="flex-1 flex flex-col min-w-0 overflow-hidden"
           style={{
-            flex: 1,
             background: "#fff",
             borderRadius: "10px",
             padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
-            overflow: "hidden",
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
-          <div style={{ flex: 1, display: "flex", alignItems: "flex-start" }}>
-            <h4
-              style={{
-                fontFamily: "Inter",
-                fontWeight: 700,
-                fontSize: "clamp(12px, 1.2vw, 20px)",
-                color: COLOR_PRIMARY,
-                letterSpacing: "-0.6px",
-                margin: 0,
-              }}
-            >
+          <div className="flex-1 flex items-start">
+            <h4 className="text-body3" style={{ color: COLOR_PRIMARY }}>
               Simulated Trajectory
             </h4>
           </div>
           {/* 하단 4/4: 차트 영역 */}
-          <div style={{ flex: 4, minHeight: 0 }}>
-            <SpaghettiPlotChart />
+          <div className="min-h-0" style={{ flex: 4 }}>
+            {resultViewModel.trajectoryChart.series.length > 0 ? (
+              <SpaghettiPlotChart chart={resultViewModel.trajectoryChart} />
+            ) : (
+              <EmptyCardState message={resultViewModel.trajectoryChart.emptyMessage} />
+            )}
           </div>
         </div>
 
         {/* 반사실 비교 차트 카드 (히스토그램) / Counterfactual Comparison Chart Card (Histogram) */}
         <div
+          className="flex-1 flex flex-col min-w-0 overflow-hidden"
           style={{
-            flex: 1,
             background: "#fff",
             borderRadius: "10px",
             padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
-            overflow: "hidden",
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
+          <div className="flex-1 flex flex-col justify-start">
             <h4
               style={{
-                fontFamily: "Inter",
                 fontWeight: 700,
                 fontSize: "clamp(12px, 1.2vw, 20px)",
                 color: COLOR_PRIMARY,
@@ -966,13 +1064,19 @@ function EfficacyContent() {
             >
               Counterfactual Comparison
             </h4>
-            <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "clamp(9px, 0.9vw, 13px)", color: COLOR_NEUTRAL_10, margin: 0 }}>
+            <p className="text-body5 text-text-secondary">
               Primary Outcome Distribution by Treatment Strategy
             </p>
           </div>
           {/* 하단 4/4: 차트 영역 */}
-          <div style={{ flex: 4, minHeight: 0 }}>
-            <HistogramChart />
+          <div className="min-h-0" style={{ flex: 4 }}>
+            {resultViewModel.counterfactualChart.series.length > 0 ? (
+              <HistogramChart chart={resultViewModel.counterfactualChart} />
+            ) : (
+              <EmptyCardState
+                message={resultViewModel.counterfactualChart.emptyMessage}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -980,95 +1084,150 @@ function EfficacyContent() {
   );
 }
 
-/** AE_OPTIONS — AE Risk 탭에서 선택 가능한 AE 유형 목록 */
-const AE_OPTIONS = ["Stroke", "Hypoglycemia", "Weight gain", "Heart failure"];
+const NON_RESPONDER_STRATEGY_COLORS = [COLOR_STRATEGY_A, COLOR_STRATEGY_B, COLOR_STRATEGY_C];
 
-function AERiskContent() {
-  const [selectedAE, setSelectedAE] = useState("Stroke");
+const getNonResponderStrategyColor = (index: number): string =>
+  NON_RESPONDER_STRATEGY_COLORS[index % NON_RESPONDER_STRATEGY_COLORS.length];
+
+const hasNonResponderStrategies = (
+  section: DrdNonResponderSectionViewModel
+): boolean => section.strategies.length > 0;
+
+type SimulationResultRecord = Record<string, unknown>;
+
+const isSimulationResultRecord = (
+  value: unknown
+): value is SimulationResultRecord =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isNonEmptyResultArray = (value: unknown): value is unknown[] =>
+  Array.isArray(value) && value.length > 0;
+
+const hasNonResponderPayload = (value: unknown): boolean => {
+  if (isNonEmptyResultArray(value)) return true;
+  if (!isSimulationResultRecord(value)) return false;
+  return Array.isArray(value.strategies) && value.strategies.length > 0;
+};
+
+const RESULT_ARRAY_KEYS: Array<keyof PlayDrdSimulationData> = [
+  "trajectory",
+  "strategy_output",
+  "primary_outcome_summary",
+  "simulated_trajectory",
+  "simulated_trajectory_stats",
+  "counterfactual_comparison",
+  "safety_tradeoff",
+  "ae_risk",
+];
+
+const hasPlayableSimulationResult = (value: unknown): boolean => {
+  if (!isSimulationResultRecord(value)) return false;
+
+  const payload = isSimulationResultRecord(value.data) ? value.data : value;
+
+  if (RESULT_ARRAY_KEYS.some((key) => isNonEmptyResultArray(payload[key]))) {
+    return true;
+  }
+
+  return (
+    hasNonResponderPayload(payload.safety_tradeoff_ranking) ||
+    hasNonResponderPayload(payload.non_responder_identification)
+  );
+};
+
+function AERiskContent({
+  nonResponderSection,
+  aeRiskChart,
+  safetyTradeoffChart,
+}: {
+  nonResponderSection: DrdNonResponderSectionViewModel;
+  aeRiskChart: DrdAERiskChartViewModel;
+  safetyTradeoffChart: DrdSafetyTradeoffChartViewModel;
+}) {
+  const [selectedAE, setSelectedAE] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const aeOptions = aeRiskChart.aeOptions;
+  const selectedAESeries =
+    selectedAE && aeRiskChart.seriesByAe[selectedAE]
+      ? aeRiskChart.seriesByAe[selectedAE]
+      : null;
+
+  useEffect(() => {
+    if (aeOptions.length === 0) {
+      if (selectedAE) setSelectedAE("");
+      return;
+    }
+    if (!aeOptions.includes(selectedAE)) {
+      setSelectedAE(aeOptions[0]);
+    }
+  }, [aeOptions, selectedAE]);
 
   return (
     <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "16px",
-        width: "100%",
-        flex: 1,
-        minHeight: 0,
-        overflow: "hidden",
-      }}
+      className="flex flex-col w-full flex-1 min-h-0 overflow-hidden"
+      style={{ gap: "16px" }}
     >
       {/* 상단 행: Safety Trade-off 버블차트 + AE Risk 계단 꺾은선 차트 / Top Row: Safety Trade-off Bubble Chart + AE Risk Step Line Chart */}
       <div
-        style={{
-          display: "flex",
-          gap: "16px",
-          alignItems: "stretch",
-          flex: 3,
-          minHeight: 0,
-        }}
+        className="flex items-stretch min-h-0"
+        style={{ gap: "16px", flex: 3 }}
       >
         {/* Safety Trade-off 카드 (버블 차트: HbA1c 감소 vs AE 확률) / Safety Trade-off Card (Bubble Chart: △HbA1c vs AE Probability) */}
         <div
+          className="flex flex-col min-w-0"
           style={{
             flex: "1 1 48%",
             background: COLOR_PRIMARY,
             borderRadius: "22px",
             padding: "8px 12px 12px",
-            display: "flex",
-            flexDirection: "column",
             gap: "16px",
-            minWidth: 0,
           }}
         >
           <h3
+            className="flex-1 min-h-0"
             style={{
-              fontFamily: "Inter",
               fontWeight: 700,
               fontSize: "clamp(13px, 1.4vw, 22px)",
               color: "#fff",
               letterSpacing: "-0.66px",
               lineHeight: 1.2,
               margin: 0,
-              flex: 1,
-              minHeight: 0,
               padding: "4px",
             }}
           >
             Safety Trade-off
           </h3>
           <div
+            className="min-h-0 overflow-hidden"
             style={{
               background: "#fff",
               borderRadius: "10px",
               flex: 4,
-              minHeight: 0,
-              overflow: "hidden",
               padding: "16px 16px 4px",
             }}
           >
-            <BubbleChart />
+            {safetyTradeoffChart.points.length > 0 ? (
+              <BubbleChart chart={safetyTradeoffChart} />
+            ) : (
+              <EmptyCardState message={safetyTradeoffChart.emptyMessage} />
+            )}
           </div>
         </div>
 
         {/* AE Risk 카드 (계단 꺾은선 차트 + 유형 드롭다운) / AE Risk Card (Step Line Chart + AE Type Dropdown) */}
         <div
+          className="flex flex-col min-w-0"
           style={{
             flex: "1 1 48%",
             background: COLOR_PRIMARY,
             borderRadius: "22px",
             padding: "8px 12px 12px",
-            display: "flex",
-            flexDirection: "column",
             gap: "16px",
-            minWidth: 0,
           }}
         >
-          <div style={{ flex: 1, minHeight: 0, display: "flex", alignItems: "flex-start", justifyContent: "space-between", padding: "4px" }}>
+          <div className="flex-1 min-h-0 flex items-start justify-between" style={{ padding: "4px" }}>
             <h3
               style={{
-                fontFamily: "Inter",
                 fontWeight: 700,
                 fontSize: "clamp(13px, 1.4vw, 22px)",
                 color: "#fff",
@@ -1080,62 +1239,60 @@ function AERiskContent() {
               AE Risk
             </h3>
             {/* Dropdown */}
-            <div style={{ position: "relative" }}>
+            <div className="relative">
               <div
-                onClick={() => setDropdownOpen((v) => !v)}
+                onClick={() => {
+                  if (aeOptions.length > 0) {
+                    setDropdownOpen((value) => !value);
+                  }
+                }}
+                className="flex items-center cursor-pointer select-none"
                 style={{
                   background: "#efeff4",
                   borderRadius: "8px",
                   padding: "4px 6px 4px 8px",
-                  display: "flex",
-                  alignItems: "center",
                   gap: "2px",
-                  cursor: "pointer",
-                  userSelect: "none",
                   minWidth: "120px",
                   height: "28px",
                 }}
               >
-                <span style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "12px", color: "#484646", letterSpacing: "-0.48px", flex: 1 }}>
-                  {selectedAE}
+                <span className="flex-1 text-body5m" style={{ color: "#484646" }}>
+                  {selectedAE || "Unavailable"}
                 </span>
                 <img
                   src={dropdownOpen ? "/icons/disclosure/open-18.svg" : "/icons/disclosure/close-18.svg"}
                   alt="toggle"
                   width={18}
                   height={18}
-                  style={{ flexShrink: 0 }}
+                  className="shrink-0"
                 />
               </div>
-              {dropdownOpen && (
+              {dropdownOpen && aeOptions.length > 0 && (
                 <div
+                  className="absolute overflow-hidden"
                   style={{
-                    position: "absolute",
                     top: "calc(100% + 4px)",
                     right: 0,
                     background: "#fff",
                     borderRadius: "8px",
                     boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
-                    overflow: "hidden",
                     zIndex: 100,
                     minWidth: "120px",
                   }}
                 >
-                  {AE_OPTIONS.map((opt, idx) => (
+                  {aeOptions.map((opt, idx) => (
                     <div
                       key={opt}
                       onClick={() => { setSelectedAE(opt); setDropdownOpen(false); }}
+                      className="cursor-pointer"
                       style={{
                         padding: "8px 12px",
-                        fontFamily: "Inter",
                         fontWeight: opt === selectedAE ? 700 : 500,
                         fontSize: "12px",
                         color: opt === selectedAE ? COLOR_NEUTRAL_30 : COLOR_NEUTRAL_40,
                         background: "#fff",
-                        cursor: "pointer",
-                        letterSpacing: "-0.48px",
                         whiteSpace: "nowrap",
-                        borderBottom: idx < AE_OPTIONS.length - 1 ? "1px solid #c6c5c9" : "none",
+                        borderBottom: idx < aeOptions.length - 1 ? "1px solid #c6c5c9" : "none",
                       }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#f7f7fa"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#fff"; }}
@@ -1148,37 +1305,40 @@ function AERiskContent() {
             </div>
           </div>
           <div
+            className="min-h-0 overflow-hidden"
             style={{
               background: "#fff",
               borderRadius: "10px",
               flex: 4,
-              minHeight: 0,
-              overflow: "hidden",
               padding: "16px 16px 4px",
             }}
           >
-            <StepLineChart />
+            {selectedAESeries && selectedAESeries.series.length > 0 ? (
+              <StepLineChart
+                seriesSet={selectedAESeries}
+                yAxisName={aeRiskChart.yAxisName}
+              />
+            ) : (
+              <EmptyCardState message={aeRiskChart.emptyMessage} />
+            )}
           </div>
         </div>
       </div>
 
       {/* 하단 행: Non responder Identification (전략별 비반응자 특성 피처 테이블) / Bottom Row: Non-responder Identification Feature Tables per Strategy */}
       <div
+        className="flex flex-col min-h-0"
         style={{
           background: "rgba(255,255,255,0.6)",
           borderRadius: "22px",
           padding: "8px 12px 12px",
-          display: "flex",
-          flexDirection: "column",
           gap: "24px",
           flex: 2.25,
-          minHeight: 0,
         }}
       >
         <div>
           <h3
             style={{
-              fontFamily: "Inter",
               fontWeight: 700,
               fontSize: "clamp(13px, 1.5vw, 24px)",
               color: COLOR_PRIMARY,
@@ -1187,37 +1347,361 @@ function AERiskContent() {
               margin: "0 0 4px",
             }}
           >
-            Non responder Identification
+            {nonResponderSection.title}
           </h3>
-          <p
+          {nonResponderSection.description ? (
+            <p
+              style={{
+                fontWeight: 500,
+                fontSize: "clamp(7px, 0.85vw, 11px)",
+                color: "#313032",
+                letterSpacing: "-0.39px",
+                margin: 0,
+              }}
+            >
+              {nonResponderSection.description}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex items-stretch flex-1 min-h-0" style={{ gap: "16px" }}>
+          {hasNonResponderStrategies(nonResponderSection) ? (
+            nonResponderSection.strategies.map((strategy, index) => {
+              const color = getNonResponderStrategyColor(index);
+
+              return (
+                <NonResponderTable
+                  key={strategy.strategyName}
+                  strategyName={strategy.strategyName}
+                  nameColor={color}
+                  lineColor={color}
+                  features={strategy.features}
+                />
+              );
+            })
+          ) : (
+            <div
+              className="flex-1 flex items-center justify-center min-h-0"
+              style={{
+                borderRadius: "16px",
+                border: "1px solid rgba(38,34,85,0.12)",
+                background: "rgba(255,255,255,0.72)",
+                padding: "24px",
+              }}
+            >
+              <p
+                className="text-captionm"
+                style={{
+                  margin: 0,
+                  color: COLOR_NEUTRAL_30,
+                  textAlign: "center",
+                }}
+              >
+                Non-responder identification data is unavailable.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SkeletonBlock({
+  height,
+  width = "100%",
+  borderRadius = 10,
+  style,
+  className,
+}: {
+  height: number | string;
+  width?: number | string;
+  borderRadius?: number | string;
+  style?: CSSProperties;
+  className?: string;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className={className}
+      style={{
+        width,
+        height,
+        borderRadius,
+        background: "#ffffff",
+        ...style,
+      }}
+    />
+  );
+}
+
+function SimulationResultSkeleton({
+  activeTab,
+  onTabChange,
+  onEditCondition,
+}: {
+  activeTab: "efficacy" | "ae-risk";
+  onTabChange: (tab: "efficacy" | "ae-risk") => void;
+  onEditCondition: () => void;
+}) {
+  return (
+    <div
+      className="flex flex-col w-full flex-1 min-h-0"
+      style={{ gap: "0px" }}
+    >
+      <div
+        className="flex flex-1 items-stretch min-h-0"
+        style={{ gap: "0px" }}
+      >
+        <div
+          className="drd-left-panel flex-shrink-0 rounded-[36px] gap-[28px] overflow-hidden flex flex-col"
+          style={{
+            borderImage: 'url("/assets/figma/home/frame-panel-middle.png") 72 fill / 36px / 0 stretch',
+            borderStyle: "solid",
+            borderTopWidth: "20px",
+            borderBottomWidth: "28px",
+            borderLeftWidth: "24px",
+            borderRightWidth: "24px",
+            borderColor: "transparent",
+            paddingBottom: "4px",
+          }}
+        >
+          <div
+            className="overflow-hidden shrink-0 flex flex-col justify-center items-start relative"
             style={{
-              fontFamily: "Inter",
-              fontWeight: 500,
-              fontSize: "clamp(7px, 0.85vw, 11px)",
-              color: "#313032",
-              letterSpacing: "-0.39px",
-              margin: 0,
+              borderRadius: "18px",
+              padding: "6px 4px",
             }}
           >
-            Top contributing factors ranked by impact score, where higher scores indicate stronger contribution to non-response.
-          </p>
+            <span
+              className="relative"
+              style={{
+                zIndex: 1,
+                fontWeight: 700,
+                fontSize: 24,
+                color: "#262255",
+                letterSpacing: "-1px",
+                lineHeight: 1,
+              }}
+            >
+              Simulation strategies
+            </span>
+          </div>
+
+            <div
+              className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0"
+              style={{
+              gap: "14px",
+              padding: "0px",
+              }}
+            >
+              {[0, 1, 2].map((index) => (
+                <SkeletonBlock
+                  key={index}
+                  height={96}
+                  borderRadius={16}
+                  className="shrink-0"
+                  style={{ background: "rgba(255,255,255,0.78)" }}
+                />
+              ))}
+
+              <SkeletonBlock height={172} borderRadius={16} className="shrink-0" />
+              <SkeletonBlock height={72} borderRadius={16} className="shrink-0" />
+            </div>
+
+            <div className="shrink-0 flex justify-end">
+              <button
+                type="button"
+              onClick={onEditCondition}
+              className="btn-tsi btn-tsi-primary"
+              style={{ width: "200px" }}
+            >
+              Edit Condition
+            </button>
+          </div>
         </div>
-        <div style={{ display: "flex", gap: "16px", alignItems: "stretch", flex: 1, minHeight: 0 }}>
-          <NonResponderTable
-            strategyName="Strategy A"
-            nameColor={COLOR_STRATEGY_A}
-            lineColor={COLOR_STRATEGY_A}
-          />
-          <NonResponderTable
-            strategyName="Strategy B"
-            nameColor={COLOR_STRATEGY_B}
-            lineColor={COLOR_STRATEGY_B}
-          />
-          <NonResponderTable
-            strategyName="Strategy C"
-            nameColor={COLOR_STRATEGY_C}
-            lineColor={COLOR_STRATEGY_C}
-          />
+
+        <div
+          className="figma-nine-slice figma-home-panel-right flex-1 min-w-[280px] min-h-0 flex flex-col"
+          style={{
+          }}
+        >
+          <div className="shrink-0 flex flex-col" style={{ padding: 6, gap: 16 }}>
+            <h2
+              style={{
+                fontWeight: 700,
+                fontSize: 24,
+                color: COLOR_PRIMARY,
+                letterSpacing: "-0.9px",
+                lineHeight: 1,
+                margin: 0,
+              }}
+            >
+              Summary
+            </h2>
+            <SkeletonBlock height={44} borderRadius={14} style={{ background: "rgba(255,255,255,0.72)" }} />
+          </div>
+
+          <div
+            className="flex-1 min-h-0 flex flex-col"
+            style={{ gap: "12px" }}
+          >
+            <div
+              className="inline-flex items-center shrink-0 self-start"
+              style={{
+                background: "#fff",
+                borderRadius: "36px",
+                padding: "4px",
+              }}
+            >
+              {(["efficacy", "ae-risk"] as const).map((tab) => {
+                const isActive = activeTab === tab;
+                const label = tab === "efficacy" ? "Efficacy" : "AE risk";
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => onTabChange(tab)}
+                    className="relative border-none cursor-pointer overflow-hidden"
+                    style={{
+                      height: "36px",
+                      padding: "0 clamp(14px, 1.6vw, 24px)",
+                      borderRadius: "36px",
+                      fontWeight: isActive ? 700 : 500,
+                      fontSize: "clamp(11px, 1vw, 16px)",
+                      color: isActive ? "#fff" : COLOR_NEUTRAL_30,
+                      letterSpacing: isActive ? "-0.48px" : "-0.36px",
+                      background: "transparent",
+                    }}
+                  >
+                    {isActive && (
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          borderRadius: "36px",
+                          background: COLOR_PRIMARY,
+                        }}
+                      />
+                    )}
+                    <span className="relative">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {activeTab === "efficacy" ? (
+              <>
+                <div
+                  className="flex items-stretch min-h-0"
+                  style={{
+                    gap: 12,
+                    flex: 2.25,
+                  }}
+                >
+                    <div
+                      className="flex-1 flex flex-col min-w-0"
+                      style={{
+                        background: COLOR_PRIMARY,
+                        borderRadius: "22px",
+                        padding: "8px 16px 16px",
+                      }}
+                    >
+                      <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.4vw, 22px)", color: "#fff", letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 0 0" }}>
+                        Primary Outcome
+                      </h3>
+                      <SkeletonBlock height="100%" borderRadius={10} className="flex-1" style={{ marginTop: 8 }} />
+                    </div>
+                    <div
+                      className="flex-1 flex flex-col min-w-0"
+                      style={{
+                        background: "rgba(255,255,255,0.6)",
+                        borderRadius: "22px",
+                        padding: "8px 16px 16px",
+                      }}
+                    >
+                      <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.4vw, 22px)", color: COLOR_PRIMARY, letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 0 0" }}>
+                        Response Probability
+                      </h3>
+                      <SkeletonBlock height="100%" borderRadius={10} className="flex-1" style={{ marginTop: 8, background: "#ffffff" }} />
+                    </div>
+                </div>
+
+                <div
+                  className="flex items-stretch min-h-0"
+                  style={{
+                    background: COLOR_PRIMARY,
+                    borderRadius: "24px",
+                    padding: "16px",
+                    gap: "clamp(10px, 1vw, 16px)",
+                    flex: 3,
+                  }}
+                >
+                  {["Simulated Trajectory", "Counterfactual Comparison"].map((title) => (
+                    <div
+                      key={title}
+                      className="flex-1 flex flex-col min-w-0 overflow-hidden"
+                      style={{
+                        background: "#fff",
+                        borderRadius: "10px",
+                        padding: "16px",
+                      }}
+                    >
+                      <h4 style={{ fontWeight: 700, fontSize: "clamp(12px, 1.2vw, 20px)", color: COLOR_PRIMARY, letterSpacing: "-0.6px", margin: 0 }}>
+                        {title}
+                      </h4>
+                      <SkeletonBlock height="100%" borderRadius={8} className="flex-1" style={{ marginTop: 10, background: "rgba(38,34,85,0.04)" }} />
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div
+                  className="flex items-stretch min-h-0"
+                  style={{ gap: "16px", flex: 3 }}
+                >
+                  {["Safety Trade-off", "AE Risk"].map((title) => (
+                    <div
+                      key={title}
+                      className="flex flex-col min-w-0"
+                      style={{
+                        flex: "1 1 48%",
+                        background: COLOR_PRIMARY,
+                        borderRadius: "22px",
+                        padding: "8px 12px 12px",
+                      }}
+                    >
+                      <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.4vw, 22px)", color: "#fff", letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 4px 0" }}>
+                        {title}
+                      </h3>
+                      <SkeletonBlock height="100%" borderRadius={10} className="flex-1" style={{ marginTop: 16 }} />
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  className="flex flex-col min-h-0"
+                  style={{
+                    background: "rgba(255,255,255,0.6)",
+                    borderRadius: "22px",
+                    padding: "8px 12px 12px",
+                    gap: "16px",
+                    flex: 2.25,
+                  }}
+                >
+                  <div>
+                    <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.5vw, 24px)", color: COLOR_PRIMARY, letterSpacing: "-0.72px", lineHeight: 1, margin: 0 }}>
+                      Non-responder Identification
+                    </h3>
+                  </div>
+                  <div className="flex items-stretch flex-1 min-h-0" style={{ gap: "16px" }}>
+                    {[0, 1, 2].map((index) => (
+                      <SkeletonBlock key={index} height="100%" borderRadius={16} className="flex-1" style={{ background: "#ffffff" }} />
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -1232,403 +1716,376 @@ function AERiskContent() {
  *   showSaveModal — Save Simulation 모달 표시 여부
  *   simName / simDesc — 저장 이름·설명 입력값
  *   selectedOutcome — Primary Outcome 라디오 선택값
- *   strategies — 전략 카드 데이터 배열 (name, colors, drugs, tooltipData)
+ *   strategies — 전략 카드 데이터 배열 (향후 API 매핑 예정)
  */
-export default function SimulationResultPage() {
+function SimulationResultPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const simulationTaskId = useSimulationStore((s) => s.taskId);
   const [activeTab, setActiveTab] = useState<"efficacy" | "ae-risk">("efficacy");
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [simName, setSimName] = useState("");
   const [simDesc, setSimDesc] = useState("");
   const [selectedOutcome, setSelectedOutcome] = useState("HbA1c");
+  const [hasSimulationData, setHasSimulationData] = useState(false);
+  const [simulationResultPayload, setSimulationResultPayload] = useState<unknown>(null);
+  const [nonResponderSection, setNonResponderSection] = useState<DrdNonResponderSectionViewModel>(
+    EMPTY_DRD_NON_RESPONDER_SECTION
+  );
 
-  const strategies = [
-    {
-      name: "Strategy A",
-      nameColor: COLOR_STRATEGY_A,
-      target: "HbA1c / Increase 10% / 3 Months",
-      drugs: ["Basal insulin", "SGLT2 inhibitors"],
-      extraDrug: "Dapagliflozin, Empagliflozin",
-      lineColor: COLOR_STRATEGY_A,
-      tooltipData: {
-        groups: [
-          { label: "GLP-1 RA", items: ["Semaglutide", "Exenatide"], color: COLOR_STRATEGY_B },
-          { label: "SGLT2 inhibitors", items: ["Glipizide"], color: "#c5c0fe" },
-        ],
-      },
-    },
-    {
-      name: "Strategy B",
-      nameColor: COLOR_STRATEGY_B,
-      target: "HbA1c / Stable 0% / 6 Months",
-      drugs: ["Basal insulin", "Metformin"],
-      lineColor: COLOR_STRATEGY_B,
-      tooltipData: {
-        groups: [
-          { label: "GLP-1 RA", items: ["Semaglutide"], color: COLOR_STRATEGY_B },
-          { label: "Biguanide", items: ["Metformin"], color: "#c5c0fe" },
-        ],
-      },
-    },
-    {
-      name: "Strategy C",
-      nameColor: COLOR_STRATEGY_C,
-      target: "HbA1c / Decrease -10% / 6 Months",
-      drugs: ["Basal insulin", "SGLT2 inhibitors"],
-      extraDrug: "Dapagliflozin",
-      lineColor: COLOR_STRATEGY_C,
-      tooltipData: {
-        groups: [
-          { label: "GLP-1 RA", items: ["Semaglutide", "Exenatide"], color: COLOR_STRATEGY_B },
-          { label: "SGLT2 inhibitors", items: ["Dapagliflozin"], color: "#c5c0fe" },
-        ],
-      },
-    },
-  ];
+  const queryTaskId =
+    searchParams.get("task_id") ?? searchParams.get("taskId") ?? searchParams.get("test_id");
+  const resolvedTaskId = queryTaskId?.trim() || simulationTaskId?.trim() || null;
+  const resultViewModel = useMemo(
+    () =>
+      simulationResultPayload
+        ? mapDrdSimulationResult(simulationResultPayload, selectedOutcome)
+        : EMPTY_DRD_SIMULATION_RESULT_VIEW_MODEL,
+    [selectedOutcome, simulationResultPayload]
+  );
+  const shouldUseMockResult = DRD_SIMULATION_RESULT_USE_MOCK;
+  const hasDisplayData = hasSimulationData || shouldUseMockResult;
+  const displayResultViewModel = shouldUseMockResult
+    ? DRD_SIMULATION_RESULT_MOCK_VIEW_MODEL
+    : resultViewModel;
+  const displayNonResponderSection = shouldUseMockResult
+    ? DRD_SIMULATION_RESULT_MOCK_NON_RESPONDER_SECTION
+    : nonResponderSection;
+
+  const resolveTaskId = (): string | null => {
+    return resolvedTaskId;
+  };
+
+  const buildDrdPathWithContext = (pathname: string): string => {
+    const params = new URLSearchParams(searchParams.toString());
+    const taskId = resolveTaskId();
+
+    if (taskId) {
+      params.delete("taskId");
+      params.delete("test_id");
+      params.set("task_id", taskId);
+    }
+
+    const query = params.toString();
+    return query ? `${pathname}?${query}` : pathname;
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (!resolvedTaskId) {
+      setHasSimulationData(false);
+      setSimulationResultPayload(null);
+      setNonResponderSection(EMPTY_DRD_NON_RESPONDER_SECTION);
+      return;
+    }
+
+    const storedResponse = window.localStorage.getItem(`drd_simulation_play_${resolvedTaskId}`);
+    if (!storedResponse) {
+      setHasSimulationData(false);
+      setSimulationResultPayload(null);
+      setNonResponderSection(EMPTY_DRD_NON_RESPONDER_SECTION);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(storedResponse) as unknown;
+      const playable = hasPlayableSimulationResult(parsed);
+      setHasSimulationData(playable);
+      setSimulationResultPayload(playable ? parsed : null);
+      setNonResponderSection(
+        playable
+          ? convertDrdSimulationPlayToNonResponderSection(parsed)
+          : EMPTY_DRD_NON_RESPONDER_SECTION
+      );
+    } catch {
+      setHasSimulationData(false);
+      setSimulationResultPayload(null);
+      setNonResponderSection(EMPTY_DRD_NON_RESPONDER_SECTION);
+    }
+  }, [resolvedTaskId]);
+
+  const strategies: StrategyCardProps[] = shouldUseMockResult
+    ? DRD_SIMULATION_RESULT_MOCK_STRATEGIES
+    : [];
+  const summaryText = shouldUseMockResult
+    ? DRD_SIMULATION_RESULT_MOCK_SUMMARY_TEXT
+    : "";
+  const populationSummary = shouldUseMockResult
+    ? DRD_SIMULATION_RESULT_MOCK_POPULATION_SUMMARY
+    : [
+        { label: "Population", value: "-" },
+        { label: "Follow-up", value: "-" },
+      ];
 
   return (
     <AppLayout headerType="drd" drdStep={3} scaleMode="none">
-        <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 0, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+        <div className="flex flex-col h-full w-full">
         {/* 전체 페이지 래퍼 / Full Page Wrapper */}
       {/* 콘텐츠 영역 전체 컨테이너 (제목 + 좌우 패널) */}
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          flex: 1,
-          minHeight: 0,
-          overflow: "hidden",
-          gap: "24px",
-          
-        }}
+        className="flex flex-col flex-1 min-h-0 overflow-hidden gap-6"
       >
         {/* 페이지 제목 / Page Title */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
-          <h1 onClick={() => router.push("/drd/simulation-result")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
-            Drug Response Prediction Dashboard
+        <div className="shrink-0 px-1">
+          <h1 onClick={() => router.push(buildDrdPathWithContext("/drd/simulation-result"))} className="cursor-pointer text-page-title">
+            Simulation Results Dashboard
           </h1>
         </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          flex: 1,
-          minHeight: 0,
-          gap: "0px",
-        }}
-      >
-        {/* 좌우 패널 전체 래퍼 / Left-Right Panel Wrapper */}
+      {hasDisplayData ? (
         <div
-          style={{
-            display: "flex",
-            flex: 1,
-            alignItems: "stretch",
-            gap: "0px",
-            minHeight: 0,
-          }}
+          className="flex flex-col w-full flex-1 min-h-0"
+          style={{ gap: "0px" }}
         >
-          {/* 왼쪽 패널: 시뮬레이션 전략 목록 / Left Panel: Simulation Strategies */}
-          <div
-            className="figma-nine-slice figma-home-panel-middle w-[380px] flex-shrink-0 rounded-[36px] gap-[28px] overflow-hidden flex flex-col"
-            style={{ paddingBottom: "4px" }}
-          >
-            {/* 전략 목록 헤더 타이틀 / Strategies Section Title */}
+          {/* 좌우 패널 전체 래퍼 / Left-Right Panel Wrapper */}
+          <div className="gap-1 flex flex-1 items-stretch min-h-0">
+
+            {/* 왼쪽 패널: 시뮬레이션 전략 목록 / Left Panel: Simulation Strategies */}
             <div
+              className="figma-nine-slice figma-home-panel-left drd-left-panel flex-shrink-0 rounded-[36px] gap-8 overflow-hidden flex flex-col"
               style={{
-                borderRadius: "18px",
-                overflow: "hidden",
-                flexShrink: 0,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start",
-                position: "relative",
-                padding: "6px 4px",
               }}
             >
-              <span
-                style={{
-                  position: "relative",
-                  zIndex: 1,
-                  fontFamily: "Inter",
-                  fontWeight: 700,
-                  fontSize: 24,
-                  color: "#262255",
-                  letterSpacing: "-1px",
-                  lineHeight: 1,
-                }}
-              >
-                Simulation strategies
-              </span>
-            </div>
-
-            {/* 전략 카드 목록 (Strategy A/B/C 카드 + Primary Outcome + Population) / Strategy Cards List */}
-            <div
-              style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                gap: "14px",
-                padding: "0px",
-                overflowY: "auto",
-                overflowX: "hidden",
-                minHeight: 0,
-              }}
-            >
-              {strategies.map((s) => (
-                <StrategyCard key={s.name} {...s} />
-              ))}
-
-              {/* Primary Outcome 선택 라디오 + Population/Follow-up 정보 / Primary Outcome Radio Selector + Population Info */}
+              {/* 전략 목록 헤더 타이틀 / Strategies Section Title */}
               <div
+                className="overflow-hidden shrink-0 flex flex-col justify-center items-start relative"
                 style={{
-                  background: "#fff",
-                  borderRadius: "16px",
-                  padding: "8px 16px 12px",
-                  display: "flex",
-                  flexDirection: "column",
+                  borderRadius: "18px",
+                  padding: "6px 4px",
                 }}
               >
-                <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "13px", color: COLOR_NEUTRAL_30, margin: "0 0 8px" }}>
-                  Primary Outcome
-                </p>
-                <div style={{ height: "1px", background: "#e5e4e8", marginBottom: "0px" }} />
-                {["HbA1c", "eGFR", "Weight", "Complication (ex : eGFR slope)"].map((label, idx) => {
-                  const selected = selectedOutcome === label;
-                  return (
+                <span
+                  className="relative"
+                  style={{
+                    zIndex: 1,
+                    fontWeight: 700,
+                    fontSize: 24,
+                    color: "#262255",
+                    letterSpacing: "-1px",
+                    lineHeight: 1,
+                  }}
+                >
+                  Simulation strategies
+                </span>
+              </div>
+
+              {/* 전략 카드 목록 (Strategy A/B/C 카드 + Primary Outcome + Population) / Strategy Cards List */}
+              <div className="flex-1 gap-2 flex flex-col overflow-y-auto overflow-x-hidden min-h-0"
+                style={{ padding: "0px" }}
+              >
+                {strategies.length > 0 ? (
+                  strategies.map((strategy) => (
+                    <StrategyCard key={strategy.name} {...strategy} />
+                  ))
+                ) : (
                   <div
-                    key={label}
-                    onClick={() => setSelectedOutcome(label)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "10px 0",
-                      borderTop: idx > 0 ? "1px solid #e5e4e8" : "none",
-                      cursor: "pointer",
-                    }}
+                    className="shrink-0"
+                    style={{ minHeight: "168px" }}
                   >
-                    <div
-                      style={{
-                        width: "14px",
-                        height: "14px",
-                        borderRadius: "50%",
-                        border: `2px solid ${selected ? COLOR_STRATEGY_A : "#c6c5c9"}`,
-                        background: selected ? COLOR_STRATEGY_A : "transparent",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {selected && (
-                        <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#fff", margin: "2px" }} />
-                      )}
-                    </div>
-                    <span style={{ fontFamily: "Inter", fontWeight: 400, fontSize: "13px", color: COLOR_NEUTRAL_10 }}>{label}</span>
+                    <EmptyCardState message="Simulation strategy data is unavailable." />
                   </div>
-                  );
-                })}
-              </div>
+                )}
 
-              {/* 환자 집단 및 추적 관찰 기간 정보 / Population & Follow-up Info */}
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: "16px",
-                  padding: "8px 16px 12px",
-                  gap: "4px",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {["Population : N=440", "Follow-up : 12months"].map((t) => (
-                  <p key={t} style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "13px", color: COLOR_NEUTRAL_10, margin: "0 0 0px", lineHeight: 1.1 }}>
-                    {t}
+                {/* Primary Outcome 선택 라디오 + Population/Follow-up 정보 / Primary Outcome Radio Selector + Population Info */}
+                <div
+                  className="flex flex-col"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    padding: "8px 16px 12px",
+                  }}
+                >
+                  <p className="text-caption" style={{ color: COLOR_NEUTRAL_30, margin: "0 0 8px" }}>
+                    Primary Outcome
                   </p>
-                ))}
-              </div>
-            </div>
-
-            {/* 조건 편집 이동 버튼 / Edit Condition Navigation Button */}
-            <div style={{ flexShrink: 0, display: "flex", justifyContent: "right" }}>
-              <button
-                type="button"
-                onClick={() => router.push("/drd/default-setting")}
-                style={{
-                  position: "relative",
-                  width: "200px",
-                  height: "40px",
-                  borderRadius: "36px",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "Inter",
-                  fontSize: "clamp(10px, 1.05vw, 18px)",
-                  fontWeight: 600,
-                  color: "#fff",
-                  letterSpacing: "-0.6px",
-                  overflow: "hidden",
-                  background: "transparent",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div style={{ position: "absolute", inset: 0, borderRadius: "36px", background: "#f06600" }} />
-                <span style={{ position: "relative" }}>Edit Condition</span>
-              </button>
-            </div>
-          </div>
-
-           {/* 오른쪽 패널: 요약 및 차트 영역 / Right Panel: Summary & Charts */}
-           <div
-            className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-1 min-w-[280px] min-h-0"
-            style={{
-              gap: "24px",
-              marginLeft: "-6px",
-            }}
-          >
-            {/* 요약 텍스트 영역 / Summary Text Area */}
-            <div style={{ flexShrink: 0, padding: 6, display: "flex", flexDirection: "column", gap: 24 }}>
-              <h2
-                style={{
-                  fontFamily: "Inter",
-                  fontWeight: 700,
-                  fontSize: 24,
-                  color: COLOR_PRIMARY,
-                  letterSpacing: "-0.9px",
-                  lineHeight: 1,
-                  margin: 0,
-                }}
-              >
-                Summary
-              </h2>
-              <p
-                style={{
-                  fontFamily: "Inter",
-                  fontWeight: 500,
-                  fontSize: "clamp(7px, 0.85vw, 11px)",
-                  color: COLOR_NEUTRAL_30,
-                  letterSpacing: "-0.39px",
-                  lineHeight: 1.3,
-                  margin: 0,
-                }}
-              >
-                Based on counterfactual simulation adjusted for baseline severity, Strategy A demonstrates greater HbA1c reduction and
-                <br />
-                faster response, at the cost of increased hypoglycemia risk. Key drivers include longer DM duration and adherence level.
-              </p>
-            </div>
-
-            {/* 탭 + 탭 콘텐츠 영역 (Efficacy / AE risk) / Tab + Tab Content Area */}
-            <div
-              style={{
-                flex: 1,
-                minHeight: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-              }}
-            >
-              {/* Efficacy / AE risk 탭 전환 버튼 / Tab Switch Buttons */}
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: "36px",
-                  padding: "4px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  flexShrink: 0,
-                  alignSelf: "flex-start",
-                }}
-              >
-                {(["efficacy", "ae-risk"] as const).map((tab) => {
-                  const isActive = activeTab === tab;
-                  const label = tab === "efficacy" ? "Efficacy" : "AE risk";
-                  return (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={() => setActiveTab(tab)}
+                  <div style={{ height: "1px", background: "#e5e4e8", marginBottom: "0px" }} />
+                  {["HbA1c", "eGFR", "Weight", "Complication (ex : eGFR slope)"].map((label, idx) => {
+                    const selected = selectedOutcome === label;
+                    return (
+                    <div
+                      key={label}
+                      onClick={() => setSelectedOutcome(label)}
+                      className="flex items-center cursor-pointer"
                       style={{
-                        position: "relative",
-                        height: "36px",
-                        padding: "0 clamp(14px, 1.6vw, 24px)",
-                        borderRadius: "36px",
-                        border: "none",
-                        cursor: "pointer",
-                        fontFamily: "Inter",
-                        fontWeight: isActive ? 700 : 500,
-                        fontSize: "clamp(11px, 1vw, 16px)",
-                        color: isActive ? "#fff" : COLOR_NEUTRAL_30,
-                        letterSpacing: isActive ? "-0.48px" : "-0.36px",
-                        background: "transparent",
-                        overflow: "hidden",
-                        transition: "color 0.15s",
+                        gap: "8px",
+                        padding: "10px 0",
+                        borderTop: idx > 0 ? "1px solid #e5e4e8" : "none",
                       }}
                     >
-                      {isActive && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            borderRadius: "36px",
-                            background: COLOR_PRIMARY,
-                          }}
-                        />
-                      )}
-                      <span style={{ position: "relative" }}>{label}</span>
-                    </button>
-                  );
-                })}
+                      <div
+                        className="shrink-0"
+                        style={{
+                          width: "14px",
+                          height: "14px",
+                          borderRadius: "50%",
+                          border: `2px solid ${selected ? COLOR_STRATEGY_A : "#c6c5c9"}`,
+                          background: selected ? COLOR_STRATEGY_A : "transparent",
+                        }}
+                      >
+                        {selected && (
+                          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#fff", margin: "2px" }} />
+                        )}
+                      </div>
+                      <span className="text-captionm" style={{ color: COLOR_NEUTRAL_10 }}>{label}</span>
+                    </div>
+                    );
+                  })}
+                </div>
+
+                {/* 환자 집단 및 추적 관찰 기간 정보 / Population & Follow-up Info */}
+                <div
+                  className="flex flex-col"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "16px",
+                    padding: "8px 16px 12px",
+                    gap: "4px",
+                  }}
+                >
+                  {populationSummary.map(({ label, value }) => (
+                    <p key={label} className="text-captionm" style={{ color: COLOR_NEUTRAL_10, margin: "0 0 0px" }}>
+                      {label} : {value}
+                    </p>
+                  ))}
+                </div>
               </div>
 
-              {/* 선택된 탭의 콘텐츠 (EfficacyContent / AERiskContent) / Selected Tab Content */}
-              {activeTab === "efficacy" ? <EfficacyContent /> : <AERiskContent />}
+              {/* 조건 편집 이동 버튼 / Edit Condition Navigation Button */}
+              <div className="shrink-0 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(buildDrdPathWithContext("/drd/default-setting"))
+                  }
+                  className="btn-tsi btn-tsi-primary"
+                  style={{ width: "200px" }}
+                >
+                  Edit Condition
+                </button>
+              </div>
+            </div>
+
+             {/* 오른쪽 패널: 요약 및 차트 영역 / Right Panel: Summary & Charts */}
+             <div
+              className="figma-nine-slice figma-home-panel-left flex-1 min-w-[280px] min-h-0 flex flex-col"
+            >
+              {/* 요약 텍스트 영역 / Summary Text Area */}
+              <div className="flex flex-col gap-2 shrink-0"
+                style={{ padding: 6 }}>
+                <h2
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 24,
+                    color: COLOR_PRIMARY,
+                    letterSpacing: "-0.9px",
+                    lineHeight: 1,
+                    margin: 0,
+                  }}
+                >
+                  Summary
+                </h2>
+                <p className="text-body5 text-text-secondary"
+                  style={{
+                    margin: 0,
+                  }}
+                >
+                  {summaryText || "Summary is unavailable."}
+                </p>
+              </div>
+
+              {/* 탭 + 탭 콘텐츠 영역 (Efficacy / AE risk) / Tab + Tab Content Area */}
+              <div
+                className="flex-1 min-h-0 flex flex-col"
+                style={{ gap: "12px" }}
+              >
+                {/* Efficacy / AE risk 탭 전환 버튼 / Tab Switch Buttons */}
+                <div
+                  className="inline-flex items-center shrink-0 self-start"
+                  style={{
+                    background: "#fff",
+                    borderRadius: "36px",
+                    padding: "4px",
+                  }}
+                >
+                  {(["efficacy", "ae-risk"] as const).map((tab) => {
+                    const isActive = activeTab === tab;
+                    const label = tab === "efficacy" ? "Efficacy" : "AE risk";
+                    return (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setActiveTab(tab)}
+                        className="relative border-none cursor-pointer overflow-hidden"
+                        style={{
+                          height: "36px",
+                          padding: "0 clamp(14px, 1.6vw, 24px)",
+                          borderRadius: "36px",
+                          fontWeight: isActive ? 700 : 500,
+                          fontSize: "clamp(11px, 1vw, 16px)",
+                          color: isActive ? "#fff" : COLOR_NEUTRAL_30,
+                          letterSpacing: isActive ? "-0.48px" : "-0.36px",
+                          background: "transparent",
+                          transition: "color 0.15s",
+                        }}
+                      >
+                        {isActive && (
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              borderRadius: "36px",
+                              background: COLOR_PRIMARY,
+                            }}
+                          />
+                        )}
+                        <span className="relative">{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 선택된 탭의 콘텐츠 (EfficacyContent / AERiskContent) / Selected Tab Content */}
+                {activeTab === "efficacy" ? (
+                  <EfficacyContent resultViewModel={displayResultViewModel} />
+                ) : (
+                  <AERiskContent
+                    nonResponderSection={displayNonResponderSection}
+                    aeRiskChart={displayResultViewModel.aeRiskChart}
+                    safetyTradeoffChart={displayResultViewModel.safetyTradeoffChart}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <SimulationResultSkeleton
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onEditCondition={() => router.push(buildDrdPathWithContext("/drd/default-setting"))}
+        />
+      )}
       </div>
 
       {/* 시뮬레이션 저장 버튼 영역 / Save Simulation Button Area */}
-      <div style={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", paddingBottom: "24px" }}>
-        <button
-          type="button"
-          onClick={() => setShowSaveModal(true)}
-          style={{
-            position: "relative",
-            height: "40px",
-            padding: "0 clamp(18px, 2vw, 32px)",
-            borderRadius: "36px",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "Inter",
-            fontSize: "clamp(10px, 1.05vw, 18px)",
-            fontWeight: 600,
-            color: "#fff",
-            letterSpacing: "-0.6px",
-            overflow: "hidden",
-            background: "transparent",
-            marginRight: "8px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ position: "absolute", inset: 0, borderRadius: "36px", background: "#f06600" }} />
-          <span style={{ position: "relative" }}>Save Simulation</span>
-        </button>
-      </div>
+      {hasDisplayData ? (
+        <div className="shrink-0 flex justify-end" style={{ paddingBottom: "24px" }}>
+          <button
+            type="button"
+            onClick={() => setShowSaveModal(true)}
+            className="btn-tsi btn-tsi-primary"
+            style={{ marginRight: "8px" }}
+          >
+            Save Simulation
+          </button>
+        </div>
+      ) : null}
 
       {/* Save Simulation 모달 / Save Simulation Modal */}
-      {showSaveModal && (
+      {hasDisplayData && showSaveModal && (
         <div
+          className="fixed inset-0 flex items-center justify-center"
           style={{
-            position: "fixed",
-            inset: 0,
             zIndex: 1000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             background: "rgba(0, 0, 0, 0.4)",
             backdropFilter: "blur(4px)",
           }}
@@ -1636,37 +2093,34 @@ export default function SimulationResultPage() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
+            className="relative flex flex-col overflow-hidden"
             style={{
-              position: "relative",
               width: "380px",
               borderRadius: "20px",
               padding: "24px 20px 20px",
-              display: "flex",
-              flexDirection: "column",
               gap: "20px",
-              overflow: "hidden",
               boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
             }}
           >
             {/* 유리 배경 레이어 / Glassmorphism Background Layer */}
-            <div aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: "20px", pointerEvents: "none" }}>
-              <div style={{ position: "absolute", inset: 0, borderRadius: "20px", background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "20px", background: "rgba(255,255,255,0.88)" }} />
-              <div style={{ position: "absolute", inset: 0, borderRadius: "20px", background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
+            <div aria-hidden="true" className="absolute inset-0 pointer-events-none" style={{ borderRadius: "20px" }}>
+              <div className="absolute inset-0" style={{ borderRadius: "20px", background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
+              <div className="absolute inset-0" style={{ borderRadius: "20px", background: "rgba(255,255,255,0.88)" }} />
+              <div className="absolute inset-0" style={{ borderRadius: "20px", background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
             </div>
 
             {/* 모달 콘텐츠 영역 / Modal Content Area */}
-            <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div className="relative flex flex-col" style={{ zIndex: 1, gap: "20px" }}>
               {/* 모달 제목 / Modal Title */}
-              <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "18px", color: "#484646", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>
+              <p style={{ fontWeight: 600, fontSize: "18px", color: "#484646", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>
                 Save Simulation
               </p>
 
               {/* 시뮬레이션 이름 및 설명 입력 필드 / Simulation Name & Description Input Fields */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div className="flex flex-col" style={{ gap: "10px" }}>
                 {/* Simulation Name */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "13px", color: "#484646", letterSpacing: "-0.39px", lineHeight: 1.2, margin: 0 }}>
+                <div className="flex flex-col" style={{ gap: "6px" }}>
+                  <p className="text-captionm" style={{ color: "#484646", margin: 0 }}>
                     Simulation Name *
                   </p>
                   <input
@@ -1674,26 +2128,20 @@ export default function SimulationResultPage() {
                     value={simName}
                     onChange={(e) => setSimName(e.target.value)}
                     placeholder="Write a title"
+                    className="border-none w-full box-border text-captionm"
                     style={{
                       height: "40px",
                       borderRadius: "12px",
-                      border: "none",
                       background: "#e2e1e5",
                       padding: "0 14px",
-                      fontFamily: "Inter",
-                      fontWeight: 500,
-                      fontSize: "13px",
                       color: "#484646",
-                      letterSpacing: "-0.39px",
                       outline: "none",
-                      width: "100%",
-                      boxSizing: "border-box",
                     }}
                   />
                 </div>
                 {/* Description */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <p style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "13px", color: "#484646", letterSpacing: "-0.39px", lineHeight: 1.2, margin: 0 }}>
+                <div className="flex flex-col" style={{ gap: "6px" }}>
+                  <p className="text-captionm" style={{ color: "#484646", margin: 0 }}>
                     Description
                   </p>
                   <input
@@ -1701,20 +2149,14 @@ export default function SimulationResultPage() {
                     value={simDesc}
                     onChange={(e) => setSimDesc(e.target.value.slice(0, 30))}
                     placeholder="Enter a Description (max 30 characters)"
+                    className="border-none w-full box-border text-captionm"
                     style={{
                       height: "40px",
                       borderRadius: "12px",
-                      border: "none",
                       background: "#e2e1e5",
                       padding: "0 14px",
-                      fontFamily: "Inter",
-                      fontWeight: 500,
-                      fontSize: "13px",
                       color: "#484646",
-                      letterSpacing: "-0.39px",
                       outline: "none",
-                      width: "100%",
-                      boxSizing: "border-box",
                     }}
                   />
                 </div>
@@ -1722,22 +2164,17 @@ export default function SimulationResultPage() {
             </div>
 
             {/* 모달 하단 버튼 영역 / Modal Bottom Button Area */}
-            <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "8px", justifyContent: "center"}}>
+            <div className="relative flex justify-center" style={{ zIndex: 1, gap: "8px" }}>
               {/* 닫기 버튼 / Close Button */}
               <button
                 type="button"
                 onClick={() => setShowSaveModal(false)}
+                className="border-none cursor-pointer text-body4"
                 style={{
                   width: "112px",
                   height: "44px",
                   borderRadius: "36px",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "Inter",
-                  fontWeight: 600,
-                  fontSize: "15px",
                   color: "#262255",
-                  letterSpacing: "-0.45px",
                   background: "rgba(255,255,255,0.92)",
                   boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)",
                   backdropFilter: "blur(8px)",
@@ -1750,21 +2187,15 @@ export default function SimulationResultPage() {
               <button
                 type="button"
                 onClick={() => setShowSaveModal(false)}
+                className="border-none cursor-pointer text-body4"
                 style={{
                   width: "112px",
                   height: "44px",
                   borderRadius: "36px",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "Inter",
-                  fontWeight: 600,
-                  fontSize: "15px",
                   color: "#262255",
-                  letterSpacing: "-0.45px",
                   background: "rgba(255,255,255,0.92)",
                   boxShadow: "0px 2px 8px 0px rgba(0,0,0,0.10), 0px 0px 0px 0.5px rgba(0,0,0,0.06)",
                   backdropFilter: "blur(8px)",
-                 
                 }}
               >
                 Save
@@ -1774,5 +2205,16 @@ export default function SimulationResultPage() {
         </div>
       )}</div>
     </AppLayout>
+  );
+}
+
+/**
+ * Suspense 래퍼 (useSearchParams 사용으로 인해 필요)
+ */
+export default function SimulationResultPage() {
+  return (
+    <Suspense fallback={null}>
+      <SimulationResultPageContent />
+    </Suspense>
   );
 }

@@ -27,12 +27,9 @@ export function TSIReportHeader({ onSaveAsPDF }: TSIReportHeaderProps) {
 
   return (
     <div
+      className="shrink-0 flex items-end justify-between"
       style={{
-        flexShrink: 0,
         padding: "0 12px 4px 12px",
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "space-between",
         marginBottom: 24,
       }}
     >
@@ -56,7 +53,7 @@ export function TSIReportHeader({ onSaveAsPDF }: TSIReportHeaderProps) {
           viewBox="0 0 16 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ flexShrink: 0 }}
+          className="shrink-0"
         >
           <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>

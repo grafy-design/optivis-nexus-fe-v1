@@ -3,6 +3,15 @@
 import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import {
+  SHAP_COLORS,
+  CHART_COLORS,
+  tooltipItem,
+  tooltipRow,
+  tooltipWrap,
+  axisLabelBase,
+  animationDefault,
+} from "@/lib/chart-styles";
 
 export type SHAPSummaryFeature = {
   rank: number;
@@ -78,14 +87,12 @@ export const SHAPSummaryPlotChart = ({
     const colorMax = colorValues.length > 0 ? Math.max(...colorValues) : 1;
     const colorRange = colorMax === colorMin ? 1 : colorMax - colorMin;
     const interpolateColor = (t: number) => {
-      // #D8D3FF (low) → #231F52 (high)
       const r = Math.round(0xD8 + (0x23 - 0xD8) * t);
       const g = Math.round(0xD3 + (0x1F - 0xD3) * t);
       const b = Math.round(0xFF + (0x52 - 0xFF) * t);
       return `rgb(${r},${g},${b})`;
     };
     const interpolateEmphasisColor = (t: number) => {
-      // tertiary-95 #bfb0f8 (low) → tertiary-15 #231368 (high)
       const r = Math.round(0xBF + (0x23 - 0xBF) * t);
       const g = Math.round(0xB0 + (0x13 - 0xB0) * t);
       const b = Math.round(0xF8 + (0x68 - 0xF8) * t);
@@ -93,9 +100,7 @@ export const SHAPSummaryPlotChart = ({
     };
 
     const baseOption: EChartsOption = {
-      animation: true,
-      animationDuration: 300,
-      animationEasing: "cubicOut",
+      ...animationDefault,
       title: {
         text: "",
         left: 0,
@@ -117,13 +122,8 @@ export const SHAPSummaryPlotChart = ({
         containLabel: true,
       },
       tooltip: {
-        trigger: "item",
-        padding: [4, 6],
-        borderWidth: 0,
-        borderColor: "transparent",
-        extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
+        ...tooltipItem,
         axisPointer: { type: "shadow", axis: "y" },
-        textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
         formatter: (params) => {
           const item = Array.isArray(params) ? params[0] : params;
           if (!item || !("value" in item)) {
@@ -133,16 +133,19 @@ export const SHAPSummaryPlotChart = ({
           const shap = Number(value[0] ?? 0);
           const cv = Number(value[2] ?? 0);
           const name = String(value[3] ?? "");
-          const row = (label: string, val: string) =>
-            `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="font-size:9px;font-weight:500">${label}</span><span style="font-size:13px;font-weight:600">${val}</span></div>`;
-          return `<div style="font-family:Inter,sans-serif">${(item as any).marker ?? ""}${name}${row("SHAP", shap.toFixed(3))}${row("Color value", cv.toFixed(3))}</div>`;
+          return tooltipWrap(
+            (item as any).marker ?? "" +
+            name +
+            tooltipRow("", "SHAP", shap.toFixed(3)) +
+            tooltipRow("", "Color value", cv.toFixed(3))
+          );
         },
       },
       xAxis: {
         type: "value",
         min: -xLimit ,
         max: xLimit,
-        splitLine: { show: true, lineStyle: { color: "#efeff4", type: "dashed" } },
+        splitLine: { show: true, lineStyle: { color: CHART_COLORS.NEUTRAL_95, type: "dashed" } },
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: { show: false },
@@ -152,14 +155,11 @@ export const SHAPSummaryPlotChart = ({
         min: - 1,
         max: featureOrder.length - 0.5,
         interval: 1,
-        splitLine: { show: true, lineStyle: { color: "#E2E1E5" } },
+        splitLine: { show: true, lineStyle: { color: CHART_COLORS.SPLIT_LINE_ALT } },
         axisLine: { show: false },
         axisTick: { show: false },
         axisLabel: {
-          color: "#787776",
-          fontSize: 10,
-          fontWeight: 500,
-          fontFamily: "Inter, sans-serif",
+          ...axisLabelBase,
           formatter: (value) => {
             const idx = Math.round(Number(value));
             return featureOrder[idx] ?? "";
@@ -181,7 +181,7 @@ export const SHAPSummaryPlotChart = ({
         dimension: 2,
         seriesIndex: featureOrder.map((_, i) => i),
         inRange: {
-          color: ["#D8D3FF", "#231F52"],
+          color: [SHAP_COLORS.low, SHAP_COLORS.high],
         },
       },
       series: seriesByFeature.map((featureData, i) => ({

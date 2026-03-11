@@ -18,9 +18,8 @@ function SidebarFrameButton({
 }) {
   const content = (
     <span
+      className="relative block"
       style={{
-        position: "relative",
-        display: "block",
         width: 48,
         height: 48,
         overflow: "visible",
@@ -31,8 +30,8 @@ function SidebarFrameButton({
         alt={alt}
         width={imageWidth}
         height={imageHeight}
+        className="absolute pointer-events-none"
         style={{
-          position: "absolute",
           left: "50%",
           top: "50%",
           transform: "translate(-50%, -50%)",
@@ -40,7 +39,6 @@ function SidebarFrameButton({
           height: `${imageHeight}px`,
           maxWidth: "none",
           maxHeight: "none",
-          pointerEvents: "none",
         }}
       />
     </span>
@@ -50,7 +48,8 @@ function SidebarFrameButton({
     return (
       <Link
         href={href}
-        style={{ width: 48, height: 48, display: "inline-flex", textDecoration: "none" }}
+        className="inline-flex"
+        style={{ width: 48, height: 48, textDecoration: "none" }}
         aria-label={alt}
       >
         {content}
@@ -62,14 +61,12 @@ function SidebarFrameButton({
     <button
       type="button"
       aria-label={alt}
+      className="inline-flex border-none cursor-pointer"
       style={{
         width: 48,
         height: 48,
-        display: "inline-flex",
         background: "transparent",
-        border: "none",
         padding: 0,
-        cursor: "pointer",
       }}
     >
       {content}
@@ -99,27 +96,15 @@ export const Sidebar = () => {
      * 배경: 없음 (body bg 노출)
      */
     <div
-      style={{
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        width: 96,
-        zIndex: 100,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "24px",
-        gap: 0,
-      }}
+      className="fixed flex flex-col items-center gap-0 p-6 pr-4 w-wrap h-full"
     >
       {/* 로고 (상단) */}
       <LogoBtn />
 
       {/* Spacer */}
-      <div style={{ flex: 1 }} />
+      <div className="flex-1" />
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="flex flex-col gap-3">
         <SidebarFrameButton
           imageSrc="/assets/figma/home/sidebar-folder-button.png"
           imageWidth={68}
@@ -141,9 +126,9 @@ export const Sidebar = () => {
       </div>
 
       {/* Spacer */}
-      <div style={{ flex: 1 }} />
+      <div className="flex-1" />
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div className="flex flex-col gap-3">
         <SidebarFrameButton
           imageSrc="/assets/figma/home/sidebar-settings-button.png"
           imageWidth={52}

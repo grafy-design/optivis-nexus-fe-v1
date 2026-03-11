@@ -866,7 +866,8 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                   At least {minPatients} patients per group are recommended.
                 </p></div>
                 <div className="mt-auto">
-                  <div className="w-full h-wrap space-y-0 overflow-auto rounded-[8px] bg-white p-3 ">
+                  <div className="w-full rounded-[8px] bg-white p-3 overflow-hidden">
+                  <div className="overflow-auto h-full space-y-0">
                     <div className="flex items-center gap-2 border-b border-[#adaaaa] pb-1 font-semibold text-[#231f52]">
                       <div className="flex-1">
                         <p className="text-body4 [@media(max-width:1470px)]:text-small1 font-semibold text-[#231F52]">Group</p>
@@ -910,6 +911,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                         </div>
                       );
                     })}
+                  </div>
                   </div>
                 </div>
               </div>
@@ -1155,49 +1157,26 @@ function TSISubgroupSelectionPageContent() {
     <AppLayout headerType="tsi" scaleMode="fit">
       <Loading isLoading={isLoading} />
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "100%",
-          gap: 24,
-          marginLeft: "14px",
-          marginRight: "14px",
-        }}
+        className="flex flex-col w-full h-full gap-6"
       >
         {/* ── 1. 페이지 타이틀 / Page title ── */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+        <div className="shrink-0 px-1">
           <h1
-            style={{
-              fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: titleFontSize,
-              fontWeight: 600,
-              color: "rgb(17,17,17)",
-              letterSpacing: "-1.5px",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
+            className="text-page-title"
+            style={{ fontSize: titleFontSize }}
           >
             Target Subgroup Identification
           </h1>
-          <span
-            style={{
-              fontFamily: "Inter",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "rgb(120,119,118)",
-              letterSpacing: "-0.48px",
-            }}
-          >
+          <span className="text-page-subtitle">
             Subgroup Selection
           </span>
         </div>
 
         {/* ── 2. 메인+버튼 묶음 컨테이너 / Main cards + button wrapper ── */}
-        <div className="flex flex-col flex-1 min-h-0" style={{ gap: 0 }}>
+        <div className="flex flex-col flex-1 min-h-0 gap-0">
           {/* ── 2-A. 상위 배경 카드 2개 나란히 / Two side-by-side background cards ── */}
           <div
-            className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 px-0.5 min-h-0"
+            className="flex flex-row flex-nowrap items-stretch gap-1 flex-1 px-0.5 min-h-0"
             style={{ minWidth: 0 }}
           >
             {/* ── 2-A-L. 왼쪽 상위 배경 카드 (glass, 30%) / Left glass card ── */}
@@ -1844,7 +1823,7 @@ function TSISubgroupSelectionPageContent() {
                                         className={`${TABLE_BODY_CELL_BASE_WITH_BORDER} text-left`}
                                         style={{
                                           color: row.variance_benefit_label
-                                            ? "#3A11D8"
+                                            ? "var(--text-active)"
                                             : "",
                                         }}
                                       >
@@ -1950,21 +1929,13 @@ function TSISubgroupSelectionPageContent() {
             </div>
           </div>
           {/* ── 2-B. 하단 버튼 영역 / Bottom button area ── */}
-          <div className="flex flex-shrink-0 items-center justify-end pr-3 pb-6 gap-3 ">
+          <div className="flex flex-shrink-0 items-center justify-end pr-1 gap-3 ">
             <button
               type="button"
+              className="btn-tsi btn-tsi-secondary"
               style={{
-                height: 40,
-                paddingLeft: 24,
-                paddingRight: 24,
-                borderRadius: 36,
-                background: "#787776",
-                border: "none",
                 cursor: "pointer",
-                fontFamily: "Inter",
-                fontSize: 15,
-                fontWeight: 600,
-                color: "#ffffff",
+                color: "var(--text-inverted)",
                 letterSpacing: "-0.45px",
                 display: "flex",
                 alignItems: "center",
@@ -1977,23 +1948,16 @@ function TSISubgroupSelectionPageContent() {
               type="button"
               disabled={!selectedSetNo}
               onClick={handleSubgroupExplain}
+              className="btn-tsi btn-tsi-primary gap-2"
               style={{
-                height: 40,
-                paddingLeft: 24,
-                paddingRight: 24,
-                borderRadius: 36,
                 background: selectedSetNo ? "#F06600" : "#c6c5c9",
                 border: "none",
                 cursor: selectedSetNo ? "pointer" : "not-allowed",
-                fontFamily: "Inter",
-                fontSize: 15,
-                fontWeight: 600,
-                color: selectedSetNo ? "#ffffff" : "#e2e1e5",
+                color: selectedSetNo ? "var(--text-inverted)" : "#e2e1e5",
                 letterSpacing: "-0.45px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: 8,
               }}
             >
               Subgroup Explain

@@ -148,20 +148,15 @@ export default function TSIPage() {
 
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+      <div className="flex flex-col h-full">
         <div className="flex flex-col gap-3 flex-1 min-h-0">
           {/* Main Card with Glass Background */}
           <div
-            className="figma-nine-slice figma-home-panel-right"
+            className="figma-nine-slice figma-home-panel-right rounded-[36px]"
           style={{
             flex: "1452 1 0",
             minWidth: "500px",
-            minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
             padding: "28px",
-            borderRadius: "36px",
-            overflow: "hidden",
           }}
           >
             <div className="flex flex-col gap-6 h-full">
@@ -223,7 +218,7 @@ export default function TSIPage() {
                         Data Template Download
                       </h3>
                     </div>
-                    <p className="text-body4m text-[#aaaaad] text-center px-0">
+                    <p className="text-body4m text-neutral-70 text-center px-0">
                       Download a guide file that includes optimized data formats
                       and examples for service analysis
                     </p>
@@ -233,7 +228,7 @@ export default function TSIPage() {
                     size="md"
                     className="w-full rounded-[16px]"
                     style={{
-                      backgroundColor: "#f06600",
+                      backgroundColor: "var(--secondary-60)",
                       color: "#e3dfff",
                     }}
                   >
@@ -255,13 +250,13 @@ export default function TSIPage() {
                     >
                       <path
                         d="M26.3104 12.8416C25.3319 10.5582 23.6431 8.66362 21.5028 7.44817C19.3625 6.23271 16.8888 5.76344 14.4607 6.11225C12.0327 6.46107 9.78425 7.60873 8.05994 9.37937C6.33563 11.15 5.23059 13.446 4.91415 15.9154C3.38724 16.2867 2.04779 17.2146 1.15017 18.5227C0.252542 19.8309 -0.140742 21.4283 0.0450008 23.0115C0.230744 24.5947 0.982579 26.0536 2.15773 27.111C3.33288 28.1684 4.8495 28.7507 6.41958 28.7473C6.84433 28.7473 7.25168 28.576 7.55202 28.271C7.85237 27.966 8.0211 27.5523 8.0211 27.1209C8.0211 26.6896 7.85237 26.2759 7.55202 25.9709C7.25168 25.6659 6.84433 25.4946 6.41958 25.4946C5.57008 25.4946 4.75538 25.1519 4.15469 24.5419C3.55401 23.9319 3.21654 23.1046 3.21654 22.2419C3.21654 21.3792 3.55401 20.5519 4.15469 19.9419C4.75538 19.3319 5.57008 18.9892 6.41958 18.9892C6.84433 18.9892 7.25168 18.8178 7.55202 18.5128C7.85237 18.2078 8.0211 17.7942 8.0211 17.3628C8.02519 15.4393 8.7006 13.5796 9.92733 12.1139C11.1541 10.6483 12.8527 9.67175 14.7214 9.35774C16.5902 9.04373 18.508 9.4126 20.1343 10.3988C21.7605 11.385 22.9899 12.9248 23.6039 14.7444C23.6954 15.0239 23.86 15.2729 24.08 15.4648C24.3 15.6567 24.5672 15.7843 24.853 15.8341C25.9198 16.0388 26.8868 16.6043 27.5965 17.4385C28.3062 18.2727 28.7168 19.3264 28.7614 20.4279C28.806 21.5294 28.4819 22.6138 27.842 23.5043C27.202 24.3949 26.284 25.0391 25.2374 25.332C24.8254 25.4398 24.4725 25.7094 24.2562 26.0815C24.04 26.4536 23.9781 26.8977 24.0843 27.3161C24.1905 27.7345 24.456 28.0929 24.8224 28.3125C25.1888 28.5321 25.6262 28.5949 26.0382 28.4871C27.7236 28.0348 29.2176 27.0364 30.2934 25.6434C31.3692 24.2503 31.968 22.5389 31.9988 20.7689C32.0296 18.9988 31.4907 17.267 30.4641 15.8362C29.4374 14.4055 27.9791 13.354 26.3104 12.8416ZM17.1658 16.2081C17.0135 16.0601 16.8338 15.944 16.6373 15.8666C16.2474 15.7039 15.81 15.7039 15.4201 15.8666C15.2235 15.944 15.0439 16.0601 14.8916 16.2081L10.0871 21.0872C9.78548 21.3934 9.61606 21.8088 9.61606 22.2419C9.61606 22.675 9.78548 23.0904 10.0871 23.3966C10.3886 23.7029 10.7976 23.8749 11.2241 23.8749C11.6506 23.8749 12.0596 23.7029 12.3612 23.3966L14.4272 21.2823V30.3736C14.4272 30.805 14.5959 31.2187 14.8962 31.5237C15.1966 31.8287 15.6039 32 16.0287 32C16.4534 32 16.8608 31.8287 17.1611 31.5237C17.4615 31.2187 17.6302 30.805 17.6302 30.3736V21.2823L19.6962 23.3966C19.845 23.549 20.0222 23.67 20.2173 23.7526C20.4125 23.8352 20.6218 23.8777 20.8332 23.8777C21.0447 23.8777 21.254 23.8352 21.4491 23.7526C21.6443 23.67 21.8214 23.549 21.9703 23.3966C22.1204 23.2454 22.2396 23.0655 22.3209 22.8674C22.4022 22.6692 22.444 22.4566 22.444 22.2419C22.444 22.0272 22.4022 21.8146 22.3209 21.6164C22.2396 21.4183 22.1204 21.2384 21.9703 21.0872L17.1658 16.2081Z"
-                        fill="#313030"
+                        fill="var(--neutral-20)"
                       />
                     </svg>
                     <h3 className="text-body3 text-neutral-10 text-center mt-4">
                       Click to upload or Drag and drop
                     </h3>
-                    <div className="text-body4m text-[#aaaaad] text-center mt-3 leading-normal">
+                    <div className="text-body4m text-neutral-70 text-center mt-3 leading-normal">
                       svg, xlsx
                       <br />
                       *Maximum file size: n MB per file
@@ -286,7 +281,7 @@ export default function TSIPage() {
                       size="md"
                       className="w-[222px] rounded-[24px]"
                       style={{
-                        backgroundColor: "#3a11d8",
+                        backgroundColor: "var(--tertiary-40)",
                         color: "#e3dfff",
                       }}
                     >
@@ -330,7 +325,7 @@ export default function TSIPage() {
                   <div className="flex gap-0 rounded-[18px] bg-white overflow-hidden min-h-[280px] flex-shrink-0">
                     {/* Left Table */}
                      <div
-            className="figma-nine-slice figma-home-panel-left flex-[22] min-w-[280px] min-h-0"
+            className="flex-[22] min-w-[280px] min-h-0"
           >
                       {leftTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
@@ -385,7 +380,7 @@ export default function TSIPage() {
                     <div className="w-[2px] bg-gray-300 flex-shrink-0 mt-[26px] mb-[26px]" />
 
                     {/* Right Table */}
-                     <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px" }}>
+                     <div className=" flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
                       {rightTableData.length > 0 ? (
                         <SimpleBar style={{ maxHeight: "500px" }}>
                           <div className="py-[20px] px-[32px] min-h-[280px]">

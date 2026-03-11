@@ -124,11 +124,7 @@ export default function PackageVideoPanel({
 
   return (
     <div
-      className="relative flex flex-col w-full h-full overflow-hidden"
-      style={{
-        borderRadius: "24px", // Matching internal radius of HeroPanel's image/right section approx or just rounding it nicely
-        backgroundColor: "#000",
-      }}
+      className="relative flex flex-col w-full h-full overflow-hidden rounded-[24px] bg-black"
     >
       {/* Video Background */}
       <video
@@ -138,13 +134,9 @@ export default function PackageVideoPanel({
         loop={!videoReverseLoop}
         muted
         playsInline
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        className="absolute inset-0 h-full w-full object-cover object-center origin-center"
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
           transform: `scale(${videoScale})`,
-          transformOrigin: "center center",
         }}
       />
 
@@ -157,40 +149,20 @@ export default function PackageVideoPanel({
         I'll add a subtle gradient to ensure text pops against the video.
       */}
       <div
-        className="relative z-10 flex flex-col items-start justify-start p-8"
-        style={{
-          background: "linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)",
-          width: "100%",
-          padding: "40px", // Giving some space
-          gap: "16px",
-        }}
+        className="relative z-10 flex flex-col items-start justify-start gap-4 w-full bg-linear-to-b from-black/60 to-transparent p-10"
       >
         <h2
-          className="home-package-video-title"
+          className="home-package-video-title font-['Poppins'] font-semibold leading-[1.1] tracking-[-0.02em] text-text-inverted m-0 max-w-[80%]"
           style={{
-            fontFamily: "Poppins",
             fontSize: "clamp(32px, 4vw, 48px)",
-            fontWeight: 600,
-            lineHeight: "1.1",
-            letterSpacing: "-0.02em",
-            color: "#FFFFFF",
-            margin: 0,
-            maxWidth: "80%",
             textShadow: "0px 2px 4px rgba(0,0,0,0.3)",
           }}
         >
           {title}
         </h2>
         <p
-          className="home-package-video-desc"
+          className="home-package-video-desc text-body2m text-text-inverted m-0 max-w-[600px]"
           style={{
-            fontFamily: "Inter",
-            fontSize: "clamp(16px, 1.5vw, 20px)",
-            fontWeight: 400,
-            lineHeight: "1.65",
-            color: "rgba(255, 255, 255, 0.9)",
-            margin: 0,
-            maxWidth: "600px",
             textShadow: "0px 1px 2px rgba(0,0,0,0.3)",
           }}
         >

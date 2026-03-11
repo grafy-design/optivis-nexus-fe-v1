@@ -22,7 +22,7 @@ type DensitySizeStyle = {
 
 const DENSITY_SIZE_STYLES: Record<ChartSizeVariant, DensitySizeStyle> = {
   XS: { labelFontSize: 9,    labelFontWeight: 400, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
-  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: "#787776", numberColor: "#787776", axisLineColor: "#787776", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
+  S:  { labelFontSize: 10.5, labelFontWeight: 600, numberFontSize: 10.5, numberFontWeight: 600, axisColor: "var(--chart-text-axis-value)", numberColor: "var(--chart-text-axis-value)", axisLineColor: "var(--chart-axis-border)", axisWidth: 1, splitLineColor: NEUTRAL_95, labelDecimalPlaces: 0 },
   M:  { labelFontSize: 15,   labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
   L:  { labelFontSize: 19.5, labelFontWeight: 600, numberFontSize: 9, axisColor: NEUTRAL_30, axisWidth: 1, splitLineColor: NEUTRAL_95 },
 };
@@ -430,7 +430,7 @@ export const DensityChart = ({ data, series, segmented, height = 220, sizeVarian
                 position: gapNarrow ? "right" : "insideTop",
                 offset: gapNarrow ? [4, 0] : [0, 4],
                 formatter: () => gap.toFixed(1),
-                color: gapHovered ? "#262255" : "#787776",
+                color: gapHovered ? "var(--icon-on-button)" : "var(--chart-text-axis-value)",
                 fontSize: 12,
                 fontWeight: gapHovered ? 800 : 600,
                 fontFamily: "Inter",

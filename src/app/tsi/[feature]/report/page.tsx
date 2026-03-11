@@ -685,8 +685,8 @@ function TSIReportPageContent() {
   if (!hasRequiredParams) {
     return (
       <AppLayout headerType="tsi" scaleMode="fit">
-        <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
-          {/* ── 필수 파라미터 누�� 에러 / Missing required params error ── */}
+        <div className="flex flex-col w-full gap-3">
+          {/* ── 필수 파라미터 누락 에러 / Missing required params error ── */}
           <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
             Report 조회에 필요한 파라미터가 누락되었습니다. (`feature`, `taskId`, `subgroupId`)
           </div>
@@ -699,7 +699,7 @@ function TSIReportPageContent() {
     return (
       <AppLayout headerType="tsi" scaleMode="fit">
         <Loading isLoading />
-        <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+        <div className="flex flex-col w-full gap-3">
           {/* ── 로딩 중 메시지 / Loading message ── */}
           <div className="rounded-[16px] bg-neutral-95 p-4 text-neutral-50">
             리포트 데이터를 조회 중입니다.
@@ -712,7 +712,7 @@ function TSIReportPageContent() {
   if (fetchError) {
     return (
       <AppLayout headerType="tsi" scaleMode="fit">
-        <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", gap: 24, marginLeft: "8px", marginRight: "8px" }}>
+        <div className="flex flex-col w-full gap-3">
           {/* ── API 조회 에러 메시지 / API fetch error message ── */}
           <div className="rounded-[24px] border border-red-200 bg-red-50 p-6 text-red-700">
             {fetchError}
@@ -725,32 +725,18 @@ function TSIReportPageContent() {
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "wrap-content",
-          marginLeft: "14px",
-          marginRight: "14px",
-          overflowY: "auto",
-        }}
+        className="flex flex-col w-full overflow-y-auto gap-6"
       >
 
         {/* ── 1. 페이지 타이틀 + PDF 저장 버튼 / Page title + Save as PDF button ── */}
         <div
-          style={{
-            flexShrink: 0,
-            padding: "0 12px 4px 12px",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            marginBottom: 24,
-          }}
+          className="shrink-0 px-1 flex items-end justify-between"
+          style={{ paddingBottom: 4, marginBottom: 24 }}
         >
           <div className="flex flex-col gap-1 flex-shrink-0 items-start">
             <div
-              className="text-neutral-5 text-left"
-              style={{ fontSize: titleFontSize, lineHeight: "120%", fontFamily: "Poppins, Inter, sans-serif", fontWeight: 600, letterSpacing: "-1.5px" }}
+              className="text-neutral-5 text-left text-page-title"
+              style={{ fontSize: titleFontSize, lineHeight: "120%" }}
             >
               Target Subgroup Identification
             </div>

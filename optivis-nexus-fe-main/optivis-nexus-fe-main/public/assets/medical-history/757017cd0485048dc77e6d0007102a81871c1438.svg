@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 13.3333 13.3333" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Checkbox Item">
+<rect width="13.3333" height="13.3333" rx="2" fill="var(--fill-0, #4F25FF)"/>
+<path id="icon" d="M4.00548 6.62543L5.38652 8.00254C5.60873 8.22412 5.71983 8.3349 5.8579 8.3349C5.99596 8.3349 6.10706 8.22412 6.32927 8.00254L9.3388 5.00157" stroke="var(--stroke-0, white)" stroke-width="0.946526" stroke-linejoin="bevel"/>
+</g>
+</svg>

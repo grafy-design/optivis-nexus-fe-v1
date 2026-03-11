@@ -41,9 +41,8 @@ export default function LiquidGlassButton({
           1) BASE — 위아래 그라데이션 (위쪽 진함 → 아래쪽 밝음)
          ================================================= */}
       <div
-        className="absolute pointer-events-none"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          inset: "0px",
           borderRadius: "999px",
           background:
             "linear-gradient(180deg, #d6d4d5 0%, #dedddd 100%)",

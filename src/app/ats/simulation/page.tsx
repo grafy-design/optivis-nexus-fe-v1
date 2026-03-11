@@ -697,9 +697,9 @@ export default function SimulationPage() {
     <>
       <Loading isLoading={isLoading} />
       <AppLayout headerType="ats" scaleMode="height">
-        <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px", }}>
+        <div className="flex flex-col w-full h-full overflow-hidden gap-6">
           
-          <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <div className="shrink-0 px-1">
             <div className="text-title text-neutral-5 text-left">
               Adaptive Trial Simulation
             </div>
@@ -708,7 +708,7 @@ export default function SimulationPage() {
             </p>
           </div>
 
-          <div className="ats-simulation-layout flex gap-[0px] w-full flex-1 min-h-0">
+          <div className="ats-simulation-layout flex gap-1 w-full flex-1 min-h-0">
             <div className="ats-left-panel flex-[22] min-w-[280px] min-h-0">
               <LeftPanel
                 sampleSizeControl={sampleSizeControl}
@@ -740,7 +740,7 @@ export default function SimulationPage() {
                 onSaveEndpoints={handleSaveEndpoints}
               />
             </div>
-            <div className="ats-right-panel flex-[78] min-w-0 min-h-0" style={{ marginLeft: "-6px" }}>
+            <div className="ats-right-panel flex-[78] min-w-0 min-h-0">
               <RightPanel
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}

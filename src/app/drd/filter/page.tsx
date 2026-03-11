@@ -35,63 +35,9 @@ import { useSimulationStore } from "@/store/simulationStore";
 import { useProcessedStudyData } from "@/hooks/useProcessedStudyData";
 import { RightPanel } from "@/components/drd/RightPanel";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
-import { IconVirusGray, IconFunnelActive, IconAsteriskGray, IconClockGray } from "@/components/ui/drd-step-icons";
+import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
+import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
 
-/** 왼쪽 사이드바 4개 스텝 아이콘 클릭 시 이동할 경로 매핑 */
-const stepRoutes: Record<string, string> = {
-  "patient-disease-info": "/drd/patient-disease-info",
-  "filter": "/drd/filter",
-  "high-risk": "/drd/high-risk-subgroup",
-  "medical-history": "/drd/medical-history",
-};
-
-
-/**
- * 왼쪽 패널 하단의 4단계 설정 스텝 목록.
- * isActive: true 인 항목(Filter)이 현재 페이지이며 진한 네이비 배경으로 표시됩니다.
- */
-const setupSteps = [
-  {
-    id: "patient-disease-info",
-    IconComponent: IconVirusGray,
-    isActive: false,
-    title: "Patient/Disease Info",
-    description: "Define patient groups by fixing simulation conditions and selecting control variables. Patient groups can be specified using demographic information, laboratory data, and vital signs",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-  {
-    id: "filter",
-    IconComponent: IconFunnelActive,
-    isActive: true,
-    title: "Filter",
-    description: "Define patient groups through direct feature-based filtering. Filtering conditions are applied to selected features to construct patient groups.",
-    titleColor: "#ffffff",
-    descriptionColor: "#c9c5c8",
-    bgColor: "#262255",
-  },
-  {
-    id: "high-risk",
-    IconComponent: IconAsteriskGray,
-    isActive: false,
-    title: "High-Risk Subgroub",
-    description: "Select high-risk subgroups based on disease progression slopes. Prognostic scoring and loading of prior subgroup definitions are supported.",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-  {
-    id: "medical-history",
-    IconComponent: IconClockGray,
-    isActive: false,
-    title: "Medical History",
-    description: "Define patient groups based on clinical history and risk profiles. Patient groups can be selected using diagnoses, comorbidities, risk factors, and key medical history.",
-    titleColor: "#484646",
-    descriptionColor: "#919092",
-    bgColor: "transparent",
-  },
-];
 
 /** 행 추가 버튼(+)에 사용되는 플러스 아이콘 SVG */
 function IconPlus({ size = 16, color = "#c6c5c9" }: { size?: number; color?: string }) {
@@ -113,7 +59,7 @@ function IconFileDownload({ size = 24 }: { size?: number }) {
 }
 
 /** 폴더+플러스 아이콘 (저장/불러오기 버튼용) */
-function IconFolderPlus({ size = 24, color = "#262255" }: { size?: number; color?: string }) {
+function IconFolderPlus({ size = 24, color = "var(--text-header)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <path d="M3 7V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V9C21 7.9 20.1 7 19 7H11L9 5H5C3.9 5 3 5.9 3 7Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -178,41 +124,32 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
   const [hovered, setHovered] = React.useState(false);
   const [pressed, setPressed] = React.useState(false);
   const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "#C6C5C9" : pressed ? "#3a11d8" : "#262255";
+  const textColor = disabled ? "var(--text-disabled)" : pressed ? "var(--text-active)" : "var(--text-header)";
   return (
     <div
       onMouseEnter={() => !disabled && setHovered(true)}
       onMouseLeave={() => { setHovered(false); setPressed(false); }}
       onMouseDown={() => !disabled && setPressed(true)}
       onMouseUp={() => { setPressed(false); if (!disabled) onClick?.(); }}
+      className="rounded-full relative flex items-center justify-center shrink-0"
       style={{
-        position: "relative",
         height: 40,
         paddingLeft: 20,
         paddingRight: 20,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         cursor: disabled ? "not-allowed" : "pointer",
-        flexShrink: 0,
-        borderRadius: 36,
-        boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)",
+        boxShadow: "1px 1px 2px 1px rgba(0,0,0,0.05)",
         transition: "opacity 0.12s",
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "#333333", mixBlendMode: "color-dodge" }} />
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: bg, transition: "background 0.12s" }} />
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, border: pressed ? "2px solid rgba(51, 0, 255, 0.4)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
+      <div className="rounded-full absolute inset-0"  />
+      <div className="rounded-full absolute inset-0" style={{ background: bg, transition: "background 0.12s" }} />
+      <div className="rounded-full absolute inset-0" style={{ border: pressed ? "2px solid rgba(51, 0, 255, 0.4)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
       <span
+        className="relative text-body3"
         style={{
-          position: "relative",
           zIndex: 1,
-          fontFamily: "Inter, sans-serif",
-          fontWeight: 600,
-          fontSize: 17,
           color: textColor,
-          letterSpacing: "-0.51px",
           whiteSpace: "nowrap",
           paddingTop: 2,
           transition: "color 0.12s",
@@ -269,36 +206,24 @@ function DropdownCell({
   };
 
   return (
-    <div ref={wrapperRef} style={{ position: "relative", width, flex, minWidth: 0, flexShrink: flex ? 1 : 0 }}>
+    <div ref={wrapperRef} className="relative min-w-0" style={{ width, flex, flexShrink: flex ? 1 : 0 }}>
       {/* 트리거 */}
       <div
         ref={triggerRef}
         onClick={handleOpen}
+        className="rounded-[8px] gap-1 w-full flex items-center cursor-pointer select-none"
         style={{
-          width: "100%",
           height: 36,
           background: "#efeff4",
-          borderRadius: 8,
-          display: "flex",
-          alignItems: "center",
           paddingLeft: 12,
           paddingRight: 8,
-          gap: 4,
-          cursor: "pointer",
-          userSelect: "none",
         }}
       >
         <span
+          className="flex-1 overflow-hidden text-body4m"
           style={{
-            flex: 1,
-            fontFamily: "Inter",
-            fontWeight: 500,
-            fontSize: 15,
-            color: placeholder ? "#c6c5c9" : "#484646",
-            letterSpacing: "-0.6px",
-            lineHeight: 1.1,
+            color: placeholder ? "var(--text-disabled)" : "var(--text-primary)",
             whiteSpace: "nowrap",
-            overflow: "hidden",
             textOverflow: "ellipsis",
           }}
         >
@@ -310,7 +235,7 @@ function DropdownCell({
           alt=""
           width={18}
           height={18}
-          style={{ flexShrink: 0, display: "block" }}
+          className="shrink-0 block"
         />
       </div>
 
@@ -318,52 +243,36 @@ function DropdownCell({
       {open && options && options.length > 0 && typeof document !== "undefined" && createPortal(
         <div
           ref={menuRef}
+          className="fixed flex flex-col overflow-y-auto"
           style={{
-            position: "fixed",
             top: menuPos.top,
             left: menuPos.left,
             width: menuPos.width,
             background: "#efeff4",
             border: "1px solid #c6c5c9",
-            borderRadius: 8,
             padding: 8,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
             zIndex: 9999,
             maxHeight: 220,
-            overflowY: "auto",
             boxShadow: "0px 4px 16px rgba(0,0,0,0.10)",
           }}
         >
           {options.map((opt, idx) => (
             <React.Fragment key={opt}>
               {idx > 0 && (
-                <div style={{ height: 1, background: "#c6c5c9", flexShrink: 0 }} />
+                <div className="shrink-0" style={{ height: 1, background: "#c6c5c9" }} />
               )}
               <button
                 onMouseDown={() => { onChange?.(opt); setOpen(false); }}
+                className="rounded-[4px] flex items-center cursor-pointer border-none w-full shrink-0 text-body4m"
                 style={{
                   height: 36,
-                  display: "flex",
-                  alignItems: "center",
                   paddingLeft: 4,
                   paddingRight: 4,
                   paddingTop: 2,
                   paddingBottom: 2,
-                  fontFamily: "Inter",
-                  fontWeight: 500,
-                  fontSize: 15,
-                  color: "#787776",
-                  letterSpacing: "-0.6px",
-                  lineHeight: 1.18,
-                  cursor: "pointer",
+                  color: "var(--text-secondary)",
                   background: "transparent",
-                  border: "none",
-                  width: "100%",
                   textAlign: "left",
-                  borderRadius: 4,
-                  flexShrink: 0,
                 }}
                 onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.05)"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
@@ -1065,15 +974,15 @@ export default function FilterPage() {
 
   return (
     <AppLayout headerType="drd" drdStep={1} scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+      <div className="flex flex-col h-full w-full overflow-hidden gap-6">
         {/* {타이틀 영역/Title Area} */}
         {/* ── TOP: Title ───────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0, padding: "0 12px" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <h1 onClick={() => router.push("/drd/default-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+        <div className="flex flex-row items-start justify-between shrink-0 px-1">
+          <div className="flex flex-col">
+            <h1 onClick={() => router.push("/drd/default-setting")} className="cursor-pointer text-page-title">
               Default Settings
             </h1>
-            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            <span className="text-page-subtitle">
               Setup Required
             </span>
           </div>
@@ -1081,105 +990,26 @@ export default function FilterPage() {
 
         {/* {컨텐츠 영역/Content Area} */}
         {/* ── 컨텐츠 영역 ──────────────────────────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "row", flex: 1, gap: "0px", minHeight: 0, alignItems: "stretch", overflow: "hidden" }}>
+        <div className="gap-1 flex flex-row flex-1 min-h-0 items-stretch overflow-hidden">
           
           {/* ── 왼쪽 패널 (Navy Glass) ────────────────── */}
-         <div
-            className="figma-nine-slice figma-home-panel-left
-            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
-          >
-            {/* {필터링된 환자 카드/Filtered Patients Card} */}
-            {/* Filtered Patients 카드 */}
-            <div className="shrink-0 h-[250px] relative rounded-[24px] overflow-hidden flex flex-col p-[16px] shadow-[0px_0px_2px_0px_rgba(0,0,0,0.1)]">
-              <div
-                className="absolute inset-0 z-0 pointer-events-none"
-                style={{ backgroundImage: "linear-gradient(90deg, #262255 0%, #262255 100%)" }}
-              />
-              <div className="absolute inset-0 bg-[rgba(38,38,38,0.25)] mix-blend-color-dodge z-[1]" />
-
-              <div className="relative z-10 flex flex-col h-full gap-[0px]">
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col gap-[4px]">
-                    <span className="font-['Inter'] font-semibold text-[15px] leading-[1.18] text-white tracking-[-0.36px]">filtered patients</span>
-                    <span className="font-['Inter'] font-semibold text-[36px] leading-none text-white tracking-[-1.08px]">{filteredRatio}%</span>
-                  </div>
-                  <button onClick={() => router.push("/drd/datasetting")} className="flex items-center gap-[4px] h-[30px] px-[14px] py-[8px] rounded-[36px] border-none cursor-pointer relative bg-transparent overflow-hidden">
-                    <div className="absolute inset-0 bg-[#f06600] mix-blend-plus-lighter" />
-                    <span className="relative z-10 font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] mix-blend-screen">Add data</span>
-                    <span className="relative z-10 text-[16px] text-white font-bold mix-blend-screen">+</span>
-                  </button>
-                </div>
-
-                <div style={{ marginTop: "24px" }}>
-                  <div className="relative h-[18px] w-full rounded-[12px]" style={{ background: "rgba(255,255,255,0.2)" }}>
-                    <div className="absolute left-0 top-0 h-full bg-[#f06600] rounded-[12px] transition-all duration-300 overflow-hidden" style={{ width: `${filteredRatio}%` }} />
-                    <div className="absolute inset-0 flex items-center justify-end pr-[11.13px]">
-                      <span className="font-['Inter'] font-semibold text-[13px] leading-[1.18] text-white tracking-[-0.36px] text-right" style={{ textShadow: "0 0 6px rgba(0,0,0,0.4)" }}>{finalCohortCount.toLocaleString()}/{cohortCount.toLocaleString()} patients</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-[2px] mt-auto">
-                  <div className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px]">OPMD</div>
-                  <div className="flex gap-[11px]">
-                    <div className="flex gap-[3px] items-center">
-                      <span className="font-['Inter'] font-semibold text-[10px] leading-[1.1] text-white tracking-[-0.4px]">Initial Cohort</span>
-                      <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] w-[86px]">{cohortCount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex gap-[3px] items-center">
-                      <span className="font-['Inter'] font-semibold text-[10px] leading-[1.1] text-white tracking-[-0.4px]">Final Cohort</span>
-                      <span className="font-['Inter'] font-semibold text-[15px] leading-[1.15] text-white tracking-[-0.75px] w-[86px]">{finalCohortCount.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* {필터 설정 영역/Filter Settings Area} */}
-            {/* Filter Settings Area */}
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
-              {setupSteps.map((step) => (
-                <button
-                  key={step.id}
-                  onClick={() => router.push(stepRoutes[step.id])}
-                  className={[
-                    "flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150",
-                    step.isActive
-                      ? ""
-                      : "hover:bg-[#f9f8fc] active:bg-[#efeff4]",
-                  ].join(" ")}
-                  style={{ backgroundColor: step.bgColor || undefined, height: 100, justifyContent: "center" }}
-                >
-                  <div className="flex items-center gap-[18px]">
-                    <div className="shrink-0 flex items-center justify-center">
-                      <step.IconComponent size={24} />
-                    </div>
-                    <span
-                      className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]"
-                      style={{ color: step.titleColor }}
-                    >
-                      {step.title}
-                    </span>
-                  </div>
-                  <div className="pl-[42px] mt-0">
-                    <p
-                      className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0"
-                      style={{ color: step.descriptionColor }}
-                    >
-                      {step.description}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+          <DrdLeftPanel
+            steps={makeDefaultSettingSteps("filter")}
+            filteredPatientsProps={{
+              filteredRatio,
+              initialCohort: cohortCount,
+              finalCohort: finalCohortCount,
+              onAddDataClick: () => router.push("/drd/datasetting"),
+            }}
+          />
 
           {/* {오른쪽 패널/Right Panel} */}
           {/* ── 오른쪽 패널 (Light Glass) ────────────────── */}
           {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
+             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
 
-            <div className="shrink-0 px-[8px] flex items-center justify-between h-[40px]" style={{ paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}>
-              <h2 className="font-['Inter'] font-semibold text-[24px] leading-[1.2] text-[#262255] tracking-[-0.72px] m-0">
+            <div className="shrink-0 px-[8px] flex items-center justify-between h-[40px] pt-0 pb-0 pr-0">
+              <h2 className="text-body1 text-[var(--text-header)] m-0">
                 Filter
               </h2>
               <GlassTestButton onClick={fillTestData} />
@@ -1192,11 +1022,12 @@ export default function FilterPage() {
               {/* Feature List (왼쪽 컬럼) */}
               <div className="w-[272px] shrink-0 flex flex-col gap-[12px]">
                 <div className="px-[4px]">
-                  <span className="font-['Inter'] font-medium text-[19.5px] leading-[1.2] text-[#484646] tracking-[-0.585px]">Feature List</span>
+                  <span className="text-body2m text-neutral-30">Feature List</span>
                 </div>
 
                 {/* 리스트 아코디언 + 검색 필드 */}
-                <div className="flex-1 bg-white rounded-[24px] flex flex-col overflow-y-auto font-['Inter']">
+                <div className="flex-1 bg-white rounded-[24px] overflow-hidden min-h-0">
+                <div className="flex flex-col overflow-y-auto h-full">
                   {/* 검색 필드 */}
                   <div ref={searchContainerRef} className="relative shrink-0">
                     <div className="h-[48px] bg-white flex items-center px-[18px] gap-[8px]" style={{ borderBottom: "1px solid #c7c5c9" }}>
@@ -1223,22 +1054,14 @@ export default function FilterPage() {
                             setSearchDropdownOpen(true);
                           }
                         }}
+                        className="placeholder:text-neutral-80 flex-1 border-none block text-body4m"
                         style={{
-                          flex: 1,
-                          border: "none",
                           outline: "none",
                           background: "transparent",
-                          fontFamily: "Inter",
-                          fontWeight: 500,
-                          fontSize: 15,
-                          color: "#484646",
-                          letterSpacing: "-0.45px",
-                          lineHeight: "normal",
+                          color: "var(--text-primary)",
                           paddingTop: 0,
                           paddingBottom: 0,
-                          display: "block",
                         }}
-                        className="placeholder:text-[#c6c5c9]"
                       />
                     </div>
 
@@ -1246,22 +1069,20 @@ export default function FilterPage() {
                     {searchDropdownOpen && typeof document !== "undefined" && createPortal(
                       <div
                         ref={searchDropdownRef}
+                        className="rounded-[22px] fixed overflow-y-auto"
                         style={{
-                          position: "fixed",
                           top: searchDropdownPos.top,
                           left: searchDropdownPos.left,
                           width: searchDropdownPos.width,
                           background: "white",
-                          borderRadius: 22,
                           zIndex: 9999,
                           maxHeight: 268,
-                          overflowY: "auto",
                           boxShadow: "0px 4px 16px rgba(0,0,0,0.125)",
                         }}
                       >
                         {Object.keys(groupedSearchResults).length === 0 ? (
-                          <div style={{ height: 48, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <span style={{ fontFamily: "Inter", fontWeight: 500, fontSize: 13, color: "#aaaaad", letterSpacing: "-0.39px" }}>
+                          <div className="flex items-center justify-center" style={{ height: 48 }}>
+                            <span className="text-captionm" style={{ color: "#aaaaad" }}>
                               No results found
                             </span>
                           </div>
@@ -1271,9 +1092,8 @@ export default function FilterPage() {
                               <div key={category} style={{ borderBottom: catIdx < arr.length - 1 ? "1px solid #EBEBEB" : "none" }}>
                                 {/* 카테고리 헤더 */}
                                 <div style={{ paddingTop: 4, paddingLeft: 8, paddingRight: 8 }}>
-                                  <span style={{
-                                    fontFamily: "Inter", fontWeight: 500, fontSize: 10,
-                                    color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05,
+                                  <span className="text-small1" style={{
+                                    color: "#aaaaad",
                                   }}>
                                     {category}
                                   </span>
@@ -1287,22 +1107,18 @@ export default function FilterPage() {
                                       setActiveCat(category);
                                       setSearchDropdownOpen(false);
                                     }}
+                                    className="flex items-center cursor-pointer"
                                     style={{
                                       height: 28,
-                                      display: "flex",
-                                      alignItems: "center",
                                       paddingLeft: 8,
                                       paddingRight: 8,
                                       borderTop: fIdx === 0 ? "none" : "1px solid #EBEBEB",
-                                      cursor: "pointer",
                                     }}
                                     onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(0,0,0,0.04)"; }}
                                     onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
                                   >
-                                    <span style={{
-                                      flex: 1,
-                                      fontFamily: "Inter", fontWeight: 500, fontSize: 13,
-                                      color: "#787776", letterSpacing: "-0.48px", lineHeight: 1.1,
+                                    <span className="flex-1 text-captionm" style={{
+                                      color: "var(--text-secondary)",
                                     }}>
                                       {f}
                                     </span>
@@ -1320,17 +1136,17 @@ export default function FilterPage() {
                     const isOpen = openCategories[cat.name];
                     const isActive = activeCat === cat.name;
                     return (
-                      <div key={cat.name} className="flex flex-col border-b border-[#c7c5c9] last:border-none">
+                      <div key={cat.name} className="flex flex-col border-b border-neutral-80 last:border-none">
                         <div
                           onClick={() => { toggleCategory(cat.name); setActiveCat(cat.name); }}
-                          className={`flex items-center h-[48px] px-[18px] gap-[10px] cursor-pointer select-none ${isActive ? "bg-[#262255]" : "hover:bg-[#f9f8fc]"}`}
+                          className={`flex items-center h-[48px] px-[18px] gap-[10px] cursor-pointer select-none ${isActive ? "bg-primary-15" : "hover:bg-neutral-98"}`}
                         >
                           <div className="shrink-0 w-[16px] h-[16px] flex items-center justify-center">
                             {isOpen
                               ? <IconChevronDown size={14} color={isActive ? "#ffffff" : "#484646"} />
                               : <IconChevronRight size={14} color={isActive ? "#ffffff" : "#484646"} />}
                           </div>
-                          <span className={`font-semibold text-[15px] leading-none tracking-[-0.45px] ${isActive ? "text-white" : "text-[#484646]"}`}>
+                          <span className={`font-semibold text-[15px] leading-none tracking-[-0.45px] ${isActive ? "text-white" : "text-neutral-30"}`}>
                             {cat.name}
                           </span>
                         </div>
@@ -1345,12 +1161,12 @@ export default function FilterPage() {
                                   onClick={() => setActiveFeature(isFeatureActive ? null : f)}
                                   onMouseEnter={() => setHoveredFeature(f)}
                                   onMouseLeave={() => setHoveredFeature(null)}
-                                  className={`h-[44px] flex items-center pl-[44px] text-[15px] font-medium tracking-[-0.45px] border-t border-[#c7c5c9] first:border-none cursor-pointer select-none transition-colors ${
+                                  className={`h-[44px] flex items-center pl-[44px] text-[15px] font-medium tracking-[-0.45px] border-t border-neutral-80 first:border-none cursor-pointer select-none transition-colors ${
                                     isFeatureActive
-                                      ? "bg-[#efeff4] text-[#262255] font-semibold"
+                                      ? "bg-neutral-95 text-[var(--text-header)] font-semibold"
                                       : isFeatureHovered
-                                      ? "bg-[#f9f8fc] text-[#484646]"
-                                      : "text-[#919092]"
+                                      ? "bg-neutral-98 text-neutral-30"
+                                      : "text-[var(--text-secondary)]"
                                   }`}
                                 >
                                   {f}
@@ -1364,24 +1180,26 @@ export default function FilterPage() {
                   })}
                 </div>
                 </div>
+                </div>
 
               {/* {메인 설정 영역/Main Setting Area} */}
               {/* 메인 설정 영역 (오른쪽 컬럼) */}
-              <div className="flex-1 flex flex-col gap-[12px] rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-y-auto">
-                
+              <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
+              <div className="flex flex-col gap-[12px] overflow-y-auto h-full">
+
                 {/* 상단 탭 + 액션 버튼 */}
                 <div className="flex justify-between items-center shrink-0">
                   {/* Inclusion / Exclusion 탭 */}
                   <div className="bg-white p-[4px] rounded-[22px] flex">
                     <button
                       onClick={() => { setActiveTab("Inclusion"); setCheckedRows({}); }}
-                      className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${activeTab === "Inclusion" ? "bg-[#262255] text-white" : "bg-transparent text-[#484646]"}`}
+                      className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${activeTab === "Inclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
                     >
                       Inclusion
                     </button>
                     <button
                       onClick={() => { setActiveTab("Exclusion"); setCheckedRows({}); }}
-                      className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${activeTab === "Exclusion" ? "bg-[#262255] text-white" : "bg-transparent text-[#484646]"}`}
+                      className={`h-[36px] px-[18px] rounded-[36px] border-none font-semibold text-[15px] cursor-pointer transition-all ${activeTab === "Exclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
                     >
                       Exclusion
                     </button>
@@ -1391,34 +1209,33 @@ export default function FilterPage() {
                   <div className="flex items-center gap-[12px]">
                     <div className="flex gap-[4px]">
                       {/* IconFileDownload — 비활성화 상태 (3번과 동일) */}
-                      <div className="relative size-[48px] flex items-center justify-center cursor-pointer" style={{ flexShrink: 0 }}>
-                        <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
+                      <div className="relative size-[48px] flex items-center justify-center cursor-pointer shrink-0">
+                        <div className="rounded-[36px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
                         <IconFileDownload size={24} />
                       </div>
                       {/* IconFolderPlus — 비활성화 상태 */}
-                      <div className="relative size-[48px] flex items-center justify-center" style={{ cursor: "default", flexShrink: 0 }}>
-                        <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
+                      <div className="relative size-[48px] flex items-center justify-center shrink-0" style={{ cursor: "default" }}>
+                        <div className="rounded-[36px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
                         <div className="relative z-10"><IconFolderPlus size={24} color="#c6c5c9" /></div>
                       </div>
                       {/* IconTrash — 비활성화: 현재 디자인, 활성화: 유리 스타일 */}
                       <div
-                        className="relative size-[48px] flex items-center justify-center"
-                        style={{ cursor: isDeleteEnabled ? "pointer" : "default", flexShrink: 0 }}
+                        className="relative size-[48px] flex items-center justify-center shrink-0"
+                        style={{ cursor: isDeleteEnabled ? "pointer" : "default" }}
                         onClick={deleteCheckedRows}
                       >
-                        <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                        <div className="relative z-10"><IconTrash size={24} color={isDeleteEnabled ? "#262255" : "#c6c5c9"} /></div>
+                        <div className="rounded-[36px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
+                        <div className="relative z-10"><IconTrash size={24} color={isDeleteEnabled ? "var(--text-header)" : "#c6c5c9"} /></div>
                       </div>
                     </div>
                     {/* Add Section 버튼 */}
                     <div
-                      className="relative h-[48px] px-[20px] rounded-[100px] flex items-center gap-[6px] cursor-pointer"
-                      style={{ flexShrink: 0 }}
+                      className="relative h-[48px] px-[20px] rounded-[100px] flex items-center gap-[6px] cursor-pointer shrink-0"
                       onClick={addSection}
                     >
-                      <div style={{ position: "absolute", inset: 0, borderRadius: 100, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-                      <span className="relative z-10 font-['Inter'] font-semibold text-[15px] text-[#262255] tracking-[-0.51px]">Add Section</span>
-                      <div className="relative z-10"><IconPlus size={16} color="#262255" /></div>
+                      <div className="rounded-full absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
+                      <span className="relative z-10 text-body4 text-[var(--text-header)]">Add Section</span>
+                      <div className="relative z-10"><IconPlus size={16} color="var(--text-header)" /></div>
                     </div>
                   </div>
                 </div>
@@ -1438,7 +1255,7 @@ export default function FilterPage() {
                         <div className={`shrink-0 transition-transform duration-200 ${isSectionOpen ? "rotate-0" : "-rotate-90"}`}>
                           <IconChevronDown size={14} color="#313030" />
                         </div>
-                        <span className="font-['Inter'] font-semibold text-[15px] text-[#313030] tracking-[-0.45px]">
+                        <span className="text-body4 text-neutral-20">
                           {section.name}
                         </span>
                       </div>
@@ -1469,14 +1286,13 @@ export default function FilterPage() {
                               value={section.value}
                               placeholder="Write input"
                               onChange={e => updateSection(section.id, "value", e.target.value)}
-                              className="placeholder:text-[#c6c5c9]"
+                              className="placeholder:text-neutral-80 rounded-[8px] min-w-0 border-none cursor-text text-body3m"
                               style={{
-                                flex: 4, minWidth: 0, height: 36,
-                                background: "#efeff4", borderRadius: 8, border: "none",
+                                flex: 4, height: 36,
+                                background: "#efeff4",
                                 paddingLeft: 12, paddingRight: 12,
-                                fontFamily: "Inter", fontWeight: 500, fontSize: 17,
-                                color: "#484646", letterSpacing: "-0.68px",
-                                outline: "none", cursor: "text",
+                                color: "var(--text-primary)",
+                                outline: "none",
                               }}
                             />
 
@@ -1512,14 +1328,13 @@ export default function FilterPage() {
                                 value={row.value}
                                 placeholder="Write input"
                                 onChange={e => updateSubRow(section.id, rIdx, "value", e.target.value)}
-                                className="placeholder:text-[#c6c5c9]"
+                                className="placeholder:text-neutral-80 rounded-[8px] min-w-0 border-none cursor-text text-body3m"
                                 style={{
-                                  flex: 4, minWidth: 0, height: 36,
-                                  background: "#efeff4", borderRadius: 8, border: "none",
+                                  flex: 4, height: 36,
+                                  background: "#efeff4",
                                   paddingLeft: 12, paddingRight: 12,
-                                  fontFamily: "Inter", fontWeight: 500, fontSize: 17,
-                                  color: "#484646", letterSpacing: "-0.68px",
-                                  outline: "none", cursor: "text",
+                                  color: "var(--text-primary)",
+                                  outline: "none",
                                 }}
                               />
 
@@ -1560,12 +1375,12 @@ export default function FilterPage() {
                   const bothHaveData = inclusionLines.length > 0 && exclusionLines.length > 0;
 
                   const renderLines = (lines: { logic: string | null; text: string }[], label: string) => (
-                    <div className="font-medium text-[15px] leading-[1.1] text-[#929090] tracking-[-0.45px] flex flex-col gap-[4px] font-['Inter']">
+                    <div className="text-body4m text-neutral-60 flex flex-col gap-[4px]">
                       {lines.map((line, i) => (
                         <p key={i} className="m-0">
                           {i === 0
-                            ? <><span className="text-[#262255] font-semibold">{label}</span> [ &nbsp;{line.text}</>
-                            : <><span className="text-[#3a11d8] font-bold">{line.logic}</span> {line.text}</>
+                            ? <><span className="text-[var(--text-header)] font-semibold">{label}</span> [ &nbsp;{line.text}</>
+                            : <><span className="text-tertiary-40 font-bold">{line.logic}</span> {line.text}</>
                           }
                           {i === lines.length - 1 && <> &nbsp;]</>}
                         </p>
@@ -1574,14 +1389,14 @@ export default function FilterPage() {
                   );
 
                   return (
-                    <div className="bg-white p-[16px] rounded-[12px] shrink-0 min-h-[104px]" style={{ display: "flex", gap: "16px" }}>
+                    <div className="bg-white p-[16px] rounded-[12px] shrink-0 min-h-[104px] gap-4 flex">
                       {bothHaveData ? (
                         <>
-                          <div style={{ flex: 1, minWidth: 0 }}>{renderLines(inclusionLines, "Inclusion")}</div>
-                          <div style={{ flex: 1, minWidth: 0 }}>{renderLines(exclusionLines, "Exclusion")}</div>
+                          <div className="flex-1 min-w-0">{renderLines(inclusionLines, "Inclusion")}</div>
+                          <div className="flex-1 min-w-0">{renderLines(exclusionLines, "Exclusion")}</div>
                         </>
                       ) : (
-                        <div style={{ flex: 1 }}>
+                        <div className="flex-1">
                           {inclusionLines.length > 0 && renderLines(inclusionLines, "Inclusion")}
                           {exclusionLines.length > 0 && renderLines(exclusionLines, "Exclusion")}
                         </div>
@@ -1589,16 +1404,16 @@ export default function FilterPage() {
                     </div>
                   );
                 })()}
-              </div></div>
+              </div></div></div>
 
                 {/* {하단 버튼/Bottom Buttons} */}
                 {/* 하단 버튼 */}
                 <div className="shrink-0 flex justify-end gap-[12px]">
                   <button
                     onClick={() => router.push("/drd/default-setting")}
-                    className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] bg-[#787776] border-none cursor-pointer"
+                    className="btn-tsi btn-tsi-secondary"
                   >
-                    <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px]">Cancel</span>
+                    Cancel
                   </button>
                   <button
                     disabled={!isConfirmEnabled}
@@ -1608,13 +1423,9 @@ export default function FilterPage() {
                       setCompleted("filter", true);
                       router.push("/drd/default-setting");
                     }}
-                    className="flex items-center justify-center h-[40px] px-[24px] rounded-[36px] border-none"
-                    style={{
-                      background: isConfirmEnabled ? "#f06600" : "#c7c5c9",
-                      cursor: isConfirmEnabled ? "pointer" : "not-allowed",
-                    }}
+                    className="btn-tsi btn-tsi-primary"
                   >
-                    <span className="font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white text-center tracking-[-0.51px]">Confirm</span>
+                    Confirm
                   </button>
                 </div>
               </div>

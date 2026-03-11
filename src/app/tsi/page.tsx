@@ -142,24 +142,15 @@ export default function TSIPage() {
     <AppLayout headerType="tsi" scaleMode="fit">
 
       {/* ── 외부 래퍼 / Outer wrapper with horizontal margin ── */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "100%",
-          marginLeft: "14px",
-          marginRight: "14px",
-          paddingBottom: "24px",
-        }}
+      <div className="flex flex-col h-full"
       >
 
         {/* ── 메인 컨테이너 / Main container ─────────────────── */}
-        <div className="relative h-full flex-1 min-h-0 flex flex-col gap-[24px]">
+        <div className="relative h-full flex-1 min-h-0 flex flex-col gap-6">
 
           {/* ── 1. 페이지 타이틀 / Page title ──────────────────── */}
-          <div style={{ flexShrink: 0, padding: "0px 12px 0 12px" }}>
-            <h1 className="m-0 font-['Poppins',_Inter,_sans-serif] font-semibold text-neutral-10 text-[42px] [@media(max-width:1470px)]:text-[36px] leading-[1.1] tracking-[-1.5px]">
+          <div className="shrink-0 px-1">
+            <h1 className="m-0 text-page-title ">
               Data Setting
             </h1>
             <span className="font-semibold text-neutral-50" style={{ fontFamily: "Inter", fontSize: 16, letterSpacing: "-0.48px" }}>
@@ -432,8 +423,7 @@ export default function TSIPage() {
               <button
                 onClick={handleUseData}
                 disabled={selectedData.size === 0}
-                className="btn-tsi btn-tsi-primary"
-                style={{ gap: 8 }}
+                className="btn-tsi btn-tsi-primary gap-2"
               >
                 Use Data
                 {/* 재생 아이콘 SVG / Play icon SVG */}

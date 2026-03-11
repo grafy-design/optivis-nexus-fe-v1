@@ -1,11 +1,12 @@
 "use client";
 
 import ReactECharts from "@/components/charts/DynamicECharts";
+import { COMPARISON_COLORS, BAR_RADIUS } from "@/lib/chart-styles";
 
 interface SingleBarChartProps {
   value: number;
   maxValue: number;
-  color: "#f06600" | "#231f52";
+  color: string;
   height?: string;
   formatter?: (value: number) => string;
 }
@@ -33,13 +34,13 @@ export function SingleBarChart({
           {
             type: 'bar',
             data: [value],
-            itemStyle: { color, borderRadius: [8, 8, 0, 0] },
+            itemStyle: { color, borderRadius: BAR_RADIUS.topMedium },
             barWidth: '100%',
             label: {
               show: true,
               position: 'insideTop' as const,
               formatter: formatter(value),
-              color: '#ffffff',
+              color: COMPARISON_COLORS.label,
               fontSize: 19.5,
               fontWeight: 590,
               letterSpacing: -0.585,
@@ -51,4 +52,3 @@ export function SingleBarChart({
     />
   );
 }
-

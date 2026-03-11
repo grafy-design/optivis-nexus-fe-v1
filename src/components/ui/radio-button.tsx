@@ -24,42 +24,29 @@ export default function RadioButton({
       role="radio"
     >
       <div
+        className="flex items-center justify-center shrink-0"
         style={{
           width: `${size}px`,
           height: `${size}px`,
           borderRadius: "50%",
-          border: `2px solid ${checked ? "#3a11d8" : "#c6c5c9"}`,
-          background: checked ? "#3a11d8" : "transparent",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
+          border: `2px solid ${checked ? "var(--tertiary-40)" : "var(--text-disabled)"}`,
+          background: checked ? "var(--tertiary-40)" : "transparent",
         }}
       >
         {checked && (
           <div
+            className="shrink-0"
             style={{
               width: `${Math.max(5, Math.round(size * 0.43))}px`,
               height: `${Math.max(5, Math.round(size * 0.43))}px`,
               borderRadius: "50%",
-              background: "#fff",
-              flexShrink: 0,
+              background: "var(--white)",
             }}
           />
         )}
       </div>
       {label && (
-        <span
-          style={{
-            fontFamily: "Inter",
-            fontWeight: 500,
-            fontSize: "15px",
-            color: "#484646",
-            letterSpacing: "-0.45px",
-            lineHeight: 1,
-            textAlign: "left",
-          }}
-        >
+        <span className="text-body4m text-secondary">
           {label}
         </span>
       )}

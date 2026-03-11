@@ -137,41 +137,20 @@ function TSIBasisSelectionPageContent() {
   return (
     <AppLayout headerType="tsi" scaleMode="fit">
       <div
+        className="flex flex-col w-full h-full gap-6"
         style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "100%",
-          gap: 24,
-          marginLeft: "14px",
-          marginRight: "14px",
           paddingBottom: 12,
         }}
       >
         {/* ── 1. 페이지 타이틀 / Page title ──────────────────────── */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+        <div className="shrink-0 px-1">
           <h1
-            style={{
-              fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: titleFontSize,
-              fontWeight: 600,
-              color: "rgb(17,17,17)",
-              letterSpacing: "-1.5px",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
+            className="text-page-title"
+            style={{ fontSize: titleFontSize }}
           >
             Target Subgroup Identification
           </h1>
-          <span
-            style={{
-              fontFamily: "Inter",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "rgb(120,119,118)",
-              letterSpacing: "-0.48px",
-            }}
-          >
+          <span className="text-page-subtitle">
             Select a subgroup basis
           </span>
         </div>
@@ -180,14 +159,13 @@ function TSIBasisSelectionPageContent() {
         <div
           className="figma-nine-slice figma-home-panel-middle flex flex-1 min-h-0"
         >
-          <div className="flex w-full h-full gap-4">
+          <div className="flex w-full h-full gap-2">
 
             {/* ── 2-A. 왼쪽 카드: 기준 선택 목록 / Left card: basis option list ── */}
             <div
-              className="flex w-[347px] [@media(min-width:1441px)]:w-[520px] flex-shrink-0 flex-col overflow-hidden bg-white self-start"
+              className="flex flex-1 [@media(min-width:1471px)]:flex-1 flex-shrink-0 flex-col overflow-hidden bg-white self-start rounded-[24px]"
               style={{
                 boxShadow: "0px 0px 2px 0px rgba(0, 0, 0, 0.1)",
-                borderRadius: 24,
               }}
             >
               {BASIS_OPTIONS.map((opt) => {
@@ -248,7 +226,7 @@ function TSIBasisSelectionPageContent() {
                       ? handleGoToSubgroupSelection
                       : handleRightCardClick
                   }
-                  className="bg-primary-15 flex flex-col flex-1 min-w-0 h-full cursor-pointer rounded-[24px] text-left transition-opacity hover:opacity-95 p-4"
+                  className="bg-primary-15 flex flex-col flex-3 min-w-0 h-full cursor-pointer rounded-[24px] text-left transition-opacity hover:opacity-95 p-4"
                 >
                   {/* 설명 텍스트 영역 / Description text area */}
                   <div className="flex flex-shrink-0 flex-col justify-start h-[120px]">

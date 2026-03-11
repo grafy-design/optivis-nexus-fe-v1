@@ -283,42 +283,18 @@ function TSISubgroupExplainPageContent() {
 
       {/* ── 외부 래퍼 / Outer wrapper ──────────────────────────────────── */}
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "100%",
-          gap: 24,
-          marginLeft: "14px",
-          marginRight: "14px",
-          paddingBottom: 24,
-        }}
+        className="flex flex-col w-full h-full gap-6"
       >
 
         {/* ── 1. 페이지 타이틀 / Page title ──────────────────────────── */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+        <div className="shrink-0 px-1">
           <h1
-            style={{
-              fontFamily: "Poppins, Inter, sans-serif",
-              fontSize: titleFontSize,
-              fontWeight: 600,
-              color: "rgb(17,17,17)",
-              letterSpacing: "-1.5px",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
+            className="text-page-title"
+            style={{ fontSize: titleFontSize }}
           >
             Target Subgroup Identification
           </h1>
-          <span
-            style={{
-              fontFamily: "Inter",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "rgb(120,119,118)",
-              letterSpacing: "-0.48px",
-            }}
-          >
+          <span className="text-page-subtitle">
             Subgroup Explain
           </span>
         </div>
@@ -331,11 +307,11 @@ function TSISubgroupExplainPageContent() {
         )}
 
         {/* ── 2. 메인 카드 + 버튼 컨테이너 / Main cards + button container ── */}
-        <div className="flex flex-col flex-1 min-h-0 gap-0">
+        <div className="flex flex-col flex-1 min-h-0 gap-1">
 
           {/* ── 2-A. 카드 2개 가로 배치 / Two cards side by side ──────── */}
           <div
-            className="flex flex-row flex-nowrap items-stretch gap-0 flex-1 min-h-0"
+            className="flex flex-row flex-nowrap items-stretch gap-1 flex-1 min-h-0"
             style={{ minWidth: 0 }}
           >
 
@@ -416,10 +392,9 @@ function TSISubgroupExplainPageContent() {
             {/* ── 2-A-2. 오른쪽 글래스 카드 (Baseline Driver + 피처 상세)
                          Right glass card (Baseline Driver + feature detail) ── */}
             <div
-              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-y-auto flex-1 min-h-0 min-w-0"
-              style={{ paddingBottom: 24 }}
+              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] flex-1 min-h-0 min-w-0"
             >
-              <div className="flex flex-col min-h-0 flex-1" style={{ gap: 12 }}>
+              <div className="flex flex-col min-h-0 flex-1 gap-3 overflow-y-auto">
 
                 {/* ── 상단 행: SHAP 차트 + 설명 텍스트 / Top row: SHAP chart + description ── */}
                 <div className="flex">
@@ -596,11 +571,10 @@ function TSISubgroupExplainPageContent() {
 
           {/* ── 2-B. 하단 버튼 영역 / Bottom action buttons ─────────────── */}
           <div
-            className="flex flex-shrink-0 items-center justify-end gap-3"
-            style={{ paddingRight: 8 }}
+            className="flex flex-shrink-0 items-center justify-end gap-3 pr-1"
           >
             {/* Save Progress 버튼 / Save Progress button */}
-            <button type="button" className="btn-tsi btn-tsi-secondary">
+            <button type="button" className="btn-tsi btn-tsi-secondary ">
               Save Progress
             </button>
             {/* View Report 버튼 → Report 페이지 이동 / Navigate to Report page */}

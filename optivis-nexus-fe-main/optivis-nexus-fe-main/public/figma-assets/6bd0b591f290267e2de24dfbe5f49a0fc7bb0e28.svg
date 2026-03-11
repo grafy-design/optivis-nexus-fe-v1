@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 26.25 26.25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Asterisk" clip-path="url(#clip0_121_3832)">
+<g id="Vector">
+</g>
+<path id="Vector_2" d="M13.125 4.10156V22.1484" stroke="var(--stroke-0, white)" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M4.92188 8.20312L21.3281 18.0469" stroke="var(--stroke-0, white)" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M4.92188 18.0469L21.3281 8.20312" stroke="var(--stroke-0, white)" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_121_3832">
+<rect width="26.25" height="26.25" fill="white"/>
+</clipPath>
+</defs>
+</svg>

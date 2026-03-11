@@ -58,7 +58,7 @@ function IconFileDownload({ size = 24 }: { size?: number }) {
 }
 
 /** 폴더+플러스 아이콘 / Folder-plus icon */
-function IconFolderPlus({ size = 24, color = "#262255" }: { size?: number; color?: string }) {
+function IconFolderPlus({ size = 24, color = "var(--text-header)" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <path
@@ -171,16 +171,15 @@ function DropdownCell({
       <div
         ref={triggerRef}
         onClick={handleOpen}
+        className="rounded-[8px] gap-1"
         style={{
           width: "100%",
           height: 36,
           background: "#efeff4",
-          borderRadius: 8,
           display: "flex",
           alignItems: "center",
           paddingLeft: 12,
           paddingRight: 8,
-          gap: 4,
           cursor: "pointer",
           userSelect: "none",
         }}
@@ -191,7 +190,7 @@ function DropdownCell({
             fontFamily: "Inter",
             fontWeight: 500,
             fontSize: 15,
-            color: placeholder ? "#c6c5c9" : "#484646",
+            color: placeholder ? "var(--text-disabled)" : "var(--text-primary)",
             letterSpacing: "-0.6px",
             lineHeight: 1.1,
             whiteSpace: "nowrap",
@@ -224,6 +223,7 @@ function DropdownCell({
         createPortal(
           <div
             ref={menuRef}
+            className="rounded-[8px] gap-0.5"
             style={{
               position: "fixed",
               top: menuPos.top,
@@ -231,11 +231,9 @@ function DropdownCell({
               width: menuPos.width,
               background: "#efeff4",
               border: "1px solid #c6c5c9",
-              borderRadius: 8,
               padding: 8,
               display: "flex",
               flexDirection: "column",
-              gap: 2,
               zIndex: 9999,
               maxHeight: 220,
               overflowY: "auto",
@@ -252,6 +250,7 @@ function DropdownCell({
                     onChange?.(opt);
                     setOpen(false);
                   }}
+                  className="rounded-[4px]"
                   style={{
                     height: 36,
                     display: "flex",
@@ -263,7 +262,7 @@ function DropdownCell({
                     fontFamily: "Inter",
                     fontWeight: 500,
                     fontSize: 15,
-                    color: "#787776",
+                    color: "var(--text-secondary)",
                     letterSpacing: "-0.6px",
                     lineHeight: 1.18,
                     cursor: "pointer",
@@ -271,7 +270,6 @@ function DropdownCell({
                     border: "none",
                     width: "100%",
                     textAlign: "left",
-                    borderRadius: 4,
                     flexShrink: 0,
                   }}
                   onMouseEnter={(e) => {
@@ -592,20 +590,11 @@ export default function TSIFilterPage() {
 
       {/* ── 외부 래퍼 / Outer wrapper ──────────────────────────────────── */}
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 24px)",
-          height: "100%",
-          gap: 24,
-          overflow: "hidden",
-          marginLeft: "8px",
-          marginRight: "8px",
-        }}
+        className="flex flex-col w-full h-full overflow-hidden gap-6"
       >
 
         {/* ── 1. 페이지 타이틀 / Page title ──────────────────────────── */}
-        <div style={{ flexShrink: 0, padding: "0 12px" }}>
+        <div className="shrink-0 px-1">
           <h1 className="m-0 font-['Poppins',_Inter,_sans-serif] font-semibold text-neutral-10 text-[42px] [@media(max-width:1470px)]:text-[36px] leading-[1.1] tracking-[-1.5px]">
             Target Subgroup Identification
           </h1>
@@ -616,8 +605,7 @@ export default function TSIFilterPage() {
 
         {/* ── 2. 글래스 메인 컨텐츠 영역 / Glass main content area ───── */}
         <div
-          className="figma-nine-slice figma-home-panel-middle flex-1 min-h-0 flex flex-col"
-          style={{ gap: "12px" }}
+          className="figma-nine-slice figma-home-panel-middle flex-1 min-h-0 flex flex-col gap-3"
         >
 
           {/* ── 2-A. 상단 헤더 (Filter 제목 + Go to Simulation 버튼)
@@ -633,23 +621,22 @@ export default function TSIFilterPage() {
               {/* Go to Simulation 버튼 → Patients Summary 페이지 이동 */}
               <button
                 onClick={() => router.push("/tsi/patients-summary")}
+                className="rounded-[36px] gap-2"
                 style={{
                   height: 40,
                   paddingLeft: 24,
                   paddingRight: 24,
-                  borderRadius: 36,
                   background: "#F06600",
                   border: "none",
                   cursor: "pointer",
                   fontFamily: "Inter",
                   fontSize: 15,
                   fontWeight: 600,
-                  color: "#ffffff",
+                  color: "var(--text-inverted)",
                   letterSpacing: "-0.45px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 8,
                 }}
               >
                 Go to Simulation
@@ -684,7 +671,8 @@ export default function TSIFilterPage() {
                 </span>
               </div>
 
-              <div className="flex-1 bg-white rounded-[24px] flex flex-col overflow-y-auto font-['Inter']">
+              <div className="flex-1 bg-white rounded-[24px] overflow-hidden min-h-0 font-['Inter']">
+              <div className="flex flex-col overflow-y-auto h-full">
 
                 {/* 검색 입력 필드 / Search input field */}
                 <div ref={searchContainerRef} className="relative shrink-0">
@@ -734,7 +722,7 @@ export default function TSIFilterPage() {
                         fontFamily: "Inter",
                         fontWeight: 500,
                         fontSize: 15,
-                        color: "#484646",
+                        color: "var(--text-primary)",
                         letterSpacing: "-0.45px",
                         lineHeight: "normal",
                         paddingTop: 0,
@@ -751,13 +739,13 @@ export default function TSIFilterPage() {
                     createPortal(
                       <div
                         ref={searchDropdownRef}
+                        className="rounded-[22px]"
                         style={{
                           position: "fixed",
                           top: searchDropdownPos.top,
                           left: searchDropdownPos.left,
                           width: searchDropdownPos.width,
                           background: "white",
-                          borderRadius: 22,
                           zIndex: 9999,
                           maxHeight: 268,
                           overflowY: "auto",
@@ -843,7 +831,7 @@ export default function TSIFilterPage() {
                                         fontFamily: "Inter",
                                         fontWeight: 500,
                                         fontSize: 13,
-                                        color: "#787776",
+                                        color: "var(--text-secondary)",
                                         letterSpacing: "-0.48px",
                                         lineHeight: 1.1,
                                       }}
@@ -927,11 +915,13 @@ export default function TSIFilterPage() {
                 })}
 
               </div>
+              </div>
             </div>
             {/* ── Feature List 사이드바 닫기 / End feature list sidebar ── */}
 
             {/* ── 2-B-2. 오른쪽: 메인 설정 영역 / Right: Main setting area ── */}
-            <div className="flex-1 flex flex-col gap-[12px] rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-y-auto">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
+            <div className="flex flex-col gap-[12px] overflow-y-auto h-full">
 
               {/* ── 탭 바 + 액션 버튼 / Tab bar + action buttons ─────── */}
               <div className="flex justify-between items-center shrink-0">
@@ -971,10 +961,10 @@ export default function TSIFilterPage() {
                       style={{ flexShrink: 0 }}
                     >
                       <div
+                        className="rounded-[36px]"
                         style={{
                           position: "absolute",
                           inset: 0,
-                          borderRadius: 36,
                           background: "rgba(255,255,255,0.6)",
                           boxShadow: "0px 0px 2px rgba(0,0,0,0.05)",
                           border: "1px solid rgba(0,0,0,0.10)",
@@ -989,10 +979,10 @@ export default function TSIFilterPage() {
                       style={{ cursor: "default", flexShrink: 0 }}
                     >
                       <div
+                        className="rounded-[36px]"
                         style={{
                           position: "absolute",
                           inset: 0,
-                          borderRadius: 36,
                           background: "rgba(255,255,255,0.6)",
                           boxShadow: "0px 0px 2px rgba(0,0,0,0.05)",
                           border: "1px solid rgba(0,0,0,0.10)",
@@ -1010,17 +1000,17 @@ export default function TSIFilterPage() {
                       onClick={deleteCheckedRows}
                     >
                       <div
+                        className="rounded-[36px]"
                         style={{
                           position: "absolute",
                           inset: 0,
-                          borderRadius: 36,
                           background: "rgba(255,255,255,0.6)",
                           boxShadow: "0px 0px 2px rgba(0,0,0,0.05)",
                           border: "1px solid rgba(0,0,0,0.10)",
                         }}
                       />
                       <div className="relative z-10">
-                        <IconTrash size={24} color={isDeleteEnabled ? "#262255" : "#c6c5c9"} />
+                        <IconTrash size={24} color={isDeleteEnabled ? "var(--text-header)" : "#c6c5c9"} />
                       </div>
                     </div>
                   </div>
@@ -1032,10 +1022,10 @@ export default function TSIFilterPage() {
                     onClick={addSection}
                   >
                     <div
+                      className="rounded-full"
                       style={{
                         position: "absolute",
                         inset: 0,
-                        borderRadius: 100,
                         background: "rgba(255,255,255,0.6)",
                         boxShadow: "0px 0px 2px rgba(0,0,0,0.05)",
                         border: "1px solid rgba(0,0,0,0.10)",
@@ -1045,7 +1035,7 @@ export default function TSIFilterPage() {
                       Add Section
                     </span>
                     <div className="relative z-10">
-                      <IconPlus size={16} color="#262255" />
+                      <IconPlus size={16} color="var(--text-header)" />
                     </div>
                   </div>
                 </div>
@@ -1112,20 +1102,19 @@ export default function TSIFilterPage() {
                               value={section.value}
                               placeholder="Write input"
                               onChange={(e) => updateSection(section.id, "value", e.target.value)}
-                              className="placeholder:text-neutral-80"
+                              className="placeholder:text-neutral-80 rounded-[8px]"
                               style={{
                                 flex: 4,
                                 minWidth: 0,
                                 height: 36,
                                 background: "#efeff4",
-                                borderRadius: 8,
                                 border: "none",
                                 paddingLeft: 12,
                                 paddingRight: 12,
                                 fontFamily: "Inter",
                                 fontWeight: 500,
                                 fontSize: 17,
-                                color: "#484646",
+                                color: "var(--text-primary)",
                                 letterSpacing: "-0.68px",
                                 outline: "none",
                                 cursor: "text",
@@ -1184,13 +1173,12 @@ export default function TSIFilterPage() {
                                 onChange={(e) =>
                                   updateSubRow(section.id, rIdx, "value", e.target.value)
                                 }
-                                className="placeholder:text-neutral-80"
+                                className="placeholder:text-neutral-80 rounded-[8px]"
                                 style={{
                                   flex: 4,
                                   minWidth: 0,
                                   height: 36,
                                   background: "#efeff4",
-                                  borderRadius: 8,
                                   border: "none",
                                   paddingLeft: 12,
                                   paddingRight: 12,
@@ -1223,8 +1211,8 @@ export default function TSIFilterPage() {
 
               {/* ── 수식 미리보기 / Formula preview ─────────────────────── */}
               <div
-                className="bg-white p-[16px] rounded-[12px] shrink-0 min-h-[104px]"
-                style={{ display: "flex", gap: "16px" }}
+                className="bg-white p-[16px] rounded-[12px] shrink-0 min-h-[104px] gap-4"
+                style={{ display: "flex" }}
               >
                 {bothHaveData ? (
                   <>
@@ -1243,6 +1231,7 @@ export default function TSIFilterPage() {
                 )}
               </div>
 
+            </div>
             </div>
             {/* ── 메인 설정 영역 닫기 / End main setting area ── */}
 

@@ -74,42 +74,30 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       );
     return (
       <div
+        className="relative overflow-hidden gap-0"
         style={{
-          position: "relative",
           width: "100vw",
           height: "100vh",
           backgroundColor: "#E7E5E7",
-          overflow: "hidden",
         }}
       >
         <Sidebar />
         <div
+          className="relative flex flex-col overflow-hidden"
           style={{
-            marginLeft: 96,
-            width: "calc(100vw - 96px)",
+            marginLeft: 88,
+            width: "calc(100vw - 80px)",
             height: "100vh",
-            position: "relative",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
           }}
         >
-          <div style={{ flexShrink: 0 }}>
+          <div className="shrink-0 w-full">
             {headerNode}
           </div>
           {/* 컨텐츠 */}
           <div
-            className={headerType === "tsi" ? "tsi-page" : undefined}
-            style={{
-              flex: 1,
-              overflow: "hidden",
-              minWidth: 0,
-              minHeight: 0,
-              display: "flex",
-              flexDirection: "column",
-            }}
+            className={`flex-1 overflow-hidden min-w-0 min-h-0 flex flex-col${headerType === "tsi" ? " tsi-page" : headerType === "drd" ? " drd-page" : ""} w-full pb-5`}
           >
-            <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0} noPadding={headerType === "tsi"}>{children}</MainContainer>
+            <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0}>{children}</MainContainer>
           </div>
         </div>
       </div>
@@ -119,17 +107,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   return (
     /*
      * Figma 전체 프레임: 2560×1314px
-     * bg: rgb(231,229,231) = #E7E5E7
+     * bg: rgb(231,229,231) = #E7E5E7s
      * Sidebar: 96px 고정
      * 나머지: sidebar 이후 영역
      */
     <div
+      className="relative flex flex-col overflow-hidden"
       style={{
-        position: "relative",
         width: "100vw",
         height: "100vh",
         backgroundColor: "#E7E5E7",
-        overflow: "hidden",
       }}
     >
       {/* 사이드바: 줌(zoom)에 영향을 받지 않도록 최상위에 배치 */}
@@ -137,15 +124,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
       {/* 나머지 영역: 줌을 적용하여 비례 축소/확대 */}
       <div
+        className="relative flex flex-col overflow-hidden"
         style={{
           zoom: scale,
-          width: `calc(${100 / scale}vw - ${96 / scale}px)`,
+          width: `calc(${100 / scale}vw - ${88 / scale}px)`,
           height: `${100 / scale}vh`,
-          marginLeft: `${96 / scale}px`,
-          position: "relative",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
+          marginLeft: `${88 / scale}px`,
         }}
       >
         {headerType === "ats" ? (
@@ -155,14 +139,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         )}
         {/* 컨텐츠 영역: 헤더 아래 나머지 100% 채움 */}
         <div
-          style={{
-            flex: 1,
-            overflow: "hidden",
-            minWidth: 0,
-            minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
-          }}
+          className="flex-1 overflow-hidden min-w-0 min-h-0 flex flex-col w-full pb-5 "
         >
           <MainContainer>{children}</MainContainer>
         </div>

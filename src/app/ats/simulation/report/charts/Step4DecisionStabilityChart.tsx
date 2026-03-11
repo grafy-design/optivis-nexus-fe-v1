@@ -8,6 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
+import { ATS_REPORT_COLORS, BAR_RADIUS } from "@/lib/chart-styles";
 import type { DecisionStabilityResult } from "@/services/studyService";
 
 export interface Step4DecisionStabilityChartProps {
@@ -17,8 +18,6 @@ export interface Step4DecisionStabilityChartProps {
 }
 
 const STABILITY_THRESHOLD = 0.8;
-/** M3/ref/primary/primary15 */
-const PRIMARY_15 = "#262255";
 
 export function Step4DecisionStabilityChart({
   apiData,
@@ -81,8 +80,8 @@ export function Step4DecisionStabilityChart({
         type: "bar",
         data: series1Data,
         itemStyle: {
-          color: PRIMARY_15,
-          borderRadius: [6, 6, 6, 6],
+          color: ATS_REPORT_COLORS.proposed,
+          borderRadius: BAR_RADIUS.allSmall,
         },
         barWidth: "25%",
         barGap: "20%",
@@ -91,7 +90,7 @@ export function Step4DecisionStabilityChart({
           symbol: "none",
           label: { show: false },
           lineStyle: {
-            color: "#7452f4",
+            color: ATS_REPORT_COLORS.markLine,
             type: "dashed",
             width: 1.5,
           },
@@ -107,7 +106,7 @@ export function Step4DecisionStabilityChart({
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: "#E9DDFF" },
+                { offset: 0, color: ATS_REPORT_COLORS.gradientTop },
                 { offset: 1, color: "rgba(255, 255, 255, 0.0)" },
               ],
             },
@@ -120,8 +119,8 @@ export function Step4DecisionStabilityChart({
         type: "bar",
         data: series2Data,
         itemStyle: {
-          color: "#A692D6",
-          borderRadius: [6, 6, 6, 6],
+          color: ATS_REPORT_COLORS.standardBar,
+          borderRadius: BAR_RADIUS.allSmall,
         },
         barWidth: "25%",
       },
@@ -136,40 +135,42 @@ export function Step4DecisionStabilityChart({
           style={{ height: "100%", width: "100%" }}
         />
         <div
-          className="absolute text-small1 text-[#484646]"
+          className="absolute text-small1 text-[var(--chart-text-category-title)] gap-1.5"
           style={{
             left: "50px",
             bottom: "10%",
             display: "inline-flex",
             flexDirection: "column",
             alignItems: "flex-start",
-            gap: 6,
             padding: "4px 8px",
-            border: "1px solid var(--M3-ref-neutral-neutral70, #AEA9B1)",
+            border: "1px solid var(--chart-legend-border)",
             background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
           }}
         >
-          <div className="flex items-center gap-1.5" style={{ gap: 4 }}>
+          <div className="flex items-center gap-1">
             <span
-              className="shrink-0 border-t border-dashed border-[#7452f4]"
+              className="shrink-0 border-t border-dashed border-[var(--chart-ats-markline)]"
               style={{ width: 20, borderWidth: 1.5 }}
             />
             <span>Target Stability Threshold (80%)</span>
           </div>
-          <div className="flex items-center gap-1.5" style={{ gap: 4 }}>
+          <div className="flex items-center gap-1">
             <span
               className="shrink-0 w-5 h-3 rounded-sm"
-              style={{ backgroundColor: PRIMARY_15 }}
+              style={{ backgroundColor: ATS_REPORT_COLORS.proposed }}
             />
             <span>Proposed Design</span>
           </div>
-          <div className="flex items-center gap-1.5" style={{ gap: 4 }}>
-            <span className="shrink-0 w-5 h-3 rounded-sm bg-[#A692D6]" />
+          <div className="flex items-center gap-1">
+            <span
+              className="shrink-0 w-5 h-3 rounded-sm"
+              style={{ backgroundColor: ATS_REPORT_COLORS.standardBar }}
+            />
             <span>Standard Design</span>
           </div>
         </div>
         <div
-          className="absolute text-small2 text-[#484646]"
+          className="absolute text-small2 text-[var(--chart-text-category-title)] gap-0.5"
           style={{
             left: "50%",
             transform: "translateX(-50%)",
@@ -178,13 +179,12 @@ export function Step4DecisionStabilityChart({
             flexDirection: "column",
             padding: "4px 8px",
             alignItems: "center",
-            gap: 2,
-            border: "1px solid var(--M3-ref-neutral-neutral70, #AEA9B1)",
+            border: "1px solid var(--chart-legend-border)",
             background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
           }}
         >
-          <span className="text-[#262255]">Proposed design remains STABLE</span>
-          <span className="text-[#262255]">(above 80% threshold)</span>
+          <span className="text-[var(--text-header)]">Proposed design remains STABLE</span>
+          <span className="text-[var(--text-header)]">(above 80% threshold)</span>
         </div>
       </div>
     </div>

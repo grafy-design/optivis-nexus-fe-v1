@@ -1,15 +1,16 @@
-/** 리포트 차트 공통 스타일 (title, grid, axis, y축 점선 그리드) */
+/** 리포트 차트 공통 스타일 — chart-styles.ts 시맨틱 토큰 기반 */
+
+import { CHART_COLORS, CHART_FONT, ATS_REPORT_COLORS } from "@/lib/chart-styles";
 
 export const CHART_TITLE = {
   left: 16,
   top: 8,
   textAlign: "left" as const,
   textStyle: {
-    fontFamily: "Inter",
+    fontFamily: CHART_FONT.familyShort,
     fontSize: 12,
     fontWeight: "normal",
-
-    color: "black",
+    color: CHART_COLORS.NEUTRAL_30,
   },
 };
 
@@ -23,19 +24,17 @@ export const CHART_GRID_DEFAULT = {
 
 export const CHART_AXIS_LABEL = {
   fontSize: 10.5,
-  fontFamily: "Inter",
+  fontFamily: CHART_FONT.familyShort,
   fontWeight: "normal",
-
-  color: "black",
+  color: CHART_COLORS.NEUTRAL_30,
 };
 
 export const CHART_AXIS_NAME = {
   nameTextStyle: {
     fontSize: 10.5,
-    fontFamily: "Inter",
+    fontFamily: CHART_FONT.familyShort,
     fontWeight: "normal",
-
-    color: "black",
+    color: CHART_COLORS.NEUTRAL_30,
   },
 };
 
@@ -43,7 +42,7 @@ export const CHART_Y_AXIS_SPLIT_LINE = {
   show: true,
   lineStyle: {
     type: "dashed" as const,
-    color: "#E8E8E8",
+    color: ATS_REPORT_COLORS.splitLine,
   },
 };
 
@@ -58,7 +57,7 @@ export function chartGraphicDivider(width = 320) {
       left: 16,
       top: 30,
       shape: { x1: 0, y1: 0, x2: width, y2: 0 },
-      style: { stroke: "#E5E5E5", lineWidth: 1 },
+      style: { stroke: ATS_REPORT_COLORS.divider, lineWidth: 1 },
     },
   ];
 }

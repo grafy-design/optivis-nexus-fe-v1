@@ -25,10 +25,9 @@ export default function LiquidGlass({
     >
       {/* Blur Layer - Shadow effect with mask */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{
           borderRadius: "1000px",
-          overflow: "hidden",
         }}
       >
         {/* Blur effect - opacity 0.04, blendMode HARD_LIGHT */}

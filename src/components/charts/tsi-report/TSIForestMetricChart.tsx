@@ -4,13 +4,16 @@ import ReactECharts from "echarts-for-react";
 import type { CustomSeriesRenderItem, EChartsOption } from "echarts";
 import type { RiskMetricKey, RiskResponseRow } from "./types";
 import { useMemo } from "react";
-
-function hexToRgba(hex: string, alpha: number) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
+import {
+  hexToRgba,
+  CHART_COLORS,
+  tooltipItem,
+  tooltipTitle,
+  tooltipDotRow,
+  gridFull,
+  animationDefault,
+  splitLineVisible,
+} from "@/lib/chart-styles";
 
 export function TSIForestMetricChart({
   rows,
@@ -68,32 +71,26 @@ export function TSIForestMetricChart({
   };
 
   const option: EChartsOption = {
-    animation: true,
-    animationDuration: 300,
-    animationEasing: "cubicOut",
+    ...animationDefault,
     tooltip: {
-      trigger: "item",
-      padding: [4, 6],
-      borderWidth: 0,
-      borderColor: "transparent",
-      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600, color: "#787776" },
+      ...tooltipItem,
+      textStyle: { ...tooltipItem.textStyle, color: CHART_COLORS.NEUTRAL_50 },
       formatter: () => {
         const title = metricLabel ?? metricKey;
-        let html = `<div style="font-size:12px;font-family:Inter;color:#787776;font-weight:600;margin-bottom:4px">${title}</div>`;
+        let html = tooltipTitle(title);
         rows.forEach((row) => {
           const m = row.metrics[metricKey];
-          html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:1px 0"><span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${m.color};flex-shrink:0"></span><span style="color:#787776;font-size:9px">${row.groupLabel}</span></span><span style="color:#787776;font-size:13px;font-weight:600">${m.mean.toFixed(1)}</span></div>`;
+          html += tooltipDotRow(m.color, row.groupLabel, m.mean.toFixed(1));
         });
         return html;
       },
     },
-    grid: { left: 0, right: 0, top: 0, bottom: 0 },
+    grid: gridFull,
     xAxis: {
       type: "value",
       min: 0,
       max: 100,
-      splitLine: { show: true, lineStyle: { color: "#e3e1e5", width: 1 } },
+      splitLine: splitLineVisible(CHART_COLORS.SPLIT_LINE),
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { show: false },

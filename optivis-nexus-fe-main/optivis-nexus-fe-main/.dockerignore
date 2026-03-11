@@ -1,0 +1,10 @@
+.git
+.gitignore
+.next
+node_modules
+npm-debug.log
+tmp
+docs
+*.md
+tsconfig.tsbuildinfo
+optivis-nexus-fe_*.tar

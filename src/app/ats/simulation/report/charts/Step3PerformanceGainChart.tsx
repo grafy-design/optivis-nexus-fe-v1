@@ -8,6 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
+import { ATS_REPORT_COLORS } from "@/lib/chart-styles";
 import type { RobustnessProofResult } from "@/services/studyService";
 
 export interface Step3PerformanceGainChartProps {
@@ -125,7 +126,7 @@ export function Step3PerformanceGainChart({
                 const xIndex = api.value(0);
                 const effect = api.value(1);
                 const margin = api.value(2);
-                const strokeColor = "#231f52";
+                const strokeColor = ATS_REPORT_COLORS.proposed;
                 const low = api.coord([xIndex, effect - margin]);
                 const high = api.coord([xIndex, effect + margin]);
                 return {
@@ -182,13 +183,13 @@ export function Step3PerformanceGainChart({
         name: "Performance Gain (Proposed - Unadjusted)",
         type: "line",
         data: hasData ? lineData : [],
-        itemStyle: { color: "#231f52" },
+        itemStyle: { color: ATS_REPORT_COLORS.proposed },
         symbol: "diamond",
         symbolSize: 12,
         lineStyle: { width: 2 },
         markArea: {
           silent: true,
-          itemStyle: { color: "rgba(0,0,0,0.06)" },
+          itemStyle: { color: ATS_REPORT_COLORS.nsZone },
           data: [[{ yAxis: -0.05 }, { yAxis: 0.05 }]],
         },
         markLine: {
@@ -196,7 +197,7 @@ export function Step3PerformanceGainChart({
           symbol: "none",
           label: { show: false },
           lineStyle: {
-            color: "#999",
+            color: ATS_REPORT_COLORS.guideDashed,
             type: "dashed",
             width: 1,
           },
@@ -210,47 +211,46 @@ export function Step3PerformanceGainChart({
     <div className="flex-1 h-full bg-white rounded-[8px] overflow-hidden relative">
       <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
       <div
-        className="absolute text-small1 text-[#484646]"
+        className="absolute text-small1 text-[var(--chart-text-category-title)] gap-[1px]"
         style={{
           left: "50px",
           bottom: "17%",
           display: "inline-flex",
           flexDirection: "column",
           alignItems: "flex-start",
-          gap: 1,
           padding: "3px 6px",
-          border: "1px solid var(--M3-ref-neutral-neutral70, #AEA9B1)",
+          border: "1px solid var(--chart-legend-border)",
           background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
         }}
       >
-        <div className="flex items-center" style={{ gap: 5, minHeight: 14 }}>
+        <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
           <span
             className="shrink-0 flex items-center justify-center"
             style={{ width: 16, height: 16 }}
           >
             <span
+              className="rounded-[1px]"
               style={{
                 width: 6,
                 height: 6,
-                backgroundColor: "#231f52",
+                backgroundColor: ATS_REPORT_COLORS.proposed,
                 transform: "rotate(45deg)",
-                borderRadius: "1px",
               }}
             />
           </span>
           <span>Performance Gain (Proposed - Unadjusted)</span>
         </div>
-        <div className="flex items-center" style={{ gap: 5, minHeight: 14 }}>
+        <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
           <span
             className="shrink-0 flex items-center justify-center"
             style={{ width: 16, height: 16 }}
           >
             <span
+              className="rounded-[2px]"
               style={{
                 width: 16,
                 height: 10,
-                backgroundColor: "rgba(0,0,0,0.06)",
-                borderRadius: 2,
+                backgroundColor: ATS_REPORT_COLORS.nsZone,
               }}
             />
           </span>

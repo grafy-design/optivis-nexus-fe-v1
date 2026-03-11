@@ -3,6 +3,24 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import {
+  getNiceInterval,
+  HISTOGRAM_PALETTE,
+  tooltipAxisShadow,
+  tooltipRow,
+  tooltipWrap,
+  tooltipSubTitle,
+  axisLabelBase,
+  axisNameBase,
+  axisLineBase,
+  axisTickVisible,
+  splitLineHidden,
+  gridCompact,
+  animationNone,
+  barEmphasisDisabled,
+  BAR_RADIUS,
+  edgeLabelFormatter,
+} from "@/lib/chart-styles";
 
 export type HistogramGroupMap = Record<string, number[]>;
 
@@ -24,20 +42,6 @@ export const BaselineDistributionHistogram = ({
 }: BaselineDistributionHistogramProps) => {
   const chartRef = useRef<any>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-
-  const getNiceInterval = (maxValue: number): number => {
-    if (maxValue <= 0) {
-      return 1;
-    }
-    const rough = maxValue / 5;
-    const power = Math.pow(10, Math.floor(Math.log10(rough)));
-    const scaled = rough / power;
-
-    if (scaled <= 1) return 1 * power;
-    if (scaled <= 2) return 2 * power;
-    if (scaled <= 5) return 5 * power;
-    return 10 * power;
-  };
 
   const onEvents = {
     mouseover: useCallback((params: any) => {
@@ -84,47 +88,31 @@ export const BaselineDistributionHistogram = ({
       : Math.max(5, maxSeriesValue * 1.15);
     const yAxisInterval = getNiceInterval(yAxisMaxRaw);
     const yAxisMax = Math.ceil(yAxisMaxRaw / yAxisInterval) * yAxisInterval;
-    const palette = [
-      "rgba(203, 198, 232, 0.9)",
-      "rgba(176, 170, 220, 0.9)",
-      "rgba(150, 143, 200, 0.9)",
-      "rgba(124, 116, 180, 0.9)",
-      "rgba(58, 52, 110, 0.95)",
-      "rgba(40, 37, 86, 0.95)",
-    ];
 
     return {
       baseOption: {
-        animation: false,
-        grid: { left: 42, right: 4, top: 8, bottom: 16 },
+        ...animationNone,
+        grid: gridCompact,
         tooltip: {
-          trigger: "axis" as const,
-          axisPointer: { type: "shadow" as const, triggerEmphasis: false, z: -1 },
-          padding: [4, 6],
-          borderWidth: 0,
-          borderColor: "transparent",
-          extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-          textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
+          ...tooltipAxisShadow,
           formatter: (params: any) => {
             const items = Array.isArray(params) ? params : [params];
-            const row = (marker: string, label: string, val: string) =>
-              `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="font-size:9px;font-weight:500">${marker}${label}</span><span style="font-size:13px;font-weight:600">${val}</span></div>`;
             const title = items[0]?.axisValueLabel ?? "";
-            return `<div style="font-family:Inter,sans-serif">${title ? `<div style="font-size:9px;font-weight:500;margin-bottom:4px">${title}</div>` : ""}${items.map((item: any) => row(item.marker ?? "", item.seriesName ?? "", String(item.value ?? 0))).join("")}</div>`;
+            return tooltipWrap(
+              (title ? tooltipSubTitle(title) : "") +
+              items.map((item: any) => tooltipRow(item.marker ?? "", item.seriesName ?? "", String(item.value ?? 0))).join("")
+            );
           },
         },
         xAxis: {
           type: "category" as const,
           data: xLabels,
-          axisLine: { show: true, lineStyle: { color: "#787776" } },
+          axisLine: axisLineBase,
           axisTick: { show: false, alignWithLabel: true },
           axisLabel: {
+            ...axisLabelBase,
             interval: 0,
             margin: 4,
-            color: "#787776",
-            fontSize: 10,
-            fontWeight: 500,
-            fontFamily: "Inter, sans-serif",
             formatter: (value: string) => {
               const num = Number(value);
               if (Number.isNaN(num)) return "";
@@ -140,31 +128,22 @@ export const BaselineDistributionHistogram = ({
           name: "CI Width",
           nameLocation: "middle" as const,
           nameGap: 32,
-          nameTextStyle: {
-            color: "#787776",
-            fontSize: 10,
-            fontWeight: 500,
-            fontFamily: "Inter, sans-serif",
-          },
-          axisLine: { show: true, lineStyle: { color: "#787776" } },
-          axisTick: { show: true, lineStyle: { color: "#787776" } },
+          nameTextStyle: axisNameBase,
+          axisLine: axisLineBase,
+          axisTick: axisTickVisible,
           axisLabel: {
+            ...axisLabelBase,
             margin: 8,
-            color: "#787776",
-            fontSize: 10,
-            fontWeight: 500,
-            fontFamily: "Inter, sans-serif",
-            formatter: (value: number) => {
-              const label = normalize ? value.toFixed(2) : Math.round(value).toString();
-              if (value === yAxisMax) return `\n${label}`;
-              if (value === 0) return `${label}\n`;
-              return label;
-            },
+            formatter: edgeLabelFormatter(
+              yAxisMax,
+              0,
+              normalize ? (v) => v.toFixed(2) : (v) => Math.round(v).toString(),
+            ),
           },
-          splitLine: { show: false },
+          splitLine: splitLineHidden,
         },
         normalizedGroups,
-        palette,
+        palette: HISTOGRAM_PALETTE,
         bucketCount,
       },
       groupCount: normalizedGroups.length,
@@ -197,9 +176,9 @@ export const BaselineDistributionHistogram = ({
       barGap: "-100%",
       barCategoryGap: 2,
       itemStyle: {
-        borderRadius: [3, 3, 0, 0] as [number, number, number, number],
+        borderRadius: BAR_RADIUS.topSmall,
       },
-      emphasis: { disabled: true },
+      ...barEmphasisDisabled,
       data: layer.map((item, di) => {
         const base = { value: item.value, itemStyle: { color: item.color } };
         if (hoveredIdx === null) return base;

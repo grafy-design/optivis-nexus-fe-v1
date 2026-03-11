@@ -61,16 +61,15 @@ export default function FeatureCard({
       cardBorder = "1px solid rgba(255,255,255,0.15)";
       cardShadow = "inset 0 1px 0 rgba(255,255,255,0.1)";
     } else {
-      // Figma: Fill white, Glass Effect black r=24
-      cardBg = "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,248,248,0.90) 100%)";
-      cardBorder = "1px solid rgba(255,255,255,0.8)";
-      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.9)";
+      // Default: white background
+      cardBg = "var(--neutral-100)";
+      cardBorder = "1px solid rgba(255,255,255,0.2)";
+      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.2)";
     }
   } else {
     if (disabled) {
-      cardBg = "linear-gradient(180deg, rgba(226,226,226,0.1) 0%, rgba(215,215,215,0.92) 100%)";
+      cardBg = "linear-gradient(180deg, rgba(196,196,196,0.5) 0%, rgba(182,182,182,0.5) 100%)";
       cardBorder = "1px solid rgba(196,196,196,0.1)";
-      cardShadow = "inset 0 1px 0 rgba(255,255,255,0.1)";
     } else if (isSelected || isHovered) {
       // Service card selected/hovered: lavender glass background
       cardBg = "linear-gradient(180deg, rgba(232,230,255,0.8) 0%, rgba(220,218,255,0.75) 100%)";
@@ -78,7 +77,7 @@ export default function FeatureCard({
       cardShadow = "inset 0 1px 0 rgba(255,255,255,0.1)";
     } else {
       // Default: white background
-      cardBg = "#ffffff";
+      cardBg = "var(--neutral-100)";
       cardBorder = "1px solid rgba(255,255,255,0.2)";
       cardShadow = "inset 0 1px 0 rgba(255,255,255,0.2)";
     }
@@ -129,13 +128,13 @@ export default function FeatureCard({
   const titleColor = disabled
     ? "#7A7A7A"
     : isPackage && isSelected
-      ? "#FFFFFF"
-      : "#000000";
+      ? "var(--text-inverted)"
+      : "var(--text-primary)";
   const descColor = disabled
     ? "#888888"
     : isPackage && isSelected
       ? "rgba(255,255,255,0.85)"
-      : "#484646";
+      : "var(--text-secondary)";
 
   // 아이콘 소스 (호버 시에도 선택된 아이콘 사용하도록 변경, 단 Package는 선택 시에만)
   const iconSrc = (isSelected || (!isPackage && isHovered && !disabled)) && selectedIcon ? selectedIcon : icon;
@@ -152,39 +151,19 @@ export default function FeatureCard({
       onMouseLeave={() => {
         if (!disabled) setIsHovered(false);
       }}
-      className="relative flex flex-col"
+      className="relative flex flex-col rounded-[24px] w-full flex-1 min-h-[200px] p-6 backdrop-blur-[12px]"
       style={{
-        width: "100%",
-        /* 높이는 내용에 따라 flex로 채움 (Figma 352px 기준이나 반응형 허용) */
-        flex: 1,
-        minHeight: "200px",
-        padding: `${cardPad}px`,
-        borderRadius: "24px",
         background: cardBg,
         border: cardBorder,
-        boxShadow: cardShadow,
-        WebkitBackdropFilter: "blur(12px)",
         transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
         transform: isPackage && isHovered && !isSelected && !disabled ? "translateY(-4px)" : "none",
-        display: "flex",
-        flexDirection: "column",
         cursor: disabled ? "default" : "pointer",
-        opacity: 1,
       }}
     >
       {locked && (
         <div
           aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            width: "29px",
-            height: "29px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          className="absolute flex items-center justify-center top-5 right-5 w-[29px] h-[29px]"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 10V7.5C8 5.01472 10.0147 3 12.5 3C14.9853 3 17 5.01472 17 7.5V10" stroke="#767676" strokeWidth="1.8" strokeLinecap="round"/>
@@ -195,14 +174,9 @@ export default function FeatureCard({
 
       {/* 아이콘: 60x60 원형 프레임 (중간 원 제거를 위해 강제 크롭) */}
       <div
-        className="home-feature-card-icon flex-shrink-0 flex items-center justify-center overflow-hidden"
+        className="home-feature-card-icon shrink-0 flex items-center justify-center overflow-hidden rounded-full relative size-[60px] transition-colors duration-200 ease-in-out"
         style={{
-          width: 60,
-          height: 60,
-          borderRadius: "50%",
           backgroundColor: iconBg,
-          transition: "background-color 0.2s ease",
-          position: "relative",
         }}
       >
         <Image
@@ -210,15 +184,10 @@ export default function FeatureCard({
           alt={title}
           width={140}
           height={140}
-          className="home-feature-card-icon-img object-cover"
+          className="home-feature-card-icon-img object-cover absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
             filter: iconFilter,
             transition: "filter 0.2s ease",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            /* 줌 효과 제거: 모든 상태에서 일정한 크기 유지 */
-            transform: "translate(-50%, -50%) scale(1)",
           }}
         />
       </div>
@@ -227,19 +196,11 @@ export default function FeatureCard({
       <div className="flex-1" />
 
       {/* 텍스트 영역: gap 8px */}
-      <div className="flex flex-col" style={{ gap: "8px" }}>
+      <div className="flex flex-col gap-1">
         {/* 타이틀: Inter 600 19.5px */}
-        <p
-          className="home-feature-card-title"
+        <p className="text-body2 text-text-primary m-0 transition-colors duration-200 ease-in-out"
           style={{
-            fontFamily: "Inter",
-            fontSize: "19.5px",
-            fontWeight: 600,
-            lineHeight: "100%",
-            letterSpacing: "-0.585px",
             color: titleColor,
-            margin: 0,
-            transition: "color 0.2s ease",
           }}
         >
           {title}
@@ -247,16 +208,9 @@ export default function FeatureCard({
 
         {/* 설명: Inter 400 15px */}
         <p
-          className="home-feature-card-desc"
+          className="home-feature-card-desc text-body4m m-0 transition-colors duration-200 ease-in-out"
           style={{
-            fontFamily: "Inter",
-            fontSize: "15px",
-            fontWeight: isPackage && isSelected ? 500 : 400,
-            lineHeight: "1.115",
-            letterSpacing: "-0.3px",
             color: descColor,
-            margin: 0,
-            transition: "color 0.2s ease",
           }}
         >
           {description}

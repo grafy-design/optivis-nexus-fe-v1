@@ -462,9 +462,9 @@ export default function ReportPage() {
   return (
     <>
       <AppLayout headerType="ats" scaleMode="fit">
-        <div id="report-page-root" style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px", }}>
+        <div id="report-page-root" className="flex flex-col w-full h-full overflow-hidden gap-6">
           
-          <div style={{ flexShrink: 0, padding: "0 12px" }}>
+          <div className="shrink-0 px-1">
             <div
               id="report-header"
               className="flex flex-col gap-1 flex-shrink-0 items-start"
@@ -478,7 +478,7 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div id="report-content" className="flex flex-1 min-h-0" style={{ gap: "0px" }}>
+          <div id="report-content" className="flex flex-1 min-h-0 gap-1">
             {/* LEFT: Results Overview (liquid glass frame) - 고정, 풀높이 */}
             <div className="w-[700px] flex-shrink-0 h-full flex flex-col">
               <div
@@ -492,10 +492,9 @@ export default function ReportPage() {
                     {/* Insight Summary */}
                     <div className="flex-1 flex flex-col">
                       <div
-                        className="flex flex-col items-center bg-[#231f52] rounded-[16px] w-full flex-1"
+                        className="flex flex-col items-center bg-[#231f52] rounded-[16px] w-full flex-1 gap-6"
                         style={{
                           padding: "24px",
-                          gap: "24px",
                         }}
                       >
                         <h3 className="text-h3 text-white text-left w-full">
@@ -596,14 +595,11 @@ export default function ReportPage() {
                           return (
                             <div
                               key={index}
-                              className="flex flex-col items-center bg-white rounded-[16px] p-3"
-                              style={{
-                                gap: "12px",
-                              }}
+                              className="flex flex-col items-center bg-white rounded-[16px] p-3 gap-3"
                             >
                               <div className="flex items-start justify-between w-full">
                                 <div className="flex flex-col gap-1">
-                                  <h4 className="text-body2 text-[#262255]">
+                                  <h4 className="text-body2 text-[var(--text-header)]">
                                     {chart.label}
                                   </h4>
                                   <div className="flex items-center gap-1 mt-1">
@@ -672,7 +668,7 @@ export default function ReportPage() {
             </div>
 
             {/* RIGHT: Main content (liquid glass frame) - 독립 스크롤 */}
-            <div className="flex-1 min-w-0 h-full flex flex-col" style={{ marginLeft: "-6px" }}>
+            <div className="flex-1 min-w-0 h-full flex flex-col">
               <div
                 className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden relative flex-1"
               >
@@ -688,11 +684,10 @@ export default function ReportPage() {
                         <div className="mb-4">
                           <div className="flex justify-left mb-4">
                             <div
-                              className="bg-[#ededed] flex items-center justify-center"
+                              className="bg-[#ededed] flex items-center justify-center rounded-full"
                               style={{
                                 width: "175px",
                                 height: "24px",
-                                borderRadius: "100px",
                               }}
                             >
                               <span className="text-[12px] font-semibold leading-[18.02px] tracking-[-0.51px] text-[#231f52]">

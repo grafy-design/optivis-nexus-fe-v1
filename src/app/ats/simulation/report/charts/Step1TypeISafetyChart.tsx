@@ -8,6 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
+import { ATS_REPORT_COLORS, BAR_RADIUS } from "@/lib/chart-styles";
 import type { TypeSafetyResult } from "@/services/studyService";
 
 export interface Step1TypeISafetyChartProps {
@@ -69,8 +70,8 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
         type: "bar",
         data: barData,
         itemStyle: {
-          color: "#aaa5e1",
-          borderRadius: [6, 6, 6, 6],
+          color: ATS_REPORT_COLORS.unadjusted,
+          borderRadius: BAR_RADIUS.allSmall,
         },
         barWidth: "90%",
         barGap: "10%",
@@ -79,7 +80,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
           symbol: "none",
           label: { show: false },
           lineStyle: {
-            color: "#704ef3",
+            color: ATS_REPORT_COLORS.markLine,
             type: "dashed",
             width: 1.5,
           },
@@ -95,7 +96,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: "#E9DDFF" },
+                { offset: 0, color: ATS_REPORT_COLORS.gradientTop },
                 { offset: 1, color: "rgba(255, 255, 255, 0.0)" },
               ],
             },
@@ -108,7 +109,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
         type: "line",
         data: [],
         lineStyle: {
-          color: "#704ef3",
+          color: ATS_REPORT_COLORS.markLine,
           type: "dashed",
           width: 1,
         },
@@ -127,20 +128,19 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
           style={{ height: "100%", width: "100%" }}
         />
         <div
-          className="absolute text-small1 text-[#484646]"
+          className="absolute text-small1 text-[var(--chart-text-category-title)] gap-1"
           style={{
             left: "55px",
             bottom: "15%",
             display: "inline-flex",
             padding: "4px 8px",
             alignItems: "center",
-            gap: 4,
-            border: "1px solid var(--M3-ref-neutral-neutral70, #AEA9B1)",
+            border: "1px solid var(--chart-legend-border)",
             background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
           }}
         >
           <span
-            className="inline-block shrink-0 border-t border-dashed border-[#704ef3]"
+            className="inline-block shrink-0 border-t border-dashed border-[var(--chart-ats-markline)]"
             style={{ width: 20, borderWidth: 1 }}
           />
           <span>Expected (Uniform)</span>

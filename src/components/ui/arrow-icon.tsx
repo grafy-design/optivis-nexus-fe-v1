@@ -11,7 +11,7 @@ interface ArrowIconProps {
 export default function ArrowIcon({ 
   className = "", 
   direction = "down",
-  color = "#231F52" 
+  color = "var(--icon-on-button)"
 }: ArrowIconProps) {
   const uniqueId = React.useId().replace(/:/g, '_');
   const clipPathId = `clip0_arrow_${uniqueId}`;

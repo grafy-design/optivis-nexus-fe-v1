@@ -23,9 +23,12 @@
  */
 "use client";
 
+import { useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
+import type { DrdStepItem } from "@/components/drd/drd-step-data";
 import { useSimulationStore, type SimulationState, type SimCondData } from "@/store/simulationStore";
 
 /* ─────────────────────────────────────────────
@@ -40,7 +43,7 @@ function SimCondIconCompleted() {
       alt="Simulation Conditions"
       width={30}
       height={30}
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     />
   );
 }
@@ -53,7 +56,7 @@ function SimCondIconDefault() {
       alt="Simulation Conditions"
       width={30}
       height={30}
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     />
   );
 }
@@ -66,7 +69,7 @@ function SmilesIconNotStarted() {
       alt="SMILES Settings"
       width={30}
       height={30}
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     />
   );
 }
@@ -79,7 +82,7 @@ function SmilesIconCompleted() {
       alt="SMILES Settings"
       width={30}
       height={30}
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     />
   );
 }
@@ -94,7 +97,7 @@ function SimCondIconLeft({ completed }: { completed: boolean }) {
       alt="Simulation Conditions"
       width={24}
       height={24}
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     />
   );
 }
@@ -109,7 +112,7 @@ function SmilesIconLeft({ completed }: { completed: boolean }) {
       alt="SMILES Settings"
       width={24}
       height={24}
-      style={{ flexShrink: 0 }}
+      className="shrink-0"
     />
   );
 }
@@ -128,48 +131,42 @@ function InitialCard({ step, title, required, description, flex, onClick }: {
   step: string; title: string; required?: boolean; description: string; flex?: number; onClick?: () => void;
 }) {
   return (
-    <div style={{
+    <div className="flex flex-col min-w-0 rounded-[24px] gap-3" style={{
       flex: flex ?? 1,
       backgroundColor: "rgba(255,255,255,0.6)",
-      borderRadius: 24,
       padding: 16,
-      display: "flex",
-      flexDirection: "column",
-      gap: 24,
-      minWidth: 0,
-    }}>
+    }}
+    >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, height: 40 }}>
-        <div style={{ display: "flex", alignItems: "center", height: 40, flexShrink: 0 }}>
+      <div className="flex items-center gap-2.5" style={{ height: 40 }}>
+        <div className="flex items-center shrink-0" style={{ height: 40 }}>
           {step === "Step 1" ? <SimCondIconDefault /> : <SmilesIconNotStarted />}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(72,70,70)", letterSpacing: "-0.51px", lineHeight: "1.2" }}>
+        <div className="flex items-center gap-1">
+          <span className="text-body3" style={{ color: "var(--text-primary)" }}>
             {title}
           </span>
           {required && (
-            <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "rgb(64,19,238)" }}>*</span>
+            <span className="text-body3" style={{ color: "rgb(64,19,238)" }}>*</span>
           )}
         </div>
       </div>
 
       {/* Body */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        <p style={{
-          fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-          color: "rgb(145,144,146)", letterSpacing: "-0.39px", lineHeight: "1.4", margin: 0,
+      <div className="flex-1 flex flex-col justify-between">
+        <p className="text-captionm" style={{
+          color: "rgb(145,144,146)", margin: 0,
         }}>
           {description}
         </p>
         <button
           onClick={onClick}
+          className="btn-tsi btn-tsi-purple-light w-full gap-2"
           style={{
-            width: "100%", height: 36, borderRadius: 36, border: "none", cursor: "pointer",
-            backgroundColor: "#8F8AC4",
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            height: 36,
             marginTop: 20,
           }}>
-          <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.51px", lineHeight: 1 }}>
+          <span className="text-body3">
             Setting
           </span>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -192,32 +189,30 @@ function InitialCard({ step, title, required, description, flex, onClick }: {
  */
 function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: () => void }) {
   return (
-    <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
+    <div className="flex items-center justify-end shrink-0 gap-2.5">
       {/* Reset */}
       <button
         onClick={onReset}
+        className="btn-tsi btn-tsi-purple-light gap-1.5"
         style={{
-          position: "relative", height: 36, paddingLeft: 20, paddingRight: 10, borderRadius: 36,
-          border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, overflow: "hidden",
+          height: 36, paddingLeft: 20, paddingRight: 10,
         }}
       >
-        <div style={{ position: "absolute", inset: 0, borderRadius: 36, backgroundColor: "#8f8ac4" }} />
-        <span style={{ position: "relative", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", lineHeight: 1.05, whiteSpace: "nowrap" }}>Reset</span>
+        <span className="text-body4" style={{ whiteSpace: "nowrap" }}>Reset</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} style={{ position: "relative", flexShrink: 0, filter: "brightness(0) invert(1)" }} />
+        <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} className="shrink-0" style={{ filter: "brightness(0) invert(1)" }} />
       </button>
       {/* Edit */}
       <button
         onClick={onEdit}
+        className="btn-tsi btn-tsi-purple-light gap-1.5"
         style={{
-          position: "relative", height: 36, paddingLeft: 20, paddingRight: 14, borderRadius: 36,
-          border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, overflow: "hidden",
+          height: 36, paddingLeft: 20, paddingRight: 14,
         }}
       >
-        <div style={{ position: "absolute", inset: 0, borderRadius: 36, backgroundColor: "#8f8ac4" }} />
-        <span style={{ position: "relative", fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#ffffff", letterSpacing: "-0.45px", lineHeight: 1.05, whiteSpace: "nowrap" }}>Edit</span>
+        <span className="text-body4" style={{ whiteSpace: "nowrap" }}>Edit</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/basics/add-16.svg" alt="" width={18} height={18} style={{ position: "relative", flexShrink: 0, filter: "brightness(0) invert(1)" }} />
+        <img src="/icons/basics/add-16.svg" alt="" width={18} height={18} className="shrink-0" style={{ filter: "brightness(0) invert(1)" }} />
       </button>
     </div>
   );
@@ -233,12 +228,12 @@ function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: 
  */
 function TableRow({ label, value, isFirst }: { label: string; value: string; isFirst?: boolean }) {
   return (
-    <div style={{ ...(isFirst ? {} : { borderTop: "1px solid #c6c5c9" }), display: "flex", gap: 12, alignItems: "flex-start", paddingTop: 10, paddingBottom: 10 }}>
-      <div style={{ width: 120, flexShrink: 0 }}>
-        <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#787776", letterSpacing: "-0.39px", lineHeight: "1.18" }}>{label}</span>
+    <div className="flex items-start gap-3" style={{ ...(isFirst ? {} : { borderTop: "1px solid var(--neutral-80)" }), paddingTop: 10, paddingBottom: 10 }}>
+      <div className="shrink-0" style={{ width: 120 }}>
+        <span className="text-caption" style={{ color: "var(--text-secondary)" }}>{label}</span>
       </div>
-      <div style={{ flex: 1 }}>
-        <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>{value}</span>
+      <div className="flex-1">
+        <span className="text-caption" style={{ color: "var(--text-primary)" }}>{value}</span>
       </div>
     </div>
   );
@@ -254,22 +249,22 @@ function TableRow({ label, value, isFirst }: { label: string; value: string; isF
  */
 function StrategyCard({ label, color, drugs }: { label: string; color: string; drugs: string[] }) {
   return (
-    <div style={{ width: "100%" }}>
+    <div className="w-full">
       {/* Header */}
-      <div style={{
-        background: "white", borderRadius: "16px 16px 0 0",
+      <div className="flex items-center rounded-t-[16px] gap-2.5" style={{
+        background: "white",
         borderBottom: `1.5px solid ${color}`,
-        padding: "12px 16px", display: "flex", alignItems: "center", gap: 10,
+        padding: "12px 16px",
       }}>
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color, letterSpacing: "-0.51px", lineHeight: 1.05 }}>{label}</span>
+        <span className="text-body3" style={{ color }}>{label}</span>
       </div>
       {/* Body */}
-      <div style={{
-        background: "white", borderRadius: "0 0 16px 16px",
-        padding: "12px 16px 16px 16px", display: "flex", flexDirection: "column", gap: 6,
+      <div className="flex flex-col rounded-b-[16px] gap-1.5" style={{
+        background: "white",
+        padding: "12px 16px 16px 16px",
       }}>
         {drugs.map((drug, i) => (
-          <div key={i} style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>
+          <div key={i} className="text-caption" style={{ color: "var(--text-primary)" }}>
             {drug}
           </div>
         ))}
@@ -283,7 +278,7 @@ function StrategyCard({ label, color, drugs }: { label: string; color: string; d
 ───────────────────────────────────────────── */
 const VALUE_LABELS = ["BMI", "SBP", "HbA1c", "Fasting glucose"]; // selectedValue 인덱스 → 이름 매핑
 const TREND_LABELS = ["Increase", "Stable", "Decrease"];           // HbA1c 증감 행 레이블
-const STRATEGY_COLORS = ["#3a11d8", "#f06600", "#24c6c9"];        // 전략 A/B/C 컬러
+const STRATEGY_COLORS = ["var(--tertiary-40)", "var(--secondary-60)", "#24c6c9"];        // 전략 A/B/C 컬러
 const STRATEGY_LABELS = ["Strategy A", "Strategy B", "Strategy C"]; // 전략 라벨
 
 /**
@@ -303,39 +298,33 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
   );
 
   return (
-    <div style={{
+    <div className="flex flex-col min-w-0 overflow-hidden rounded-[24px] gap-3" style={{
       flex: flex ?? 1,
       backgroundColor: "rgba(255,255,255,0.6)",
-      borderRadius: 24,
       padding: 16,
-      display: "flex",
-      flexDirection: "column",
-      gap: 24,
-      minWidth: 0,
-      overflow: "hidden",
     }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexShrink: 0 }}>
-        <div style={{ display: "flex", height: 40, alignItems: "center", paddingTop: 4, paddingBottom: 4, flexShrink: 0 }}>
+      <div className="flex items-start shrink-0 gap-2.5">
+        <div className="flex items-center shrink-0" style={{ height: 40, paddingTop: 4, paddingBottom: 4 }}>
           <SimCondIconCompleted />
         </div>
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#484646", letterSpacing: "-0.72px", lineHeight: "1.2", display: "flex", alignItems: "center", height: 40 }}>Simulation Conditions</span>
+        <span className="flex items-center text-body3" style={{ color: "var(--text-primary)", height: 40 }}>Simulation Conditions</span>
       </div>
 
       {/* Content + buttons (flex-1, justify-between) */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Top: summary table + strategy cards — 스크롤 영역 */}
-        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 12, minHeight: 0 }}>
+        <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0 gap-3">
           {/* Summary table */}
-          <div style={{ background: "white", borderRadius: 16, padding: "4px 16px", flexShrink: 0 }}>
+          <div className="shrink-0 rounded-[16px]" style={{ background: "white", padding: "4px 16px" }}>
             {/* Selected Value — 2행 구조 */}
-            <div style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingTop: 10, paddingBottom: 10 }}>
-              <div style={{ width: 120, flexShrink: 0 }}>
-                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#787776", letterSpacing: "-0.39px", lineHeight: "1.18" }}>Selected Value</span>
+            <div className="flex items-start gap-3" style={{ paddingTop: 10, paddingBottom: 10 }}>
+              <div className="shrink-0" style={{ width: 120 }}>
+                <span className="text-caption" style={{ color: "var(--text-secondary)" }}>Selected Value</span>
               </div>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>{valueName}</span>
-                <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "#919092", letterSpacing: "-0.39px", lineHeight: "1.18" }}>{trendSummary}</span>
+              <div className="flex-1 flex flex-col gap-0.5">
+                <span className="text-caption" style={{ color: "var(--text-primary)" }}>{valueName}</span>
+                <span className="text-captionm" style={{ color: "var(--text-secondary)" }}>{trendSummary}</span>
               </div>
             </div>
             <TableRow label="Follow-up Window" value={`${data.followUpMonths} months`} />
@@ -353,7 +342,7 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
         </div>
 
         {/* Bottom: Reset + Edit — 하단 고정 */}
-        <div style={{ flexShrink: 0, paddingTop: 12 }}>
+        <div className="shrink-0" style={{ paddingTop: 12 }}>
           <ResetEditButtons onReset={onReset} onEdit={onClick} />
         </div>
       </div>
@@ -371,33 +360,27 @@ function SimCondCompletedCard({ flex, onClick, onReset, data }: { flex?: number;
  */
 function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number; onClick?: () => void; onReset?: () => void; drugs: { name: string }[] }) {
   return (
-    <div style={{
+    <div className="flex flex-col min-w-0 overflow-hidden rounded-[24px] gap-3" style={{
       flex: flex ?? 1,
       backgroundColor: "rgba(255,255,255,0.6)",
-      borderRadius: 24,
       padding: 16,
-      display: "flex",
-      flexDirection: "column",
-      gap: 24,
-      minWidth: 0,
-      overflow: "hidden",
     }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, flexShrink: 0 }}>
-        <div style={{ display: "flex", height: 40, alignItems: "center", paddingTop: 4, paddingBottom: 4, flexShrink: 0 }}>
+      <div className="flex items-start shrink-0 gap-2.5">
+        <div className="flex items-center shrink-0" style={{ height: 40, paddingTop: 4, paddingBottom: 4 }}>
           <SmilesIconCompleted />
         </div>
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#484646", letterSpacing: "-0.72px", lineHeight: "1.2", display: "flex", alignItems: "center", height: 40 }}>SMILES Settings</span>
+        <span className="flex items-center text-body3" style={{ color: "var(--text-primary)", height: 40 }}>SMILES Settings</span>
       </div>
 
       {/* Content + buttons (flex-1) */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Top: drug list — 스크롤 영역 */}
-        <div style={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
+        <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden min-h-0 gap-2">
           {/* Drug list */}
-          <div style={{ background: "white", borderRadius: 16, padding: "16px", display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
+          <div className="flex flex-col shrink-0 rounded-[16px] gap-2" style={{ background: "white", padding: "16px" }}>
             {drugs.map((drug, i) => (
-              <div key={i} style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px", lineHeight: "1.18" }}>
+              <div key={i} className="text-caption" style={{ color: "var(--text-primary)" }}>
                 <span>{i + 1} {drug.name}</span>
               </div>
             ))}
@@ -405,7 +388,7 @@ function SmilesCompletedCard({ flex, onClick, onReset, drugs }: { flex?: number;
         </div>
 
         {/* Bottom: Reset + Edit — 하단 고정 */}
-        <div style={{ flexShrink: 0, paddingTop: 12 }}>
+        <div className="shrink-0" style={{ paddingTop: 12 }}>
           <ResetEditButtons onReset={onReset} onEdit={onClick} />
         </div>
       </div>
@@ -436,46 +419,47 @@ export default function SimulationSettingPage() {
 
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">
-      <div style={{ display: "flex", flexDirection: "column", width: "calc(100% - 24px)", height: "100%", gap: 24, overflow: "hidden", marginLeft: "8px", marginRight: "8px" }}>
+      <div className="flex flex-col h-full w-full overflow-hidden gap-6">
 
         {/* ── TOP: Title ───────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0, padding: "0 12px" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <h1 onClick={() => router.push("/drd/simulation-setting")} style={{ fontFamily: "Poppins, Inter, sans-serif", fontSize: 42, fontWeight: 600, color: "rgb(17,17,17)", letterSpacing: "-1.5px", lineHeight: 1.1, margin: 0, cursor: "pointer" }}>
+        <div className="flex flex-row items-start justify-between shrink-0 px-1">
+          <div className="flex flex-col">
+            <h1 onClick={() => router.push("/drd/simulation-setting")} className="cursor-pointer text-page-title">
               Simulation Settings
             </h1>
-            <span style={{ fontFamily: "Inter", fontSize: 16, fontWeight: 600, color: "rgb(120,119,118)", letterSpacing: "-0.48px" }}>
+            <span className="text-page-subtitle">
               Configure simulation parameters
             </span>
           </div>
         </div>
 
         {/* ── MAIN: Left + Right panels ───────────────────── */}
-        <div style={{ display: "flex", flexDirection: "row", flex: 1, gap: "0px", minHeight: 0, alignItems: "stretch" }}>
+        <div className="flex flex-row flex-1 min-h-0 items-stretch gap-1">
 
           {/* ── LEFT PANEL (520px) ─────────── */}
         <div
             className="figma-nine-slice figma-home-panel-left
-            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
+            drd-left-panel flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
+              <div className="flex flex-col gap-[8px] overflow-y-auto h-full">
 
               {/* Step 2: SMILES Settings */}
               <button
                 onClick={() => router.push("/drd/smile-setting")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
+                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
                 style={{ background: "transparent", height: 96, justifyContent: "center" }}
               >
                 <div className="flex items-center gap-[18px]">
                   <div className="shrink-0 flex items-center justify-center">
                     <SmilesIconLeft completed={simSmilesCompleted} />
                   </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "#484646" }}>
+                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
                     SMILES Settings
                   </span>
                 </div>
                 <div className="pl-[42px] mt-0">
-                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
+                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
                     Add SMILES strings to define the chemical structures for simulation conditions.
                   </p>
                 </div>
@@ -484,31 +468,32 @@ export default function SimulationSettingPage() {
               {/* Step 1: Simulation Conditions */}
               <button
                 onClick={() => router.push("/drd/simulation-condition")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
+                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
                 style={{ background: "transparent", height: 96, justifyContent: "center" }}
               >
                 <div className="flex items-center gap-[18px]">
                   <div className="shrink-0 flex items-center justify-center">
                     <SimCondIconLeft completed={simCondCompleted} />
                   </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "#484646" }}>
+                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
                     Simulation Conditions
                   </span>
                 </div>
                 <div className="pl-[42px] mt-0">
-                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
+                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
                     Develop a plan to assess the subject&apos;s prognosis based on the entered information.
                   </p>
                 </div>
               </button>
+              </div>
             </div>
           </div>
 
           {/* ── RIGHT PANEL ────────── */}
-             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
+             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
 
             {/* Cards row */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "row", gap: 12, minHeight: 0, paddingTop: 0, paddingBottom: 0, paddingRight: 0 }}>
+            <div className="flex-1 flex flex-row min-h-0 gap-3">
               {simSmilesCompleted ? (
                 <SmilesCompletedCard
                   flex={1}
@@ -545,31 +530,18 @@ export default function SimulationSettingPage() {
             </div>
 
             {/* Bottom buttons */}
-            <div style={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", gap: 12, alignItems: "center" }}>
+            <div className="shrink-0 flex justify-end items-center gap-3">
               <button
                 disabled={!simCondCompleted}
-                style={{
-                  height: 40, paddingLeft: 28, paddingRight: 28, borderRadius: 36,
-                  background: simCondCompleted ? "#787776" : "#c6c5c9",
-                  border: "none",
-                  cursor: simCondCompleted ? "pointer" : "not-allowed",
-                  fontFamily: "Inter", fontSize: 15,fontWeight: 600, color: simCondCompleted ? "#ffffff" : "#e2e1e5", letterSpacing: "-0.51px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
+                className="btn-tsi btn-tsi-secondary"
+                style={{ paddingLeft: 28, paddingRight: 28 }}
               >
                 Save Progress
               </button>
               <button
                 disabled={!simCondCompleted}
                 onClick={() => simCondCompleted && router.push("/drd/simulation-result")}
-                style={{
-                  height: 40, paddingLeft: 24, paddingRight: 24, borderRadius: 36,
-                  background: simCondCompleted ? "#F06600" : "#c6c5c9",
-                  border: "none",
-                  cursor: simCondCompleted ? "pointer" : "not-allowed",
-                  fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: simCondCompleted ? "#ffffff" : "#e2e1e5", letterSpacing: "-0.51px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
+                className="btn-tsi btn-tsi-primary"
               >
                 Apply to Analysis
               </button>

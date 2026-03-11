@@ -490,7 +490,7 @@ export function RightPanel({
                               <div className="flex flex-col h-full">
                                 <div className="flex items-start justify-between">
                                   <div className="flex flex-col gap-1">
-                                    <h4 className="text-body2 text-[#262255]">
+                                    <h4 className="text-body2 text-[var(--text-header)]">
                                       {chart.label}
                                     </h4>
                                     <div className="flex items-center gap-1 mt-1">
@@ -498,7 +498,7 @@ export function RightPanel({
                                         direction={
                                           chart.isNegative ? "up" : "down"
                                         }
-                                        color="#231F52"
+                                        color="var(--icon-on-button)"
                                       />
                                       <span className="text-h4 text-neutral-15">
                                         {chart.change}
@@ -524,7 +524,7 @@ export function RightPanel({
                                   {/* Sample Size - OPTIVIS */}
                                   <div className="flex flex-col gap-1">
                                     <div
-                                      style={{ height: "270px", width: "100%" }}
+                                      className="w-full" style={{ height: "270px" }}
                                     >
                                       <SingleBarChart
                                         value={chart.optivis}
@@ -540,7 +540,7 @@ export function RightPanel({
                                   {/* Sample Size - Traditional */}
                                   <div className="flex flex-col gap-1">
                                     <div
-                                      style={{ height: "270px", width: "100%" }}
+                                      className="w-full" style={{ height: "270px" }}
                                     >
                                       <SingleBarChart
                                         value={chart.traditional}
@@ -569,7 +569,7 @@ export function RightPanel({
                               <div className="flex flex-col h-full">
                                 <div className="flex items-start justify-between">
                                   <div className="flex flex-col gap-1">
-                                    <h4 className="text-body2 text-[#262255]">
+                                    <h4 className="text-body2 text-[var(--text-header)]">
                                       {chart.label}
                                     </h4>
                                     <div className="flex items-center gap-1 mt-1">
@@ -577,7 +577,7 @@ export function RightPanel({
                                         direction={
                                           chart.isNegative ? "up" : "down"
                                         }
-                                        color="#231F52"
+                                        color="var(--icon-on-button)"
                                       />
                                       <span className="text-h4 text-neutral-15">
                                         {chart.change}
@@ -603,7 +603,7 @@ export function RightPanel({
                                   {/* Power - OPTIVIS */}
                                   <div className="flex flex-col gap-1">
                                     <div
-                                      style={{ height: "270px", width: "100%" }}
+                                      className="w-full" style={{ height: "270px" }}
                                     >
                                       <SingleBarChart
                                         value={chart.optivis}
@@ -619,7 +619,7 @@ export function RightPanel({
                                   {/* Power - Traditional */}
                                   <div className="flex flex-col gap-1">
                                     <div
-                                      style={{ height: "270px", width: "100%" }}
+                                      className="w-full" style={{ height: "270px" }}
                                     >
                                       <SingleBarChart
                                         value={chart.traditional}
@@ -646,10 +646,7 @@ export function RightPanel({
               <div className="flex gap-4 flex-[2] min-h-0">
                 {/* Smaller N to screen Card */}
                 <div
-                  className="flex-1 min-w-0 rounded-[24px] overflow-hidden"
-                  style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.6)",
-                  }}
+                  className="flex-1 min-w-0 rounded-[24px] overflow-hidden bg-[var(--layer-secondary)]"
                 >
                   <div className="flex flex-col w-full h-full p-4">
                     {/* Card Header */}
@@ -673,7 +670,7 @@ export function RightPanel({
                                       ? "up"
                                       : "down"
                                   }
-                                  color="#231F52"
+                                  color="var(--icon-on-button)"
                                 />
                                 <p className="text-h4 text-neutral-15">
                                   {simulationData?.smallerNToScreen
@@ -706,7 +703,7 @@ export function RightPanel({
                                 <div className="flex items-center gap-1 mt-1">
                                   <ArrowIcon
                                     direction={chart.isNegative ? "up" : "down"}
-                                    color="#231F52"
+                                    color="var(--icon-on-button)"
                                   />
                                   <p className="text-h4 text-neutral-15">
                                     {chart.change}
@@ -768,7 +765,7 @@ export function RightPanel({
                             <div className="grid grid-cols-2 gap-2 h-full pt-2 px-2 pb-2 items-end">
                               {/* Enrollment Time - OPTIVIS */}
                               <div className="flex flex-col gap-1">
-                                <div style={{ height: "140px", width: "100%" }}>
+                                <div className="w-full" style={{ height: "140px" }}>
                                   <SingleBarChart
                                     value={chart.optivis}
                                     maxValue={Math.max(
@@ -782,7 +779,7 @@ export function RightPanel({
                               </div>
                               {/* Enrollment Time - Traditional */}
                               <div className="flex flex-col gap-1">
-                                <div style={{ height: "140px", width: "100%" }}>
+                                <div className="w-full" style={{ height: "140px" }}>
                                   <SingleBarChart
                                     value={chart.traditional}
                                     maxValue={Math.max(
@@ -831,7 +828,7 @@ export function RightPanel({
                                       ? "up"
                                       : "down"
                                   }
-                                  color="#231F52"
+                                  color="var(--icon-on-button)"
                                 />
                                 <p className="text-h4 text-neutral-15">
                                   {simulationData?.lowerCost?.percentage ||
@@ -862,7 +859,7 @@ export function RightPanel({
                                 <div className="flex items-center gap-1 mt-1">
                                   <ArrowIcon
                                     direction={chart.isNegative ? "up" : "down"}
-                                    color="#231F52"
+                                    color="var(--icon-on-button)"
                                   />
                                   <p className="text-h4 text-neutral-15">
                                     {chart.change}
@@ -923,7 +920,7 @@ export function RightPanel({
                             <div className="grid grid-cols-2 gap-2 h-full pt-2 px-2 pb-2 items-end">
                               {/* Cost - OPTIVIS */}
                               <div className="flex flex-col gap-1">
-                                <div style={{ height: "140px", width: "100%" }}>
+                                <div className="w-full" style={{ height: "140px" }}>
                                   <SingleBarChart
                                     value={chart.optivis}
                                     maxValue={Math.max(
@@ -938,7 +935,7 @@ export function RightPanel({
                               </div>
                               {/* Cost - Traditional */}
                               <div className="flex flex-col gap-1">
-                                <div style={{ height: "140px", width: "100%" }}>
+                                <div className="w-full" style={{ height: "140px" }}>
                                   <SingleBarChart
                                     value={chart.traditional}
                                     maxValue={Math.max(
@@ -1310,7 +1307,7 @@ export function RightPanel({
                                       direction={
                                         chart.isNegative ? "up" : "down"
                                       }
-                                      color="#231F52"
+                                      color="var(--icon-on-button)"
                                     />
                                     <span className="text-body1m text-neutral-30">
                                       {chart.change}
@@ -1337,7 +1334,7 @@ export function RightPanel({
                                   <FullscreenIcon />
                                 </button>
                               </div>
-                              <div className="mt-auto" style={{ height: "120px", width: "100%" }}>
+                              <div className="mt-auto w-full" style={{ height: "120px" }}>
                                 <ComparisonBarChart
                                   optivisValue={chart.optivis}
                                   traditionalValue={chart.traditional}
@@ -1373,7 +1370,7 @@ export function RightPanel({
                                         ? "up"
                                         : "down"
                                     }
-                                    color="#231F52"
+                                    color="var(--icon-on-button)"
                                   />
                                   <span className="text-body1m text-neutral-30">
                                     {simulationData.smallerSample.percentage ||
@@ -1426,7 +1423,7 @@ export function RightPanel({
                                           ? "up"
                                           : "down"
                                       }
-                                      color="#231F52"
+                                      color="var(--icon-on-button)"
                                     />
                                     <span className="text-body1m text-neutral-30">
                                       {simulationData.smallerNToScreen
@@ -1478,7 +1475,7 @@ export function RightPanel({
                                           ? "up"
                                           : "down"
                                       }
-                                      color="#231F52"
+                                      color="var(--icon-on-button)"
                                     />
                                     <span className="text-body1m text-neutral-30">
                                       {simulationData.lowerCost.percentage ||

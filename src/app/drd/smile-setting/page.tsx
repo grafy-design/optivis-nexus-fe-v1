@@ -98,10 +98,11 @@ function GlassIconButton({ children, onClick }: { children: React.ReactNode; onC
   return (
     <div
       onClick={onClick}
-      style={{ position: "relative", width: 44, height: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+      className="relative flex items-center justify-center shrink-0 cursor-pointer"
+      style={{ width: 44, height: 44 }}
     >
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+      <div className="absolute inset-0 rounded-full" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
+      <div className="relative" style={{ zIndex: 1 }}>{children}</div>
     </div>
   );
 }
@@ -118,7 +119,7 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "#C6C5C9" : pressed ? "#3a11d8" : "#262255";
+  const textColor = disabled ? "#C6C5C9" : pressed ? "#3a11d8" : "var(--text-header)";
   return (
     <div
       onClick={!disabled ? onClick : undefined}
@@ -126,33 +127,24 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
       onMouseLeave={() => { setHovered(false); setPressed(false); }}
       onMouseDown={() => !disabled && setPressed(true)}
       onMouseUp={() => setPressed(false)}
+      className="relative flex items-center justify-center shrink-0 rounded-full"
       style={{
-        position: "relative",
         height: 40,
         paddingLeft: 20,
         paddingRight: 20,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         cursor: disabled ? "not-allowed" : "pointer",
-        flexShrink: 0,
-        borderRadius: 36,
         boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)",
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "#333333", mixBlendMode: "color-dodge" }} />
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: bg, transition: "background 0.12s" }} />
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, border: pressed ? "2px solid rgba(58,17,216,0.19)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
+      <div className="absolute inset-0 rounded-full" style={{ background: "#333333", mixBlendMode: "color-dodge" }} />
+      <div className="absolute inset-0 rounded-full" style={{ background: bg, transition: "background 0.12s" }} />
+      <div className="absolute inset-0 rounded-full" style={{ border: pressed ? "2px solid rgba(58,17,216,0.19)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
       <span
+        className="relative text-body3"
         style={{
-          position: "relative",
           zIndex: 1,
-          fontFamily: "Inter, sans-serif",
-          fontWeight: 600,
-          fontSize: 17,
           color: textColor,
-          letterSpacing: "-0.51px",
           whiteSpace: "nowrap",
           paddingTop: 2,
           transition: "color 0.12s",
@@ -174,7 +166,8 @@ function GlassTestButton({ onClick, disabled }: { onClick?: () => void; disabled
  */
 function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => void; onSimCondClick: () => void }) {
   return (
-    <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
+    <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
+      <div className="flex flex-col gap-[8px] overflow-y-auto h-full">
       {/* Step 2 - SMILES Settings (Active) */}
       <button
         onClick={onSmilesClick}
@@ -188,10 +181,10 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
               alt="SMILES Settings"
               width={24}
               height={24}
-              style={{ flexShrink: 0 }}
+              className="shrink-0"
             />
           </div>
-          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "white" }}>
+          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-inverted)" }}>
             SMILES Settings
           </span>
         </div>
@@ -205,7 +198,7 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
       {/* Step 1 - Simulation Conditions (Inactive) */}
       <button
         onClick={onSimCondClick}
-        className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
+        className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95"
         style={{ background: "transparent", height: 96, justifyContent: "center" }}
       >
         <div className="flex items-center gap-[18px]">
@@ -215,19 +208,20 @@ function SetupSteps({ onSmilesClick, onSimCondClick }: { onSmilesClick: () => vo
               alt="Simulation Conditions"
               width={24}
               height={24}
-              style={{ flexShrink: 0 }}
+              className="shrink-0"
             />
           </div>
-          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "rgb(72,70,70)" }}>
+          <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
             Simulation Conditions
           </span>
         </div>
         <div className="pl-[42px] mt-0">
-          <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
+          <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
             Develop a plan to assess the subject&apos;s prognosis based on the entered information.
           </p>
         </div>
       </button>
+      </div>
     </div>
   );
 }
@@ -272,10 +266,10 @@ function MoleculeIcon() {
       <line x1="54" y1="36" x2="61" y2="30" stroke="#AAA5E1" strokeWidth="1.5" />
       <line x1="36" y1="44" x2="29" y2="50" stroke="#AAA5E1" strokeWidth="1.5" />
       <line x1="54" y1="44" x2="61" y2="50" stroke="#AAA5E1" strokeWidth="1.5" />
-      <text x="18" y="31" fontSize="9" fill="#262255" fontFamily="Inter" fontWeight="600">C</text>
-      <text x="63" y="31" fontSize="9" fill="#262255" fontFamily="Inter" fontWeight="600">O</text>
-      <text x="18" y="57" fontSize="9" fill="#262255" fontFamily="Inter" fontWeight="600">N</text>
-      <text x="62" y="57" fontSize="9" fill="#262255" fontFamily="Inter" fontWeight="600">Cl</text>
+      <text x="18" y="31" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">C</text>
+      <text x="63" y="31" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">O</text>
+      <text x="18" y="57" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">N</text>
+      <text x="62" y="57" fontSize="9" fill="var(--text-header)" fontFamily="Inter" fontWeight="600">Cl</text>
     </svg>
   );
 }
@@ -355,9 +349,9 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
     const after = text.slice(matchIdx + query.length);
     return (
       <>
-        {before && <span style={{ color: "#787776" }}>{before}</span>}
-        <span style={{ color: "#3A11D8" }}>{match}</span>
-        {after && <span style={{ color: "#787776" }}>{after}</span>}
+        {before && <span style={{ color: "var(--text-secondary)" }}>{before}</span>}
+        <span style={{ color: "var(--text-active)" }}>{match}</span>
+        {after && <span style={{ color: "var(--text-secondary)" }}>{after}</span>}
       </>
     );
   };
@@ -369,13 +363,9 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
       onMouseLeave={() => { setHovered(false); setPressed(false); }}
       onMouseDown={() => !isAdded && setPressed(true)}
       onMouseUp={() => setPressed(false)}
+      className="flex w-full shrink-0 overflow-hidden rounded-[18px]"
       style={{
-        display: "flex",
-        width: "100%",
-        flexShrink: 0,
-        overflow: "hidden",
         border: cardBorder,
-        borderRadius: 18,
         cursor: isAdded ? "default" : onClick ? "pointer" : "default",
         transition: "border 0.12s",
         boxShadow: pressed ? "0 0 0 3px rgba(58,17,216,0.10)" : "none",
@@ -383,39 +373,29 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
     >
       {/* 왼쪽 - 분자 구조 카드 */}
       <div
+        className="flex flex-col shrink-0 gap-2"
         style={{
           background: leftBg,
           width: 220,
-          flexShrink: 0,
           padding: 12,
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
           transition: "background 0.12s",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="flex items-center justify-between">
           {/* 유사도 배지 + 번호 */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="flex items-center gap-2">
             <div
+              className="flex items-center justify-center rounded-[8px]"
               style={{
                 background: isAdded ? "#F06600" : "#AAA5E1",
-                borderRadius: 8,
                 width: 60,
                 height: 26,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
               }}
             >
               <span
+                className="text-body4"
                 style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 600,
-                  fontSize: 15,
                   color: "white",
-                  letterSpacing: "-0.75px",
-                  lineHeight: 1.15,
                 }}
               >
                 {similarity}
@@ -423,36 +403,26 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
             </div>
             {isAdded && (
               <span
+                className="flex items-center justify-center rounded-[8px] text-body4"
                 style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 600,
-                  fontSize: 15,
                   color: "white",
-                  letterSpacing: "-0.75px",
                   background: "#F06600",
-                  borderRadius: 8,
                   width: 22,
                   height: 22,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
               >
                 {addedIndex}
               </span>
             )}
           </div>
-          <div style={{ cursor: "pointer", transform: "rotate(180deg)" }} onClick={(e) => e.stopPropagation()}>
+          <div className="cursor-pointer" style={{ transform: "rotate(180deg)" }} onClick={(e) => e.stopPropagation()}>
             <IconExpand />
           </div>
         </div>
         {/* 분자 구조 영역 */}
         <div
+          className="flex-1 flex items-center justify-center"
           style={{
-            flex: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             minHeight: 96,
           }}
         >
@@ -465,30 +435,22 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
       </div>
 
       {/* 가운데 - 라벨 컬럼 */}
-      <div style={{ display: "flex", flexDirection: "column", flexShrink: 0, width: "fit-content" }}>
+      <div className="flex flex-col shrink-0" style={{ width: "fit-content" }}>
         {labelRows.map((label, i) => (
           <div
             key={label}
+            className="w-full flex-1 flex items-center justify-center"
             style={{
               background: labelBg,
               borderBottom: i < labelRows.length - 1 ? rowBorderBottom : undefined,
-              width: "100%",
-              flex: 1,
               minHeight: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               padding: "8px 10px",
             }}
           >
             <span
+              className="text-body4"
               style={{
-                fontFamily: "Inter, sans-serif",
-                fontWeight: 600,
-                fontSize: 15,
                 color: "#1C1B1B",
-                letterSpacing: "-0.75px",
-                lineHeight: 1.15,
                 whiteSpace: "nowrap",
               }}
             >
@@ -499,33 +461,25 @@ function DrugCard({ similarity, smiles, drugName, mf, mw, smilesImage, searchQue
       </div>
 
       {/* 오른쪽 - 데이터 컬럼 */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+      <div className="flex flex-col flex-1 min-w-0">
         {dataRows.map((val, i) => (
           <div
             key={i}
+            className="flex-1 flex items-center justify-center"
             style={{
               background: dataBg,
               borderBottom: i < dataRows.length - 1 ? rowBorderBottom : undefined,
-              flex: 1,
               minHeight: 40,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               padding: "8px 10px",
             }}
           >
             <span
+              className="w-full text-body5m"
               style={{
-                fontFamily: "Inter, sans-serif",
-                fontWeight: 500,
-                fontSize: 12,
                 color: dataTextColor(i),
-                letterSpacing: "-0.48px",
-                lineHeight: 1.4,
                 whiteSpace: "normal",
                 wordBreak: "break-all",
                 textAlign: "center",
-                width: "100%",
                 transition: "color 0.15s",
               }}
             >
@@ -576,98 +530,75 @@ function DrugTooltip({ name, anchorRect, smilesImage }: { name: string; anchorRe
 
   const content = (
     <div
+      className="fixed flex overflow-hidden pointer-events-none rounded-[24px]"
       style={{
-        position: "fixed",
         left: Math.max(8, left),
         top,
         transform: "translateY(-50%)",
         zIndex: 9999,
-        borderRadius: 24,
         background: "#262255",
         boxShadow: "0 8px 40px rgba(0,0,0,0.28)",
-        display: "flex",
         width: tooltipWidth,
-        pointerEvents: "none",
         padding: 12,
-        overflow: "hidden",
       }}
     >
-      <div style={{ display: "flex",  
-        borderRadius: 16,
-        overflow: "hidden",}}>
+      <div className="flex overflow-hidden rounded-[16px]">
       {/* 글래스 오버레이 */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(38,38,38,0.25)", mixBlendMode: "color-dodge", borderRadius: 36, pointerEvents: "none" }} />
+      <div className="absolute inset-0 pointer-events-none rounded-full" style={{ background: "rgba(38,38,38,0.25)", mixBlendMode: "color-dodge" }} />
       {/* 왼쪽: 분자 구조 */}
       <div
+        className="relative shrink-0 flex items-center justify-center"
         style={{
           width: 180,
-          flexShrink: 0,
           background: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
           padding: 16,
-          position: "relative",
           zIndex: 1,
         }}
       >
         {smilesImage ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={smilesImage} alt={name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          <img src={smilesImage} alt={name} className="w-full h-full" style={{ objectFit: "contain" }} />
         ) : (
           <MoleculeIcon />
         )}
       </div>
       {/* 오른쪽: 테이블 */}
       <div
+        className="relative flex-1 flex flex-col overflow-hidden"
         style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          position: "relative",
           zIndex: 1,
           background: "white",
-          overflow: "hidden",
         }}
       >
         {rows.map((row, i) => (
           <div
             key={row.label}
+            className="flex items-stretch flex-1"
             style={{
-              display: "flex",
-              alignItems: "stretch",
               borderBottom: i < rows.length - 1 ? "1px solid #EEEEF2" : undefined,
               minHeight: 40,
-              flex: 1,
             }}
           >
             {/* 라벨 */}
             <div
+              className="shrink-0 flex items-center justify-center"
               style={{
                 width: 120,
-                flexShrink: 0,
                 background: "#F3EEFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
                 padding: "6px 10px",
                 borderRight: "1px solid #EEEEF2",
               }}
             >
-              <span style={{ fontFamily: "Inter, sans-serif", fontWeight: 600, fontSize: 13, color: "#484646", letterSpacing: "-0.39px", lineHeight: 1.15, textAlign: "center" }}>
+              <span className="text-caption" style={{ color: "var(--text-primary)", textAlign: "center" }}>
                 {row.label}
               </span>
             </div>
             {/* 값 */}
-            <div style={{ flex: 1, padding: "6px 10px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div className="flex-1 flex items-center justify-center" style={{ padding: "6px 10px" }}>
               <span
+                className="text-body5m"
                 style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 500,
-                  fontSize: 12,
-                  color: "#484646",
-                  letterSpacing: "-0.48px",
-                  lineHeight: 1.1,
+                  color: "var(--text-primary)",
                   textAlign: "center",
                   wordBreak: "break-all",
                 }}
@@ -705,24 +636,19 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
 
   return (
     <div
+      className="relative flex items-center w-full rounded-[12px] gap-2"
       style={{
         background: "white",
-        borderRadius: 12,
         height: 50,
         padding: 12,
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        width: "100%",
-        position: "relative",
       }}
     >
       {/* 오렌지 번호 배지 */}
-      <div style={{ position: "relative", display: "inline-grid", placeItems: "start", flexShrink: 0 }}>
+      <div className="relative shrink-0" style={{ display: "inline-grid", placeItems: "start" }}>
         <div
+          className="rounded-[24px]"
           style={{
             background: "var(--secondary-60, #F06600)",
-            borderRadius: 24,
             width: 24,
             height: 24,
             gridColumn: 1,
@@ -730,19 +656,13 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
           }}
         />
         <div
+          className="flex items-center justify-center text-body4"
           style={{
             gridColumn: 1,
             gridRow: 1,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             width: 24,
             height: 24,
-            fontFamily: "Inter, sans-serif",
-            fontWeight: 600,
-            fontSize: 15,
             color: "white",
-            letterSpacing: "-0.75px",
           }}
         >
           {index}
@@ -750,34 +670,28 @@ function SavedDrugItem({ index, name, smilesImage, onDelete }: SavedDrugItemProp
       </div>
       {/* 이름 */}
       <span
+        className="flex-1 overflow-hidden text-body4"
         style={{
-          flex: 1,
-          fontFamily: "Inter, sans-serif",
-          fontWeight: 600,
-          fontSize: 15,
           color: "#1C1B1B",
-          letterSpacing: "-0.75px",
-          lineHeight: 1.15,
           whiteSpace: "nowrap",
-          overflow: "hidden",
           textOverflow: "ellipsis",
         }}
       >
         {name}
       </span>
       {/* 아이콘들 */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
+      <div className="flex items-center shrink-0 gap-2">
         {/* 테이블 아이콘 — hover 시 툴팁 */}
         <div
           ref={iconRef}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+          className="cursor-pointer flex items-center justify-center"
         >
           <Image src="/icons/basics/data-table-24.svg" alt="Data Table" width={24} height={24} />
           {showTooltip && anchorRect && <DrugTooltip name={name} anchorRect={anchorRect} smilesImage={smilesImage} />}
         </div>
-        <div onClick={onDelete} style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div onClick={onDelete} className="cursor-pointer flex items-center justify-center">
           <Image src="/icons/basics/delete-24.svg" alt="Delete" width={24} height={24} />
         </div>
       </div>
@@ -901,11 +815,11 @@ export default function SmileSettingPage() {
   return (
     <AppLayout headerType="drd" drdStep={2} scaleMode="none">
       
-      <div className="drd-page-root">
+      <div className="flex flex-col h-full gap-6">
         {/* 페이지 타이틀 */}
-        <div className="flex flex-row items-start justify-between shrink-0 px-3">
+        <div className="flex flex-row items-start justify-between shrink-0 px-1">
           <div className="flex flex-col">
-            <h1 onClick={() => router.push("/drd/simulation-setting")} className="drd-page-h1">
+            <h1 onClick={() => router.push("/drd/simulation-setting")} className="text-page-title">
               Simulation Settings
             </h1>
             <span className="drd-page-subtitle">
@@ -915,11 +829,11 @@ export default function SmileSettingPage() {
         </div>
 
         {/* 투 컬럼 레이아웃 */}
-        <div className="drd-content-row">
+        <div className="drd-content-row gap-1">
           {/* ── 왼쪽 패널 (380px) ── 9-slice 글래스 ── */}
          <div
             className="figma-nine-slice figma-home-panel-left
-            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
+            drd-left-panel flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
             <SetupSteps
               onSmilesClick={() => router.push("/drd/smile-setting")}
@@ -929,18 +843,14 @@ export default function SmileSettingPage() {
 
           {/* ── 오른쪽 패널 (flex-1) ── 9-slice 글래스 ── */}
          {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
+             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
 
             {/* 헤더 행: 제목 + 버튼들 */}
             <div className="flex items-center justify-between h-10 shrink-0">
               <span
+                className="text-body1"
                 style={{
-                  fontFamily: "Inter, sans-serif",
-                  fontWeight: 600,
-                  fontSize: 24,
-                  color: "var(--primary-15, #262255)",
-                  letterSpacing: "-0.72px",
-                  lineHeight: 1.2,
+                  color: "var(--text-header)",
                   paddingLeft: 8,
                 }}
               >
@@ -963,39 +873,27 @@ export default function SmileSettingPage() {
               <div className="flex-[4] flex flex-col gap-3 min-h-0 min-w-0 overflow-hidden">
               {/* Chemical Structure 검색 바 */}
               <div
+                className="flex flex-col shrink-0 rounded-[24px] gap-3"
                 style={{
                   background: "white",
-                  borderRadius: 24,
                   padding: "11px 16px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                  flexShrink: 0,
                 }}
               >
                 <span
+                  className="text-body3"
                   style={{
-                    fontFamily: "Inter, sans-serif",
-                    fontWeight: 600,
-                    fontSize: 17,
-                    color: "var(--primary-15, #262255)",
-                    letterSpacing: "-0.68px",
-                    lineHeight: 1.12,
+                    color: "var(--text-header)",
                   }}
                 >
                   Chemical Structure
                 </span>
                 <div
                   onClick={() => inputRef.current?.focus()}
+                  className="flex items-center cursor-text rounded-[8px] gap-1"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
                     border: `1px solid ${isFocused ? "#4013EE" : "#C6C5C9"}`,
-                    borderRadius: 8,
                     padding: "0 8px",
                     height: 36,
-                    cursor: "text",
                   }}
                 >
                   <IconSearch />
@@ -1006,23 +904,16 @@ export default function SmileSettingPage() {
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="Search SMILES"
+                    className="flex-1 border-none min-w-0 text-body4m"
                     style={{
-                      flex: 1,
-                      border: "none",
                       outline: "none",
                       background: "transparent",
-                      fontFamily: "Inter, sans-serif",
-                      fontWeight: 500,
-                      fontSize: 15,
-                      color: "#484646",
-                      letterSpacing: "-0.45px",
-                      lineHeight: 1.1,
-                      minWidth: 0,
+                      color: "var(--text-primary)",
                     }}
                   />
                   {smilesValue && (
                     <div
-                      style={{ cursor: "pointer", flexShrink: 0 }}
+                      className="cursor-pointer shrink-0"
                       onClick={(e) => { e.stopPropagation(); setSmilesValue(""); inputRef.current?.focus(); }}
                     >
                       <IconClear />
@@ -1033,87 +924,57 @@ export default function SmileSettingPage() {
 
               {/* Similarity 결과 (네이비 배경) — 항상 표시 */}
               <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  flex: 1,
-                  minHeight: 0,
-                  overflow: "hidden",
-                }}
+                className="flex flex-1 min-h-0 overflow-hidden gap-3"
               >
                 {/* 좌: 검색 결과 (네이비 배경) */}
                 <div
+                  className="flex-1 flex flex-col overflow-hidden min-w-0 rounded-[24px]"
                   style={{
-                    flex: 1,
                     background: "var(--primary-15, #262255)",
-                    borderRadius: 24,
-                    display: "flex",
-                    flexDirection: "column",
-                    overflow: "hidden",
-                    minWidth: 0,
                   }}
                 >
                   {/* 결과 헤더 */}
                   <div
+                    className="flex flex-col shrink-0 gap-2"
                     style={{
                       padding: "16px 14px 0 14px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 8,
-                      flexShrink: 0,
                     }}
                   >
                     {/* 제목 + 정렬 */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div className="flex items-center justify-between">
                       <span
+                        className="text-body3"
                         style={{
-                          fontFamily: "Inter, sans-serif",
-                          fontWeight: 600,
-                          fontSize: 17,
                           color: "white",
-                          letterSpacing: "-0.68px",
-                          lineHeight: 1.12,
                         }}
                       >
                         Similarity results (40)
                       </span>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div className="flex items-center gap-2">
                         <span
+                          className="text-body4m"
                           style={{
-                            fontFamily: "Inter, sans-serif",
-                            fontWeight: 500,
-                            fontSize: 15,
                             color: "#AAAAAD",
-                            letterSpacing: "-0.45px",
                           }}
                         >
                           Sort by
                         </span>
                         {/* 드롭다운 */}
-                        <div ref={dropdownRef} style={{ position: "relative" }}>
+                        <div ref={dropdownRef} className="relative">
                           <div
                             onClick={() => setSortOpen((v) => !v)}
+                            className="flex items-center cursor-pointer select-none rounded-[8px] gap-0.5"
                             style={{
                               background: "#EFEFF4",
-                              borderRadius: 8,
                               height: 28,
-                              display: "flex",
-                              alignItems: "center",
                               padding: "0 6px 0 8px",
-                              gap: 2,
-                              cursor: "pointer",
-                              userSelect: "none",
                               minWidth: 100,
                             }}
                           >
                             <span
+                              className="flex-1 text-body5"
                               style={{
-                                fontFamily: "Inter, sans-serif",
-                                fontWeight: 600,
-                                fontSize: 12,
-                                color: "#484646",
-                                letterSpacing: "-0.48px",
-                                flex: 1,
+                                color: "var(--text-primary)",
                               }}
                             >
                               {sortValue}
@@ -1129,40 +990,32 @@ export default function SmileSettingPage() {
                           </div>
                           {sortOpen && (
                             <div
+                              className="absolute w-full overflow-hidden rounded-[8px]"
                               style={{
-                                position: "absolute",
                                 top: "calc(100% + 4px)",
                                 right: 0,
                                 background: "#EFEFF4",
-                                borderRadius: 8,
                                 border: "1px solid #C6C5C9",
-                                overflow: "hidden",
                                 zIndex: 100,
-                                width: "100%",
                               }}
                             >
                               {(["Relevance", "Similarity"] as const).map((opt) => (
                                 <div
                                   key={opt}
                                   onClick={() => { setSortValue(opt); setSortOpen(false); }}
+                                  className="flex items-center cursor-pointer"
                                   style={{
                                     height: 28,
-                                    display: "flex",
-                                    alignItems: "center",
                                     padding: "0 8px",
-                                    cursor: "pointer",
                                     background: sortValue === opt ? "#DDDDE6" : "transparent",
                                   }}
                                   onMouseEnter={(e) => { if (sortValue !== opt) (e.currentTarget as HTMLDivElement).style.background = "#E8E8F0"; }}
                                   onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = sortValue === opt ? "#DDDDE6" : "transparent"; }}
                                 >
                                   <span
+                                    className="text-body5"
                                     style={{
-                                      fontFamily: "Inter, sans-serif",
-                                      fontWeight: 600,
-                                      fontSize: 12,
-                                      color: "#787776",
-                                      letterSpacing: "-0.48px",
+                                      color: "var(--text-secondary)",
                                     }}
                                   >
                                     {opt}
@@ -1176,51 +1029,42 @@ export default function SmileSettingPage() {
                     </div>
 
                     {/* 슬라이더 */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, paddingBottom: 4 }}>
+                    <div className="flex flex-col gap-1" style={{ paddingBottom: 4 }}>
                       <div
+                        className="flex justify-between text-body5"
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          fontFamily: "Inter, sans-serif",
-                          fontWeight: 600,
-                          fontSize: 12,
                           color: "white",
-                          letterSpacing: "-0.36px",
                         }}
                       >
                         <span>Size -</span>
                         <span>Power +</span>
                       </div>
-                      <div style={{ position: "relative", height: 24 }}>
+                      <div className="relative" style={{ height: 24 }}>
                         {/* 트랙 배경 + 채워진 트랙 */}
                         <div
+                          className="absolute overflow-hidden rounded-[6px]"
                           style={{
-                            position: "absolute",
                             top: "50%",
                             left: 0,
                             right: 0,
                             transform: "translateY(-50%)",
                             height: 10,
-                            borderRadius: 6,
-                            overflow: "hidden",
                           }}
                         >
-                          <div style={{ position: "absolute", inset: 0, background: "#C6C5C9" }} />
-                          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${((similarityThreshold - 85) / 15) * 100}%`, background: "var(--secondary-60, #F06600)" }} />
+                          <div className="absolute inset-0" style={{ background: "#C6C5C9" }} />
+                          <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: `${((similarityThreshold - 85) / 15) * 100}%`, background: "var(--secondary-60, #F06600)" }} />
                         </div>
                         {/* 썸 */}
                         <div
+                          className="absolute pointer-events-none rounded-full"
                           style={{
-                            position: "absolute",
                             top: "50%",
                             left: `calc(12px + ${((similarityThreshold - 85) / 15) * 100}% * (100% - 24px) / 100%)`,
                             transform: "translate(-50%, -50%)",
                             width: 24,
                             height: 24,
-                            borderRadius: "50%",
                             background: "#F9F8FC",
                             boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
-                            pointerEvents: "none",
                           }}
                         />
                         {/* 실제 range input (투명 오버레이) */}
@@ -1231,29 +1075,22 @@ export default function SmileSettingPage() {
                           step={1}
                           value={similarityThreshold}
                           onChange={(e) => setSimilarityThreshold(Number(e.target.value))}
+                          className="absolute h-full cursor-pointer"
                           style={{
-                            position: "absolute",
                             top: 0,
                             bottom: 0,
                             left: 12,
                             right: 12,
                             width: "calc(100% - 24px)",
-                            height: "100%",
                             opacity: 0,
-                            cursor: "pointer",
                             margin: 0,
                           }}
                         />
                       </div>
                       <div
+                        className="flex justify-between text-body5m"
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          fontFamily: "Inter, sans-serif",
-                          fontWeight: 500,
-                          fontSize: 12,
                           color: "white",
-                          letterSpacing: "-0.48px",
                         }}
                       >
                         <span>85%</span>
@@ -1266,13 +1103,9 @@ export default function SmileSettingPage() {
 
                   {/* 약물 카드 목록 */}
                   <div
+                    className="flex-1 flex flex-col overflow-y-auto gap-4"
                     style={{
-                      flex: 1,
-                      overflowY: "auto",
                       padding: "12px 14px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 16,
                     }}
                   >
                     {(() => {
@@ -1311,8 +1144,8 @@ export default function SmileSettingPage() {
 
                       if (selected.length === 0) {
                         return (
-                          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.35)", letterSpacing: "-0.39px", lineHeight: 1.4, textAlign: "center" }}>
+                          <div className="flex-1 flex items-center justify-center">
+                            <span className="text-captionm" style={{ color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
                               Search a SMILES string above<br />to see similarity results here.
                             </span>
                           </div>
@@ -1337,18 +1170,13 @@ export default function SmileSettingPage() {
 
               {/* 우: 저장된 약물 리스트 — 항상 표시 */}
                 <div
+                  className="flex-1 min-w-0 rounded-[24px] overflow-hidden min-h-0"
                   style={{
-                    flex: 1,
-                    minWidth: 0,
                     background: "rgba(255,255,255,0.6)",
-                    borderRadius: 24,
                     padding: "16px 15px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 16,
-                    overflowY: "auto",
                   }}
                 >
+                <div className="flex flex-col overflow-y-auto gap-4 h-full">
                   {savedDrugList.map((drug: { name: string; smilesImage?: string }, i: number) => (
                     <SavedDrugItem
                       key={i}
@@ -1372,29 +1200,15 @@ export default function SmileSettingPage() {
                     />
                   ))}
                 </div>
+                </div>
             </div>
 
             {/* 하단 버튼 */}
             <div className="shrink-0 flex flex-row justify-end gap-3 items-center">
               <button
                 onClick={() => router.push("/drd/simulation-setting")}
-                style={{
-                  height: 42,
-                  paddingLeft: 24,
-                  paddingRight: 24,
-                  borderRadius: 36,
-                  backgroundColor: "rgb(120,119,118)",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "Inter",
-                  fontSize: 17,
-                  fontWeight: 600,
-                  color: "#ffffff",
-                  letterSpacing: "-0.51px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                className="btn-tsi btn-tsi-secondary"
+                style={{ height: 42 }}
               >
                 Cancel
               </button>
@@ -1406,24 +1220,8 @@ export default function SmileSettingPage() {
                   setSimSmilesCompleted(true);
                   router.push("/drd/simulation-setting");
                 }}
-                style={{
-                  height: 42,
-                  paddingLeft: 24,
-                  paddingRight: 24,
-                  borderRadius: 36,
-                  backgroundColor: savedDrugList.length === 0 ? "#c6c5c9" : "#F06600",
-                  border: "none",
-                  cursor: savedDrugList.length === 0 ? "not-allowed" : "pointer",
-                  fontFamily: "Inter",
-                  fontSize: 17,
-                  fontWeight: 600,
-                  color: savedDrugList.length === 0 ? "#e2e1e5" : "#ffffff",
-                  letterSpacing: "-0.51px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "background 0.15s",
-                }}
+                className="btn-tsi btn-tsi-primary"
+                style={{ height: 42 }}
               >
                 Confirm
               </button>

@@ -16,20 +16,7 @@ export const MainContainer: React.FC<MainContainerProps> = ({ children, extraPad
      * padding: 좌우 14px (sidebar가 96px 이미 처리)
      * 높이: 화면 전체 채움 (overflow auto로 스크롤)
      */
-    <main
-      style={{
-        width: "100%",
-        flex: 1,
-        minHeight: 0,
-        display: "flex",
-        flexDirection: "column",
-        paddingLeft: noPadding ? 0 : "5px",
-        paddingRight: noPadding ? 0 : "5px",
-        paddingTop: noPadding ? 0 : "5px",
-        paddingBottom: noPadding ? 0 : `${5 + extraPaddingBottom}px`,
-        boxSizing: "border-box",
-        overflow: "hidden",
-      }}
+    <main className="w-full flex-1 min-h-0 flex flex-col box-border overflow-hidden px-7 -ml-1 gap-6 "
     >
       {children}
     </main>

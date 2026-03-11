@@ -20,7 +20,10 @@
       "mcp__plugin_playwright_playwright__browser_resize",
       "mcp__plugin_playwright_playwright__browser_evaluate",
       "mcp__plugin_playwright_playwright__browser_run_code",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(npm show:*)",
+      "Bash(npm install:*)",
+      "Bash(py:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\GRAFY_BOSS_DESKTOP\\Desktop\\nexus-fe-grafy\\src\\components\\tsi"

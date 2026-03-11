@@ -37,21 +37,21 @@ export default function Gauge({
   width = 227,
   height = 135,
   strokeWidth = 25,
-  filledColor = "#231F52",
+  filledColor = "var(--icon-on-button)",
 
   gapDegrees = 20,
   backgroundColor = "#e7e5e7",
 
-  emptyBorderColor: _emptyBorderColor = "#111111",
+  emptyBorderColor: _emptyBorderColor = "var(--neutral-5)",
   borderThickness: _borderThickness = 4,
 
-  hatchColor = "#111111",
+  hatchColor = "var(--neutral-5)",
   hatchOpacity = 0.35,
   hatchSpacing = 8,
   hatchThickness = 2,
   hatchAngle = 35,
 
-  emptyBaseColor = "#111111",
+  emptyBaseColor = "var(--neutral-5)",
   emptyBaseOpacity: _emptyBaseOpacity = 0.06,
 
   text,
@@ -192,7 +192,7 @@ export default function Gauge({
           <>
             <path
               d={emptyPath}
-              stroke="#111111"
+              stroke="var(--neutral-5)"
               strokeWidth={strokeWidth}
               strokeOpacity={0.8}
               strokeLinecap="round"
@@ -235,14 +235,14 @@ export default function Gauge({
               cx="7.32219"
               cy="10.9906"
               r="4.43204"
-              stroke="#231F52"
+              stroke="var(--icon-on-button)"
               strokeWidth="1.13592"
               fill="none"
             />
             <g transform={`rotate(${indicatorRotation} 7.32219 10.9906)`}>
               <path
                 d="M15.1923 4.54988C15.8644 4.69679 16.3266 5.31508 16.2772 6.00128L16.1363 7.95936C16.0443 9.23747 14.4145 9.715 13.6474 8.68863L11.8704 6.31135C11.1032 5.28499 12.0226 3.85707 13.2744 4.13069L15.1923 4.54988Z"
-                fill="black"
+                fill="var(--neutral-0)"
                 fillOpacity="0.5"
               />
             </g>
@@ -251,7 +251,7 @@ export default function Gauge({
 
         {/* TEXT */}
         {text !== undefined && (
-          <text x={cx} y={height} textAnchor="middle" fill="#1b1b1b" className="text-h2">
+          <text x={cx} y={height} textAnchor="middle" fill="var(--neutral-10)" className="text-h2">
             {text}
           </text>
         )}

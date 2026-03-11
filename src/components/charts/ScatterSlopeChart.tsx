@@ -3,6 +3,21 @@
 import React from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
+import {
+  getNiceInterval,
+  SCATTER_PALETTE,
+  tooltipItem,
+  tooltipRow,
+  tooltipWrap,
+  axisLabelBase,
+  axisNameBase,
+  axisLineBase,
+  axisTickVisible,
+  splitLineHidden,
+  gridCompact,
+  animationDefault,
+  focusEmphasis,
+} from "@/lib/chart-styles";
 
 type ScatterPoint = { x: number; y: number };
 type Regression = { slope: number; intercept: number };
@@ -27,17 +42,6 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
   const yMinRaw = yValues.length > 0 ? Math.min(...yValues) : 0;
   const yMaxRaw = yValues.length > 0 ? Math.max(...yValues) : 1;
 
-  const getNiceInterval = (range: number): number => {
-    if (range <= 0) return 1;
-    const rough = range / 5;
-    const power = Math.pow(10, Math.floor(Math.log10(rough)));
-    const scaled = rough / power;
-    if (scaled <= 1) return 1 * power;
-    if (scaled <= 2) return 2 * power;
-    if (scaled <= 5) return 5 * power;
-    return 10 * power;
-  };
-
   const xInterval = getNiceInterval(xMaxRaw - xMinRaw);
   const xDecimals = Math.max(0, -Math.floor(Math.log10(xInterval)));
   const xMin = Number((Math.floor(xMinRaw / xInterval) * xInterval).toFixed(xDecimals));
@@ -48,13 +52,12 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
   const yMin = Number((Math.floor(yMinRaw / yInterval) * yInterval).toFixed(yDecimals));
   const yMax = Number((Math.ceil(yMaxRaw / yInterval) * yInterval).toFixed(yDecimals));
 
-  const palette = ["rgba(90, 83, 160, 0.6)", "rgba(166, 160, 220, 0.6)"];
-  const emphasisPalette = ["rgba(90, 83, 160, 1)", "rgba(166, 160, 220, 1)"];
+  const { emphasis: scatterEmphasis, blur: scatterBlur } = focusEmphasis({ scale: 1.4, opacity: 1 });
   const series: any[] = [];
 
   groups.forEach(([groupName, group], index) => {
-    const color = palette[index % palette.length];
-    const emphasisColor = emphasisPalette[index % emphasisPalette.length];
+    const color = SCATTER_PALETTE.base[index % SCATTER_PALETTE.base.length];
+    const emphasisColor = SCATTER_PALETTE.emphasis[index % SCATTER_PALETTE.emphasis.length];
 
     series.push({
       name: groupName,
@@ -63,13 +66,10 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
       data: (group.points ?? []).map((point) => [point.x, point.y]),
       itemStyle: { color },
       emphasis: {
-        focus: "series",
+        ...scatterEmphasis,
         itemStyle: { color: emphasisColor, opacity: 1 },
-        scale: 1.4,
       },
-      blur: {
-        itemStyle: { opacity: 0.08 },
-      },
+      blur: { itemStyle: { opacity: 0.08 } },
     });
 
     const regression = group.regression;
@@ -97,21 +97,16 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
   });
 
   const option: EChartsOption = {
-    animation: true,
-    animationDuration: 300,
-    animationEasing: "cubicOut",
-    grid: { left: 42, right: 8, top: 8, bottom: 16 },
+    ...animationDefault,
+    grid: { ...gridCompact, right: 8 },
     tooltip: {
-      trigger: "item",
-      padding: [4, 6],
-      borderWidth: 0,
-      borderColor: "transparent",
-      extraCssText: "box-shadow: 0 2px 8px rgba(0,0,0,0.1);",
-      textStyle: { fontFamily: "Inter", fontSize: 12, fontWeight: 600 },
+      ...tooltipItem,
       formatter: (p: any) => {
-        const row = (label: string, val: string) =>
-          `<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline"><span style="font-size:9px;font-weight:500">${label}</span><span style="font-size:13px;font-weight:600">${val}</span></div>`;
-        return `<div style="font-family:Inter,sans-serif">${p.marker ?? ""}${row("Slope", Number(p.value[0]).toFixed(1))}${row("C Vision", Number(p.value[1]).toFixed(1))}</div>`;
+        return tooltipWrap(
+          (p.marker ?? "") +
+          tooltipRow("", "Slope", Number(p.value[0]).toFixed(1)) +
+          tooltipRow("", "C Vision", Number(p.value[1]).toFixed(1))
+        );
       },
     },
     xAxis: {
@@ -119,22 +114,11 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
       min: xMin,
       max: xMax,
       interval: xInterval,
-      axisLine: { show: true, onZero: false, lineStyle: { color: "#787776" } },
+      axisLine: { ...axisLineBase, onZero: false },
       axisTick: { show: false },
-      splitLine: { show: false },
-      nameTextStyle: {
-        color: "#787776",
-        fontSize: 10,
-        fontWeight: 500,
-        fontFamily: "Inter, sans-serif",
-      },
-      axisLabel: {
-        margin: 4,
-        color: "#787776",
-        fontSize: 10,
-        fontWeight: 500,
-        fontFamily: "Inter, sans-serif",
-      },
+      splitLine: splitLineHidden,
+      nameTextStyle: axisNameBase,
+      axisLabel: { ...axisLabelBase, margin: 4 },
     },
     yAxis: {
       type: "value",
@@ -143,23 +127,12 @@ export const ScatterSlopeChart = ({ data, height = 120 }: ScatterSlopeChartProps
       interval: yInterval,
       name: "Proportion",
       nameLocation: "middle",
-      axisLine: { show: true, lineStyle: { color: "#787776" } },
-      axisTick: { show: true, lineStyle: { color: "#787776" } },
-      nameTextStyle: {
-        color: "#787776",
-        fontSize: 10,
-        fontWeight: 500,
-        fontFamily: "Inter, sans-serif",
-      },
+      axisLine: axisLineBase,
+      axisTick: axisTickVisible,
+      nameTextStyle: axisNameBase,
       nameGap: 32,
-      axisLabel: {
-        margin: 8,
-        color: "#787776",
-        fontSize: 10,
-        fontWeight: 500,
-        fontFamily: "Inter, sans-serif",
-      },
-      splitLine: { show: false },
+      axisLabel: { ...axisLabelBase, margin: 8 },
+      splitLine: splitLineHidden,
     },
     series,
   };

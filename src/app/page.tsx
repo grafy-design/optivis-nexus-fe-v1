@@ -194,7 +194,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V2/TP(4-3).mp4",
     videoStartOffsetSeconds: 0,
     videoPlaybackRate: 0.8,
-    videoScale: 1,
+    videoScale: 1.02,
   },
   "2": {
     title: "Trial Optimizer",
@@ -204,7 +204,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V2/TO(4-3).mp4",
     videoStartOffsetSeconds: 0,
     videoPlaybackRate: 0.8,
-    videoScale: 1,
+    videoScale: 1.02,
     videoReverseLoop: true,
   },
   "3": {
@@ -252,7 +252,7 @@ export default function HomePage() {
 
   return (
     <AppLayout>
-      <div className="flex w-full flex-1 items-stretch min-h-0" style={{ gap: "1.986px" }}>
+      <div className="flex w-full flex-1 items-stretch min-h-0 gap-1">
         {/* ── 왼쪽: Package (Figma 470/2391 = 19.66%) ── */}
         <div className="flex flex-col" style={{ 
           flex: "470 1 0",

@@ -10,8 +10,8 @@ interface FullscreenIconProps {
 
 export default function FullscreenIcon({ 
   className = "", 
-  color = "#FAFAFA",
-  backgroundColor = "#c4c3c5"
+  color = "var(--icon-inverted)",
+  backgroundColor = "var(--icon-secondary)"
 }: FullscreenIconProps) {
   const uniqueId = React.useId().replace(/:/g, '_');
   const clipPathId0 = `clip0_fullscreen_${uniqueId}`;

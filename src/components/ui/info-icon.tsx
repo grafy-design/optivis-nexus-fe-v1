@@ -5,7 +5,7 @@ interface InfoIconProps {
   color?: string;
 }
 
-export default function InfoIcon({ className, color = "#484646" }: InfoIconProps) {
+export default function InfoIcon({ className, color = "var(--icon-primary)" }: InfoIconProps) {
   return (
     <svg
       width="10"

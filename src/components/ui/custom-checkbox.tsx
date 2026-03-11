@@ -27,10 +27,10 @@ export default function CustomCheckbox({
       <svg width={size} height={size} viewBox="0 0 20 20" fill="none">
         {checked && !disabled ? (
           <>
-            <rect width="20" height="20" rx="5" fill="#3A11D8" />
+            <rect width="20" height="20" rx="5" fill="var(--tertiary-40)" />
             <path
               d="M5 10.5L8.5 14L15 7"
-              stroke="white"
+              stroke="var(--icon-inverted)"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -43,9 +43,9 @@ export default function CustomCheckbox({
             width="18"
             height="18"
             rx="4"
-            stroke={disabled ? "#E2E1E5" : "#C7C5C9"}
+            stroke={disabled ? "var(--neutral-90)" : "var(--neutral-80)"}
             strokeWidth="1.5"
-            fill={disabled ? "#F5F4F6" : "white"}
+            fill={disabled ? "var(--neutral-95)" : "white"}
           />
         )}
       </svg>

@@ -8,6 +8,7 @@ import {
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
+import { ATS_REPORT_COLORS } from "@/lib/chart-styles";
 import type { AbsolutePerformanceItem } from "@/services/studyService";
 
 export interface Step3AbsolutePerformanceChartProps {
@@ -26,15 +27,15 @@ const ORDER = [
 const CATEGORY_MAP: Record<string, { name: string; color: string }> = {
   "Prognostic ANCOVA (CC)": {
     name: "Proposed (Adj+)",
-    color: "#231f52",
+    color: ATS_REPORT_COLORS.proposed,
   },
   "Standard ANCOVA (CC)": {
     name: "Standard ANCOVA",
-    color: "#7571a9",
+    color: ATS_REPORT_COLORS.standard,
   },
   "Unadjusted (CC)": {
     name: "Unadjusted",
-    color: "#aaa5e1",
+    color: ATS_REPORT_COLORS.unadjusted,
   },
 };
 
@@ -265,7 +266,7 @@ export function Step3AbsolutePerformanceChart({
                 symbol: "none",
                 label: { show: false },
                 lineStyle: {
-                  color: "#704ef3",
+                  color: ATS_REPORT_COLORS.markLine,
                   type: "dashed",
                   width: 1.5,
                 },
@@ -282,36 +283,35 @@ export function Step3AbsolutePerformanceChart({
       <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
       {hasData && (
         <div
-          className="absolute text-small1 text-[#484646]"
+          className="absolute text-small1 text-[var(--chart-text-category-title)] gap-[1px]"
           style={{
             left: "50px",
             bottom: "15%",
             display: "inline-flex",
             flexDirection: "column",
             alignItems: "flex-start",
-            gap: 1,
             padding: "3px 6px",
-            border: "1px solid var(--M3-ref-neutral-neutral70, #AEA9B1)",
+            border: "1px solid var(--chart-legend-border)",
             background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
           }}
         >
-          <div className="flex items-center" style={{ gap: 5, minHeight: 14 }}>
+          <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
             <span
               className="shrink-0 flex items-center justify-center"
               style={{ width: 16, height: 16 }}
             >
               <span
+                className="rounded-full"
                 style={{
                   width: 8,
                   height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: "#231f52",
+                  backgroundColor: ATS_REPORT_COLORS.proposed,
                 }}
               />
             </span>
             <span>Proposed (Adj+)</span>
           </div>
-          <div className="flex items-center" style={{ gap: 5, minHeight: 14 }}>
+          <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
             <span
               className="shrink-0 flex items-center justify-center"
               style={{ width: 16, height: 16 }}
@@ -320,28 +320,28 @@ export function Step3AbsolutePerformanceChart({
                 style={{
                   width: 8,
                   height: 8,
-                  backgroundColor: "#7571a9",
+                  backgroundColor: ATS_REPORT_COLORS.standard,
                 }}
               />
             </span>
             <span>Standard ANCOVA</span>
           </div>
-          <div className="flex items-center" style={{ gap: 5, minHeight: 14 }}>
+          <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
             <span
               className="shrink-0 flex items-center justify-center text-[12px] leading-none"
-              style={{ width: 16, height: 16, color: "#aaa5e1" }}
+              style={{ width: 16, height: 16, color: ATS_REPORT_COLORS.unadjusted }}
             >
               ▲
             </span>
             <span>Unadjusted</span>
           </div>
-          <div className="flex items-center" style={{ gap: 5, minHeight: 14 }}>
+          <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
             <span
               className="shrink-0 flex items-center justify-center"
               style={{ width: 16, height: 16 }}
             >
               <span
-                className="border-t border-dashed border-[#704ef3]"
+                className="border-t border-dashed border-[var(--chart-ats-markline)]"
                 style={{ width: 16, borderWidth: 1.5 }}
               />
             </span>

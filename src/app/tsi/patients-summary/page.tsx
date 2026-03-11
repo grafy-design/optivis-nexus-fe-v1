@@ -132,48 +132,24 @@ export default function TSIPatientsSummaryPage() {
 
       {/* ── 외부 래퍼: 좌우 마진, 하단 패딩 / Outer wrapper with horizontal margins */}
       <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 28px)",
-          height: "100%",
-          marginLeft: "14px",
-          marginRight: "14px",
-          paddingBottom: "24px",
-        }}
+        className="flex flex-col w-full h-full"
       >
 
         {/* ── 메인 컨테이너 / Main container ──────────────────────────────── */}
-        <div className="relative overflow-hidden flex-1 min-h-0 flex flex-col gap-[24px]">
+        <div className="relative overflow-hidden flex-1 min-h-0 flex flex-col gap-6">
 
           {/* ── 1. 페이지 타이틀 / Page title ────────────────────────────── */}
           <div
-            className="flex flex-shrink-0 items-start justify-between gap-4"
-            style={{ padding: "0px 12px 0 12px" }}
+            className="flex flex-shrink-0 items-start justify-between gap-4 px-1"
           >
             <div style={{ flexShrink: 0 }}>
               <h1
-                style={{
-                  fontFamily: "Poppins, Inter, sans-serif",
-                  fontSize: titleFontSize,
-                  fontWeight: 600,
-                  color: "rgb(17,17,17)",
-                  letterSpacing: "-1.5px",
-                  lineHeight: 1.1,
-                  margin: 0,
-                }}
+                className="text-page-title"
+                style={{ fontSize: titleFontSize }}
               >
                 Patients Summary
               </h1>
-              <span
-                style={{
-                  fontFamily: "Inter",
-                  fontSize: 16,
-                  fontWeight: 600,
-                  color: "rgb(120,119,118)",
-                  letterSpacing: "-0.48px",
-                }}
-              >
+              <span className="text-page-subtitle">
                 Simulation templates are provided to show the required input structure. Please review before proceeding.
               </span>
             </div>
@@ -217,8 +193,7 @@ export default function TSIPatientsSummaryPage() {
 
                 {/* ── 테이블 헤더 행 / Table header row ────────────────── */}
                 <div
-                  className="rounded-[16px] w-full flex items-center pt-[8px] pb-1.5"
-                  style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+                  className="rounded-[16px] w-full flex items-center pt-[8px] pb-1.5 bg-[var(--table-header-background)]"
                 >
                   <div
                     className="grid grid-cols-4 -gap-1 px-[12px] w-full"
@@ -231,10 +206,10 @@ export default function TSIPatientsSummaryPage() {
                     <div />
 
                     {/* 컬럼 3: Full Cohort 헤더 */}
-                    <div className="grid grid-cols-[1fr_1fr_1fr]">
+                    <div className="grid grid-cols-[1fr_2fr_1fr]">
                       <div className="col-span-2 flex flex-col items-end">
-                        <div className="text-body3m text-neutral-99 flex-shrink-0">Full Cohort</div>
-                        <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">
+                        <div className="text-right text-body3m text-neutral-99 flex-shrink-0">Full Cohort</div>
+                        <div className="text-right text-small1 text-neutral-80 flex-shrink-0 -mt-0.25">
                           N (%) or mean ± sd (min, max)
                         </div>
                       </div>
@@ -242,10 +217,10 @@ export default function TSIPatientsSummaryPage() {
                     </div>
 
                     {/* 컬럼 4: Filtered Cohort 헤더 */}
-                    <div className="grid grid-cols-[1fr_1fr_1fr]">
+                    <div className="grid grid-cols-[1fr_2fr_1fr]">
                       <div className="col-span-2 flex flex-col items-end -gap-1">
-                        <div className="text-body3m text-neutral-99 flex-shrink-0">Filtered Cohort</div>
-                        <div className="text-body5 text-neutral-80 flex-shrink-0 -mt-0.25">
+                        <div className="text-right text-body3m text-neutral-99 flex-shrink-0">Filtered Cohort</div>
+                        <div className="text-right text-small1 text-neutral-80 flex-shrink-0 -mt-0.25">
                           N (%) or mean ± sd (min, max)
                         </div>
                       </div>
@@ -365,8 +340,8 @@ export default function TSIPatientsSummaryPage() {
               <button
                 type="button"
                 onClick={handleGoToBasisSelection}
-                className="btn-tsi btn-tsi-primary"
-                style={{ paddingRight: 18, gap: 8 }}
+                className="btn-tsi btn-tsi-primary gap-2"
+                style={{ paddingRight: 18 }}
               >
                 Identify Subgroup
                 <svg

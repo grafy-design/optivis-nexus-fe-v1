@@ -93,7 +93,7 @@ function IconSearch({ size = 20 }: { size?: number }) {
 /** 경고 삼각형 아이콘 — 약물 검색 결과에서 warning=true 약물 옆에 표시 */
 function IconWarning({ size = 12 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none" className="shrink-0">
       <path d="M5.134 1.5L0.804 9a1 1 0 00.866 1.5h8.66A1 1 0 0011.196 9L6.866 1.5a1 1 0 00-1.732 0z" fill="#F59E0B" />
       <path d="M6 4.5v2.5" stroke="white" strokeWidth="1.1" strokeLinecap="round" />
       <circle cx="6" cy="8.5" r="0.6" fill="white" />
@@ -104,7 +104,7 @@ function IconWarning({ size = 12 }: { size?: number }) {
 /** 삭제 아이콘 — drugList의 각 행 우측 삭제 버튼용 */
 function IconDelete({ size = 16 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className="shrink-0">
       <path d="M2.5 4h11M5.5 4V2.5a1 1 0 011-1h3a1 1 0 011 1V4M6.5 7v4M9.5 7v4M3.5 4l.75 8.5a1 1 0 001 .9h5.5a1 1 0 001-.9L12.5 4" stroke="#aaaaad" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -119,9 +119,9 @@ function IconDelete({ size = 16 }: { size?: number }) {
  */
 function GlassIconButton({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ position: "relative", width: 44, height: 44, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
-      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    <div className="relative shrink-0 flex items-center justify-center cursor-pointer" style={{ width: 44, height: 44 }}>
+      <div className="rounded-full absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", boxShadow: "0px 0px 2px rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.10)" }} />
+      <div className="relative" style={{ zIndex: 1 }}>{children}</div>
     </div>
   );
 }
@@ -142,7 +142,7 @@ type CategoryFrameProps = { header: string; items: CategoryItem[]; onSelect?: (i
  */
 function CategoryFrame({ header, items, onSelect }: CategoryFrameProps) {
   return (
-    <div style={{ background: "white", borderRadius: 12, flex: 1, minWidth: 0, height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div className="rounded-[12px] flex-1 min-w-0 h-full overflow-hidden flex flex-col" style={{ background: "white" }}>
       <style>{`
         .cat-row { transition: background 0.1s; }
         .cat-row.cat-selected { background: #262255 !important; }
@@ -154,41 +154,37 @@ function CategoryFrame({ header, items, onSelect }: CategoryFrameProps) {
         .cat-list::-webkit-scrollbar-track { background: transparent; }
         .cat-list::-webkit-scrollbar-thumb { background: #c6c5c9; border-radius: 2px; }
       `}</style>
-      <div style={{ height: 36, borderBottom: "1px solid #aaaaad", display: "flex", alignItems: "center", paddingLeft: 16, paddingRight: 12, flexShrink: 0 }}>
-        <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#262255", letterSpacing: "-0.68px", lineHeight: "1.12", width: 180 }}>
+      <div className="flex items-center shrink-0 py-2" style={{ borderBottom: "1px solid #aaaaad", paddingLeft: 16, paddingRight: 12 }}>
+        <span className="text-body3" style={{ color: "var(--text-header)", width: 180 }}>
           {header}
         </span>
       </div>
-      <div className="cat-list" style={{ overflowY: "auto", flex: 1 }}>
+      <div className="cat-list overflow-y-auto flex-1">
         {items.map((item, i) => {
           const isSelected = item.selected;
           const isDisabled = item.disabled;
 
-          const textColor = isSelected ? "white" : isDisabled ? "#c6c5c9" : "#484646";
-          const chevronColor = isSelected ? "rgba(255,255,255,0.7)" : isDisabled ? "#e2e1e5" : "#c6c5c9";
+          const textColor = isSelected ? "var(--text-inverted)" : isDisabled ? "var(--text-disabled)" : "var(--text-secondary)";
+          const chevronColor = isSelected ? "rgba(255,255,255,0.7)" : isDisabled ? "var(--icon-disabled)" : "var(--icon-secondary)";
           const rowClass = `cat-row ${isDisabled ? "" : isSelected ? "cat-selected" : "cat-normal"}`;
 
           return (
             <div
               key={i}
-              className={rowClass}
+              className={`${rowClass} flex items-center justify-between select-none`}
               onClick={() => !isDisabled && onSelect?.(i)}
               style={{
                 height: 34,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
                 paddingLeft: 16,
                 paddingRight: 8,
                 ...(isSelected ? { background: "#262255" } : {}),
                 cursor: isDisabled ? "default" : "pointer",
-                userSelect: "none",
               }}
             >
-              <span style={{ fontFamily: "Inter", fontSize: 15, fontWeight: 500, color: textColor, letterSpacing: "-0.6px", lineHeight: "1.1" }}>
+              <span className="text-body4m" style={{ color: textColor }}>
                 {item.label}
               </span>
-              <div style={{ width: 24, height: 30, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div className="flex items-center justify-center shrink-0" style={{ width: 24, height: 30 }}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <path d="M4 3L7 5.5L4 8" stroke={chevronColor} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -214,34 +210,29 @@ function GlassTestButton({ disabled, onClick }: { disabled?: boolean; onClick?: 
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const bg = disabled ? "#F5F5F7" : pressed ? "radial-gradient(ellipse at center, #DDDDE6 80%, rgba(51,0,255,0.18) 100%)" : hovered ? "#EBEBEB" : "#F7F7F7";
-  const textColor = disabled ? "#C6C5C9" : pressed ? "#3a11d8" : "#262255";
+  const textColor = disabled ? "#C6C5C9" : pressed ? "#3a11d8" : "var(--text-header)";
   return (
     <div
       onMouseEnter={() => !disabled && setHovered(true)}
       onMouseLeave={() => { setHovered(false); setPressed(false); }}
       onMouseDown={() => !disabled && setPressed(true)}
       onMouseUp={() => { setPressed(false); if (!disabled) onClick?.(); }}
+      className="rounded-full relative flex items-center justify-center shrink-0"
       style={{
-        position: "relative",
         height: 40,
         paddingLeft: 20,
         paddingRight: 20,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         cursor: disabled ? "not-allowed" : "pointer",
-        flexShrink: 0,
-        borderRadius: 36,
         boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)",
         opacity: disabled ? 0.5 : 1,
       }}
     >
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: "#333333", mixBlendMode: "color-dodge" }} />
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, background: bg, transition: "background 0.12s" }} />
-      <div style={{ position: "absolute", inset: 0, borderRadius: 36, border: pressed ? "2px solid rgba(58,17,216,0.19)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
+      <div className="rounded-full absolute inset-0" style={{ background: "#333333", mixBlendMode: "color-dodge" }} />
+      <div className="rounded-full absolute inset-0" style={{ background: bg, transition: "background 0.12s" }} />
+      <div className="rounded-full absolute inset-0" style={{ border: pressed ? "2px solid rgba(58,17,216,0.19)" : "2px solid rgba(255,255,255,0.3)", boxShadow: "0px 0px 2px 0px rgba(0,0,0,0.05)", transition: "border-color 0.12s" }} />
       <span
+        className="relative"
         style={{
-          position: "relative",
           zIndex: 1,
           fontFamily: "Inter, sans-serif",
           fontWeight: 600,
@@ -360,7 +351,7 @@ function ResizablePill({ disabled, name, code, testLeftPct, testWidthPct, resetK
   };
 
   const GripIcon = () => (
-    <svg width="12" height="16" viewBox="0 0 12 16" fill="none" style={{ flexShrink: 0 }}>
+    <svg width="12" height="16" viewBox="0 0 12 16" fill="none" className="shrink-0">
       {[0, 1, 2].map(r => [0, 1].map(c => (
         <circle key={`${r}-${c}`} cx={4 + c * 4} cy={4 + r * 4} r="1.2" fill={styles.grip} />
       )))}
@@ -372,21 +363,15 @@ function ResizablePill({ disabled, name, code, testLeftPct, testWidthPct, resetK
       ref={containerRef}
       onMouseEnter={() => !disabled && setHovered(true)}
       onMouseLeave={() => { setHovered(false); }}
+      className="rounded-[4px] absolute inline-flex items-center select-none box-border overflow-hidden"
       style={{
-        position: "absolute",
         left,
         top: 0,
         bottom: 0,
         width,
-        display: "inline-flex",
-        alignItems: "center",
-        borderRadius: 4,
         background: styles.bg,
         border: styles.border,
-        userSelect: "none",
-        boxSizing: "border-box",
         zIndex: 1,
-        overflow: "hidden",
         transition: "background 0.12s, border-color 0.12s",
         cursor: disabled ? "not-allowed" : "default",
       }}
@@ -394,24 +379,27 @@ function ResizablePill({ disabled, name, code, testLeftPct, testWidthPct, resetK
       {/* 왼쪽 그립 — 좌측 크기 조절 */}
       <div
         onMouseDown={startDrag("left")}
-        style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 16, height: "100%", cursor: disabled ? "not-allowed" : "ew-resize", flexShrink: 0 }}
+        className="flex items-center justify-center h-full shrink-0"
+        style={{ width: 16, cursor: disabled ? "not-allowed" : "ew-resize" }}
       >
         <GripIcon />
       </div>
       {/* 텍스트 영역 — 드래그 이동 */}
       <div
         onMouseDown={startDrag("move")}
-        style={{ flex: 1, display: "flex", alignItems: "center", gap: 4, minWidth: 0, overflow: "hidden", cursor: disabled ? "not-allowed" : "grab", height: "100%" }}
+        className="gap-1 flex-1 flex items-center min-w-0 overflow-hidden h-full"
+        style={{ cursor: disabled ? "not-allowed" : "grab" }}
       >
-        <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: styles.text, letterSpacing: "-0.48px", lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", flex: 1 }}>{name}</span>
+        <span className="flex-1 overflow-hidden text-body5m" style={{ color: styles.text, whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{name}</span>
         {code && (
-          <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: styles.code, letterSpacing: "-0.48px", lineHeight: 1.15, whiteSpace: "nowrap", flexShrink: 0 }}>{code}</span>
+          <span className="shrink-0 text-body5m" style={{ color: styles.code, whiteSpace: "nowrap" }}>{code}</span>
         )}
       </div>
       {/* 오른쪽 그립 — 우측 크기 조절 */}
       <div
         onMouseDown={startDrag("right")}
-        style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 16, height: "100%", cursor: disabled ? "not-allowed" : "ew-resize", flexShrink: 0 }}
+        className="flex items-center justify-center h-full shrink-0"
+        style={{ width: 16, cursor: disabled ? "not-allowed" : "ew-resize" }}
       >
         <GripIcon />
       </div>
@@ -446,26 +434,29 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
       {/* 백드롭 */}
       <div
         onClick={onClose}
-        style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center" }}
+        className="fixed inset-0 flex items-center justify-center"
+        style={{ background: "rgba(0,0,0,0.4)", zIndex: 10000 }}
       >
         {/* 모달 */}
         <div
           onClick={e => e.stopPropagation()}
-          style={{ background: "white", borderRadius: 20, padding: "28px 28px 24px", width: 440, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", gap: 20 }}
+          className="rounded-[20px] gap-5 flex flex-col"
+          style={{ background: "white", padding: "28px 28px 24px", width: 440, boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }}
         >
           {/* 헤더 */}
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <div className="flex items-start justify-between">
             <div>
-              <div style={{ fontFamily: "Inter", fontSize: 20, fontWeight: 700, color: "#262255", letterSpacing: "-0.6px", lineHeight: 1.2 }}>
+              <div style={{ fontFamily: "Inter", fontSize: 20, fontWeight: 700, color: "var(--text-header)", letterSpacing: "-0.6px", lineHeight: 1.2 }}>
                 Save Simulation
               </div>
-              <div style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "#929090", letterSpacing: "-0.39px", lineHeight: 1.3, marginTop: 4 }}>
+              <div className="text-captionm" style={{ color: "#929090", marginTop: 4 }}>
                 Enter a name to save current simulation settings.
               </div>
             </div>
             <button
               onClick={onClose}
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 4, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              className="flex items-center justify-center shrink-0 cursor-pointer border-none"
+              style={{ background: "none", padding: 4 }}
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path d="M4 4l10 10M14 4L4 14" stroke="#aaaaad" strokeWidth="1.8" strokeLinecap="round" />
@@ -474,13 +465,14 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
           </div>
 
           {/* 입력 필드 */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <label style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, color: "#484646", letterSpacing: "-0.39px" }}>
+          <div className="gap-1.5 flex flex-col">
+            <label className="text-caption" style={{ color: "var(--text-primary)" }}>
               Simulation Name
             </label>
             <input
               ref={inputRef}
               type="text"
+              className="rounded-[10px]"
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleSave(); if (e.key === "Escape") onClose(); }}
@@ -488,14 +480,13 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
               style={{
                 height: 44,
                 background: "#efeff4",
-                borderRadius: 10,
                 border: "1.5px solid transparent",
                 paddingLeft: 14,
                 paddingRight: 14,
                 fontFamily: "Inter",
                 fontWeight: 500,
                 fontSize: 15,
-                color: "#262255",
+                color: "var(--text-header)",
                 letterSpacing: "-0.45px",
                 outline: "none",
                 transition: "border-color 0.15s",
@@ -506,13 +497,13 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
           </div>
 
           {/* 버튼 */}
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+          <div className="gap-2.5 flex justify-end">
             <button
               onClick={onClose}
+              className="btn-tsi cursor-pointer text-body4"
               style={{
-                height: 40, paddingLeft: 20, paddingRight: 20, borderRadius: 36, border: "1.5px solid #c6c5c9",
-                background: "transparent", fontFamily: "Inter", fontWeight: 600, fontSize: 15,
-                color: "#484646", letterSpacing: "-0.45px", cursor: "pointer",
+                paddingLeft: 20, paddingRight: 20, border: "1.5px solid #c6c5c9",
+                background: "transparent", color: "var(--text-primary)",
               }}
             >
               Cancel
@@ -520,12 +511,9 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
             <button
               onClick={handleSave}
               disabled={!name.trim()}
+              className="btn-tsi btn-tsi-purple text-body4"
               style={{
-                height: 40, paddingLeft: 20, paddingRight: 20, borderRadius: 36, border: "none",
-                background: name.trim() ? "#3a11d8" : "#c6c5c9",
-                fontFamily: "Inter", fontWeight: 600, fontSize: 15,
-                color: "white", letterSpacing: "-0.45px",
-                cursor: name.trim() ? "pointer" : "not-allowed",
+                paddingLeft: 20, paddingRight: 20,
                 transition: "background 0.15s",
               }}
             >
@@ -553,10 +541,10 @@ function SaveToast({ message, onDone }: { message: string; onDone: () => void })
   }, [onDone]);
 
   return (
-    <div style={{
-      position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)",
-      background: "#262255", borderRadius: 36, paddingLeft: 20, paddingRight: 20, height: 44,
-      display: "flex", alignItems: "center", gap: 10, zIndex: 10001,
+    <div className="rounded-full gap-2.5 fixed flex items-center" style={{
+      bottom: 32, left: "50%", transform: "translateX(-50%)",
+      background: "#262255", paddingLeft: 20, paddingRight: 20, height: 44,
+      zIndex: 10001,
       boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
       animation: "fadeInUp 0.22s ease",
     }}>
@@ -753,13 +741,14 @@ export default function SimulationConditionPage() {
       {/* Unit 드롭다운 — fixed 포지션 (클리핑 방지) */}
       {openUnitIdx !== null && unitDropdownPos && (
         <>
-          <div onClick={() => { setOpenUnitIdx(null); setUnitDropdownPos(null); }} style={{ position: "fixed", inset: 0, zIndex: 9998 }} />
-          <div style={{ position: "fixed", top: unitDropdownPos.top, left: unitDropdownPos.left, minWidth: unitDropdownPos.width, zIndex: 9999, background: "#efeff4", border: "1px solid #c6c5c9", borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
+          <div onClick={() => { setOpenUnitIdx(null); setUnitDropdownPos(null); }} className="fixed inset-0" style={{ zIndex: 9998 }} />
+          <div className="rounded-[8px] fixed overflow-hidden" style={{ top: unitDropdownPos.top, left: unitDropdownPos.left, minWidth: unitDropdownPos.width, zIndex: 9999, background: "#efeff4", border: "1px solid #c6c5c9", boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
             {["%", "mmol/mol"].map((opt, oi) => (
               <div key={opt}>
                 <div
                   onClick={() => { setUnitValues(prev => prev.map((v, idx) => idx === openUnitIdx ? opt : v)); setOpenUnitIdx(null); setUnitDropdownPos(null); }}
-                  style={{ padding: "6px 10px", fontFamily: "Inter", fontSize: 14, fontWeight: 600, color: unitValues[openUnitIdx] === opt ? "#484646" : "#787776", cursor: "pointer", whiteSpace: "nowrap" }}
+                  className="cursor-pointer"
+                  style={{ padding: "6px 10px", fontFamily: "Inter", fontSize: 14, fontWeight: 600, color: unitValues[openUnitIdx] === opt ? "var(--text-primary)" : "var(--text-secondary)", whiteSpace: "nowrap" }}
                 >{opt}</div>
                 {oi < 1 && <div style={{ height: 1, background: "#c6c5c9" }} />}
               </div>
@@ -767,10 +756,10 @@ export default function SimulationConditionPage() {
           </div>
         </>
       )}
-         <div className="drd-page-root">
+         <div className="flex flex-col h-full gap-6">
         {/* 타이틀 */}
-        <div className="shrink-0 px-3">
-          <h1 onClick={() => router.push("/drd/simulation-setting")} className="drd-page-h1">
+        <div className="shrink-0 px-1">
+          <h1 onClick={() => router.push("/drd/simulation-setting")} className="text-page-title">
             Simulation Settings
           </h1>
           <span className="drd-page-subtitle">
@@ -779,29 +768,30 @@ export default function SimulationConditionPage() {
         </div>
 
         {/* 두 패널 행 */}
-        <div className="drd-content-row">
+        <div className="drd-content-row gap-1">
           {/* 왼쪽 패널 */}
           <div
             className="figma-nine-slice figma-home-panel-left
-            w-[380px] flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
+            drd-left-panel flex-shrink-0 rounded-[36px] gap-[12px] overflow-hidden flex flex-col"
           >
-            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] flex flex-col p-[10px] gap-[8px] overflow-y-auto">
+            <div className="flex-1 rounded-[24px] bg-[rgba(255,255,255,0.6)] p-[10px] overflow-hidden min-h-0">
+              <div className="flex flex-col gap-[8px] overflow-y-auto h-full">
               {/* Step 2: SMILES Settings (완료) */}
               <button
                 onClick={() => router.push("/drd/smile-setting")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#f9f8fc] active:bg-[#efeff4]"
-                style={{ background: "transparent", height: 96, justifyContent: "center" }}
+                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-neutral-98 active:bg-neutral-95 justify-center"
+                style={{ background: "transparent", height: 96 }}
               >
                 <div className="flex items-center gap-[18px]">
                   <div className="shrink-0 flex items-center justify-center">
-                    <img src={simSmilesCompleted ? "/icons/simulation-setting/step-smiles-completed.svg" : "/icons/simulation-setting/step-smiles-default.svg"} width={24} height={24} alt="" style={{ flexShrink: 0 }} />
+                    <img src={simSmilesCompleted ? "/icons/simulation-setting/step-smiles-completed.svg" : "/icons/simulation-setting/step-smiles-default.svg"} width={24} height={24} alt="" className="shrink-0" />
                   </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "#484646" }}>
+                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-primary)" }}>
                     SMILES Settings
                   </span>
                 </div>
                 <div className="pl-[42px] mt-0">
-                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "#919092" }}>
+                  <p className="font-['Inter'] font-semibold text-[10px] leading-[1.1] tracking-[-0.4px] m-0" style={{ color: "var(--text-secondary)" }}>
                     {simSmilesCompleted ? "Complete" : "Add SMILES strings to define the chemical structures for simulation conditions"}
                   </p>
                 </div>
@@ -810,14 +800,14 @@ export default function SimulationConditionPage() {
               {/* Step 1: Simulation Conditions (활성) */}
               <button
                 onClick={() => router.push("/drd/simulation-condition")}
-                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#2e2a66] active:bg-[#1e1a44]"
-                style={{ background: "#262255", height: 96, justifyContent: "center" }}
+                className="flex flex-col w-full p-[16px] rounded-[24px] pt-[12px] pb-[16px] shrink-0 border-none cursor-pointer text-left transition-colors duration-150 hover:bg-[#2e2a66] active:bg-[#1e1a44] justify-center"
+                style={{ background: "#262255", height: 96 }}
               >
                 <div className="flex items-center gap-[18px]">
                   <div className="shrink-0 flex items-center justify-center">
-                    <img src="/icons/simulation-setting/step-simulation-completed.svg" width={24} height={24} alt="" style={{ flexShrink: 0 }} />
+                    <img src="/icons/simulation-setting/step-simulation-completed.svg" width={24} height={24} alt="" className="shrink-0" />
                   </div>
-                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "white" }}>
+                  <span className="font-['Inter'] font-semibold text-[17px] leading-[1.12] tracking-[-0.68px]" style={{ color: "var(--text-inverted)" }}>
                     Simulation Conditions
                   </span>
                 </div>
@@ -827,94 +817,97 @@ export default function SimulationConditionPage() {
                   </p>
                 </div>
               </button>
+              </div>
             </div>
           </div>
 
           {/* 오른쪽 패널 */}
           {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-            <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0" style={{ gap: "12px", marginLeft: "-6px" }}>
+            <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px]  flex-[78] min-w-0 min-h-0 gap-3">
 
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 12, position: "relative", zIndex: 1, minHeight: 0, overflow: "auto", minWidth: 600 }}>
+            <div className="gap-3 flex-1 flex flex-col relative overflow-y-auto min-h-0">
               {/* 상단 카드: Select target outcome variable — flex 4.5 */}
-              <div style={{ background: "rgba(255,255,255,0.60)", borderRadius: 24, paddingTop: 16, paddingBottom: 16, paddingLeft: 16, paddingRight: 16, display: "flex", flexDirection: "column", gap: 12, flex: "1 1 0", minHeight: 0, overflow: "visible", position: "relative", zIndex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-                  <div style={{ fontFamily: "Inter", fontSize: 24, fontWeight: 600, color: "#262255", letterSpacing: "-0.72px", lineHeight: 1.2 }}>
+              <div className="rounded-[24px] gap-3 flex flex-1 flex-col relative h-fit" style={{ background: "rgba(255,255,255,0.60)", paddingTop: 16, paddingBottom: 16, paddingLeft: 16, paddingRight: 16, flex: "1 1 0", zIndex: 1 }}>
+                <div className="flex items-center justify-between shrink-0">
+                  <div className="text-body1" style={{ color: "var(--text-header)" }}>
                     Select the target outcome variable
                   </div>
                   <GlassTestButton onClick={handleTestLoad} />
                 </div>
-                {/* 파란 컨테이너: Category/Detail/Value — 위로 튀어나옴 */}
-                <div style={{ display: "flex", gap: 17, flex: 1, minHeight: 0, position: "relative", zIndex: 2 }}>
+                {/* Category/Detail/Value */}
+                <div className="gap-3 flex shrink-0 h-[180px] max-[1470px]:h-[160px] relative" style={{ zIndex: 2 }}>
                   <CategoryFrame header="Category" items={[{ label: "Patient Info", selected: selectedCategory === 0, saved: selectedCategory !== 0 }, { label: "Medical History", selected: selectedCategory === 1 }, { label: "Treatment Info", selected: selectedCategory === 2, disabled: true }]} onSelect={(i) => { setSelectedCategory(i); setSelectedDetail(null); setSelectedValue(null); }} />
-                  <div style={{ flex: 1, minWidth: 0, opacity: selectedCategory === null ? 0.4 : 1, pointerEvents: selectedCategory === null ? "none" : "auto", transition: "opacity 0.2s" }}>
+                  <div className="flex-1 min-w-0" style={{ opacity: selectedCategory === null ? 0.4 : 1, pointerEvents: selectedCategory === null ? "none" : "auto", transition: "opacity 0.2s" }}>
                     <CategoryFrame header="Detail" items={[{ label: "Demographic Info", selected: selectedDetail === 0 }, { label: "Baseline", selected: selectedDetail === 1 }]} onSelect={(i) => { setSelectedDetail(i); setSelectedValue(null); }} />
                   </div>
-                  <div style={{ flex: 1, minWidth: 0, opacity: selectedDetail === null ? 0.4 : 1, pointerEvents: selectedDetail === null ? "none" : "auto", transition: "opacity 0.2s" }}>
+                  <div className="flex-1 min-w-0" style={{ opacity: selectedDetail === null ? 0.4 : 1, pointerEvents: selectedDetail === null ? "none" : "auto", transition: "opacity 0.2s" }}>
                     <CategoryFrame header="Value" items={[{ label: "BMI", selected: selectedValue === 0 }, { label: "SBP", selected: selectedValue === 1 }, { label: "HbA1c", selected: selectedValue === 2 }, { label: "Fasting glucose", selected: selectedValue === 3 }, { label: "eGFR", disabled: true }]} onSelect={setSelectedValue} />
                   </div>
                 </div>
 
-                {/* HbA1c 테이블 */}
-                <div style={{ opacity: selectedValue === null ? 0.4 : 1, pointerEvents: selectedValue === null ? "none" : "auto", transition: "opacity 0.2s", flex: 1, minHeight: 0, overflow: "hidden" }}>
-                  <div style={{ borderRadius: 12, overflow: "auto", background: "white", display: "flex", flexDirection: "column", height: "100%" }}>
-                    <div style={{ background: "white", borderBottom: "1px solid #c6c5c9", display: "flex", alignItems: "flex-end", height: 44, paddingBottom: 4, paddingTop: 12, paddingLeft: 16, paddingRight: 16, gap: 8 }}>
-                      <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#262255", letterSpacing: "-0.51px", flex: "0 0 25%", lineHeight: 1.05 }}>
+                {/* filter 테이블 */}
+                <div className="shrink-0 w-full h-fit" style={{ opacity: selectedValue === null ? 0.4 : 1, pointerEvents: selectedValue === null ? "none" : "auto", transition: "opacity 0.2s" }}>
+                  <div className="rounded-[12px] overflow-hidden h-full" style={{ background: "white" }}>
+                  <div className="overflow-auto flex flex-col h-full">
+                    <div className="gap-2 flex items-end" style={{ background: "white", borderBottom: "1px solid #c6c5c9", paddingBottom: 4, paddingTop: 12, paddingLeft: 16, paddingRight: 16 }}>
+                      <div className="text-body3" style={{ color: "var(--text-header)", flex: "0 0 25%" }}>
                         {selectedValue !== null ? (["BMI", "SBP", "HbA1c", "Fasting glucose"][selectedValue] ?? "[Outcome]") : "[Outcome]"}
                       </div>
-                      <div style={{ display: "flex", gap: 8, flex: 1 }}>
+                      <div className="gap-2 flex flex-1">
                         {["Value", "Unit", "Months"].map((col) => (
-                          <div key={col} style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#262255", letterSpacing: "-0.51px", flex: 1, lineHeight: 1.05 }}>{col}</div>
+                          <div key={col} className="flex-1 text-body3" style={{ color: "var(--text-header)" }}>{col}</div>
                         ))}
                       </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "8px 0", background: "white" }}>
+                    <div className="gap-1 flex flex-col" style={{ padding: "8px 0", background: "white" }}>
                       {[{ label: "Increase" }, { label: "Stable" }, { label: "Decrease" }].map((row, i) => (
-                        <div key={row.label} style={{ background: "white", display: "flex", alignItems: "center", height: 36, paddingLeft: 16, paddingRight: 16 }}>
-                          <div style={{ fontFamily: "Inter", fontSize: 15, fontWeight: 500, color: "#484646", letterSpacing: "-0.45px", flex: "0 0 25%" }}>{row.label}</div>
-                          <div style={{ display: "flex", gap: 8, flex: 1 }}>
-                            <input type="text" value={inputValues[i]} onChange={(e) => setInputValues(prev => prev.map((v, idx) => idx === i ? e.target.value : v))} className="placeholder:text-[#c6c5c9]" style={{ flex: 1, minWidth: 0, height: 36, background: "#efeff4", borderRadius: 8, border: "none", paddingLeft: 12, paddingRight: 12, fontFamily: "Inter", fontWeight: 500, fontSize: 17, color: "#484646", letterSpacing: "-0.68px", outline: "none", cursor: "text" }} />
-                            <div style={{ position: "relative", flex: 1 }}>
-                              <div onClick={(e) => { if (openUnitIdx === i) { setOpenUnitIdx(null); setUnitDropdownPos(null); } else { const rect = (e.currentTarget as HTMLElement).getBoundingClientRect(); setUnitDropdownPos({ top: rect.bottom + 2, left: rect.left, width: rect.width }); setOpenUnitIdx(i); } }} style={{ background: "#efeff4", borderRadius: 8, height: 36, display: "flex", alignItems: "center", paddingLeft: 12, paddingRight: 4, cursor: "pointer", gap: 2 }}>
-                                <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 500, color: "#484646", letterSpacing: "-0.68px", lineHeight: 1.1, flex: 1 }}>{unitValues[i]}</span>
-                                <img src="/icons/disclosure/close-18.svg" width={18} height={18} alt="" style={{ flexShrink: 0 }} />
+                        <div key={row.label} className="flex items-center" style={{ background: "white", height: 36, paddingLeft: 16, paddingRight: 16 }}>
+                          <div className="text-body4m" style={{ color: "var(--text-primary)", flex: "0 0 25%" }}>{row.label}</div>
+                          <div className="gap-2 flex flex-1">
+                            <input type="text" value={inputValues[i]} onChange={(e) => setInputValues(prev => prev.map((v, idx) => idx === i ? e.target.value : v))} className="placeholder:text-neutral-80 rounded-[8px] flex-1 min-w-0 border-none cursor-text text-body4m py-2" style={{ background: "#efeff4", paddingLeft: 8, paddingRight: 8, color: "var(--text-primary)", letterSpacing: "-0.68px", outline: "none" }} />
+                            <div className="relative flex-1">
+                              <div onClick={(e) => { if (openUnitIdx === i) { setOpenUnitIdx(null); setUnitDropdownPos(null); } else { const rect = (e.currentTarget as HTMLElement).getBoundingClientRect(); setUnitDropdownPos({ top: rect.bottom + 2, left: rect.left, width: rect.width }); setOpenUnitIdx(i); } }} className="rounded-[8px] gap-0.5 flex items-center cursor-pointer py-2" style={{ background: "#efeff4", paddingLeft: 12, paddingRight: 4 }}>
+                                <span className="flex-1 text-body4m" style={{ color: "var(--text-primary)" }}>{unitValues[i]}</span>
+                                <img src="/icons/disclosure/close-18.svg" width={18} height={18} alt="" className="shrink-0" />
                               </div>
                             </div>
-                            <input type="text" value={monthValues[i]} onChange={(e) => setMonthValues(prev => prev.map((v, idx) => idx === i ? e.target.value : v))} className="placeholder:text-[#c6c5c9]" style={{ flex: 1, minWidth: 0, height: 36, background: "#efeff4", borderRadius: 8, border: "none", paddingLeft: 12, paddingRight: 12, fontFamily: "Inter", fontWeight: 500, fontSize: 17, color: "#484646", letterSpacing: "-0.68px", outline: "none", cursor: "text" }} />
+                            <input type="text" value={monthValues[i]} onChange={(e) => setMonthValues(prev => prev.map((v, idx) => idx === i ? e.target.value : v))} className="placeholder:text-neutral-80 rounded-[8px] flex-1 min-w-0 border-none cursor-text py-2 text-body4m" style={{ background: "#efeff4", paddingLeft: 12, paddingRight: 12, color: "var(--text-primary)", letterSpacing: "-0.68px", outline: "none" }} />
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
+                  </div>
                 </div>
               </div>
 
               {/* Follow-up Window + Develop a plan — 가로 배치 래퍼 */}
-              <div style={{ display: "flex", gap: 12, flex: "1 1 0", minHeight: 0, overflow: "auto" }}>
+              <div className="gap-3 flex min-h-[240px] overflow-hidden" style={{ flex: "1 1 0" }}>
 
               {/* Follow-up Window — 좌측 1 */}
-              <div style={{ flex: "1 1 0", minWidth: 0, background: "#262255", borderRadius: 24, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box", gap: 12 }}>
+              <div className="rounded-[24px] gap-3 min-w-0 flex flex-col justify-between box-border" style={{ flex: "1 1 0", background: "#262255", padding: 16 }}>
                 {/* 헤더 + 설명 텍스트 묶음 */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div className="gap-2 flex flex-col">
                   {/* 헤더 영역 */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div className="flex justify-between items-start">
                     <div style={{ lineHeight: 1.2 }}>
-                      <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "white", letterSpacing: "-0.68px", lineHeight: 1.2 }}>Follow-up Window</span>
-                      <span style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 600, color: "#f06600", letterSpacing: "-0.68px" }}>*</span>
+                      <span className="text-body3" style={{ color: "var(--text-inverted)" }}>Follow-up Window</span>
+                      <span className="text-body3" style={{ color: "#f06600" }}>*</span>
                     </div>
-                    <div ref={followUpRef} style={{ position: "relative" }}>
-                      <div onClick={() => setFollowUpOpen((v) => !v)} style={{ background: "#efeff4", borderRadius: 8, height: 28, minWidth: 52, display: "flex", alignItems: "center", paddingLeft: 8, paddingRight: 4, gap: 2, cursor: "pointer", userSelect: "none" }}>
-                        <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#484646", letterSpacing: "-0.48px", lineHeight: 1.1, flex: 1 }}>{followUpMonths}</span>
-                        <div style={{ width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", transform: followUpOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>
+                    <div ref={followUpRef} className="relative">
+                      <div onClick={() => setFollowUpOpen((v) => !v)} className="rounded-[8px] gap-0.5 flex items-center cursor-pointer select-none" style={{ background: "#efeff4", height: 28, minWidth: 52, paddingLeft: 8, paddingRight: 4 }}>
+                        <span className="flex-1 text-body5m" style={{ color: "var(--text-primary)" }}>{followUpMonths}</span>
+                        <div className="flex items-center justify-center" style={{ width: 18, height: 18, transform: followUpOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.15s" }}>
                           <img src="/icons/disclosure/close-18.svg" width={18} height={18} alt="" />
                         </div>
                       </div>
                       {followUpOpen && (
                         <>
-                          <div onClick={() => setFollowUpOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9998 }} />
-                          <div style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, background: "#efeff4", border: "1px solid #c6c5c9", borderRadius: 8, overflow: "hidden", zIndex: 9999, minWidth: 52, boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
+                          <div onClick={() => setFollowUpOpen(false)} className="fixed inset-0" style={{ zIndex: 9998 }} />
+                          <div className="rounded-[8px] absolute overflow-hidden" style={{ top: "calc(100% + 4px)", right: 0, background: "#efeff4", border: "1px solid #c6c5c9", zIndex: 9999, minWidth: 52, boxShadow: "0 4px 12px rgba(0,0,0,0.12)" }}>
                             {[3, 6, 9, 12, 15, 18, 21, 24].map((n, i, arr) => (
                               <div key={n}>
-                                <div onClick={() => { setFollowUpMonths(n); setFollowUpOpen(false); }} style={{ height: 28, display: "flex", alignItems: "center", paddingLeft: 10, paddingRight: 10, cursor: "pointer", background: followUpMonths === n ? "#dddde6" : "transparent", fontFamily: "Inter", fontSize: 12, fontWeight: 600, color: followUpMonths === n ? "#484646" : "#787776", letterSpacing: "-0.48px", whiteSpace: "nowrap" }} onMouseEnter={(e) => { if (followUpMonths !== n) (e.currentTarget as HTMLDivElement).style.background = "#e8e8f0"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = followUpMonths === n ? "#dddde6" : "transparent"; }}>{n}</div>
+                                <div onClick={() => { setFollowUpMonths(n); setFollowUpOpen(false); }} className="flex items-center cursor-pointer" style={{ height: 28, paddingLeft: 10, paddingRight: 10, background: followUpMonths === n ? "#dddde6" : "transparent", fontFamily: "Inter", fontSize: 12, fontWeight: 600, color: followUpMonths === n ? "var(--text-primary)" : "var(--text-secondary)", letterSpacing: "-0.48px", whiteSpace: "nowrap" }} onMouseEnter={(e) => { if (followUpMonths !== n) (e.currentTarget as HTMLDivElement).style.background = "#e8e8f0"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = followUpMonths === n ? "#dddde6" : "transparent"; }}>{n}</div>
                                 {i < arr.length - 1 && <div style={{ height: 1, background: "#c6c5c9" }} />}
                               </div>
                             ))}
@@ -924,50 +917,50 @@ export default function SimulationConditionPage() {
                     </div>
                   </div>
                   {/* 설명 텍스트 */}
-                  <p style={{ margin: 0, padding: 0, fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "white", letterSpacing: "-0.39px", lineHeight: 1.25 }}>
+                  <p className="text-body5m" style={{ margin: 0, padding: 0, color: "var(--text-inverted)" }}>
                     Sets the follow-up duration (time horizon) for the simulation.<br />
                     Defines how many months outcomes and the timeline are calculated and displayed.
                   </p>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <div style={{ position: "relative", height: 30 }}>
-                    <div style={{ position: "absolute", left: 0, right: 0, top: "50%", transform: "translateY(-50%)", height: 12, borderRadius: 6, overflow: "hidden" }}>
-                      <div style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0, background: "#c6c5c9" }} />
-                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: `${sliderPct}%`, background: "#f06600" }} />
+                <div className="gap-1 flex flex-col">
+                  <div className="relative" style={{ height: 30 }}>
+                    <div className="rounded-[6px] absolute overflow-hidden" style={{ left: 0, right: 0, top: "50%", transform: "translateY(-50%)", height: 12 }}>
+                      <div className="absolute inset-0" style={{ background: "#c6c5c9" }} />
+                      <div className="absolute" style={{ left: 0, top: 0, bottom: 0, width: `${sliderPct}%`, background: "#f06600" }} />
                     </div>
-                    <div style={{ position: "absolute", left: `calc((100% - 30px) * ${sliderPct} / 100)`, top: "50%", transform: "translate(0, -50%)", width: 30, height: 30, borderRadius: 36, background: "#f9f8fc", boxShadow: "0px 0px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)" }} />
-                    <input type="range" min={3} max={24} step={3} value={followUpMonths} onChange={(e) => setFollowUpMonths(Number(e.target.value))} style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, width: "100%", height: "100%", opacity: 0, cursor: "pointer", zIndex: 2 }} />
+                    <div className="rounded-full absolute" style={{ left: `calc((100% - 30px) * ${sliderPct} / 100)`, top: "50%", transform: "translate(0, -50%)", width: 30, height: 30, background: "#f9f8fc", boxShadow: "0px 0px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)" }} />
+                    <input type="range" min={3} max={24} step={3} value={followUpMonths} onChange={(e) => setFollowUpMonths(Number(e.target.value))} className="absolute w-full h-full cursor-pointer" style={{ top: 0, bottom: 0, left: 0, right: 0, opacity: 0, zIndex: 2 }} />
                   </div>
-                  <div style={{ position: "relative", height: 16 }}>
+                  <div className="relative" style={{ height: 16 }}>
                     {[3, 6, 9, 12, 15, 18, 21, 24].map((n, i) => (
-                      <span key={n} style={{ position: "absolute", left: `calc((100% - 24px) * ${i / 7} + 12px)`, transform: "translateX(-50%)", fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "white", letterSpacing: "-0.48px", lineHeight: 1.1, textAlign: "center", whiteSpace: "nowrap" }}>{n}</span>
+                      <span key={n} className="absolute text-body5m" style={{ left: `calc((100% - 24px) * ${i / 7} + 12px)`, transform: "translateX(-50%)", color: "var(--text-inverted)", textAlign: "center", whiteSpace: "nowrap" }}>{n}</span>
                     ))}
                   </div>
                 </div>
               </div>
 
               {/* 하단 카드: Develop a plan — 우측 3 */}
-              <div style={{ background: "rgba(255,255,255,0.60)", borderRadius: 24, paddingTop: 10, paddingBottom: 16, paddingLeft: 16, paddingRight: 16, display: "flex", flexDirection: "column", gap: 12, flex: "4 3 0", minHeight: 0, overflow: "auto" }}>
-                <div style={{ display: "flex", gap: 10, alignItems: "center", height: 44, flexShrink: 0 }}>
-                  <div style={{ fontFamily: "Inter", fontSize: 24, fontWeight: 600, color: "#262255", letterSpacing: "-0.72px", lineHeight: 1.2, flex: 1, display: "flex", alignItems: "center" }}>
+              <div className="rounded-[24px] gap-3 flex flex-col min-h-0 overflow-hidden" style={{ background: "rgba(255,255,255,0.60)", paddingTop: 10, paddingBottom: 16, paddingLeft: 16, paddingRight: 16, flex: "4 3 0" }}>
+                <div className="gap-2.5 flex items-center shrink-0" style={{ height: 44 }}>
+                  <div className="flex-1 flex items-center text-body1" style={{ color: "var(--text-header)" }}>
                     Develop a plan for the selected medication
                   </div>
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", height: 44 }}>
+                  <div className="gap-2.5 flex items-center" style={{ height: 44 }}>
                     <GlassIconButton><IconDownload size={24} /></GlassIconButton>
                     <GlassIconButton><IconAddFolder size={24} /></GlassIconButton>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 17, flex: 1, minHeight: 0, overflow: "hidden" }}>
+                <div className="gap-[17px] flex flex-1 min-h-0 overflow-hidden">
                   {/* 의약품 목록 — 상단 Category 너비와 동일하게 1:2 비율 */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: "1 1 0", minWidth: 0, alignSelf: "stretch", maxWidth: "calc((100% - 34px) / 3)" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
-                      <div style={{ fontFamily: "Inter", fontSize: 17, fontWeight: 500, color: "#484646", letterSpacing: "-0.68px", lineHeight: 1.1 }}>
-                        Add on drug<span style={{ color: "#3a11d8" }}>*</span>
+                  <div className="gap-1.5 flex flex-col min-w-0 self-stretch" style={{ flex: "1 1 0", maxWidth: "calc((100% - 34px) / 3)" }}>
+                    <div className="gap-1.5 flex flex-col shrink-0">
+                      <div className="text-body3m" style={{ color: "var(--text-primary)" }}>
+                        Add on drug<span style={{ color: "var(--text-active)" }}>*</span>
                       </div>
                       {/* 검색 필드 — filter 페이지 방식 */}
                       <div
                         ref={drugSearchContainerRef}
-                        style={{ position: "relative" }}
+                        className="relative"
                         onMouseEnter={() => {
                           if (drugCloseTimerRef.current) clearTimeout(drugCloseTimerRef.current);
                           const rect = drugSearchContainerRef.current?.getBoundingClientRect();
@@ -978,7 +971,7 @@ export default function SimulationConditionPage() {
                           drugCloseTimerRef.current = setTimeout(() => setDrugSearchOpen(false), 120);
                         }}
                       >
-                        <div style={{ background: "white", borderRadius: 8, height: 32, display: "flex", alignItems: "center", paddingLeft: 8, paddingRight: 4, gap: 4, overflow: "visible" }}>
+                        <div className="rounded-[8px] gap-1 flex items-center overflow-visible" style={{ background: "white", height: 32, paddingLeft: 8, paddingRight: 4 }}>
                           <IconSearch size={18} />
                           <input
                             type="text"
@@ -995,10 +988,11 @@ export default function SimulationConditionPage() {
                               if (rect) setDrugSearchPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
                               setDrugSearchOpen(true);
                             }}
+                            className="flex-1 border-none"
                             style={{
-                              flex: 1, border: "none", outline: "none", background: "transparent",
-                              fontFamily: "Inter", fontWeight: 500, fontSize: 12,
-                              color: "#484646", letterSpacing: "-0.48px",
+                              outline: "none", background: "transparent",
+                              fontSize: 12, fontWeight: 500,
+                              color: "var(--text-primary)", letterSpacing: "-0.48px",
                             }}
                           />
                         </div>
@@ -1012,25 +1006,23 @@ export default function SimulationConditionPage() {
                             onMouseLeave={() => {
                               drugCloseTimerRef.current = setTimeout(() => setDrugSearchOpen(false), 120);
                             }}
+                            className="rounded-[12px] fixed overflow-y-auto"
                             style={{
-                              position: "fixed",
                               top: drugSearchPos.top,
                               left: drugSearchPos.left,
                               width: drugSearchPos.width,
                               background: "white",
-                              borderRadius: 12,
                               paddingTop: 4,
                               paddingBottom: 4,
                               zIndex: 9999,
                               maxHeight: 220,
-                              overflowY: "auto",
                               boxShadow: "0px 4px 16px rgba(0,0,0,0.12)",
                               border: "1px solid #e2e1e5",
                             }}
                           >
                             {drugSearchResults.length === 0 ? (
-                              <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                <span style={{ fontFamily: "Inter", fontWeight: 500, fontSize: 12, color: "#aaaaad", letterSpacing: "-0.39px" }}>
+                              <div className="flex items-center justify-center" style={{ height: 40 }}>
+                                <span className="text-body5m" style={{ color: "#aaaaad" }}>
                                   No results found
                                 </span>
                               </div>
@@ -1044,29 +1036,29 @@ export default function SimulationConditionPage() {
                                     setDrugSearchQuery("");
                                     setDrugSearchOpen(false);
                                   }}
+                                  className="gap-2 flex items-center cursor-pointer"
                                   style={{
-                                    height: 44, display: "flex", alignItems: "center",
-                                    paddingLeft: 12, paddingRight: 12, cursor: "pointer",
+                                    height: 44,
+                                    paddingLeft: 12, paddingRight: 12,
                                     borderTop: i > 0 ? "1px solid #e2e1e5" : undefined,
-                                    gap: 8,
                                   }}
                                   onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(0,0,0,0.04)"; }}
                                   onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
                                 >
-                                  <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontFamily: "Inter", fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05 }}>{drug.type}</div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                                      <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 600, letterSpacing: "-0.52px", lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  <div className="flex-1 min-w-0">
+                                    <div style={{ fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05 }}>{drug.type}</div>
+                                    <div className="gap-1 flex items-center">
+                                      <span className="overflow-hidden text-caption" style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
                                         {(() => {
                                           const q = drugSearchQuery.trim();
-                                          if (!q) return <span style={{ color: "#484646" }}>{drug.name}</span>;
+                                          if (!q) return <span style={{ color: "var(--text-primary)" }}>{drug.name}</span>;
                                           const idx = drug.name.toLowerCase().indexOf(q.toLowerCase());
-                                          if (idx === -1) return <span style={{ color: "#484646" }}>{drug.name}</span>;
+                                          if (idx === -1) return <span style={{ color: "var(--text-primary)" }}>{drug.name}</span>;
                                           return (
                                             <>
-                                              <span style={{ color: "#484646" }}>{drug.name.slice(0, idx)}</span>
-                                              <span style={{ color: "#3a11d8" }}>{drug.name.slice(idx, idx + q.length)}</span>
-                                              <span style={{ color: "#484646" }}>{drug.name.slice(idx + q.length)}</span>
+                                              <span style={{ color: "var(--text-primary)" }}>{drug.name.slice(0, idx)}</span>
+                                              <span style={{ color: "var(--text-active)" }}>{drug.name.slice(idx, idx + q.length)}</span>
+                                              <span style={{ color: "var(--text-primary)" }}>{drug.name.slice(idx + q.length)}</span>
                                             </>
                                           );
                                         })()}
@@ -1074,7 +1066,7 @@ export default function SimulationConditionPage() {
                                       {drug.warning && <IconWarning size={12} />}
                                     </div>
                                   </div>
-                                  <span style={{ fontFamily: "Inter", fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", flexShrink: 0 }}>{drug.code}</span>
+                                  <span className="shrink-0" style={{ fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px" }}>{drug.code}</span>
                                 </div>
                               ))
                             )}
@@ -1084,42 +1076,42 @@ export default function SimulationConditionPage() {
                       </div>
                     </div>
                     {/* 체크박스 포함 영역 */}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 0, flex: 1, overflow: "hidden" }}>
+                    <div className="gap-0 flex flex-col flex-1 overflow-hidden">
                       {drugList.length === 0 ? (
                         /* 빈 상태 — "Select Add on drug" 안내 텍스트 */
-                        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <span style={{ fontFamily: "Inter", fontSize: 13, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.52px", lineHeight: 1.2, textAlign: "center" }}>Select Add on drug</span>
+                        <div className="flex-1 flex items-center justify-center">
+                          <span className="text-captionm" style={{ color: "#aaaaad", textAlign: "center" }}>Select Add on drug</span>
                         </div>
                       ) : (
                         <>
                       {/* Strategy 헤더 — 체크박스 위치에 맞춰 정렬, 텍스트 높이만큼 */}
-                      <div style={{ display: "flex", alignItems: "center", paddingLeft: 16, paddingRight: 16, paddingBottom: 2, flexShrink: 0, background: "transparent", gap:"12px" }}>
+                      <div className="gap-3 flex items-center shrink-0" style={{ paddingLeft: 16, paddingRight: 16, paddingBottom: 2, background: "transparent" }}>
                         {/* 왼쪽: "Strategy" 레이블 */}
-                        <div style={{ flex: 1 }}>
-                          <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#1c1b1b", letterSpacing: "-0.48px", lineHeight: 1.1 }}>Strategy</span>
+                        <div className="flex-1">
+                          <span className="text-body5m" style={{ color: "#1c1b1b" }}>Strategy</span>
                         </div>
                         {/* 체크박스 3개 위치에 맞춰 A/B/C 헤더 */}
-                        <div style={{ display: "flex", gap: 38, alignItems: "center", flexShrink: 0 }}>
+                        <div className="gap-[38px] flex items-center shrink-0">
                           {["A", "B", "C"].map((s) => (
-                            <span key={s} style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#1c1b1b", letterSpacing: "-0.48px", lineHeight: 1.1, textAlign: "center", width: 18 }}>{s}</span>
+                            <span key={s} className="text-body5m" style={{ color: "#1c1b1b", textAlign: "center", width: 18 }}>{s}</span>
                           ))}
                         </div>
                         {/* 삭제 버튼 자리 (24px + 16px gap) */}
-                        <div style={{ width: 24 + 16, flexShrink: 0 }} />
+                        <div className="shrink-0" style={{ width: 24 + 16 }} />
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, overflow: "auto" }}>
+                      <div className="gap-1.5 flex flex-col flex-1 overflow-auto">
                         {drugRows.map((drug, idx) => (
-                          <div key={"id" in drug ? String(drug.id) : idx} style={{ background: "white", borderRadius: 16, minHeight: 48, display: "flex", alignItems: "center", paddingLeft: 16, paddingRight: 16, gap: 12, flexShrink: 0 }}>
+                          <div key={"id" in drug ? String(drug.id) : idx} className="rounded-[16px] gap-3 flex items-center shrink-0" style={{ background: "white", minHeight: 48, paddingLeft: 16, paddingRight: 16 }}>
                             {/* 왼쪽: 약물 정보 — type+code 같은 줄, name 아래 */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minWidth: 0 }}>
-                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <span style={{ fontFamily: "Inter", fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05 }}>{drug.type}</span>
-                                <span style={{ fontFamily: "Inter", fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05, flexShrink: 0 }}>{drug.code}</span>
+                            <div className="gap-0.5 flex flex-col flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span style={{ fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05 }}>{drug.type}</span>
+                                <span className="shrink-0" style={{ fontSize: 9, fontWeight: 500, color: "#aaaaad", letterSpacing: "-0.27px", lineHeight: 1.05 }}>{drug.code}</span>
                               </div>
-                              <span style={{ fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: "#1c1b1b", letterSpacing: "-0.75px", lineHeight: 1.15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{drug.name}</span>
+                              <span className="overflow-hidden text-body4" style={{ color: "#1c1b1b", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{drug.name}</span>
                             </div>
                             {/* 체크박스 */}
-                            <div style={{ display: "flex", gap: 38, alignItems: "center", flexShrink: 0, marginLeft: 12 }}>
+                            <div className="gap-[38px] flex items-center shrink-0" style={{ marginLeft: 12 }}>
                               {drug.checks.map((checked, ci) => (
                                 <div
                                   key={ci}
@@ -1131,7 +1123,8 @@ export default function SimulationConditionPage() {
                                         : d
                                     ));
                                   }}
-                                  style={{ width: 18, height: 18, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                                  className="flex items-center justify-center cursor-pointer"
+                                  style={{ width: 18, height: 18 }}
                                 >
                                   {checked ? <CheckboxChecked size={17} /> : <CheckboxUnchecked size={17} />}
                                 </div>
@@ -1140,7 +1133,8 @@ export default function SimulationConditionPage() {
                             {/* 삭제 버튼 — 우측 고정 */}
                             <button
                               onClick={() => setDrugList(prev => prev.filter((_, i) => i !== idx))}
-                              style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0, marginLeft: 16 }}
+                              className="flex items-center justify-center border-none cursor-pointer shrink-0"
+                              style={{ width: 24, height: 24, background: "none", padding: 0, marginLeft: 16 }}
                             >
                               <IconDelete size={18} />
                             </button>
@@ -1152,45 +1146,46 @@ export default function SimulationConditionPage() {
                     </div>
                   </div>
                   {/* HbA1c Trend 차트 — 피그마 디자인 */}
-                  <div style={{ flex: "2.5 2.5 0", minWidth: 0, overflow: "hidden", display: "flex", flexDirection: "column", gap: 0 }}>
+                  <div className="gap-0 min-w-0 overflow-hidden flex flex-col" style={{ flex: "2.5 2.5 0" }}>
                     {/* 숫자 헤더 (0~24) — 오른쪽 약물 영역 위에만 */}
-                    <div style={{ display: "flex", paddingLeft: "clamp(140px, 22%, 236px)", marginBottom: 4 }}>
+                    <div className="flex" style={{ paddingLeft: "clamp(140px, 22%, 236px)", marginBottom: 4 }}>
                       {[0, 3, 6, 9, 12, 15, 18, 21, 24].map((n) => (
-                        <span key={n} style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#262255", letterSpacing: "-0.48px", lineHeight: 1.1, textAlign: "center", flex: 1 }}>{n}</span>
+                        <span key={n} className="flex-1 text-body5m" style={{ color: "var(--text-header)", textAlign: "center" }}>{n}</span>
                       ))}
                     </div>
                     {/* Strategy 행들 */}
-                    <div style={{ background: "white", borderRadius: 16, overflow: "auto", flex: 1, display: "flex", flexDirection: "column" }}>
+                    <div className="rounded-[16px] overflow-hidden flex-1" style={{ background: "white" }}>
+                    <div className="overflow-auto flex flex-col h-full">
                       {([
                         { strategy: "Strategy A", color: "#3a11d8", detail: "Increase : 6 Months", strategyIdx: 0 },
                         { strategy: "Strategy B", color: "#f06600", detail: "Stable : 6 Months", strategyIdx: 1 },
                         { strategy: "Strategy C", color: "#24c6c9", detail: "Decrease : 3 Months", strategyIdx: 2 },
                       ]).map((row, ri) => (
-                        <div key={ri} style={{ flex: 1, minHeight: 80, display: "flex", borderTop: ri > 0 ? "1px solid #e2e1e5" : undefined }}>
+                        <div key={ri} className="flex-1 flex" style={{ minHeight: 80, borderTop: ri > 0 ? "1px solid #e2e1e5" : undefined }}>
                           {/* 왼쪽: Strategy 정보 */}
-                          <div style={{ width: "clamp(140px, 22%, 236px)", flexShrink: 0, borderRight: "1px solid #e2e1e5", display: "flex", flexDirection: "column", gap: 6, paddingTop: 2, paddingBottom: 2 }}>
+                          <div className="gap-1.5 shrink-0 flex flex-col" style={{ width: "clamp(140px, 22%, 236px)", borderRight: "1px solid #e2e1e5", paddingTop: 2, paddingBottom: 2 }}>
                             {/* Strategy 이름 + 컬러 언더라인 */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: 6, flexShrink: 0 }}>
-                              <div style={{ display: "flex", alignItems: "center", paddingLeft: 16, paddingTop: 6 }}>
-                                <span style={{ fontFamily: "Inter", fontSize: 15, fontWeight: 600, color: row.color, letterSpacing: "-0.75px", lineHeight: 1.15 }}>{row.strategy}</span>
+                            <div className="gap-1.5 flex flex-col shrink-0">
+                              <div className="flex items-center" style={{ paddingLeft: 16, paddingTop: 6 }}>
+                                <span className="text-body4" style={{ color: row.color }}>{row.strategy}</span>
                               </div>
                               <div style={{ height: 1, background: row.color }} />
                             </div>
                             {/* HbA1c Trend 정보 */}
-                            <div style={{ display: "flex", flexDirection: "column", paddingLeft: 16, paddingRight: 8 }}>
-                              <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#1c1b1b", letterSpacing: "-0.48px", lineHeight: 1.1 }}>HbA1c Trend</span>
-                              <span style={{ fontFamily: "Inter", fontSize: 12, fontWeight: 500, color: "#1c1b1b", letterSpacing: "-0.48px", lineHeight: 1.1 }}>{row.detail}</span>
+                            <div className="flex flex-col" style={{ paddingLeft: 16, paddingRight: 8 }}>
+                              <span className="text-body5m" style={{ color: "#1c1b1b" }}>HbA1c Trend</span>
+                              <span className="text-body5m" style={{ color: "#1c1b1b" }}>{row.detail}</span>
                             </div>
                           </div>
                           {/* 오른쪽: 약물 pill 행들 + 점선 그리드 */}
-                          <div style={{ flex: 1, minWidth: 0, position: "relative", display: "flex", flexDirection: "column", paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12, gap: 4, alignItems: "stretch", justifyContent: "center" }}>
+                          <div className="gap-1 flex-1 min-w-0 relative flex flex-col items-stretch justify-center" style={{ paddingTop: 8, paddingBottom: 8, paddingLeft: 12, paddingRight: 12 }}>
                             {/* 점선 세로 라인 — pill 뒤에 깔림 (zIndex: 0) */}
-                            <div style={{ position: "absolute", inset: 0, display: "flex", pointerEvents: "none", zIndex: 0 }}>
+                            <div className="absolute inset-0 flex pointer-events-none" style={{ zIndex: 0 }}>
                               {Array.from({ length: 9 }).map((_, ci) => (
                                 <div
                                   key={ci}
+                                  className="flex-1"
                                   style={{
-                                    flex: 1,
                                     borderLeft: ci > 0 ? "1px dashed #efeff4" : undefined,
                                   }}
                                 />
@@ -1202,7 +1197,7 @@ export default function SimulationConditionPage() {
                               const widthPct = pos ? pos.widthPct : 100 / 9;
                               const visible = drug.checks[row.strategyIdx] && pos !== null;
                               return (
-                                <div key={drug.id} style={{ flex: 1, minHeight: 16, maxHeight: 32, display: "flex", alignItems: "center", position: "relative", overflow: "visible", zIndex: 1 }}>
+                                <div key={drug.id} className="flex-1 flex items-center relative overflow-visible" style={{ minHeight: 16, maxHeight: 32, zIndex: 1 }}>
                                   {visible && (
                                     <ResizablePill name={drug.name} code={drug.code} testLeftPct={leftPct} testWidthPct={widthPct} resetKey={drug.id * 10 + row.strategyIdx + pillResetKey} />
                                   )}
@@ -1212,6 +1207,7 @@ export default function SimulationConditionPage() {
                           </div>
                         </div>
                       ))}
+                    </div>
                     </div>
                   </div>
                 </div>
@@ -1223,33 +1219,31 @@ export default function SimulationConditionPage() {
             <div className="shrink-0 flex justify-end gap-[12px]">
               <button
                 onClick={() => router.push("/drd/simulation-setting")}
-                className="flex items-center justify-center h-[42px] px-[24px] rounded-[36px] bg-transparent relative overflow-hidden border-none cursor-pointer"
+                className="btn-tsi btn-tsi-secondary"
+                style={{ height: 42 }}
               >
-                <div className="absolute inset-0 bg-[#787776]" />
-                <span className="relative z-10 font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px]">Cancel</span>
+                Cancel
               </button>
               {/* Save Progress 버튼 */}
               <button
                 onClick={handleSaveProgress}
-                className="flex items-center justify-center h-[42px] px-[24px] rounded-[36px] relative overflow-hidden border-none cursor-pointer"
-                style={{ background: "#484646" }}
+                className="btn-tsi btn-tsi-secondary"
+                style={{ height: 42, backgroundColor: "#484646" }}
               >
-                <span className="relative z-10 font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white tracking-[-0.51px]">
-                  Save Progress
-                </span>
+                Save Progress
               </button>
               <button
+                disabled={!canConfirm}
                 onClick={() => {
                   if (!canConfirm) return;
                   setSimCondData({ selectedCategory, selectedDetail, selectedValue, followUpMonths, inputValues, unitValues, monthValues, drugList });
                   setSimCondCompleted(true);
                   router.push("/drd/simulation-setting");
                 }}
-                className="flex items-center justify-center h-[42px] px-[24px] rounded-[36px] bg-transparent relative overflow-hidden border-none"
-                style={{ cursor: canConfirm ? "pointer" : "not-allowed" }}
+                className="btn-tsi btn-tsi-primary"
+                style={{ height: 42 }}
               >
-                <div className="absolute inset-0" style={{ background: canConfirm ? "#f06600" : "#c6c5c9", transition: "background 0.15s" }} />
-                <span className="relative z-10 font-['Inter'] font-semibold text-[17px] leading-[1.05] text-white text-center tracking-[-0.51px]">Confirm</span>
+                Confirm
               </button>
             </div>
           </div>

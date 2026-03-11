@@ -24,13 +24,9 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
 
   return (
     <div
+      className="fixed inset-0 flex items-center justify-center"
       style={{
-        position: "fixed",
-        inset: 0,
         zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         background: "rgba(0, 0, 0, 0.4)",
         backdropFilter: "blur(4px)",
       }}
@@ -39,15 +35,10 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
       {/* 모달 카드 (클릭 버블링 방지) / Modal card (stop propagation) */}
       <div
         onClick={(e) => e.stopPropagation()}
+        className="rounded-[24px] gap-9 relative flex flex-col overflow-hidden"
         style={{
-          position: "relative",
           width: "420px",
-          borderRadius: "24px",
           padding: "20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "36px",
-          overflow: "hidden",
           boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
         }}
       >
@@ -55,23 +46,18 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
         {/* 글래스모피즘 배경 레이어 / Glassmorphism background layers */}
         <div
           aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: "24px",
-            pointerEvents: "none",
-          }}
+          className="rounded-[24px] absolute inset-0 pointer-events-none"
         >
-          <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
-          <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(255,255,255,0.88)" }} />
-          <div style={{ position: "absolute", inset: 0, borderRadius: "24px", background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
+          <div className="rounded-[24px] absolute inset-0" style={{ background: "rgba(255,255,255,0.6)", mixBlendMode: "color-dodge" }} />
+          <div className="rounded-[24px] absolute inset-0" style={{ background: "rgba(255,255,255,0.88)" }} />
+          <div className="rounded-[24px] absolute inset-0" style={{ background: "rgba(0,0,0,0.04)", mixBlendMode: "hard-light" }} />
         </div>
 
         {/* 모달 폼 필드 / Modal form fields */}
-        <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div className="gap-4 relative flex flex-col" style={{ zIndex: 1 }}>
 
           {/* Study Title 입력 / Study Title input */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div className="gap-1 flex flex-col">
             <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Study Title
             </p>
@@ -80,42 +66,44 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
               value={simName}
               onChange={(e) => setSimName(e.target.value)}
               placeholder="Write a title"
-              style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", background: "none", border: "none", outline: "none", padding: 0, width: "100%" }}
+              className="w-full border-none"
+              style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "var(--icon-primary)", letterSpacing: "-0.36px", lineHeight: "13.2px", background: "none", outline: "none", padding: 0 }}
             />
           </div>
 
           {/* Date 표시 (자동) / Date display (auto) */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div className="gap-1 flex flex-col">
             <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Date
             </p>
-            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
+            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "var(--icon-primary)", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
               {new Date().toISOString().replace("T", " ").slice(0, 19)}
             </p>
           </div>
 
           {/* Version 표시 / Version display */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div className="gap-1 flex flex-col">
             <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Version
             </p>
-            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "#787776", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
+            <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "12px", color: "var(--icon-primary)", letterSpacing: "-0.36px", lineHeight: "13.2px", margin: 0 }}>
               v 1.1
             </p>
           </div>
 
           {/* Description 입력 (최대 30자) / Description input (max 30 chars) */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <div className="gap-1.5 flex flex-col">
             <p style={{ fontFamily: "Inter", fontWeight: 600, fontSize: "15px", color: "#484646", letterSpacing: "-0.45px", lineHeight: "15.75px", margin: 0 }}>
               Description
             </p>
-            <div style={{ background: "#d9d9d9", borderRadius: "12px", padding: "0 20px", height: "36px", display: "flex", alignItems: "center" }}>
+            <div className="rounded-[12px] flex items-center" style={{ background: "#d9d9d9", padding: "0 20px", height: "36px" }}>
               <input
                 type="text"
                 value={simDesc}
                 onChange={(e) => setSimDesc(e.target.value.slice(0, 30))}
                 placeholder="Please enter a description."
-                style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "15px", color: "#787776", letterSpacing: "-0.45px", background: "none", border: "none", outline: "none", width: "100%" }}
+                className="w-full border-none"
+                style={{ fontFamily: "Inter", fontWeight: 500, fontSize: "15px", color: "var(--icon-primary)", letterSpacing: "-0.45px", background: "none", outline: "none" }}
               />
             </div>
           </div>
@@ -123,7 +111,7 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
         </div>
 
         {/* 모달 버튼 영역 / Modal action buttons */}
-        <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "12px", justifyContent: "center" }}>
+        <div className="gap-3 relative flex justify-center" style={{ zIndex: 1 }}>
           {/* Close 버튼 / Close button */}
           <button
             type="button"

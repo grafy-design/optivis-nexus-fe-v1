@@ -193,46 +193,22 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
 
   return (
     <div
-      className="flex flex-col w-full"
-      style={{ gap: "12px", flex: 1, minHeight: 0 }}
+      className="flex flex-col w-full gap-3 flex-1 min-h-0"
     >
       {/* Table Header: Figma 1396×41px bg #000 r=24, padding 24px 좌우 12px 상하 */}
       <div
-        className="flex items-center"
-        style={{
-          width: "100%",
-          height: "41px",
-          backgroundColor: "#000000",
-          borderRadius: "24px",
-          paddingLeft: "24px",
-          paddingRight: "24px",
-          paddingTop: "12px",
-          paddingBottom: "12px",
-          flexShrink: 0,
-          overflow: "hidden",
-        }}
+        className="flex items-center rounded-[24px] w-full shrink-0 overflow-hidden h-[41px] bg-table-header-background px-6 py-3"
       >
         {/* 컬럼들: Frame 1618872462 - gap 16px (reduced from 32.98px) */}
         <div
-          className="flex items-center"
-          style={{ gap: "16px", width: "100%" }}
+          className="flex items-center gap-4 w-full"
         >
           {columns.map((col, idx) => (
             <span
-              className="home-simulation-table-header-text"
+              className="home-simulation-table-header-text min-w-0 overflow-hidden text-[13px] font-semibold leading-[17px] tracking-[-0.3px] text-text-inverted whitespace-nowrap text-ellipsis"
               key={`col-${idx}`}
               style={{
-                fontFamily: "Inter",
-                fontSize: "13px", // Reduced from 15px (-2pt approx)
-                fontWeight: 600,
-                lineHeight: "17px",
-                letterSpacing: "-0.3px",
-                color: "#FFFFFF",
-                flex: `${col.flex} 1 0px`, // Use flex ratios for responsiveness
-                minWidth: 0,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                flex: `${col.flex} 1 0px`,
               }}
             >
               {col.label}
@@ -243,38 +219,23 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
 
       {/* Table Body: Figma 1396×606px bg white r=24 */}
       <div
-        className="w-full"
-        style={{
-          backgroundColor: "#FFFFFF",
-          borderRadius: "24px",
-          minHeight: "394px",
-          flex: 1,
-          padding: "10px 8px",
-          overflowY: "auto",
-        }}
+        className="w-full rounded-[24px] flex-1 overflow-hidden bg-white min-h-[394px] px-2 py-2.5 flex flex-col"
       >
+        <div className="overflow-y-auto flex-1 min-h-0">
         {filteredRows.length === 0 ? (
           <div className="flex h-full min-h-[360px] items-center justify-center">
             <span
-              className="home-simulation-table-empty-text"
-              style={{
-                fontFamily: "Inter",
-                fontSize: "19.5px",
-                fontWeight: 600,
-                lineHeight: "100%",
-                letterSpacing: "-0.585px",
-                color: "#C6C5C9",
-              }}
+              className="home-simulation-table-empty-text text-[19.5px] font-semibold leading-none tracking-[-0.585px] text-text-disabled"
             >
               {normalizedQuery ? "No matching simulations." : "No saved simulations."}
             </span>
           </div>
         ) : (
-          <div className="flex flex-col" style={{ gap: "8px" }}>
+          <div className="flex flex-col gap-2">
             {filteredRows.map((row, index) => (
               <div
                 key={row.id}
-                className="flex items-center"
+                className="flex items-center rounded-[16px] gap-4 min-h-[52px] px-3.5 py-2 cursor-grab border border-[rgba(225,225,225,0.9)]"
                 draggable
                 onDragStart={(event) => handleDragStart(row.id, event)}
                 onDragOver={(event) => handleDragOver(row.id, event)}
@@ -282,12 +243,6 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
                 onDragEnd={handleDragEnd}
                 style={{
                   background: "linear-gradient(180deg, rgba(250,250,250,0.95) 0%, rgba(245,245,245,0.92) 100%)",
-                  border: "1px solid rgba(225,225,225,0.9)",
-                  borderRadius: "16px",
-                  minHeight: "52px",
-                  padding: "8px 14px",
-                  gap: "16px",
-                  cursor: "grab",
                   opacity: draggingRowId === row.id ? 0.66 : 1,
                   boxShadow:
                     draggingRowId === row.id
@@ -301,48 +256,37 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
               >
                 {isATSorTSI ? (
                   <>
-                    <span style={{ flex: "24 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 600, color: "#202020" }}>{index + 1}</span>
-                    <span style={{ flex: "145 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 600, color: "#202020", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.simulationName}</span>
-                    <span style={{ flex: "165 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 500, color: "#3F3F3F", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.disease}</span>
-                    <span style={{ flex: "140 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 600, color: "#2E3F68", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.outcome}</span>
-                    <span style={{ flex: "283 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "12px", fontWeight: 500, color: "#5B5B5B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.description}</span>
-                    <span style={{ flex: "161 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "12px", fontWeight: 500, color: "#6B6B6B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.lastUpdated}</span>
+                    <span className="min-w-0 text-[13px] font-semibold text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
+                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
+                    <span className="min-w-0 overflow-hidden text-[13px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "165 1 0px" }}>{row.disease}</span>
+                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
+                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "283 1 0px" }}>{row.description}</span>
+                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "161 1 0px" }}>{row.lastUpdated}</span>
                   </>
                 ) : (
                   <>
-                    <span style={{ flex: "24 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 600, color: "#202020" }}>{index + 1}</span>
-                    <span style={{ flex: "145 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 600, color: "#202020", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.simulationName}</span>
-                    <span style={{ flex: "140 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 500, color: "#3F3F3F", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.population ?? "-"}</span>
-                    <span style={{ flex: "140 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "13px", fontWeight: 600, color: "#2E3F68", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.outcome}</span>
-                    <span style={{ flex: "250 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "12px", fontWeight: 500, color: "#5B5B5B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.description}</span>
-                    <span style={{ flex: "130 1 0px", minWidth: 0, fontFamily: "Inter", fontSize: "12px", fontWeight: 500, color: "#6B6B6B", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{row.lastUpdated}</span>
+                    <span className="min-w-0 text-[13px] font-semibold text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
+                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
+                    <span className="min-w-0 overflow-hidden text-[13px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.population ?? "-"}</span>
+                    <span className="min-w-0 overflow-hidden text-[13px] font-semibold text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
+                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "250 1 0px" }}>{row.description}</span>
+                    <span className="min-w-0 overflow-hidden text-[12px] font-medium text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "130 1 0px" }}>{row.lastUpdated}</span>
                   </>
                 )}
 
-                <div className="flex items-center justify-end" style={{ flex: "66 1 0px", minWidth: 0, gap: "6px" }}>
+                <div className="flex items-center justify-end gap-1.5 min-w-0 flex-[66_1_0px]">
                   {/* Play 버튼: 저장된 input 값 유지한 채로 해당 서비스 페이지로 이동 */}
                   {serviceId && SERVICE_PATH_MAP[serviceId] && (
                     <button
                       type="button"
                       onClick={() => router.push(SERVICE_PATH_MAP[serviceId!])}
                       aria-label="Load saved simulation"
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        border: "none",
-                        borderRadius: "8px",
-                        background: "transparent",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
+                      className="rounded-[8px] border-none cursor-pointer flex items-center justify-center shrink-0 size-6 bg-transparent"
                     >
                       <svg width="12" height="12" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                           d="M4 15.7833V4.21667C4 3.8 4.09913 3.49444 4.29739 3.3C4.49565 3.1 4.73141 3 5.00469 3C5.24581 3 5.4923 3.07222 5.74414 3.21667L15.1078 8.89167C15.4401 9.09167 15.6705 9.27222 15.7991 9.43333C15.933 9.58889 16 9.77778 16 10C16 10.2167 15.933 10.4056 15.7991 10.5667C15.6705 10.7278 15.4401 10.9083 15.1078 11.1083L5.74414 16.7833C5.4923 16.9278 5.24581 17 5.00469 17C4.73141 17 4.49565 16.9 4.29739 16.7C4.09913 16.5 4 16.1944 4 15.7833Z"
-                          fill="#787776"
+                          fill="var(--icon-primary)"
                         />
                       </svg>
                     </button>
@@ -352,21 +296,10 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
                     type="button"
                     onClick={() => deleteRow(row.id)}
                     aria-label="More options"
-                    style={{
-                      width: "24px",
-                      height: "24px",
-                      border: "none",
-                      borderRadius: "8px",
-                      background: "transparent",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      flexShrink: 0,
-                    }}
+                    className="rounded-[8px] border-none cursor-pointer flex items-center justify-center shrink-0 size-6 bg-transparent"
                   >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10 12C10 12.5304 10.2107 13.0391 10.5858 13.4142C10.9609 13.7893 11.4696 14 12 14C12.5304 14 13.0391 13.7893 13.4142 13.4142C13.7893 13.0391 14 12.5304 14 12C14 11.4696 13.7893 10.9609 13.4142 10.5858C13.0391 10.2107 12.5304 10 12 10C11.4696 10 10.9609 10.2107 10.5858 10.5858C10.2107 10.9609 10 11.4696 10 12ZM10 6C10 6.53043 10.2107 7.03914 10.5858 7.41421C10.9609 7.78929 11.4696 8 12 8C12.5304 8 13.0391 7.78929 13.4142 7.41421C13.7893 7.03914 14 6.53043 14 6C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4C11.4696 4 10.9609 4.21071 10.5858 4.58579C10.2107 4.96086 10 5.46957 10 6ZM10 18C10 18.5304 10.2107 19.0391 10.5858 19.4142C10.9609 19.7893 11.4696 20 12 20C12.5304 20 13.0391 19.7893 13.4142 19.4142C13.7893 19.0391 14 18.5304 14 18C14 17.4696 13.7893 16.9609 13.4142 16.5858C13.0391 16.2107 12.5304 16 12 16C11.4696 16 10.9609 16.2107 10.5858 16.5858C10.2107 16.9609 10 17.4696 10 18Z" fill="#787776"/>
+                      <path d="M10 12C10 12.5304 10.2107 13.0391 10.5858 13.4142C10.9609 13.7893 11.4696 14 12 14C12.5304 14 13.0391 13.7893 13.4142 13.4142C13.7893 13.0391 14 12.5304 14 12C14 11.4696 13.7893 10.9609 13.4142 10.5858C13.0391 10.2107 12.5304 10 12 10C11.4696 10 10.9609 10.2107 10.5858 10.5858C10.2107 10.9609 10 11.4696 10 12ZM10 6C10 6.53043 10.2107 7.03914 10.5858 7.41421C10.9609 7.78929 11.4696 8 12 8C12.5304 8 13.0391 7.78929 13.4142 7.41421C13.7893 7.03914 14 6.53043 14 6C14 5.46957 13.7893 4.96086 13.4142 4.58579C13.0391 4.21071 12.5304 4 12 4C11.4696 4 10.9609 4.21071 10.5858 4.58579C10.2107 4.96086 10 5.46957 10 6ZM10 18C10 18.5304 10.2107 19.0391 10.5858 19.4142C10.9609 19.7893 11.4696 20 12 20C12.5304 20 13.0391 19.7893 13.4142 19.4142C13.7893 19.0391 14 18.5304 14 18C14 17.4696 13.7893 16.9609 13.4142 16.5858C13.0391 16.2107 12.5304 16 12 16C11.4696 16 10.9609 16.2107 10.5858 16.5858C10.2107 16.9609 10 17.4696 10 18Z" fill="var(--icon-primary)"/>
                     </svg>
                   </button>
                 </div>
@@ -374,6 +307,7 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
             ))}
           </div>
         )}
+        </div>
       </div>
 
       <style jsx>{`
