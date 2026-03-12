@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import { useRouter, usePathname } from "next/navigation";
 import { useSimulationStore } from "@/store/simulationStore";
@@ -35,9 +35,9 @@ function StepCard({
   chartContent,
 }: StepCardProps) {
   return (
-    <div className="rounded-[12px] min-h-[512px] p-5 flex flex-col items-start flex-1 bg-[#f5f5f6]">
+    <div className="rounded-[12px] p-4 flex flex-col items-start flex-1 h-fit" style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}>
       {/* Step 버튼 + 타이틀 + Description 영역 */}
-      <div className="w-full flex flex-col flex-shrink-0 mb-8">
+      <div className="w-full flex flex-col flex-shrink-0 mb-4">
         {/* Step 버튼 */}
         <div className="mb-3">
           <SolidButton variant="primary" size="s" className="rounded-[4px] px-3 font-medium">
@@ -47,9 +47,9 @@ function StepCard({
         {/* 타이틀 + Description 영역 */}
         <div className="flex flex-col w-full flex-1">
           {/* 타이틀 */}
-          <h3 className="text-h3 text-text-primary mb-6">{title}</h3>
+          <h3 className="text-body2 text-text-primary mb-3">{title}</h3>
           {/* Description */}
-          <p className="text-body3 text-[#666b73] max-w-[500px]">{description}</p>
+          <p className="text-body5m text-neutral-50 max-w-[500px] min-h-[28px]">{description}</p>
         </div>
       </div>
       {/* 차트 영역 */}
@@ -480,29 +480,26 @@ export default function ReportPage() {
 
           <div id="report-content" className="flex flex-1 min-h-0 gap-1">
             {/* LEFT: Results Overview (liquid glass frame) - 고정, 풀높이 */}
-            <div className="w-[700px] flex-shrink-0 h-full flex flex-col">
+            <div className="w-[400px] [@media(min-width:1470px)]:w-[520px] flex-shrink-0 h-full flex flex-col">
               <div
                 className="figma-nine-slice figma-home-panel-middle relative flex-1 flex flex-col overflow-hidden"
               >
                 <div id="results-overview" className="flex flex-col flex-1 overflow-y-auto min-h-0">
-                  <h2 className="text-h2 text-[#2d1067] mb-8 pl-1 pt-1">
+                  <h2 className="text-h4 text-primary-15 mb-3 pl-1 pt-1">
                     Results Overview
                   </h2>
                   <div className="flex flex-col gap-6 flex-1">
                     {/* Insight Summary */}
                     <div className="flex-1 flex flex-col">
                       <div
-                        className="flex flex-col items-center bg-[#231f52] rounded-[12px] w-full flex-1 gap-6"
-                        style={{
-                          padding: "24px",
-                        }}
+                        className="flex flex-col items-center bg-primary-15 rounded-[12px] w-full flex-1 gap-6 p-4"
                       >
-                        <h3 className="text-h3 text-white text-left w-full">
+                        <h3 className="text-body2 text-white text-left w-full">
                           Insight Summary
                         </h3>
                         <div
                           className="space-y-4 w-full"
-                          style={{ marginTop: "24px" }}
+                          style={{ marginTop: "12px" }}
                         >
                           <div className="flex items-center gap-8">
                             <Image
@@ -512,14 +509,14 @@ export default function ReportPage() {
                               height={18}
                               className="flex-shrink-0"
                             />
-                            <span className="text-body2 text-white">
+                            <span className="text-body5m text-white">
                               <span className="font-semibold">
                                 {apiData?.result_resultsoverview?.OPTIVIS?.[0]
                                   ?.sample_size_text || ""}
                               </span>
                             </span>
                           </div>
-                          <div className="h-[1px] bg-[#adaaaa]" />
+                          <div className="h-[1px] bg-neutral-70" />
                           <div className="flex items-center gap-8">
                             <Image
                               src="/assets/simulation/insight-summary-enrollment.svg"
@@ -528,14 +525,14 @@ export default function ReportPage() {
                               height={18}
                               className="flex-shrink-0"
                             />
-                            <span className="text-body2 text-white">
+                            <span className="text-body5m text-white">
                               <span className="font-semibold">
                                 {apiData?.result_resultsoverview?.OPTIVIS?.[0]
                                   ?.enrollment_text || ""}
                               </span>
                             </span>
                           </div>
-                          <div className="h-[1px] bg-[#adaaaa]" />
+                          <div className="h-[1px] bg-neutral-70" />
                           <div className="flex items-center gap-8">
                             <Image
                               src="/assets/simulation/insight-summary-cost.svg"
@@ -544,14 +541,14 @@ export default function ReportPage() {
                               height={18}
                               className="flex-shrink-0"
                             />
-                            <span className="text-body2 text-white">
+                            <span className="text-body5m text-white">
                               <span className="font-semibold">
                                 {apiData?.result_resultsoverview?.OPTIVIS?.[0]
                                   ?.cost_text || ""}
                               </span>
                             </span>
                           </div>
-                          <div className="h-[1px] bg-[#adaaaa]" />
+                          <div className="h-[1px] bg-neutral-70" />
                           <div className="flex items-center gap-8">
                             <Image
                               src="/assets/simulation/insight-summary-loss.svg"
@@ -560,7 +557,7 @@ export default function ReportPage() {
                               height={18}
                               className="flex-shrink-0"
                             />
-                            <span className="text-body2 text-white">
+                            <span className="text-body5m text-white">
                               <span className="font-semibold">
                                 {apiData?.result_resultsoverview?.OPTIVIS?.[0]
                                   ?.power_text || ""}
@@ -568,11 +565,11 @@ export default function ReportPage() {
                             </span>
                           </div>
                         </div>
-                        <div className="bg-white rounded-[12px] p-4 w-full mt-auto flex flex-col">
-                          <h3 className="text-h3 text-[#231f52]">
+                        <div className="bg-white rounded-[12px] p-3 w-full mt-auto flex flex-col gap-2">
+                          <h3 className="text-body4 text-primary-15">
                             {apiData?.sample_size_evaluation?.title || ""}
                           </h3>
-                          <p className="text-body4m text-text-primary whitespace-pre-line mt-auto">
+                          <p className="text-body5m text-text-secondary whitespace-pre-line mt-auto" style={{ lineHeight: "1.15" }}>
                             {apiData?.sample_size_evaluation?.content || ""}
                           </p>
                         </div>
@@ -580,7 +577,7 @@ export default function ReportPage() {
                     </div>
 
                     {/* 2x2 그리드 (4개의 흰색 카드) */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       {reportData.reductionView.charts.map(
                         (chart, index) => {
                           const formatter =
@@ -595,11 +592,11 @@ export default function ReportPage() {
                           return (
                             <div
                               key={index}
-                              className="flex flex-col items-center bg-white rounded-[12px] p-3 gap-3"
+                              className="flex flex-col items-center bg-white rounded-[12px] p-3 gap-2"
                             >
                               <div className="flex items-start justify-between w-full">
-                                <div className="flex flex-col gap-1">
-                                  <h4 className="text-body2 text-[var(--text-header)]">
+                                <div className="flex flex-col gap-0">
+                                  <h4 className="text-body5 text-[var(--text-header)]">
                                     {chart.label}
                                   </h4>
                                   <div className="flex items-center gap-1 mt-1">
@@ -607,9 +604,9 @@ export default function ReportPage() {
                                       direction={
                                         chart.isNegative ? "up" : "down"
                                       }
-                                      color="#231F52"
+                                      color="var(--primary-15)"
                                     />
-                                    <span className="text-h4 text-neutral-15">
+                                    <span className="text-body2 text-neutral-15">
                                       {chart.change}
                                     </span>
                                   </div>
@@ -674,23 +671,19 @@ export default function ReportPage() {
               >
                 <div className="w-full overflow-y-auto flex-1 min-h-0">
                   {/* Trial Design Conditions Summary */}
-                  <div id="trial-design-summary" className="mb-[100px]">
-                    <h2 className="text-h2 text-[#2d1067] mb-[44px] pl-1 pt-1">
+                  <div id="trial-design-summary" className="mb-10">
+                    <h2 className="text-h4 text-primary-15 mb-3 ml-[4px] pl-1 pt-1">
                       Trial Design Conditions Summary
                     </h2>
                     <div className="flex gap-4">
                       {/* Endpoints Design Card */}
-                      <div className="flex-1 bg-white rounded-[12px] p-6">
-                        <div className="mb-4">
-                          <div className="flex justify-left mb-4">
+                      <div className="flex-1 bg-white rounded-[12px] p-4 gap-2">
+                        <div className="mb-2">
+                          <div className="flex justify-left mb-2">
                             <div
-                              className="bg-[#ededed] flex items-center justify-center rounded-full"
-                              style={{
-                                width: "175px",
-                                height: "24px",
-                              }}
+                              className="bg-neutral-90 flex items-center justify-center rounded-full px-3 py-1 w-fit"
                             >
-                              <span className="text-[12px] font-semibold leading-[18.02px] tracking-[-0.51px] text-[#231f52]">
+                              <span className="text-body5 text-primary-15">
                                 Endpoints Design
                               </span>
                             </div>
@@ -700,25 +693,25 @@ export default function ReportPage() {
                             <table className="w-full">
                               <thead>
                                 <tr>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     Endpoint Type
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     No
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     Outcome
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     Type
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     Nominal Power
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     Threshold
                                   </th>
-                                  <th className="text-left py-3 px-4 text-body5m text-text-primary">
+                                  <th className="text-left py-2 px-3 text-small1 text-text-primary">
                                     Expected Effect size
                                   </th>
                                 </tr>
@@ -753,14 +746,14 @@ export default function ReportPage() {
                                       {/* 헤더와 Primary 사이 구분선 (첫 번째 Primary만) */}
                                       {isFirstPrimary && (
                                         <tr>
-                                          <td className="pl-4 py-0">
-                                            <div className="h-[1px] bg-[#AEA9B1]" />
+                                          <td className="pl-3 py-0">
+                                            <div className="h-[1px] bg-neutral-70" />
                                           </td>
                                           <td colSpan={5} className="p-0">
-                                            <div className="h-[1px] bg-[#AEA9B1]" />
+                                            <div className="h-[1px] bg-neutral-70" />
                                           </td>
-                                          <td className="pr-4 py-0">
-                                            <div className="h-[1px] bg-[#AEA9B1]" />
+                                          <td className="pr-3 py-0">
+                                            <div className="h-[1px] bg-neutral-70" />
                                           </td>
                                         </tr>
                                       )}
@@ -768,44 +761,44 @@ export default function ReportPage() {
                                         {index === 0 && (
                                           <td
                                             rowSpan={primaryEndpoints.length}
-                                            className="py-3 px-4 text-body5m text-text-primary align-top"
+                                            className="py-2 px-3 text-small1 text-text-primary align-top"
                                           >
                                             Primary
                                           </td>
                                         )}
-                                        <td className="py-3 px-4 text-body5m text-text-primary">
+                                        <td className="py-2 px-3 text-small1 text-text-primary">
                                           #{index + 1}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-text-primary">
+                                        <td className="py-2 px-3 text-small1 text-text-primary">
                                           {endpoint.name}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-text-primary">
+                                        <td className="py-2 px-3 text-small1 text-text-primary">
                                           {endpoint.type || "Continuous"}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-text-primary">
+                                        <td className="py-2 px-3 text-small1 text-text-primary">
                                           {index === 0
                                             ? `${Math.round(
                                                 nominalPower * 100,
                                               )}%`
                                             : "-"}
                                         </td>
-                                        <td className="py-3 px-4 text-body5m text-text-primary">
+                                        <td className="py-2 px-3 text-small1 text-text-primary">
                                           {endpoint.type === "Binary" &&
                                           endpoint.threshold !== null &&
                                           endpoint.threshold !== undefined
                                             ? endpoint.threshold.toFixed(1)
                                             : "-"}
                                         </td>
-                                        <td className="py-3 px-4">
+                                        <td className="py-2 px-3">
                                           <div className="flex items-center gap-2">
-                                            <span className="text-body5m text-text-primary whitespace-nowrap">
+                                            <span className="text-small1 text-text-primary whitespace-nowrap">
                                               {effectSize.toFixed(1)}
                                             </span>
                                             <div className="flex items-center gap-1 flex-1">
-                                              <span className="text-[14px] text-[#666b73] whitespace-nowrap">
+                                              <span className="text-small1 text-text-primary whitespace-nowrap">
                                                 Low
                                               </span>
-                                              <div className="flex-1 h-2 bg-[#787878]/20 rounded-[3px] relative max-w-[200px]">
+                                              <div className="flex-1 h-2 bg-neutral-50/20 rounded-[3px] relative max-w-[200px]">
                                                 <div
                                                   className="h-2 rounded-[3px]"
                                                   style={{
@@ -814,7 +807,7 @@ export default function ReportPage() {
                                                   }}
                                                 />
                                               </div>
-                                              <span className="text-[14px] text-[#666b73] whitespace-nowrap">
+                                              <span className="text-small1 text-text-primary whitespace-nowrap">
                                                 High
                                               </span>
                                             </div>
@@ -829,14 +822,14 @@ export default function ReportPage() {
                                 {primaryEndpoints.length > 0 &&
                                   secondaryEndpoints.length > 0 && (
                                     <tr>
-                                      <td className="pl-4 py-0">
-                                        <div className="h-[1px] bg-[#AEA9B1]" />
+                                      <td className="pl-3 py-0">
+                                        <div className="h-[1px] bg-neutral-70" />
                                       </td>
                                       <td colSpan={5} className="p-0">
-                                        <div className="h-[1px] bg-[#AEA9B1]" />
+                                        <div className="h-[1px] bg-neutral-70" />
                                       </td>
-                                      <td className="pr-4 py-0">
-                                        <div className="h-[1px] bg-[#AEA9B1]" />
+                                      <td className="pr-3 py-0">
+                                        <div className="h-[1px] bg-neutral-70" />
                                       </td>
                                     </tr>
                                   )}
@@ -869,40 +862,40 @@ export default function ReportPage() {
                                       {index === 0 && (
                                         <td
                                           rowSpan={secondaryEndpoints.length}
-                                          className="py-3 px-4 text-body5m text-text-primary align-top"
+                                          className="py-2 px-3 text-small1 text-text-primary align-top"
                                         >
                                           Secondary
                                         </td>
                                       )}
-                                      <td className="py-3 px-4 text-body5m text-text-primary">
+                                      <td className="py-2 px-3 text-small1 text-text-primary">
                                         #{index + 1}
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-text-primary">
+                                      <td className="py-2 px-3 text-small1 text-text-primary">
                                         {endpoint.name}
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-text-primary">
+                                      <td className="py-2 px-3 text-small1 text-text-primary">
                                         {endpoint.type || "Continuous"}
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-text-primary">
+                                      <td className="py-2 px-3 text-small1 text-text-primary">
                                         -
                                       </td>
-                                      <td className="py-3 px-4 text-body5m text-text-primary">
+                                      <td className="py-2 px-3 text-small1 text-text-primary">
                                         {endpoint.type === "Binary" &&
                                         endpoint.threshold !== null &&
                                         endpoint.threshold !== undefined
                                           ? endpoint.threshold.toFixed(1)
                                           : "-"}
                                       </td>
-                                      <td className="py-3 px-4">
+                                      <td className="py-2 px-3">
                                         <div className="flex items-center gap-2">
-                                          <span className="text-body5m text-text-primary whitespace-nowrap">
+                                          <span className="text-small1 text-text-primary whitespace-nowrap">
                                             {effectSize.toFixed(1)}
                                           </span>
                                           <div className="flex items-center gap-1 flex-1">
-                                            <span className="text-[14px] text-[#666b73] whitespace-nowrap">
+                                            <span className="text-small1 text-text-primary whitespace-nowrap">
                                               Low
                                             </span>
-                                            <div className="flex-1 h-2 bg-[#787878]/20 rounded-[3px] relative max-w-[200px]">
+                                            <div className="flex-1 h-2 bg-neutral-50/20 rounded-[3px] relative max-w-[200px]">
                                               <div
                                                 className="h-2 rounded-[3px]"
                                                 style={{
@@ -911,7 +904,7 @@ export default function ReportPage() {
                                                 }}
                                               />
                                             </div>
-                                            <span className="text-[14px] text-[#666b73] whitespace-nowrap">
+                                            <span className="text-small1 text-text-primary whitespace-nowrap">
                                               High
                                             </span>
                                           </div>
@@ -927,42 +920,42 @@ export default function ReportPage() {
                       </div>
 
                       {/* Trial Design Card */}
-                      <div className="w-[556px] bg-white rounded-[12px] p-6">
-                        <div className="mb-4">
-                          <div className="inline-block px-4 py-1.5 bg-[#ededed] rounded-[96px] mb-4">
-                            <span className="text-[12px] font-semibold leading-[18.02px] tracking-[-0.51px] text-[#231f52]">
+                      <div className="w-[556px] bg-white rounded-[12px] p-4">
+                        <div className="mb-3 ">
+                          <div className="bg-neutral-90 flex rounded-full px-3 py-1 w-fit mb-3">
+                            <span className="text-body5 text-primary-15">
                               Trial Design
                             </span>
                           </div>
-                          <div className="px-[18px]">
+                          <div className="px-3.5">
                             <div className="flex gap-14">
                               {/* 왼쪽 컬럼: 레이블 */}
                               <div className="space-y-2.5 flex-shrink-0">
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
+                                <p className="text-small1 text-text-primary">
                                   Primary Endpoint
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
+                                <p className="text-small1 text-text-primary">
                                   Hypothesis Type
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
+                                <p className="text-small1 text-text-primary">
                                   Treatment Arms
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-text-primary">
+                                <p className="text-small1 text-text-primary">
                                   Randomization Ratio
                                 </p>
                               </div>
                               {/* 오른쪽 컬럼: 값들 */}
-                              <div className="space-y-2.5">
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#4f378a]">
+                              <div className="space-y-2">
+                                <p className="text-body5m text-primary-15">
                                   {treatmentDuration}
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#4f378a]">
+                                <p className="text-body5m text-primary-15">
                                   {hypothesisType}
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#4f378a]">
+                                <p className="text-body5m text-primary-15">
                                   {treatmentArms}-arm
                                 </p>
-                                <p className="text-[12px] font-medium leading-[17.85px] tracking-[-0.51px] text-[#4f378a]">
+                                <p className="text-body5m text-primary-15">
                                   {randomizationRatio}
                                 </p>
                               </div>
@@ -974,21 +967,21 @@ export default function ReportPage() {
                   </div>
 
                   {/* Prediction Accuracy by Model Section */}
-                  <div id="prediction-accuracy" className="mb-[100px]">
-                    <h2 className="text-h2 text-[#2d1067] mb-[44px]">
+                  <div id="prediction-accuracy" className="mb-10">
+                    <h2 className="text-h4 text-primary-15 mb-4">
                       Prediction Accuracy by Model
                     </h2>
                     {/* 그래프 카드 (graph_acc_model 개수에 따라 2개 또는 3개) */}
                     {(apiData as any)?.graph_acc_model &&
                       (apiData as any).graph_acc_model.length > 0 && (
-                        <div className="flex gap-4 mb-6">
+                        <div className="flex gap-3 mb-3">
                           {(apiData as any).graph_acc_model
                             .slice(0, 3)
                             .map((graphItem: any) => {
                               return (
                                 <div
                                   key={graphItem.id}
-                                  className="flex-1 bg-white rounded-[12px] p-2"
+                                  className="flex-1 bg-white rounded-[12px] p-1"
                                   style={{ height: "378px" }}
                                 >
                                   <div className="h-full flex items-center justify-center overflow-hidden">
@@ -1008,7 +1001,7 @@ export default function ReportPage() {
                     {/* 테이블 */}
                     {(apiData as any)?.result_prec_model && (
                       <>
-                        <div className="bg-white rounded-[12px] p-2 mb-5">
+                        <div className="bg-white rounded-[12px] p-1 mb-2">
                           <div className="overflow-x-auto relative">
                             <table className="w-full">
                               <thead>
@@ -1047,18 +1040,18 @@ export default function ReportPage() {
                                       return (
                                         <th
                                           key={key}
-                                          className="text-left py-5 px-4 text-primary-15 font-medium relative"
+                                          className="text-left py-3 px-3 text-primary-15 text-body4 relative"
                                         >
                                           {hasDescription && (
-                                            <span className="absolute top-3 left-1 text-body5 text-primary-15 leading-none">
+                                            <span className="absolute top-3 left-1 text-small1 text-primary-15 leading-none">
                                               {descriptionIndex + 1})
                                             </span>
                                           )}
-                                          <span className="text-body2">
+                                          <span className="text-body4">
                                             {header.display_value}
                                           </span>
                                           <div
-                                            className="absolute bottom-0 border-b border-[#e2e1e5]"
+                                            className="absolute bottom-0 border-b border-neutral-90 "
                                             style={{
                                               left: isFirstCell ? "16px" : "0",
                                               right: isLastCell ? "16px" : "0",
@@ -1105,14 +1098,14 @@ export default function ReportPage() {
                                           return (
                                             <td
                                               key={key}
-                                              className={`py-3 px-4 text-body2m text-neutral-30 ${
+                                              className={`py-2 px-3 text-body5m text-neutral-30 ${
                                                 showBorder ? "relative" : ""
                                               }`}
                                             >
                                               {displayValue}
                                               {showBorder && (
                                                 <div
-                                                  className="absolute top-0 border-t border-[#e2e1e5]"
+                                                  className="absolute top-0 border-t border-neutral-90"
                                                   style={{
                                                     left: isFirstCell
                                                       ? "16px"
@@ -1156,8 +1149,8 @@ export default function ReportPage() {
                             <div className="flex gap-6">
                               {descriptions.map((description, index) => (
                                 <div key={index} className="flex-1">
-                                  <p className="text-body4m text-[#666b73]">
-                                    <span className="text-body4m text-[#666b73]">
+                                  <p className="text-body5m text-neutral-50" style={{lineHeight: "115%"}}>
+                                    <span className="text-body5m text-neutral-50">
                                       {index + 1})
                                     </span>{" "}
                                     {description}
@@ -1172,17 +1165,17 @@ export default function ReportPage() {
                   </div>
 
                   {/* Demonstration of Robustness Section */}
-                  <div id="demonstration-robustness" className="mb-[100px]">
-                    <h2 className="text-h2 text-[#2d1067] mb-[44px]">
+                  <div id="demonstration-robustness" className="mb-10">
+                    <h2 className="text-h4 text-primary-15 mb-4">
                       Demonstration of Robustness
                     </h2>
                     {/* 카드 2x2 그리드 (4개) */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 ">
                       {/* Step 1: Type I safety */}
                       <StepCard
                         stepNumber={1}
                         title="Type I safety"
-                        description="Demonstrate appropriate control of the Type I error under the null treatment effect."
+                        description="Demonstrate adppropriate control of the Type I error under the null treatment effect."
                         chartContent={
                           <Step1TypeISafetyChart apiData={apiData} />
                         }
@@ -1229,19 +1222,19 @@ export default function ReportPage() {
                   {/* Appendix Section */}
                   {(apiData as any)?.appendix && (
                     <div>
-                      <div className="flex items-center justify-between mb-[44px]">
-                        <h2 className="text-h2 text-[#2d1067]">
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-h4 text-primary-15">
                           {(apiData as any).appendix.title}
                         </h2>
                       </div>
 
                       {/* 카드 1개 */}
                       <div
-                        className="bg-white rounded-[12px] p-6"
+                        className="bg-white rounded-[12px] p-4"
                         style={{ height: "132px" }}
                       >
-                        <div className="h-full flex items-center">
-                          <p className="text-body3m text-neutral-20 max-w-[1000px]">
+                        <div className="flex items-center">
+                          <p className="text-body5m text-neutral-50 max-w-[1000px]">
                             {(apiData as any).appendix.content}
                           </p>
                         </div>
@@ -1249,7 +1242,7 @@ export default function ReportPage() {
                     </div>
                   )}
                   {/* Footer - 오른쪽 패널 하단 */}
-                  <div className="flex items-center justify-end py-6 flex-shrink-0">
+                  <div className="flex items-center justify-end py-5 flex-shrink-0">
                     <div className="flex gap-4">
                       <SolidButton
                         variant="secondary"
@@ -1273,44 +1266,6 @@ export default function ReportPage() {
             </div>
           </div>
         </div>
-        {/* Report page font size overrides: ~30% reduction (제목 제외, 컨텐츠 영역만) */}
-        <style jsx global>{`
-          #report-content .text-h2 {
-            font-size: 28px !important;
-            line-height: 28px !important;
-            letter-spacing: -0.84px !important;
-          }
-          #report-content .text-h3 {
-            font-size: 25px !important;
-            line-height: 25px !important;
-            letter-spacing: -0.5px !important;
-          }
-          #report-content .text-h4 {
-            font-size: 20px !important;
-            line-height: 20px !important;
-            letter-spacing: -0.6px !important;
-          }
-          #report-content .text-body2 {
-            font-size: 14px !important;
-            line-height: 16.8px !important;
-            letter-spacing: -0.56px !important;
-          }
-          #report-content .text-body2m {
-            font-size: 14px !important;
-            line-height: 16.8px !important;
-            letter-spacing: -0.42px !important;
-          }
-          #report-content .text-body3 {
-            font-size: 12px !important;
-            line-height: 12.6px !important;
-            letter-spacing: -0.36px !important;
-          }
-          #report-content .text-body3m {
-            font-size: 12px !important;
-            line-height: 12.6px !important;
-            letter-spacing: -0.36px !important;
-          }
-        `}</style>
       </AppLayout>
       <Loading isLoading={isDownloadingPDF} />
     </>

@@ -910,14 +910,149 @@
   }
 }
 
-/* TSI/DRD: 1470px 이하에서 글래스 패널 제외 내부 컨테이너 radius 2/3 축소 */
+/* 전체 페이지: 1470px 이하에서 radius 2/3 축소 (글래스·pill 컨테이너 제외) */
 @media (max-width: 1470px) {
-  .tsi-page .rounded-\[24px\], .drd-page .rounded-\[24px\] { border-radius: 16px; }
-  .tsi-page .rounded-\[25px\], .drd-page .rounded-\[25px\] { border-radius: 17px; }
-  .tsi-page .rounded-\[22px\], .drd-page .rounded-\[22px\] { border-radius: 15px; }
-  .tsi-page .rounded-\[18px\], .drd-page .rounded-\[18px\] { border-radius: 12px; }
-  .tsi-page .rounded-\[16px\], .drd-page .rounded-\[16px\] { border-radius: 11px; }
-  .tsi-page .rounded-\[12px\], .drd-page .rounded-\[12px\] { border-radius: 8px; }
+  .nexus-page .rounded-\[25px\] { border-radius: 17px; }
+  .nexus-page .rounded-\[24px\] { border-radius: 16px; }
+  .nexus-page .rounded-\[22px\] { border-radius: 15px; }
+  .nexus-page .rounded-\[20px\] { border-radius: 13px; }
+  .nexus-page .rounded-\[18px\] { border-radius: 12px; }
+  .nexus-page .rounded-\[16px\] { border-radius: 11px; }
+  .nexus-page .rounded-\[14px\] { border-radius: 9px; }
+  .nexus-page .rounded-\[12px\] { border-radius: 8px; }
+  .nexus-page .rounded-\[8px\]  { border-radius: 5px; }
+  .nexus-page .rounded-\[4px\]  { border-radius: 3px; }
+}
+
+/* 전체 페이지: 1470px 이하에서 padding/gap 2/3 축소 */
+@media (max-width: 1470px) {
+  /* ── p (all sides) ── */
+  .nexus-page .p-16  { padding: 43px; }
+  .nexus-page .p-14  { padding: 37px; }
+  .nexus-page .p-12  { padding: 32px; }
+  .nexus-page .p-11  { padding: 29px; }
+  .nexus-page .p-10  { padding: 27px; }
+  .nexus-page .p-9   { padding: 24px; }
+  .nexus-page .p-8   { padding: 21px; }
+  .nexus-page .p-7   { padding: 19px; }
+  .nexus-page .p-6   { padding: 16px; }
+  .nexus-page .p-5   { padding: 13px; }
+  .nexus-page .p-4   { padding: 11px; }
+  .nexus-page .p-3\.5 { padding: 9px; }
+  .nexus-page .p-3   { padding: 8px; }
+  .nexus-page .p-2\.5 { padding: 7px; }
+  .nexus-page .p-2   { padding: 5px; }
+
+  /* ── px ── */
+  .nexus-page .px-16 { padding-left: 43px; padding-right: 43px; }
+  .nexus-page .px-14 { padding-left: 37px; padding-right: 37px; }
+  .nexus-page .px-12 { padding-left: 32px; padding-right: 32px; }
+  .nexus-page .px-11 { padding-left: 29px; padding-right: 29px; }
+  .nexus-page .px-10 { padding-left: 27px; padding-right: 27px; }
+  .nexus-page .px-9  { padding-left: 24px; padding-right: 24px; }
+  .nexus-page .px-8  { padding-left: 21px; padding-right: 21px; }
+  .nexus-page .px-7  { padding-left: 19px; padding-right: 19px; }
+  .nexus-page .px-6  { padding-left: 16px; padding-right: 16px; }
+  .nexus-page .px-5  { padding-left: 13px; padding-right: 13px; }
+  .nexus-page .px-4  { padding-left: 11px; padding-right: 11px; }
+  .nexus-page .px-3\.5 { padding-left: 9px; padding-right: 9px; }
+  .nexus-page .px-3  { padding-left: 8px; padding-right: 8px; }
+  .nexus-page .px-2\.5 { padding-left: 7px; padding-right: 7px; }
+  .nexus-page .px-2  { padding-left: 5px; padding-right: 5px; }
+
+  /* ── py ── */
+  .nexus-page .py-16 { padding-top: 43px; padding-bottom: 43px; }
+  .nexus-page .py-14 { padding-top: 37px; padding-bottom: 37px; }
+  .nexus-page .py-12 { padding-top: 32px; padding-bottom: 32px; }
+  .nexus-page .py-11 { padding-top: 29px; padding-bottom: 29px; }
+  .nexus-page .py-10 { padding-top: 27px; padding-bottom: 27px; }
+  .nexus-page .py-9  { padding-top: 24px; padding-bottom: 24px; }
+  .nexus-page .py-8  { padding-top: 21px; padding-bottom: 21px; }
+  .nexus-page .py-7  { padding-top: 19px; padding-bottom: 19px; }
+  .nexus-page .py-6  { padding-top: 16px; padding-bottom: 16px; }
+  .nexus-page .py-5  { padding-top: 13px; padding-bottom: 13px; }
+  .nexus-page .py-4  { padding-top: 11px; padding-bottom: 11px; }
+  .nexus-page .py-3\.5 { padding-top: 9px; padding-bottom: 9px; }
+  .nexus-page .py-3  { padding-top: 8px; padding-bottom: 8px; }
+  .nexus-page .py-2\.5 { padding-top: 7px; padding-bottom: 7px; }
+  .nexus-page .py-2  { padding-top: 5px; padding-bottom: 5px; }
+
+  /* ── pt ── */
+  .nexus-page .pt-16 { padding-top: 43px; }
+  .nexus-page .pt-14 { padding-top: 37px; }
+  .nexus-page .pt-12 { padding-top: 32px; }
+  .nexus-page .pt-10 { padding-top: 27px; }
+  .nexus-page .pt-8  { padding-top: 21px; }
+  .nexus-page .pt-7  { padding-top: 19px; }
+  .nexus-page .pt-6  { padding-top: 16px; }
+  .nexus-page .pt-5  { padding-top: 13px; }
+  .nexus-page .pt-4  { padding-top: 11px; }
+  .nexus-page .pt-3  { padding-top: 8px; }
+  .nexus-page .pt-2  { padding-top: 5px; }
+
+  /* ── pb ── */
+  .nexus-page .pb-16 { padding-bottom: 43px; }
+  .nexus-page .pb-14 { padding-bottom: 37px; }
+  .nexus-page .pb-12 { padding-bottom: 32px; }
+  .nexus-page .pb-10 { padding-bottom: 27px; }
+  .nexus-page .pb-8  { padding-bottom: 21px; }
+  .nexus-page .pb-7  { padding-bottom: 19px; }
+  .nexus-page .pb-6  { padding-bottom: 16px; }
+  .nexus-page .pb-5  { padding-bottom: 13px; }
+  .nexus-page .pb-4  { padding-bottom: 11px; }
+  .nexus-page .pb-3  { padding-bottom: 8px; }
+  .nexus-page .pb-2  { padding-bottom: 5px; }
+
+  /* ── pl ── */
+  .nexus-page .pl-16 { padding-left: 43px; }
+  .nexus-page .pl-14 { padding-left: 37px; }
+  .nexus-page .pl-12 { padding-left: 32px; }
+  .nexus-page .pl-10 { padding-left: 27px; }
+  .nexus-page .pl-8  { padding-left: 21px; }
+  .nexus-page .pl-7  { padding-left: 19px; }
+  .nexus-page .pl-6  { padding-left: 16px; }
+  .nexus-page .pl-5  { padding-left: 13px; }
+  .nexus-page .pl-4  { padding-left: 11px; }
+  .nexus-page .pl-3  { padding-left: 8px; }
+  .nexus-page .pl-2  { padding-left: 5px; }
+
+  /* ── pr ── */
+  .nexus-page .pr-16 { padding-right: 43px; }
+  .nexus-page .pr-14 { padding-right: 37px; }
+  .nexus-page .pr-12 { padding-right: 32px; }
+  .nexus-page .pr-10 { padding-right: 27px; }
+  .nexus-page .pr-8  { padding-right: 21px; }
+  .nexus-page .pr-7  { padding-right: 19px; }
+  .nexus-page .pr-6  { padding-right: 16px; }
+  .nexus-page .pr-5  { padding-right: 13px; }
+  .nexus-page .pr-4  { padding-right: 11px; }
+  .nexus-page .pr-3  { padding-right: 8px; }
+  .nexus-page .pr-2  { padding-right: 5px; }
+
+  /* ── gap ── */
+  .nexus-page .gap-16 { gap: 43px; }
+  .nexus-page .gap-14 { gap: 37px; }
+  .nexus-page .gap-12 { gap: 32px; }
+  .nexus-page .gap-11 { gap: 29px; }
+  .nexus-page .gap-10 { gap: 27px; }
+  .nexus-page .gap-9  { gap: 24px; }
+  .nexus-page .gap-8  { gap: 21px; }
+  .nexus-page .gap-7  { gap: 19px; }
+  .nexus-page .gap-6  { gap: 16px; }
+  .nexus-page .gap-5  { gap: 13px; }
+  .nexus-page .gap-4  { gap: 11px; }
+  .nexus-page .gap-3\.5 { gap: 9px; }
+  .nexus-page .gap-3  { gap: 8px; }
+  .nexus-page .gap-2\.5 { gap: 7px; }
+  .nexus-page .gap-2  { gap: 5px; }
+}
+
+/* ATS ArrowIcon: 1470px 이하에서 2/3 축소 (19×20 → 13×13) */
+@media (max-width: 1470px) {
+  .ats-page .ats-arrow-icon {
+    width: 13px;
+    height: 13px;
+  }
 }
 
 /* DRD 좌측 패널 너비 */
@@ -932,8 +1067,8 @@
 .figma-header-btn-pil {
   position: relative;
   margin-top: -2px;
-  margin-left: -4px;
-  margin-right: -4px;
+  margin-left: -8px;
+  margin-right: -8px;
   margin-bottom: -6px;
 }
 
@@ -1343,6 +1478,31 @@
 
 /* 화면 너비 1470px 이하에서 텍스트 크기 1단계 축소 (전역) */
 @media (max-width: 1470px) {
+  .text-h0 {
+    font-size: 48px;
+    line-height: 48px;
+    letter-spacing: -2.88px;
+  }
+  .text-h1 {
+    font-size: 40px;
+    line-height: 40px;
+    letter-spacing: -0.8px;
+  }
+  .text-h2 {
+    font-size: 36px;
+    line-height: 36px;
+    letter-spacing: -1.08px;
+  }
+  .text-title {
+    font-size: 36px;
+    line-height: 36px;
+    letter-spacing: -2.16px;
+  }
+  .text-logo {
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: -0.84px;
+  }
   .text-h3 {
     font-size: 28px;
     line-height: 28px;
@@ -1431,5 +1591,25 @@
     font-size: 28px;
     line-height: 100%;
     letter-spacing: -1.08px;
+  }
+  .text-page-subtitle {
+    font-size: 12px;
+    line-height: 110%;
+    letter-spacing: -0.36px;
+  }
+  .text-feature-title {
+    font-size: 15px;
+    line-height: 16.5px;
+    letter-spacing: -0.45px;
+  }
+  .text-feature-search {
+    font-size: 15px;
+    line-height: 16.5px;
+    letter-spacing: -0.45px;
+  }
+  .text-feature-item {
+    font-size: 15px;
+    line-height: 16.5px;
+    letter-spacing: -0.45px;
   }
 }

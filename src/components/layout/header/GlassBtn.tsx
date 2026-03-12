@@ -23,7 +23,7 @@ export const GlassBtn: React.FC<GlassBtnProps> = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className="figma-header-btn-pil rounded-[32px] gap-[4px] inline-flex items-center justify-center border-none cursor-pointer shrink-0"
+    className="figma-header-btn-pil rounded-[32px] gap-[4px] px-6 inline-flex items-center justify-center border-none cursor-pointer shrink-0"
     style={{
       width: `${width}px`,
       height: "60px",

@@ -166,7 +166,7 @@ export default function HighRiskSubgroupPage() {
 
             {/* 상단: 제목 + Go to Create Subgroup 버튼 */}
             <div className="shrink-0 flex items-center justify-between pl-[4px] pr-[4px] h-[40px] pt-0 pb-0 pr-0">
-              <h2 className="text-body1 text-neutral-30 m-0">
+              <h2 className="text-body1 text-[var(--text-header)] m-0">
                 Load Subgroup
               </h2>
               <button onClick={() => setShowSubgroupModal(true)} className="btn-tsi btn-tsi-primary" style={{ height: 42 }}>

@@ -30,6 +30,7 @@ interface LineChartWithHighlightProps {
       fontSize?: number;
       fontWeight?: number;
       color?: string;
+      margin?: number;
     };
   };
   yAxisConfig?: {
@@ -45,6 +46,7 @@ interface LineChartWithHighlightProps {
       fontSize?: number;
       fontWeight?: number;
       color?: string;
+      margin?: number;
     };
   };
   showGrid?: boolean;
@@ -338,15 +340,18 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         },
         axisLine: {
           show: showAxes,
-          ...(showAxes && { lineStyle: { color: "#999" } }),
+          ...(showAxes && { lineStyle: { color: "#787776", width: 1 } }),
         },
-        axisTick: { show: showTicks },
+        axisTick: { show: false },
         axisLabel: {
-          show: showTicks,
+          show: showAxes,
+          alignMinLabel: "left" as any,
+          alignMaxLabel: "right" as any,
           ...(xAxisConfig.axisLabel && {
             fontSize: xAxisConfig.axisLabel.fontSize,
             fontWeight: xAxisConfig.axisLabel.fontWeight,
             color: xAxisConfig.axisLabel.color,
+            margin: xAxisConfig.axisLabel.margin,
           }),
         },
         splitLine: {
@@ -366,15 +371,21 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         },
         axisLine: {
           show: showAxes,
-          ...(showAxes && { lineStyle: { color: "#999" } }),
+          ...(showAxes && { lineStyle: { color: "#787776", width: 1 } }),
         },
-        axisTick: { show: showTicks },
-        axisLabel: {
+        axisTick: {
           show: showTicks,
+          ...(showTicks && { lineStyle: { color: "#787776" } }),
+        },
+        axisLabel: {
+          show: showAxes,
+          verticalAlignMinLabel: "top" as any,
+          verticalAlignMaxLabel: "bottom" as any,
           ...(yAxisConfig.axisLabel && {
             fontSize: yAxisConfig.axisLabel.fontSize,
             fontWeight: yAxisConfig.axisLabel.fontWeight,
             color: yAxisConfig.axisLabel.color,
+            margin: yAxisConfig.axisLabel.margin,
           }),
         },
         splitLine: {

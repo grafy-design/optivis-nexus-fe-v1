@@ -208,7 +208,7 @@ export default function FeatureCard({
 
         {/* 설명: Inter 400 15px */}
         <p
-          className="home-feature-card-desc text-body5m m-0 transition-colors duration-200 ease-in-out"
+          className="text-small1 transition-colors duration-200 ease-in-out"
           style={{
             lineHeight: "110%",
             color: descColor,

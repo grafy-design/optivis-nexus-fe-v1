@@ -3,7 +3,6 @@
 import { useState } from "react";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
-import Select from "@/components/ui/select";
 import DropdownCell from "@/components/ui/dropdown-cell";
 import Slider from "@/components/ui/slider";
 import InfoIcon from "@/components/ui/info-icon";
@@ -92,18 +91,19 @@ export function LeftPanel({
       <div
         className="figma-nine-slice figma-home-panel-left relative w-full h-full min-h-0 flex flex-col overflow-visible"
       >
-        <div className="flex flex-col w-full h-full p-0 min-h-0 gap-4">
+        <div className="flex flex-col w-full h-full p-0 min-h-0 gap-3">
           {/* Sample Size Control */}
           <div
-            className="rounded-[14px] p-4 flex-shrink-0"
+            className="rounded-[14px] p-4 flex-shrink-0 flex flex-col gap-10"
             style={{ background: "var(--primary-15)" }}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-body2 text-white">Sample Size Control</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-body3 text-white">Sample Size Control</h3>
             </div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-body5 text-neutral-98">Size -</span>
-              <span className="text-body5 text-neutral-98">Power +</span>
+            <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <span className="text-small1 text-neutral-98">Size -</span>
+              <span className="text-small1 text-neutral-98">Power +</span>
             </div>
             {/* Slider */}
             <div
@@ -129,7 +129,7 @@ export function LeftPanel({
                       }}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 w-[38px] h-[24px] rounded-full bg-white cursor-grab active:cursor-grabbing"
+                      className="absolute top-1/2 -translate-y-1/2 w-[38px] h-[24px] rounded-full bg-white cursor-grab active:cursor-grabbing hover:bg-neutral-90 hover:border hover:border-primary-60 active:bg-primary-80 active:border active:border-primary-40 transition-colors duration-100"
                       style={{
                         left: `calc(${Math.max(0, Math.min(100, sliderPercentage))}% - 19px)`,
                       }}
@@ -217,9 +217,10 @@ export function LeftPanel({
                 );
               })()}
             </div>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-body5m text-text-primary0">Min</span>
-              <span className="text-body5m text-text-primary0">Max</span>
+            <div className="flex items-center justify-between">
+              <span className="text-small1 text-neutral-80">Min</span>
+              <span className="text-small1 text-neutral-80">Max</span>
+            </div>
             </div>
           </div>
 
@@ -230,37 +231,39 @@ export function LeftPanel({
               <div className="flex-1 min-h-0 overflow-hidden">
                 <SimpleBar className="w-full h-full">
                   <div className="flex flex-col w-full p-4 gap-3 ">
-                    <div className="text-body2 text-text-primary flex-shrink-0">
+                    <div className="text-body3 text-text-accent flex-shrink-0">
                       Simulation Setting
                     </div>
                     <div className="flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <span className="text-body4 text-text-primary">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0 flex items-center">
+                          <span className="text-body5 text-text-primary">
                             Disease
                           </span>
-                          <span className="text-body4 text-tertiary-30">*</span>
+                          <span className="text-body5 text-tertiary-30">*</span>
                         </div>
-                        <DropdownCell
-                          value={disease}
-                          options={[
-                            "Alzheimer's disease",
-                            "Parkinson's",
-                            "Breast Cancer",
-                            "IBD",
-                            "Melanoma",
-                            "NASH",
-                            "Ovarian",
-                          ]}
-                          onChange={setDisease}
-                          size="s"
-                          width={154}
-                        />
+                        <div className="flex-1 min-w-0">
+                          <DropdownCell
+                            value={disease}
+                            options={[
+                              "Alzheimer's disease",
+                              "Parkinson's",
+                              "Breast Cancer",
+                              "IBD",
+                              "Melanoma",
+                              "NASH",
+                              "Ovarian",
+                            ]}
+                            onChange={setDisease}
+                            size="s"
+                            width="100%"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-body4 text-text-primary">
+                        <span className="text-body5 text-text-primary">
                           Endpoints Design
                         </span>
                         <SolidButton
@@ -268,40 +271,42 @@ export function LeftPanel({
                           icon="plus"
                           size="s"
                           variant="secondary"
-                          className="w-6 h-6 p-0 shrink-0"
+                          className="w-6 h-6 p-0 shrink-0 rounded-[8px] bg-primary-15 hover:bg-primary-20 active:bg-primary-10"
                         />
                       </div>
-                      <div className="bg-white rounded-[8px] p-4 flex flex-col gap-2">
+                      <div className="bg-white rounded-[8px] p-3 py-2 flex flex-col gap-2">
                         {primaryEndpoints.map((ep, i) => (
                           <div
                             key={`primary-${i}`}
                             className="flex flex-col gap-2"
                           >
-                            <div className="flex items-center justify-between">
-                              <span className="text-body5 text-text-secondary">
+                            <div className="flex items-center gap-2">
+                              <span className="flex-1 min-w-0 text-small1 text-text-secondary">
                                 Primary Endpoint #{i + 1}
                               </span>
-                              <DropdownCell
-                                value={ep.name || "Select"}
-                                placeholder={!ep.name}
-                                options={ENDPOINT_OPTIONS}
-                                onChange={(value) => {
-                                  setPrimaryEndpoints((prev) =>
-                                    prev.map((e, j) =>
-                                      j === i ? { ...e, name: value } : e,
-                                    ),
-                                  );
-                                }}
-                                size="sm"
-                                width={154}
-                              />
+                              <div className="flex-1 min-w-0">
+                                <DropdownCell
+                                  value={ep.name || "Select"}
+                                  placeholder={!ep.name}
+                                  options={ENDPOINT_OPTIONS}
+                                  onChange={(value) => {
+                                    setPrimaryEndpoints((prev) =>
+                                      prev.map((e, j) =>
+                                        j === i ? { ...e, name: value } : e,
+                                      ),
+                                    );
+                                  }}
+                                  size="sm"
+                                  width="100%"
+                                />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-0">
                               <div className="flex items-center">
-                                <span className="text-body5 text-text-secondary">
+                                <span className="text-small1 text-text-secondary">
                                   Expected Effect Size
                                 </span>
-                                <span className="text-body5 text-tertiary-30">
+                                <span className="text-small1 text-tertiary-30">
                                   *
                                 </span>
                               </div>
@@ -337,31 +342,33 @@ export function LeftPanel({
                                 key={`secondary-${i}`}
                                 className="flex flex-col gap-2"
                               >
-                                <div className="flex items-center justify-between">
-                                  <span className="text-body5 text-text-secondary">
+                                <div className="flex items-center gap-2">
+                                  <span className="flex-1 min-w-0 text-small1 text-text-secondary">
                                     Secondary Endpoint #{i + 1}
                                   </span>
-                                  <DropdownCell
-                                    value={ep.name || "Select"}
-                                    placeholder={!ep.name}
-                                    options={ENDPOINT_OPTIONS}
-                                    onChange={(value) => {
-                                      setSecondaryEndpoints((prev) =>
-                                        prev.map((e, j) =>
-                                          j === i ? { ...e, name: value } : e,
-                                        ),
-                                      );
-                                    }}
-                                    size="sm"
-                                    width={154}
-                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <DropdownCell
+                                      value={ep.name || "Select"}
+                                      placeholder={!ep.name}
+                                      options={ENDPOINT_OPTIONS}
+                                      onChange={(value) => {
+                                        setSecondaryEndpoints((prev) =>
+                                          prev.map((e, j) =>
+                                            j === i ? { ...e, name: value } : e,
+                                          ),
+                                        );
+                                      }}
+                                      size="sm"
+                                      width="100%"
+                                    />
+                                  </div>
                                 </div>
                                 <div className="flex flex-col gap-0">
                                   <div className="flex items-center">
-                                    <span className="text-body5 text-text-secondary">
+                                    <span className="text-small1 text-text-secondary">
                                       Expected Effect Size
                                     </span>
-                                    <span className="text-body5 text-tertiary-30">
+                                    <span className="text-small1 text-tertiary-30">
                                       *
                                     </span>
                                   </div>
@@ -395,10 +402,10 @@ export function LeftPanel({
                         ) : null}
                         <div className="flex flex-col gap-0">
                           <div className="flex items-center">
-                            <span className="text-body5 text-text-secondary">
+                            <span className="text-small1 text-text-secondary">
                               Norminal Power
                             </span>
-                            <span className="text-body5 text-tertiary-30">
+                            <span className="text-small1 text-tertiary-30">
                               *
                             </span>
                           </div>
@@ -420,43 +427,45 @@ export function LeftPanel({
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <span className="text-body4 text-text-primary">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0 flex items-center">
+                          <span className="text-body5 text-text-primary">
                             Treatment Duration
                           </span>
-                          <span className="text-body4 text-tertiary-30">*</span>
+                          <span className="text-body5 text-tertiary-30">*</span>
                         </div>
-                        <DropdownCell
-                          value={treatmentDuration}
-                          options={[
-                            "3 months",
-                            "6 months",
-                            "9 months",
-                            "12 months",
-                            "15 months",
-                            "18 months",
-                            "21 months",
-                            "24 months",
-                          ]}
-                          onChange={setTreatmentDuration}
-                          size="s"
-                          width={100}
-                        />
+                        <div className="flex-1 min-w-0">
+                          <DropdownCell
+                            value={treatmentDuration}
+                            options={[
+                              "3 months",
+                              "6 months",
+                              "9 months",
+                              "12 months",
+                              "15 months",
+                              "18 months",
+                              "21 months",
+                              "24 months",
+                            ]}
+                            onChange={setTreatmentDuration}
+                            size="s"
+                            width="100%"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <div className="text-body4 text-text-primary">
+                      <div className="text-body5 text-text-primary">
                         Trial Design
                       </div>
                       <div className="bg-white rounded-[8px] px-2 py-2 flex flex-col gap-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0 flex items-center gap-2">
                             <div className="flex items-center">
-                              <span className="text-body5 text-text-secondary">
+                              <span className="text-small1 text-text-secondary">
                                 Hypothesis Type
                               </span>
-                              <span className="text-body5 text-tertiary-30">
+                              <span className="text-small1 text-tertiary-30">
                                 *
                               </span>
                             </div>
@@ -467,90 +476,98 @@ export function LeftPanel({
                               <InfoIcon />
                             </button>
                           </div>
-                          <DropdownCell
-                            value={hypothesisType || "Select"}
-                            placeholder={!hypothesisType}
-                            options={[
-                              "Superiority",
-                              "Non-inferiority",
-                              "Equivalence",
-                            ]}
-                            onChange={setHypothesisType}
-                            size="sm"
-                            width={154}
-                          />
+                          <div className="flex-1 min-w-0">
+                            <DropdownCell
+                              value={hypothesisType || "Select"}
+                              placeholder={!hypothesisType}
+                              options={[
+                                "Superiority",
+                                "Non-inferiority",
+                                "Equivalence",
+                              ]}
+                              onChange={setHypothesisType}
+                              size="sm"
+                              width="100%"
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <span className="text-body5 text-text-secondary">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0 flex items-center">
+                            <span className="text-small1 text-text-secondary">
                               Treatment Arms
                             </span>
-                            <span className="text-body5 text-tertiary-30">
+                            <span className="text-small1 text-tertiary-30">
                               *
                             </span>
                           </div>
-                          <DropdownCell
-                            value={treatmentArms || "Select"}
-                            placeholder={!treatmentArms}
-                            options={["1", "2"]}
-                            onChange={(value) => {
-                              setTreatmentArms(value);
-                              if (value === "1") {
-                                if (
-                                  !["1:1", "2:1"].includes(randomizationRatio)
-                                ) {
-                                  setRandomizationRatio("1:1");
+                          <div className="flex-1 min-w-0">
+                            <DropdownCell
+                              value={treatmentArms || "Select"}
+                              placeholder={!treatmentArms}
+                              options={["1", "2"]}
+                              onChange={(value) => {
+                                setTreatmentArms(value);
+                                if (value === "1") {
+                                  if (
+                                    !["1:1", "2:1"].includes(randomizationRatio)
+                                  ) {
+                                    setRandomizationRatio("1:1");
+                                  }
+                                } else if (value === "2") {
+                                  if (
+                                    !["1:1:1", "2:1:1"].includes(
+                                      randomizationRatio,
+                                    )
+                                  ) {
+                                    setRandomizationRatio("1:1:1");
+                                  }
                                 }
-                              } else if (value === "2") {
-                                if (
-                                  !["1:1:1", "2:1:1"].includes(
-                                    randomizationRatio,
-                                  )
-                                ) {
-                                  setRandomizationRatio("1:1:1");
-                                }
-                              }
-                            }}
-                            size="sm"
-                            width={154}
-                          />
+                              }}
+                              size="sm"
+                              width="100%"
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <span className="text-body5 text-text-secondary">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0 flex items-center">
+                            <span className="text-small1 text-text-secondary">
                               Randomization Ratio
                             </span>
-                            <span className="text-body5 text-tertiary-30">
+                            <span className="text-small1 text-tertiary-30">
                               *
                             </span>
                           </div>
-                          <DropdownCell
-                            value={randomizationRatio || "Select"}
-                            placeholder={!randomizationRatio}
-                            options={
-                              treatmentArms === "1"
-                                ? ["1:1", "2:1"]
-                                : treatmentArms === "2"
-                                  ? ["1:1:1", "2:1:1"]
-                                  : []
-                            }
-                            onChange={setRandomizationRatio}
-                            size="sm"
-                            width={154}
-                          />
+                          <div className="flex-1 min-w-0">
+                            <DropdownCell
+                              value={randomizationRatio || "Select"}
+                              placeholder={!randomizationRatio}
+                              options={
+                                treatmentArms === "1"
+                                  ? ["1:1", "2:1"]
+                                  : treatmentArms === "2"
+                                    ? ["1:1:1", "2:1:1"]
+                                    : []
+                              }
+                              onChange={setRandomizationRatio}
+                              size="sm"
+                              width="100%"
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-body5 text-text-secondary">
+                        <div className="flex items-center gap-2">
+                          <span className="flex-1 min-w-0 text-small1 text-text-secondary">
                             Subpopulation
                           </span>
-                          <DropdownCell
-                            value={subpopulation || "Select"}
-                            placeholder={!subpopulation}
-                            options={["ALL", "Mild AD", "Moderate AD"]}
-                            onChange={setSubpopulation}
-                            size="sm"
-                            width={154}
-                          />
+                          <div className="flex-1 min-w-0">
+                            <DropdownCell
+                              value={subpopulation || "Select"}
+                              placeholder={!subpopulation}
+                              options={["ALL", "Mild AD", "Moderate AD"]}
+                              onChange={setSubpopulation}
+                              size="sm"
+                              width="100%"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -559,31 +576,34 @@ export function LeftPanel({
               </div>
               <div className="mt-auto flex-shrink-0 p-4 pt-0 flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pt-2">
+                    <div className="flex-1 min-w-0 flex items-center gap-1.5">
                       <ActiveDataIcon className="flex-shrink-0 text-text-primary" />
-                      <span className="text-body4 text-text-primary ">
+                      <span className="text-body5 text-text-primary">
                         Active Data
                       </span>
                     </div>
-                    <Select
-                      value={activeData}
-                      options={[
-                        "Oprimed data",
-                        "Historical data",
-                        "Synthetic data",
-                      ]}
-                      onChange={setActiveData}
-                      className=" [&>button]:h-[26px]"
-                      iconPath="/assets/icons/active-data-edit.svg"
-                      iconWidth={18}
-                      iconHeight={18}
-                    />
+                    <div className="flex-1 min-w-0">
+                      <DropdownCell
+                        value={activeData}
+                        options={[
+                          "Oprimed data",
+                          "Historical data",
+                          "Synthetic data",
+                        ]}
+                        onChange={setActiveData}
+                        size="s"
+                        width="100%"
+                        iconPath="/assets/icons/active-data-edit.svg"
+                        iconWidth={18}
+                        iconHeight={18}
+                      />
+                    </div>
                   </div>
                 </div>
                 <SolidButton
                   variant="primary"
-                  size="m"
+                  size="s"
                   icon="play"
                   iconPosition="right"
                   onClick={onApply}

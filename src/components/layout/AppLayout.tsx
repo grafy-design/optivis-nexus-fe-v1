@@ -51,8 +51,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   }
 
   const pageClass =
-    headerType === "tsi" ? " tsi-page" :
-    headerType === "drd" ? " drd-page" : "";
+    headerType === "tsi" ? " nexus-page tsi-page" :
+    headerType === "drd" ? " nexus-page drd-page" :
+    headerType === "ats" ? " nexus-page ats-page" :
+    " nexus-page";
 
   return (
     <div

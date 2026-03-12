@@ -26,30 +26,30 @@ export const LowerCostChart: React.FC<LowerCostChartProps> = ({
       yAxisName="Cost"
       highlightIndex={highlightIndex}
       highlightXValue={highlightXValue}
-      grid={compactMode ? { left: 20, right: 5, top: 10, bottom: 20, containLabel: true } : { left: 20, right: 5, top: 10, bottom: 20, containLabel: true }}
+      grid={compactMode ? { left: 12, right: 4, top: 12, bottom: 8, containLabel: true } : { left: 16, right: 4, top: 12, bottom: 16, containLabel: true }}
       xAxisConfig={{
-        nameGap: compactMode ? 3 : 5,
+        nameGap: compactMode ? 1 : 18,
         nameTextStyle: {
           fontSize: compactMode ? 8 : 10,
-          fontWeight: 510,
-          letterSpacing: -0.2,
-          color: "#1B1B1B",
+          fontWeight: 500,
+          color: "#787776",
         },
         scale: true,
+        axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, color: "#787776", margin: 4 },
       }}
       yAxisConfig={{
-        nameGap: compactMode ? 3 : 5,
+        nameGap: compactMode ? 4 : 24,
         nameTextStyle: {
           fontSize: compactMode ? 8 : 10,
-          fontWeight: 510,
-          letterSpacing: -0.2,
-          color: "#1B1B1B",
+          fontWeight: 500,
+          color: "#787776",
         },
         scale: true,
+        axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, color: "#787776", margin: 4 },
       }}
-      showGrid={compactMode ? false : false}
-      showAxes={compactMode ? false : false}
-      showTicks={compactMode ? false : false}
+      showGrid={true}
+      showAxes={true}
+      showTicks={true}
       showTooltip={false}
       optivisColor="#f06600"
       traditionalColor="#231f52"

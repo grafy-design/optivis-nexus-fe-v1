@@ -140,7 +140,7 @@ export default function TSIPage() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
 
       {/* ── 외부 래퍼 / Outer wrapper with horizontal margin ── */}
       <div className="flex flex-col h-full"

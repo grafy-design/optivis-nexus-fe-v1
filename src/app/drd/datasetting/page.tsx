@@ -147,7 +147,7 @@ export default function TSIPage() {
   const rightTableData = attachedData.slice(8);
 
   return (
-    <AppLayout headerType="drd" drdStep={1} scaleMode="none">
+    <AppLayout headerType="drd" drdStep={1}>
       <div className="flex flex-col h-full">
         <div className="flex flex-col gap-3 flex-1 min-h-0">
           {/* Main Card with Glass Background */}

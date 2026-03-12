@@ -27,7 +27,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useDefaultSettingStore } from "@/store/defaultSettingStore";
@@ -38,6 +37,7 @@ import CustomCheckbox from "@/components/ui/custom-checkbox";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
 import { GlassButton, GlassTestButton } from "@/components/ui/glass-button";
+import DropdownCell from "@/components/ui/dropdown-cell";
 
 
 /** 행 추가 버튼(+)에 사용되는 플러스 아이콘 SVG */
@@ -118,132 +118,6 @@ function makeEmptySection(id: number): Section {
 }
 
 
-/**
- * 드롭다운 셀 컴포넌트 — 섹션 행의 Feature·Op·Logic 선택에 사용됩니다.
- * createPortal을 사용해 메뉴를 document.body에 렌더링하여
- * 부모의 overflow:hidden 제약을 우회합니다.
- * (Figma DropdownItem — node 179:24118)
- */
-function DropdownCell({
-  value,
-  width,
-  flex,
-  placeholder,
-  options,
-  onChange,
-}: {
-  value: string;
-  width?: number | string;
-  flex?: number | string;
-  placeholder?: boolean;
-  options?: string[];
-  onChange?: (v: string) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-  const [menuPos, setMenuPos] = React.useState<{ top: number; left: number; width: number }>({ top: 0, left: 0, width: 0 });
-  const triggerRef = React.useRef<HTMLDivElement>(null);
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
-  const menuRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (!wrapperRef.current?.contains(target) && !menuRef.current?.contains(target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
-
-  const handleOpen = () => {
-    if (!triggerRef.current) { setOpen(prev => !prev); return; }
-    const rect = triggerRef.current.getBoundingClientRect();
-    setMenuPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
-    setOpen(prev => !prev);
-  };
-
-  return (
-    <div ref={wrapperRef} className="relative min-w-0" style={{ width, flex, flexShrink: flex ? 1 : 0 }}>
-      {/* 트리거 */}
-      <div
-        ref={triggerRef}
-        onClick={handleOpen}
-        className="rounded-[4px] gap-1 w-full flex items-center cursor-pointer select-none"
-        style={{
-          height: 36,
-          background: "var(--neutral-95)",
-          paddingLeft: 12,
-          paddingRight: 8,
-        }}
-      >
-        <span
-          className="flex-1 overflow-hidden text-body4m"
-          style={{
-            color: placeholder ? "var(--text-disabled)" : "var(--text-primary)",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {value}
-        </span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={open ? "/icons/disclosure/open-18.svg" : "/icons/disclosure/close-18.svg"}
-          alt=""
-          width={18}
-          height={18}
-          className="shrink-0 block"
-        />
-      </div>
-
-      {/* 드롭다운 메뉴 — Portal로 document.body에 마운트해서 overflow:hidden 완전 우회 */}
-      {open && options && options.length > 0 && typeof document !== "undefined" && createPortal(
-        <div
-          ref={menuRef}
-          className="fixed flex flex-col overflow-y-auto"
-          style={{
-            top: menuPos.top,
-            left: menuPos.left,
-            width: menuPos.width,
-            background: "var(--neutral-95)",
-            border: "1px solid var(--neutral-80)",
-            padding: 8,
-            zIndex: 9999,
-            maxHeight: 220,
-            boxShadow: "0px 4px 16px rgba(0,0,0,0.10)",
-          }}
-        >
-          {options.map((opt, idx) => (
-            <React.Fragment key={opt}>
-              {idx > 0 && (
-                <div className="shrink-0" style={{ height: 1, background: "var(--neutral-80)" }} />
-              )}
-              <button
-                onMouseDown={() => { onChange?.(opt); setOpen(false); }}
-                className="rounded-[4px] flex items-center cursor-pointer border-none w-full shrink-0 text-body4m"
-                style={{
-                  height: 36,
-                  paddingLeft: 4,
-                  paddingRight: 4,
-                  paddingTop: 2,
-                  paddingBottom: 2,
-                  color: "var(--text-secondary)",
-                  background: "transparent",
-                  textAlign: "left",
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.05)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-              >
-                {opt}
-              </button>
-            </React.Fragment>
-          ))}
-        </div>,
-        document.body
-      )}
-    </div>
-  );
-}
 
 
 // ── 아이콘 SVG 컴포넌트 ──────────────────────────────────────────────────

@@ -22,10 +22,9 @@ export const HeaderSteps: React.FC<HeaderStepsProps> = ({ type, drdStep = 1 }) =
   const pathname = usePathname();
   const isApplied = useSimulationStore((state: SimulationState) => state.isApplied);
 
-  // TSI 반응형 compact
+  // 반응형 compact (전체 헤더 공통)
   const [compact, setCompact] = useState<0 | 1 | 2>(0);
   useEffect(() => {
-    if (type !== "tsi") return;
     const check = () => {
       const w = window.innerWidth;
       if (w < 1470) setCompact(2);
@@ -35,7 +34,7 @@ export const HeaderSteps: React.FC<HeaderStepsProps> = ({ type, drdStep = 1 }) =
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
-  }, [type]);
+  }, []);
 
   const steps = type === "ats" ? ATS_STEPS : type === "tsi" ? TSI_STEPS : DRD_STEPS;
   const activeIndex = getActiveStepIndex(type, pathname, drdStep);

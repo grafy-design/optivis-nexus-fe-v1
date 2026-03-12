@@ -65,8 +65,8 @@ function CheckboxUnchecked({ size = 17 }: { size?: number }) {
 function IconDownload({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M12 3v13M7 11l5 5 5-5" stroke="var(--neutral-30)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="var(--neutral-30)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 3v13M7 11l5 5 5-5" stroke="var(--primary-15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="var(--primary-15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -75,8 +75,8 @@ function IconDownload({ size = 24 }: { size?: number }) {
 function IconAddFolder({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z" stroke="var(--neutral-30)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M12 11v6M9 14h6" stroke="var(--neutral-30)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z" stroke="var(--primary-15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 11v6M9 14h6" stroke="var(--primary-15)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

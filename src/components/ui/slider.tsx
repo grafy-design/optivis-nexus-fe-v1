@@ -28,7 +28,17 @@ export default function Slider({
 }: SliderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isSmall, setIsSmall] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
+
+  // 1470px 이하 반응형 감지
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1470px)");
+    setIsSmall(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsSmall(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
 
   const percentage = ((value - min) / (max - min)) * 100;
 
@@ -36,8 +46,8 @@ export default function Slider({
   const knobState = disabled ? "disabled" : isDragging ? "pressed" : isHovered ? "hover" : "default";
   const knobStyles = {
     default:  { bg: "var(--neutral-95)", border: "var(--text-disabled)", fill: "#231f52", track: "var(--neutral-90)" },
-    hover:    { bg: "#e2e1e8", border: "#b0afb8", fill: "#231f52", track: "var(--neutral-90)" },
-    pressed:  { bg: "rgba(58,17,216,0.3)", border: "rgba(58,17,216,0.5)", fill: "var(--tertiary-40)", track: "var(--neutral-90)" },
+    hover:    { bg: "#d4d3dc", border: "#8f8ac4", fill: "#231f52", track: "var(--neutral-90)" },
+    pressed:  { bg: "#c5c0fe", border: "#5c588e", fill: "#3a11d8", track: "var(--neutral-90)" },
     disabled: { bg: "#f5f5f7", border: "var(--neutral-90)", fill: "var(--text-disabled)", track: "var(--neutral-90)" },
   }[knobState];
 
@@ -140,34 +150,44 @@ export default function Slider({
     }
   }, [isDragging, disabled]);
 
+  const knobW = isSmall ? 30 : 38;
+  const knobH = isSmall ? 18 : 24;
+  const trackH = isSmall ? 18 : 24;
+  const barH = isSmall ? 4 : 6;
+  const tickTop = isSmall ? "13px" : "17px";
+  const tickSize = isSmall ? "w-0.5 h-0.5" : "w-1 h-1";
+  const valueBoxH = isSmall ? 20 : 24;
+  const valueBoxW = isSmall ? 36 : 44;
+
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-center gap-2 mb-1 select-none">
-        <span className="text-body5m text-text-secondary w-[21px]">Min</span>
+      <div className={cn("flex items-center mb-1 select-none", isSmall ? "gap-1" : "gap-2")}>
+        <span className={cn("text-text-secondary", isSmall ? "text-small2 w-[16px]" : "text-body5m w-[21px]")}>Min</span>
         <div className="flex-1 relative">
           <div
             ref={trackRef}
-            className="relative h-[24px] flex items-center cursor-pointer select-none"
+            className="relative flex items-center cursor-pointer select-none"
+            style={{ height: trackH }}
             onMouseDown={handleMouseDown}
           >
             {/* Track */}
             <div
-              className="absolute w-full h-[6px] rounded-[3px]"
-              style={{ backgroundColor: knobStyles.track }}
+              className="absolute w-full rounded-[3px]"
+              style={{ height: barH, backgroundColor: knobStyles.track }}
             />
 
             {/* Fill */}
             <div
-              className="absolute h-[6px] rounded-[3px]"
-              style={{ width: `${percentage}%`, backgroundColor: knobStyles.fill }}
+              className="absolute rounded-[3px]"
+              style={{ height: barH, width: `${percentage}%`, backgroundColor: knobStyles.fill }}
             />
 
             {/* Ticks */}
-            <div className="absolute w-full flex justify-between px-0" style={{ top: "17px" }}>
+            <div className="absolute w-full flex justify-between px-0" style={{ top: tickTop }}>
               {[0, 1, 2, 3, 4].map((tick) => (
                 <div
                   key={tick}
-                  className="w-1 h-1 rounded-full bg-neutral-90"
+                  className={cn("rounded-full bg-neutral-90", tickSize)}
                 />
               ))}
             </div>
@@ -178,12 +198,12 @@ export default function Slider({
               onMouseEnter={() => !disabled && setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               style={{
-                width: 38,
-                height: 24,
+                width: knobW,
+                height: knobH,
                 borderRadius: 9999,
                 backgroundColor: knobStyles.bg,
                 border: `1px solid ${knobStyles.border}`,
-                left: `calc(${percentage}% - 19px)`,
+                left: `calc(${percentage}% - ${knobW / 2}px)`,
                 transform: "translateY(-50%)",
                 top: "50%",
                 cursor: disabled ? "not-allowed" : isDragging ? "grabbing" : "grab",
@@ -192,12 +212,15 @@ export default function Slider({
             />
           </div>
         </div>
-        <span className="text-body5m text-text-secondary w-[23px] text-right">Max</span>
+        <span className={cn("text-text-secondary text-right", isSmall ? "text-small2 w-[18px]" : "text-body5m w-[23px]")}>Max</span>
         {showValue && (
-          <div className="bg-neutral-95 rounded-[8px] h-[24px] w-[44px] flex items-center justify-center">
-            <span className="text-body5 text-neutral-50">
-              {valuePrecision !== undefined 
-                ? value.toFixed(valuePrecision) 
+          <div
+            className="bg-neutral-95 rounded-[8px] flex items-center justify-center"
+            style={{ height: valueBoxH, width: valueBoxW }}
+          >
+            <span className={cn(isSmall ? "text-small2" : "text-body5", "text-neutral-50")}>
+              {valuePrecision !== undefined
+                ? value.toFixed(valuePrecision)
                 : value.toFixed(1)}
             </span>
           </div>

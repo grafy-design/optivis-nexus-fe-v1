@@ -778,7 +778,7 @@ function TSIReportPageContent() {
             <div className="flex w-full flex-shrink-0 flex-row gap-4">
 
               {/* ── 2-1-L. Model Based 카드 / Model Based card ── */}
-              <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[20px] p-4 gap-4">
+              <div className="bg-primary-15 flex h-fit w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[20px] p-4 gap-4">
                 {/* Model Based 라벨 / Model Based badge */}
                 <div className=" flex">
                   <span className="text-body5m px-4 py-1.5 items-center justify-center rounded-[21px] bg-secondary-60 text-white">
@@ -788,7 +788,7 @@ function TSIReportPageContent() {
                 
                 <div className="flex flex-col gap-3">
                   <h4 className="text-body2m flex-shrink-0 text-white">{modelOverview.title}</h4>
-                <p className="text-body5m mb-6 min-h-[90px] flex-shrink-0 whitespace-pre-line text-white/90" style={{ lineHeight: "120%"}}>
+                <p className="text-body5m mb-6 min-h-[60px] flex-shrink-0 whitespace-pre-line text-white/90" style={{ lineHeight: "120%"}}>
                   {modelOverview.description}
                 </p></div>
                 {hasModelBasedData ? (
@@ -808,7 +808,7 @@ function TSIReportPageContent() {
               </div> 
 
               {/* ── 2-1-R. Feature Based 카드 / Feature Based card ── */}
-              <div className="bg-primary-15 flex h-wrap w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[20px] p-4 gap-4">
+              <div className="bg-primary-15 flex w-[calc(50%-8px)] flex-shrink-0 flex-col overflow-hidden rounded-[20px] p-4 gap-4 h-fit">
                 {/* Feature Based 라벨 / Feature Based badge */}
                 <div className="flex">
                   <span className="text-body5m px-4 py-1.5 items-center justify-center gap-2 rounded-[20px] bg-secondary-60 font-medium text-white">
@@ -819,7 +819,7 @@ function TSIReportPageContent() {
                 <h4 className="text-body2m flex-shrink-0 text-white">
                   {featureOverview.title}
                 </h4>
-                <p className="text-body5m mt-auto mb-6 min-h-[90px] flex-shrink-0 whitespace-pre-line text-white/90" style={{lineHeight: "120%"}}>
+                <p className="text-body5m mt-auto mb-6 min-h-[60px] flex-shrink-0 whitespace-pre-line text-white/90" style={{lineHeight: "120%"}}>
                   {featureOverview.description}
                 </p></div>
                 {hasFeatureBasedData ? (

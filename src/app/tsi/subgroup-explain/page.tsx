@@ -392,9 +392,9 @@ function TSISubgroupExplainPageContent() {
             {/* ── 2-A-2. 오른쪽 글래스 카드 (Baseline Driver + 피처 상세)
                          Right glass card (Baseline Driver + feature detail) ── */}
             <div
-              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] flex-1 min-h-0 min-w-0"
+              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] flex-1 min-h-0 min-w-0 overflow-hidden"
             >
-              <div className="flex flex-col min-h-0 flex-1 gap-3 overflow-y-auto">
+              <div className="flex flex-col min-h-0 flex-1 gap-3 overflow-y-auto p-0">
 
                 {/* ── 상단 행: SHAP 차트 + 설명 텍스트 / Top row: SHAP chart + description ── */}
                 <div className="flex">

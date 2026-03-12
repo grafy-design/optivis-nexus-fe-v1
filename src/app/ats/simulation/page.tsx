@@ -696,19 +696,19 @@ export default function SimulationPage() {
   return (
     <>
       <Loading isLoading={isLoading} />
-      <AppLayout headerType="ats" scaleMode="none">
-        <div className="flex flex-col w-full h-full overflow-hidden gap-6">
-          
-          <div className="shrink-0 px-1">
+      <AppLayout headerType="ats">
+        <div className="flex flex-col w-full h-full overflow-hidden gap-8">
+
+          <div className="shrink-0 px-2">
             <div className="text-page-title text-left">
               Trial Design Optimization
             </div>
             <p className="text-page-subtitle text-left">
-              Optimize study design
+              Sample Size Optimization
             </p>
           </div>
 
-          <div className="ats-simulation-layout flex gap-1 w-full flex-1 min-h-0">
+          <div className="ats-simulation-layout flex gap-2 w-full flex-1 min-h-0">
             <div className="ats-left-panel flex-[22] min-w-[280px] min-h-0">
               <LeftPanel
                 sampleSizeControl={sampleSizeControl}

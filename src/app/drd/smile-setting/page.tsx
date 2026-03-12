@@ -912,7 +912,7 @@ export default function SmileSettingPage() {
                     {/* 슬라이더 */}
                     <div className="flex flex-col gap-1" style={{ paddingBottom: 4 }}>
                       <div
-                        className="flex justify-between text-body5"
+                        className="flex justify-between text-body5 "
                         style={{
                           color: "white",
                         }}
@@ -923,7 +923,7 @@ export default function SmileSettingPage() {
                       <div className="relative" style={{ height: 24 }}>
                         {/* 트랙 배경 + 채워진 트랙 */}
                         <div
-                          className="absolute overflow-hidden rounded-[2px]"
+                          className="absolute overflow-hidden rounded-[4px]"
                           style={{
                             top: "50%",
                             left: 0,

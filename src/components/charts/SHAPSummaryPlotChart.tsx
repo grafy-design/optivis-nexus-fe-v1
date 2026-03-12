@@ -7,6 +7,7 @@ import {
   SHAP_COLORS,
   CHART_COLORS,
   tooltipItem,
+  tooltipTitle,
   tooltipRow,
   tooltipWrap,
   axisLabelBase,
@@ -134,8 +135,7 @@ export const SHAPSummaryPlotChart = ({
           const cv = Number(value[2] ?? 0);
           const name = String(value[3] ?? "");
           return tooltipWrap(
-            (item as any).marker ?? "" +
-            name +
+            tooltipTitle(name) +
             tooltipRow("", "SHAP", shap.toFixed(3)) +
             tooltipRow("", "Color value", cv.toFixed(3))
           );

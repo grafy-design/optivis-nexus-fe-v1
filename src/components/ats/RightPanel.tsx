@@ -255,20 +255,20 @@ export function RightPanel({
   return (
     <div className="w-full h-full min-h-0">
       <div
-        className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-visible relative w-full h-full min-h-[880px]"
+        className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden relative w-full h-full"
       >
-        <div className="flex flex-col w-full h-full p-0">
+        <div className="flex flex-col w-full h-full p-0 gap-3 [@media(max-width:1470px)]:gap-2">
           {/* Top Section - Tab Bar and Legend */}
-          <div className="flex items-center justify-between flex-shrink-0 mb-3 pl-[0px] pr-[4px]">
+          <div className="flex items-center justify-between flex-shrink-0 pr-1">
             {/* Tab Bar */}
             <div className="bg-white rounded-full p-1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <button
                   onClick={() => setActiveTab("compare")}
-                  className={`px-[18px] py-[10px] rounded-full transition-all cursor-pointer ${
+                  className={`px-4 py-2.5 rounded-full transition-all cursor-pointer ${
                     activeTab === "compare"
-                      ? "bg-primary-20 text-white text-body4m"
-                      : "text-neutral-30 text-body4"
+                      ? "bg-primary-20 text-white text-body5m"
+                      : "text-neutral-30 text-body5"
                   }`}
                 >
                   Compare View
@@ -276,12 +276,12 @@ export function RightPanel({
                 <button
                   onClick={() => setActiveTab("reduction")}
                   disabled={!isApplied}
-                  className={`px-[18px] py-[10px] rounded-full transition-all ${
+                  className={`px-4 py-2.5 rounded-full transition-all ${
                     !isApplied ? "cursor-not-allowed" : "cursor-pointer"
                   } ${
                     activeTab === "reduction"
-                      ? "bg-primary-20 text-white text-body4m"
-                      : "text-neutral-30 text-body4"
+                      ? "bg-primary-20 text-white text-body5m"
+                      : "text-neutral-30 text-body5"
                   }`}
                 >
                   Reduction View
@@ -290,16 +290,16 @@ export function RightPanel({
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 [@media(max-width:1470px)]:gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-secondary-60 flex-shrink-0" />
-                <span className="text-[15px] font-semibold text-secondary-60 leading-[16.5px] tracking-[-0.75px]">
+                <span className="text-body4 text-secondary-60">
                   OPTIVIS NEXUS
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-primary-20 flex-shrink-0" />
-                <span className="text-[15px] font-semibold text-primary-20 leading-[16.5px] tracking-[-0.75px]">
+                <span className="text-body4 text-primary-20">
                   Traditional Design
                 </span>
               </div>
@@ -307,9 +307,9 @@ export function RightPanel({
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 flex gap-4 min-h-0 mt-auto">
+          <div className="flex-1 flex gap-4 [@media(max-width:1470px)]:gap-3 min-h-0 mt-auto">
             {/* Left Area - Smaller Sample, Smaller N to screen, Lower cost */}
-            <div className="flex-1 min-w-0 flex flex-col gap-4">
+            <div className="flex-1 min-w-0 flex flex-col gap-3 [@media(max-width:1470px)]:gap-2">
               {activeTab === "compare" ? (
                 /* Smaller Sample Card - Compare View */
                 <div
@@ -321,19 +321,19 @@ export function RightPanel({
                   <div className="flex flex-col w-full h-full p-4">
                     {/* Card Header */}
                     <div className="flex items-start justify-between mb-4 flex-shrink-0">
-                      <div className="flex flex-col gap-1">
-                        <h3 className="text-body1m text-neutral-98">
+                      <div className="flex flex-col gap-0">
+                        <h3 className="text-body2m text-neutral-98">
                           Smaller Sample
                         </h3>
-                        <p className="text-body4 text-neutral-98">
+                        <p className="text-body5 text-neutral-98">
                           Sample Size vs CI Width
                         </p>
                         {isApplied && (
                           <div className="flex items-center gap-1 mt-1">
                             <svg
-                              width="44"
-                              height="44"
-                              viewBox="0 0 44 44"
+                              width="36"
+                              height="36"
+                              viewBox="0 0 48 44"
                               fill="none"
                               xmlns="http://www.w3.org/2000/svg"
                               className="flex-shrink-0"
@@ -370,7 +370,7 @@ export function RightPanel({
                                 </clipPath>
                               </defs>
                             </svg>
-                            <p className="text-h0 text-neutral-98">
+                            <p className="text-h2 text-neutral-99">
                               {simulationData?.smallerSample?.percentage ||
                                 "--"}
                             </p>
@@ -381,14 +381,13 @@ export function RightPanel({
                         <button
                           onClick={() => handleFullscreenClick("smallerSample")}
                         >
-                          <FullscreenIcon backgroundColor="#1c1942" />
+                          <FullscreenIcon backgroundColor="var(--primary-10)" />
                         </button>
                       )}
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-neutral-100 rounded-[8px]"
-                      style={{ height: "66%" }}
+                      className="flex-1 min-h-0 bg-neutral-100 rounded-[8px] p-3 overflow-hidden"
                     >
                       {chartDataToUse &&
                       chartDataToUse.smallerSample.optivis.length > 0 ? (
@@ -409,24 +408,24 @@ export function RightPanel({
               ) : /* Sample Size & Power Card - Reduction View */
               isApplied && reductionCharts.length > 0 ? (
                 <div
-                  className="rounded-[14px] overflow-hidden flex-[3] min-h-0 bg-primary-15"
+                  className="rounded-[14px] overflow-hidden flex-[3] min-h-0 bg-primary-15 gap-1"
                 >
-                  <div className="flex flex-col w-full h-full p-4">
+                  <div className="flex flex-col w-full h-full p-4 ">
                     {/* Card Header */}
-                    <div className="flex flex-col gap-1 mb-4 flex-shrink-0">
-                      <h3 className="text-body1m text-neutral-98">
+                    <div className="flex flex-col gap-0 mb-4 flex-shrink-0">
+                      <h3 className="text-body2m text-neutral-98">
                         Smaller Sample
                       </h3>
-                      <p className="text-body4 text-neutral-98">
+                      <p className="text-body5 text-neutral-98">
                         Sample Size vs Power
                       </p>
                       {isApplied &&
                         simulationData?.smallerSample?.percentage && (
-                          <div className="flex items-center gap-1 mt-1">
+                          <div className="flex items-center gap-0 mt-2">
                             <svg
-                              width="44"
-                              height="44"
-                              viewBox="0 0 44 44"
+                              width="36"
+                              height="36"
+                              viewBox="0 0 48 44"
                               fill="none"
                               xmlns="http://www.w3.org/2000/svg"
                               className="flex-shrink-0"
@@ -463,7 +462,7 @@ export function RightPanel({
                                 </clipPath>
                               </defs>
                             </svg>
-                            <p className="text-h0 text-neutral-98">
+                            <p className="text-h2 text-neutral-99">
                               {simulationData.smallerSample.percentage}
                             </p>
                           </div>
@@ -471,10 +470,9 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-neutral-100 rounded-[8px]"
-                      style={{ height: "66%" }}
+                      className="flex-1 min-h-0 bg-neutral-100 rounded-[8px] overflow-hidden"
                     >
-                      <div className="grid grid-cols-2 gap-4 h-full pt-4 px-4 pb-4">
+                      <div className="grid grid-cols-2 gap-4 [@media(max-width:1470px)]:gap-3 h-full p-4" style={{ gridTemplateRows: "1fr" }}>
                         {/* Sample Size Section */}
                         {reductionCharts.find(
                           (c) => c.label === "Sample Size"
@@ -487,17 +485,17 @@ export function RightPanel({
                               <div className="flex flex-col h-full">
                                 <div className="flex items-start justify-between">
                                   <div className="flex flex-col gap-1">
-                                    <h4 className="text-body2 text-[var(--text-header)]">
+                                    <h4 className="text-body3 text-[var(--text-accent)]">
                                       {chart.label}
                                     </h4>
-                                    <div className="flex items-center gap-1 mt-1">
+                                    <div className="flex items-center gap-1 ">
                                       <ArrowIcon
                                         direction={
                                           chart.isNegative ? "up" : "down"
                                         }
                                         color="var(--icon-on-button)"
                                       />
-                                      <span className="text-h4 text-neutral-15">
+                                      <span className="text-body1 text-[var(--text-accent)]">
                                         {chart.change}
                                       </span>
                                     </div>
@@ -517,12 +515,10 @@ export function RightPanel({
                                     <FullscreenIcon />
                                   </button>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2 mt-auto items-end">
+                                <div className="grid grid-cols-2 gap-2 flex-1 min-h-0 overflow-hidden" style={{ gridTemplateRows: "1fr" }}>
                                   {/* Sample Size - OPTIVIS */}
-                                  <div className="flex flex-col gap-1">
-                                    <div
-                                      className="w-full" style={{ height: "270px" }}
-                                    >
+                                  <div className="flex flex-col gap-1 h-full">
+                                    <div className="w-full h-full">
                                       <SingleBarChart
                                         value={chart.optivis}
                                         maxValue={Math.max(
@@ -531,14 +527,13 @@ export function RightPanel({
                                         )}
                                         color="#f06600"
                                         height="100%"
+                                        size="m"
                                       />
                                     </div>
                                   </div>
                                   {/* Sample Size - Traditional */}
-                                  <div className="flex flex-col gap-1">
-                                    <div
-                                      className="w-full" style={{ height: "270px" }}
-                                    >
+                                  <div className="flex flex-col gap-1 h-full">
+                                    <div className="w-full h-full">
                                       <SingleBarChart
                                         value={chart.traditional}
                                         maxValue={Math.max(
@@ -547,6 +542,7 @@ export function RightPanel({
                                         )}
                                         color="#231f52"
                                         height="100%"
+                                        size="m"
                                       />
                                     </div>
                                   </div>
@@ -566,17 +562,17 @@ export function RightPanel({
                               <div className="flex flex-col h-full">
                                 <div className="flex items-start justify-between">
                                   <div className="flex flex-col gap-1">
-                                    <h4 className="text-body2 text-[var(--text-header)]">
+                                    <h4 className="text-body3 text-[var(--text-accent)]">
                                       {chart.label}
                                     </h4>
-                                    <div className="flex items-center gap-1 mt-1">
+                                    <div className="flex items-center gap-1">
                                       <ArrowIcon
                                         direction={
                                           chart.isNegative ? "up" : "down"
                                         }
                                         color="var(--icon-on-button)"
                                       />
-                                      <span className="text-h4 text-neutral-15">
+                                      <span className="text-body1 text-[var(--text-accent)]">
                                         {chart.change}
                                       </span>
                                     </div>
@@ -596,12 +592,10 @@ export function RightPanel({
                                     <FullscreenIcon />
                                   </button>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2 mt-auto items-end">
+                                <div className="grid grid-cols-2 gap-2 flex-1 min-h-0 overflow-hidden" style={{ gridTemplateRows: "1fr" }}>
                                   {/* Power - OPTIVIS */}
-                                  <div className="flex flex-col gap-1">
-                                    <div
-                                      className="w-full" style={{ height: "270px" }}
-                                    >
+                                  <div className="flex flex-col gap-1 h-full">
+                                    <div className="w-full h-full">
                                       <SingleBarChart
                                         value={chart.optivis}
                                         maxValue={Math.max(
@@ -610,14 +604,13 @@ export function RightPanel({
                                         )}
                                         color="#f06600"
                                         height="100%"
+                                        size="m"
                                       />
                                     </div>
                                   </div>
                                   {/* Power - Traditional */}
-                                  <div className="flex flex-col gap-1">
-                                    <div
-                                      className="w-full" style={{ height: "270px" }}
-                                    >
+                                  <div className="flex flex-col gap-1 h-full">
+                                    <div className="w-full h-full">
                                       <SingleBarChart
                                         value={chart.traditional}
                                         maxValue={Math.max(
@@ -626,6 +619,7 @@ export function RightPanel({
                                         )}
                                         color="#231f52"
                                         height="100%"
+                                        size="m"
                                       />
                                     </div>
                                   </div>
@@ -640,17 +634,17 @@ export function RightPanel({
               ) : null}
 
               {/* Bottom Two Cards */}
-              <div className="flex gap-4 flex-[2] min-h-0">
+              <div className="flex gap-3 [@media(max-width:1470px)]:gap-2 flex-[2] min-h-0 ">
                 {/* Smaller N to screen Card */}
                 <div
                   className="flex-1 min-w-0 rounded-[20px] overflow-hidden bg-layer-secondary"
                 >
-                  <div className="flex flex-col w-full h-full p-4 gap-6">
+                  <div className="flex flex-col w-full h-full p-4 gap-6 [@media(max-width:1470px)]:gap-3">
                     {/* Card Header */}
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-0.5">
                       {activeTab === "compare" ? (
                         <>
-                          <div className="flex flex-col gap-0.5">
+                          <div className="flex flex-col gap-0.25">
                             <h3 className="text-body4 text-neutral-30">
                               Smaller N to screen
                             </h3>
@@ -669,7 +663,7 @@ export function RightPanel({
                                   }
                                   color="var(--icon-on-button)"
                                 />
-                                <p className="text-h4 text-neutral-15">
+                                <p className="text-body1 text-[var(--text-accent)]">
                                   {simulationData?.smallerNToScreen
                                     ?.percentage || "--"}
                                 </p>
@@ -694,15 +688,15 @@ export function RightPanel({
                           return chart ? (
                             <>
                               <div className="flex flex-col gap-1">
-                                <h3 className="text-body4 text-neutral-15">
+                                <h3 className="text-body5 text-[var(--text-accent)]">
                                   {chart.label}
                                 </h3>
-                                <div className="flex items-center gap-1 mt-1">
+                                <div className="flex items-center gap-1 ">
                                   <ArrowIcon
                                     direction={chart.isNegative ? "up" : "down"}
                                     color="var(--icon-on-button)"
                                   />
-                                  <p className="text-h4 text-neutral-15">
+                                  <p className="text-body1 text-[var(--text-accent)]">
                                     {chart.change}
                                   </p>
                                 </div>
@@ -735,7 +729,7 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-white/60 rounded-[8px] flex-1 min-h-0"
+                      className="mt-auto bg-white/60 rounded-[8px] flex-1 min-h-0 p-1"
                     >
                       {activeTab === "compare" ? (
                         chartDataToUse &&
@@ -759,10 +753,10 @@ export function RightPanel({
                             (c) => c.label === "Enrollment Time"
                           );
                           return chart ? (
-                            <div className="grid grid-cols-2 gap-2 h-full pt-2 px-2 pb-2 items-end">
+                            <div className="grid grid-cols-2 gap-2 h-full pt-2 px-2 pb-2 items-end" style={{ gridTemplateRows: "1fr" }}>
                               {/* Enrollment Time - OPTIVIS */}
-                              <div className="flex flex-col gap-1">
-                                <div className="w-full" style={{ height: "140px" }}>
+                              <div className="flex flex-col gap-1 h-full">
+                                <div className="w-full h-full">
                                   <SingleBarChart
                                     value={chart.optivis}
                                     maxValue={Math.max(
@@ -771,12 +765,13 @@ export function RightPanel({
                                     )}
                                     color="#f06600"
                                     height="100%"
+                                    size="m"
                                   />
                                 </div>
                               </div>
                               {/* Enrollment Time - Traditional */}
-                              <div className="flex flex-col gap-1">
-                                <div className="w-full" style={{ height: "140px" }}>
+                              <div className="flex flex-col gap-1 h-full">
+                                <div className="w-full h-full">
                                   <SingleBarChart
                                     value={chart.traditional}
                                     maxValue={Math.max(
@@ -785,6 +780,7 @@ export function RightPanel({
                                     )}
                                     color="#231f52"
                                     height="100%"
+                                    size="m"
                                   />
                                 </div>
                               </div>
@@ -803,12 +799,12 @@ export function RightPanel({
                     backgroundColor: "rgba(255, 255, 255, 0.6)",
                   }}
                 >
-                  <div className="flex flex-col w-full h-full p-4 gap-6">
+                  <div className="flex flex-col w-full h-full p-4 gap-6 [@media(max-width:1470px)]:gap-3">
                     {/* Card Header */}
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-0.5">
                       {activeTab === "compare" ? (
                         <>
-                          <div className="flex flex-col gap-0.5">
+                          <div className="flex flex-col gap-0.25">
                             <h3 className="text-body4 text-neutral-30">
                               Lower cost
                             </h3>
@@ -818,7 +814,7 @@ export function RightPanel({
                                 : "at the same sample size"}
                             </p>
                             {isApplied && (
-                              <div className="flex items-center gap-1  mt-1">
+                              <div className="flex items-center gap-1  ">
                                 <ArrowIcon
                                   direction={
                                     simulationData?.lowerCost?.isNegative
@@ -827,7 +823,7 @@ export function RightPanel({
                                   }
                                   color="var(--icon-on-button)"
                                 />
-                                <p className="text-h4 text-neutral-15">
+                                <p className="text-body1 text-[var(--text-accent)]">
                                   {simulationData?.lowerCost?.percentage ||
                                     "--"}
                                 </p>
@@ -850,15 +846,15 @@ export function RightPanel({
                           return chart ? (
                             <>
                               <div className="flex flex-col gap-1">
-                                <h3 className="text-body4 text-neutral-15">
+                                <h3 className="text-body5 text-[var(--text-accent)]">
                                   {chart.label}
                                 </h3>
-                                <div className="flex items-center gap-1 mt-1">
+                                <div className="flex items-center gap-1 ">
                                   <ArrowIcon
                                     direction={chart.isNegative ? "up" : "down"}
                                     color="var(--icon-on-button)"
                                   />
-                                  <p className="text-h4 text-neutral-15">
+                                  <p className="text-body1 text-[var(--text-accent)]">
                                     {chart.change}
                                   </p>
                                 </div>
@@ -892,7 +888,7 @@ export function RightPanel({
                     </div>
                     {/* Chart Area */}
                     <div
-                      className="mt-auto bg-white/60 rounded-[8px] flex-1 min-h-0"
+                      className="mt-auto bg-white/60 rounded-[8px] flex-1 min-h-0 p-1"
                     >
                       {activeTab === "compare" ? (
                         chartDataToUse &&
@@ -914,10 +910,10 @@ export function RightPanel({
                             (c) => c.label === "Cost"
                           );
                           return chart ? (
-                            <div className="grid grid-cols-2 gap-2 h-full pt-2 px-2 pb-2 items-end">
+                            <div className="grid grid-cols-2 gap-2 h-full pt-2 px-2 pb-2 items-end" style={{ gridTemplateRows: "1fr" }}>
                               {/* Cost - OPTIVIS */}
-                              <div className="flex flex-col gap-1">
-                                <div className="w-full" style={{ height: "140px" }}>
+                              <div className="flex flex-col gap-1 h-full">
+                                <div className="w-full h-full">
                                   <SingleBarChart
                                     value={chart.optivis}
                                     maxValue={Math.max(
@@ -927,12 +923,13 @@ export function RightPanel({
                                     color="#f06600"
                                     height="100%"
                                     formatter={(val) => `${val}M`}
+                                    size="m"
                                   />
                                 </div>
                               </div>
                               {/* Cost - Traditional */}
-                              <div className="flex flex-col gap-1">
-                                <div className="w-full" style={{ height: "140px" }}>
+                              <div className="flex flex-col gap-1 h-full">
+                                <div className="w-full h-full">
                                   <SingleBarChart
                                     value={chart.traditional}
                                     maxValue={Math.max(
@@ -942,6 +939,7 @@ export function RightPanel({
                                     color="#231f52"
                                     height="100%"
                                     formatter={(val) => `${val}M`}
+                                    size="m"
                                   />
                                 </div>
                               </div>
@@ -956,66 +954,66 @@ export function RightPanel({
             </div>
 
             {/* Right Area - OPTIVIS NEXUS vs Traditional Design, Reduction View */}
-            <div className="w-[min(34%,460px)] flex-shrink-0 flex flex-col gap-4">
+            <div className="w-[min(34%,460px)] flex-shrink-0 flex flex-col gap-3 [@media(max-width:1470px)]:gap-2 min-h-0">
               {/* OPTIVIS NEXUS vs Traditional Design Card */}
-              <div className="bg-white rounded-[20px] flex flex-col flex-1">
+              <div className="bg-white rounded-[20px] flex flex-col flex-1 min-h-0 overflow-hidden p-4 gap-12 [@media(max-width:1470px)]:gap-6">
                 {/* Title */}
-                <div className="px-4 pt-4 pb-3 flex-shrink-0">
-                  <h3 className="text-body3 text-text-primary">
+                <div className="shrink-0">
+                  <h3 className="text-body4 text-text-primary">
                     OPTIVIS NEXUS vs Traditional Design
                   </h3>
                 </div>
 
                 {/* Table Content */}
-                <div className="flex flex-col px-4 pb-4 mt-auto">
-                  {/* Header: OPTIVIS/Traditional 옆 info 아이콘 클릭 시 Formula & Used Value (좌측 표시) */}
-                  <div className="flex items-end mb-0 flex-shrink-0 border-b border-neutral-80 pb-3">
-                    <div className="flex-1"></div>
-                    <div className="flex gap-4">
-                      <div className="flex items-center gap-1 w-[98px]">
-                        <span className="text-body5m text-secondary-60">
-                          OPTIVIS
-                        </span>
-                        <FormulaTooltip
-                          {...sampleSizeFormulaProps}
-                          side="left"
-                          align="start"
-                          trigger={
-                            <button className="flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-70 transition-opacity">
-                              <InfoIcon
-                                className="flex-shrink-0"
-                                color="#f06600"
-                              />
-                            </button>
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center gap-1 w-[98px]">
-                        <span className="text-body5m text-primary-20">
-                          Traditional
-                        </span>
-                        <FormulaTooltip
-                          {...sampleSizeFormulaProps}
-                          side="left"
-                          align="start"
-                          trigger={
-                            <button className="flex-shrink-0 mt-0.5 cursor-pointer hover:opacity-70 transition-opacity">
-                              <InfoIcon
-                                className="flex-shrink-0"
-                                color="#231f52"
-                              />
-                            </button>
-                          }
-                        />
-                      </div>
+                <div className="flex-1 min-h-0 flex flex-col justify-evenly overflow-hidden">
+                  {/* Table Container (Header + Body) */}
+                  <div className="flex flex-col flex-1 min-h-0 ">
+                  {/* Header: OPTIVIS/Traditional 컬럼 헤더 */}
+                  <div className="flex items-center flex-shrink-0 border-b border-neutral-80 pb-1">
+                    <div className="flex-[2] min-w-0"></div>
+                    <div className="flex-1 min-w-0 flex items-center gap-1">
+                      <span className="text-body5 text-secondary-60">
+                        OPTIVIS
+                      </span>
+                      <FormulaTooltip
+                        {...sampleSizeFormulaProps}
+                        side="left"
+                        align="start"
+                        trigger={
+                          <button className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
+                            <InfoIcon
+                              className="flex-shrink-0"
+                              color="var(--secondary-60)"
+                            />
+                          </button>
+                        }
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0 flex items-center gap-1">
+                      <span className="text-body5 text-primary-20">
+                        Traditional
+                      </span>
+                      <FormulaTooltip
+                        {...sampleSizeFormulaProps}
+                        side="left"
+                        align="start"
+                        trigger={
+                          <button className="flex-shrink-0 cursor-pointer hover:opacity-70 transition-opacity">
+                            <InfoIcon
+                              className="flex-shrink-0"
+                              color="var(--primary-15)"
+                            />
+                          </button>
+                        }
+                      />
                     </div>
                   </div>
 
                   {/* Table Rows */}
-                  <div className="flex flex-col gap-0">
+                  <div className="flex flex-col flex-1 min-h-0 justify-evenly">
                     {/* Enrollment Row */}
-                    <div className="flex items-end border-b border-neutral-80 py-3 flex-shrink-0">
-                      <div className="flex-1 flex items-center">
+                    <div className="flex items-center border-b border-neutral-80 py-2 flex-1">
+                      <div className="flex-[2] min-w-0 flex items-center">
                         <div className="flex flex-col">
                           <span className="text-body5 text-neutral-30">
                             Enrollment
@@ -1025,29 +1023,27 @@ export function RightPanel({
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-4 items-end">
-                        <div className="w-[98px]">
-                          <span className="text-body1m text-secondary-60">
-                            {isApplied && simulationData
-                              ? simulationData.comparisonTable.enrollment
-                                  .optivis
-                              : "-"}
-                          </span>
-                        </div>
-                        <div className="w-[98px]">
-                          <span className="text-body1m text-primary-20">
-                            {isApplied && simulationData
-                              ? simulationData.comparisonTable.enrollment
-                                  .traditional
-                              : "-"}
-                          </span>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-body2m text-secondary-60">
+                          {isApplied && simulationData
+                            ? simulationData.comparisonTable.enrollment
+                                .optivis
+                            : "-"}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-body2m text-primary-20">
+                          {isApplied && simulationData
+                            ? simulationData.comparisonTable.enrollment
+                                .traditional
+                            : "-"}
+                        </span>
                       </div>
                     </div>
 
                     {/* Primary Endpoint Power Row */}
-                    <div className="flex items-end border-b border-neutral-80 py-3 flex-shrink-0">
-                      <div className="flex-1 flex items-center">
+                    <div className="flex items-center border-b border-neutral-80 py-2 flex-1">
+                      <div className="flex-[2] min-w-0 flex items-center">
                         <div className="flex flex-col">
                           <span className="text-body5 text-neutral-30">
                             Primary Endpoint Power
@@ -1063,31 +1059,29 @@ export function RightPanel({
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-4 items-end">
-                        <div className="w-[98px]">
-                          <span className="text-body1m text-secondary-60">
-                            {isApplied && simulationData
-                              ? simulationData.comparisonTable
-                                  .primaryEndpointPower.optivis
-                              : "-"}
-                          </span>
-                        </div>
-                        <div className="w-[98px]">
-                          <span className="text-body1m text-primary-20">
-                            {isApplied && simulationData
-                              ? simulationData.comparisonTable
-                                  .primaryEndpointPower.traditional
-                              : "-"}
-                          </span>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-body2m text-secondary-60">
+                          {isApplied && simulationData
+                            ? simulationData.comparisonTable
+                                .primaryEndpointPower.optivis
+                            : "-"}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-body2m text-primary-20">
+                          {isApplied && simulationData
+                            ? simulationData.comparisonTable
+                                .primaryEndpointPower.traditional
+                            : "-"}
+                        </span>
                       </div>
                     </div>
 
                     {/* Secondary Endpoint Power Row */}
                     {apiData?.result_trialdesignconditionsummary
                       ?.secondary_endpoint && (
-                      <div className="flex items-end border-b border-neutral-80 py-3 flex-shrink-0">
-                        <div className="flex-1 flex items-center">
+                      <div className="flex items-center border-b border-neutral-80 py-2 flex-1">
+                        <div className="flex-[2] min-w-0 flex items-center">
                           <div className="flex flex-col">
                             <span className="text-body5 text-neutral-30">
                               Secondary Endpoint Power
@@ -1100,186 +1094,142 @@ export function RightPanel({
                             </span>
                           </div>
                         </div>
-                        <div className="flex gap-4 items-end">
-                          <div className="w-[98px]">
-                            <span className="text-body1m text-secondary-60">
-                              {isApplied && simulationData
-                                ? simulationData.comparisonTable
-                                    .secondaryEndpointPower.optivis
-                                : "-"}
-                            </span>
-                          </div>
-                          <div className="w-[98px]">
-                            <span className="text-body1m text-primary-20">
-                              {isApplied && simulationData
-                                ? simulationData.comparisonTable
-                                    .secondaryEndpointPower.traditional
-                                : "-"}
-                            </span>
-                          </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-secondary-60">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable
+                                  .secondaryEndpointPower.optivis
+                              : "-"}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-primary-20">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable
+                                  .secondaryEndpointPower.traditional
+                              : "-"}
+                          </span>
                         </div>
                       </div>
                     )}
 
                     {/* Sample Size Row (Formula & Used Value는 OPTIVIS/Traditional 헤더 info 아이콘에서 표시) */}
-                    <div className="flex items-end py-3 flex-shrink-0">
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1">
-                            <span className="text-body5 text-neutral-30">
-                              Sample Size
-                            </span>
-                          </div>
-                          <div className="flex-1 flex flex-col gap-0.5">
-                            {/* Treatment Group 1 */}
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center">
-                                <span className="text-small1 text-neutral-60">
-                                  Treatment Group 1
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <div className="w-[98px] text-left">
-                                  <span className="text-body5 text-secondary-60">
-                                    {isApplied && simulationData
-                                      ? simulationData.comparisonTable.sampleSize
-                                          .optivis.treatmentGroup1 ?? "-"
-                                      : "-"}
-                                  </span>
-                                </div>
-                                <div className="w-[98px] text-left">
-                                  <span className="text-body5 text-primary-20">
-                                    {isApplied && simulationData
-                                      ? simulationData.comparisonTable.sampleSize
-                                          .traditional.treatmentGroup1 ?? "-"
-                                      : "-"}
-                                  </span>
-                                </div>
-                              </div>
+                    <div className="flex flex-col pt-2 pb-0 gap-0.5 flex-[2] justify-center">
+                      <span className="text-body5 text-neutral-30">Sample Size</span>
+                      {/* Treatment Group 1 */}
+                      <div className="flex items-center">
+                        <div className="flex-[2] min-w-0">
+                          <span className="text-small1 text-neutral-60">Treatment Group 1</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-secondary-60">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable.sampleSize.optivis.treatmentGroup1 ?? "-"
+                              : "-"}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-primary-20">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable.sampleSize.traditional.treatmentGroup1 ?? "-"
+                              : "-"}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Treatment Group 2 */}
+                      {isApplied &&
+                        simulationData &&
+                        (simulationData.comparisonTable.sampleSize.optivis.treatmentGroup2 !== null ||
+                          simulationData.comparisonTable.sampleSize.traditional.treatmentGroup2 !== null) && (
+                          <div className="flex items-center">
+                            <div className="flex-[2] min-w-0">
+                              <span className="text-small1 text-neutral-60">Treatment Group 2</span>
                             </div>
-                            {/* Treatment Group 2 - null이 아닐 때만 표시 */}
-                            {isApplied &&
-                              simulationData &&
-                              (simulationData.comparisonTable.sampleSize.optivis
-                                .treatmentGroup2 !== null ||
-                                simulationData.comparisonTable.sampleSize
-                                  .traditional.treatmentGroup2 !== null) && (
-                                <div className="flex items-center justify-between gap-4">
-                                  <div className="flex items-center">
-                                    <span className="text-small1 text-neutral-60">
-                                      Treatment Group 2
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-[98px] text-left">
-                                      <span className="text-body5 text-secondary-60">
-                                        {simulationData.comparisonTable.sampleSize
-                                          .optivis.treatmentGroup2 ?? "-"}
-                                      </span>
-                                    </div>
-                                    <div className="w-[98px] text-left">
-                                      <span className="text-body5 text-primary-20">
-                                        {simulationData.comparisonTable.sampleSize
-                                          .traditional.treatmentGroup2 ?? "-"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            {/* Treatment Group 3 - null이 아닐 때만 표시 */}
-                            {isApplied &&
-                              simulationData &&
-                              (simulationData.comparisonTable.sampleSize.optivis
-                                .treatmentGroup3 !== null ||
-                                simulationData.comparisonTable.sampleSize
-                                  .traditional.treatmentGroup3 !== null) && (
-                                <div className="flex items-center justify-between gap-4">
-                                  <div className="flex items-center">
-                                    <span className="text-small1 text-neutral-60">
-                                      Treatment Group 3
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-4">
-                                    <div className="w-[98px] text-left">
-                                      <span className="text-body5 text-secondary-60">
-                                        {simulationData.comparisonTable.sampleSize
-                                          .optivis.treatmentGroup3 ?? "-"}
-                                      </span>
-                                    </div>
-                                    <div className="w-[98px] text-left">
-                                      <span className="text-body5 text-primary-20">
-                                        {simulationData.comparisonTable.sampleSize
-                                          .traditional.treatmentGroup3 ?? "-"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            {/* Control Group */}
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center">
-                                <span className="text-small1 text-neutral-60">
-                                  Control Group
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <div className="w-[98px] text-left">
-                                  <span className="text-body5 text-secondary-60">
-                                    {isApplied && simulationData
-                                      ? simulationData.comparisonTable.sampleSize
-                                          .optivis.controlGroup
-                                      : "-"}
-                                  </span>
-                                </div>
-                                <div className="w-[98px] text-left">
-                                  <span className="text-body5 text-primary-20">
-                                    {isApplied && simulationData
-                                      ? simulationData.comparisonTable.sampleSize
-                                          .traditional.controlGroup
-                                      : "-"}
-                                  </span>
-                                </div>
-                              </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-body2m text-secondary-60">
+                                {simulationData.comparisonTable.sampleSize.optivis.treatmentGroup2 ?? "-"}
+                              </span>
                             </div>
-                            {/* Total */}
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center">
-                                <span className="text-small1 text-neutral-60">
-                                  Total
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <div className="w-[98px] text-left">
-                                  <span className="text-body5 text-secondary-60">
-                                    {isApplied && simulationData
-                                      ? simulationData.comparisonTable.sampleSize
-                                          .optivis.total
-                                      : "-"}
-                                  </span>
-                                </div>
-                                <div className="w-[98px] text-left">
-                                  <span className="text-body5 text-primary-20">
-                                    {isApplied && simulationData
-                                      ? simulationData.comparisonTable.sampleSize
-                                          .traditional.total
-                                      : "-"}
-                                  </span>
-                                </div>
-                              </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-body2m text-primary-20">
+                                {simulationData.comparisonTable.sampleSize.traditional.treatmentGroup2 ?? "-"}
+                              </span>
                             </div>
                           </div>
+                        )}
+                      {/* Treatment Group 3 */}
+                      {isApplied &&
+                        simulationData &&
+                        (simulationData.comparisonTable.sampleSize.optivis.treatmentGroup3 !== null ||
+                          simulationData.comparisonTable.sampleSize.traditional.treatmentGroup3 !== null) && (
+                          <div className="flex items-center">
+                            <div className="flex-[2] min-w-0">
+                              <span className="text-small1 text-neutral-60">Treatment Group 3</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-body2m text-secondary-60">
+                                {simulationData.comparisonTable.sampleSize.optivis.treatmentGroup3 ?? "-"}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-body2m text-primary-20">
+                                {simulationData.comparisonTable.sampleSize.traditional.treatmentGroup3 ?? "-"}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      {/* Control Group */}
+                      <div className="flex items-center">
+                        <div className="flex-[2] min-w-0">
+                          <span className="text-small2 text-neutral-60">Control Group</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-secondary-60">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable.sampleSize.optivis.controlGroup
+                              : "-"}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-primary-20">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable.sampleSize.traditional.controlGroup
+                              : "-"}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Total */}
+                      <div className="flex items-center">
+                        <div className="flex-[2] min-w-0">
+                          <span className="text-small2 text-neutral-60">Total</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-secondary-60">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable.sampleSize.optivis.total
+                              : "-"}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-body2m text-primary-20">
+                            {isApplied && simulationData
+                              ? simulationData.comparisonTable.sampleSize.traditional.total
+                              : "-"}
+                          </span>
                         </div>
                       </div>
                     </div>
+                  </div>
+                  {/* End Table Container */}
                   </div>
                 </div>
               </div>
 
               {/* Reduction View Card / Compare View Card */}
-              <div className="bg-white rounded-[20px] flex flex-col flex-1 gap-10">
+              <div className="bg-white rounded-[20px] flex flex-col flex-1 min-h-0 overflow-hidden p-4 gap-8 [@media(max-width:1470px)]:gap-4">
                 {/* Title */}
-                <div className="px-4 pt-4 pb-3 flex-shrink-0 ">
-                  <h3 className="text-body3 text-text-primary">
+                <div className="flex-shrink-0 ">
+                  <h3 className="text-body4 text-text-primary">
                     {activeTab === "compare"
                       ? "Reduction View"
                       : "Compare View"}
@@ -1287,31 +1237,33 @@ export function RightPanel({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col px-4 pb-4 min-h-0 overflow-hidden">
+                <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                   {activeTab === "compare" ? (
                     isApplied ? (
-                      <div className="grid grid-cols-2 gap-2 h-full">
+                      <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full min-h-0 overflow-hidden">
                         {reductionCharts.map(
                           (chart, index) => (
-                            <div key={index} className="flex flex-col gap-2 h-full">
-                              <div className="flex items-start justify-between">
-                                <div className="flex flex-col gap-2">
-                                  <span className="text-body5 text-black">
+                            <div key={index} className="flex flex-col min-h-0 min-w-0 overflow-hidden">
+                              {/* 라벨 + 수치 + 버튼 */}
+                              <div className="flex-1 flex items-start justify-between h-fit">
+                                <div className="flex flex-col gap-1">
+                                  <span className="text-small1 text-[var(--text-primary)]">
                                     {chart.label}
                                   </span>
-                                  <div className="flex items-center gap-1 mt-1">
+                                  <div className="flex items-center gap-1">
                                     <ArrowIcon
                                       direction={
                                         chart.isNegative ? "up" : "down"
                                       }
                                       color="var(--icon-on-button)"
                                     />
-                                    <span className="text-body1m text-neutral-30">
+                                    <span className="text-body2m text-[var(--text-primary)]">
                                       {chart.change}
                                     </span>
                                   </div>
                                 </div>
                                 <button
+                                  className="shrink-0"
                                   onClick={() => {
                                     const formatter =
                                       chart.label === "Cost"
@@ -1331,7 +1283,8 @@ export function RightPanel({
                                   <FullscreenIcon />
                                 </button>
                               </div>
-                              <div className="mt-auto w-full" style={{ height: "120px" }}>
+                              {/* 그래프 */}
+                              <div className="flex-1 min-h-0 min-w-0 w-full overflow-hidden">
                                 <ComparisonBarChart
                                   optivisValue={chart.optivis}
                                   traditionalValue={chart.traditional}
@@ -1344,23 +1297,23 @@ export function RightPanel({
                         )}
                       </div>
                     ) : (
-                      <div className="flex-1 bg-[#f8f8f8] rounded-[8px] ">
+                      <div className="flex-1 bg-neutral-98 rounded-[8px] ">
                         {/* Empty state */}
                       </div>
                     )
                   ) : /* Compare View Charts - when activeTab is "reduction" */
                   isApplied && chartDataToUse ? (
-                    <div className="flex flex-col gap-2 h-full overflow-hidden">
+                    <div className="flex flex-col gap-2 [@media(max-width:1470px)]:gap-1 h-full overflow-hidden">
                       {/* Smaller Sample Chart - Single */}
                       {chartDataToUse.smallerSample.optivis.length > 0 && (
                         <div className="flex flex-col gap-2 flex-1 min-h-0">
                           <div className="flex items-start justify-between">
-                            <div className="flex flex-col gap-2">
-                              <h4 className="text-body5 text-text-primary">
+                            <div className="flex flex-col gap-1">
+                              <h4 className="text-small1 text-text-primary">
                                 Smaller Sample
                               </h4>
                               {simulationData && (
-                                <div className="flex items-center gap-1 mt-1">
+                                <div className="flex items-center gap-0">
                                   <ArrowIcon
                                     direction={
                                       simulationData?.smallerSample?.isNegative
@@ -1369,7 +1322,7 @@ export function RightPanel({
                                     }
                                     color="var(--icon-on-button)"
                                   />
-                                  <span className="text-body1m text-neutral-30">
+                                  <span className="text-body2m text-[var(--text-primary)]">
                                     {simulationData.smallerSample.percentage ||
                                       "--"}
                                   </span>
@@ -1402,17 +1355,17 @@ export function RightPanel({
                         </div>
                       )}
                       {/* Smaller N to screen & Lower cost - Side by side */}
-                      <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
+                      <div className="grid grid-cols-2 gap-3 [@media(max-width:1470px)]:gap-2 flex-1 min-h-0">
                         {/* Smaller N to screen Chart */}
                         {chartDataToUse.smallerNToScreen.optivis.length > 0 && (
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2 min-h-0">
                             <div className="flex items-start justify-between">
                               <div className="flex flex-col gap-2">
-                                <h4 className="text-body5 text-text-primary">
+                                <h4 className="text-small1 text-text-primary">
                                   Smaller N to screen
                                 </h4>
                                 {simulationData && (
-                                  <div className="flex items-center gap-1 mt-1">
+                                  <div className="flex items-center gap-1 ">
                                     <ArrowIcon
                                       direction={
                                         simulationData?.smallerNToScreen
@@ -1422,7 +1375,7 @@ export function RightPanel({
                                       }
                                       color="var(--icon-on-button)"
                                     />
-                                    <span className="text-body1m text-neutral-30">
+                                    <span className="text-body2m text-neutral-30">
                                       {simulationData.smallerNToScreen
                                         .percentage || "--"}
                                     </span>
@@ -1458,14 +1411,14 @@ export function RightPanel({
                         )}
                         {/* Lower cost Chart */}
                         {chartDataToUse.lowerCost.optivis.length > 0 && (
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-2 min-h-0">
                             <div className="flex items-start justify-between">
                               <div className="flex flex-col gap-2">
-                                <h4 className="text-body5 text-text-primary">
+                                <h4 className="text-small1 text-text-primary">
                                   Lower cost
                                 </h4>
                                 {simulationData && (
-                                  <div className="flex items-center gap-1 mt-1">
+                                  <div className="flex items-center gap-1 ">
                                     <ArrowIcon
                                       direction={
                                         simulationData?.lowerCost?.isNegative
@@ -1474,7 +1427,7 @@ export function RightPanel({
                                       }
                                       color="var(--icon-on-button)"
                                     />
-                                    <span className="text-body1m text-neutral-30">
+                                    <span className="text-body2m text-neutral-30">
                                       {simulationData.lowerCost.percentage ||
                                         "--"}
                                     </span>
@@ -1509,7 +1462,7 @@ export function RightPanel({
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1 bg-[#f8f8f8] rounded-[8px] border border-[#e5e5e5]">
+                    <div className="flex-1 bg-neutral-98 rounded-[8px] border border-neutral-90">
                       {/* Empty state */}
                     </div>
                   )}

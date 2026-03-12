@@ -71,7 +71,6 @@ import {
   tooltipAxisShadow,
   tooltipItem,
 } from "@/lib/chart-styles";
-import DropdownCell from "@/components/ui/dropdown-cell";
 
 // ── 차트 컴포넌트 (인라인) ────────────────────────────────────────────────────
 
@@ -120,7 +119,7 @@ function SpaghettiPlotChart({
     })),
   ];
   const option = {
-    grid: { left: 44, right: 8, top: 8, bottom: 54 },
+    grid: { left: 42, right: 8, top: 8, bottom: 56 },
     xAxis: {
       type: "category" as const,
       data: chart.xAxisValues,
@@ -128,7 +127,7 @@ function SpaghettiPlotChart({
       axisLine: axisLineWithWidth, axisTick: axisTickHidden,
       axisLabel: { ...axisLabelBase, margin: 4 },
       splitLine: splitLineVisible(),
-      name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 28,
+      name: chart.xAxisName, nameLocation: "middle" as const, nameGap: 24,
       nameTextStyle: { ...axisNameBase, fontWeight: 600 },
     },
     yAxis: {
@@ -169,7 +168,7 @@ function SpaghettiPlotChart({
     })),
     legend: {
       show: chart.series.length > 0,
-      bottom: 4,
+      bottom: 0,
       icon: "roundRect",
       itemWidth: 24,
       itemHeight: 3,
@@ -182,12 +181,8 @@ function SpaghettiPlotChart({
     },
     tooltip: {
       ...tooltipAxisCross,
-      backgroundColor: "#ffffff",
+      backgroundColor: "rgba(255,255,255,0.96)",
       textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
-      axisPointer: {
-        ...tooltipAxisCross.axisPointer,
-        label: { backgroundColor: "transparent", color: CHART_COLORS.NEUTRAL_50, shadowBlur: 0, shadowColor: "transparent" },
-      },
     },
   };
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
@@ -233,13 +228,13 @@ function HistogramChart({
     1
   );
   const option = {
-    grid: { left: 44, right: 4, top: 8, bottom: 54 },
+    grid: { left: 40, right: 4, top: 8, bottom: 54 },
     xAxis: {
       type: "category" as const, data: xLabels,
       axisLine: axisLineWithWidth, axisTick: axisTickHidden,
       axisLabel: { ...axisLabelBase, interval: 4, margin: 4 },
       splitLine: splitLineHidden,
-      name: "Primary Outcome Change (△)", nameLocation: "middle" as const, nameGap: 28,
+      name: "Primary Outcome Change (△)", nameLocation: "middle" as const, nameGap: 24,
       nameTextStyle: { ...axisNameBase, fontWeight: 600 },
     },
     yAxis: {
@@ -262,12 +257,8 @@ function HistogramChart({
     legend: { show: strategies.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 8, data: strategies.map((strategy) => ({ name: strategy.name, itemStyle: { color: strategy.color } })), textStyle: { color: CHART_COLORS.NEUTRAL_50, fontFamily: CHART_FONT.family, fontSize: 11, fontWeight: 500 } },
     tooltip: {
       ...tooltipAxisShadow,
-      backgroundColor: "#ffffff",
+      backgroundColor: "rgba(255,255,255,0.96)",
       textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
-      axisPointer: {
-        ...tooltipAxisShadow.axisPointer,
-        label: { backgroundColor: "transparent", color: CHART_COLORS.NEUTRAL_50, shadowBlur: 0, shadowColor: "transparent" },
-      },
     },
   };
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
@@ -290,7 +281,7 @@ function BubbleChart({
   const minX = Math.min(...xValues, 0);
   const maxY = Math.max(...yValues, 1);
   const option = {
-    grid: { left: 36, right: 16, top: 4, bottom: 36 },
+    grid: { left: 36, right: 8, top: 4, bottom: 40 },
     xAxis: {
       type: "value" as const, min: Math.floor(minX), max: Math.ceil(maxX * 1.1), interval: Math.max(1, Math.ceil((maxX - minX || 1) / 3)),
       axisLine: axisLineWithWidth, axisTick: axisTickHidden,
@@ -324,7 +315,7 @@ function BubbleChart({
     })),
     tooltip: {
       ...tooltipItem,
-      backgroundColor: "#ffffff",
+      backgroundColor: "rgba(255,255,255,0.96)",
       textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
     },
   };
@@ -351,7 +342,7 @@ function StepLineChart({
     1
   );
   const option = {
-    grid: { left: 40, right: 16, top: 4, bottom: 36 },
+    grid: { left: 40, right: 8, top: 4, bottom: 40 },
     xAxis: {
       type: "category" as const, data: seriesSet.xAxisValues,
       axisLine: axisLineWithWidth, axisTick: axisTickHidden,
@@ -365,7 +356,7 @@ function StepLineChart({
       axisLine: axisLineWithWidth, axisTick: axisTickVisible,
       axisLabel: { ...axisLabelBase, margin: 6 },
       splitLine: splitLineVisible(),
-      name: yAxisName, nameLocation: "middle" as const, nameGap: 24,
+      name: yAxisName, nameLocation: "middle" as const, nameGap: 28,
       nameTextStyle: { ...axisNameBase, fontWeight: 600 },
     },
     series: seriesSet.series.map((series) => ({
@@ -381,12 +372,8 @@ function StepLineChart({
     legend: { show: seriesSet.series.length > 0, bottom: 0, icon: "roundRect", itemWidth: 24, itemHeight: 3, padding: [0, 0, 2, 0], data: seriesSet.series.map((series) => ({ name: series.strategyLabel, itemStyle: { color: series.color } })), textStyle: { color: CHART_COLORS.NEUTRAL_50, fontFamily: CHART_FONT.family, fontSize: 9, fontWeight: 500 } },
     tooltip: {
       ...tooltipAxisCross,
-      backgroundColor: "#ffffff",
+      backgroundColor: "rgba(255,255,255,0.96)",
       textStyle: { ...tooltipBase.textStyle, color: CHART_COLORS.NEUTRAL_50 },
-      axisPointer: {
-        ...tooltipAxisCross.axisPointer,
-        label: { backgroundColor: "transparent", color: CHART_COLORS.NEUTRAL_50, shadowBlur: 0, shadowColor: "transparent" },
-      },
     },
   };
   return <ReactECharts option={option} style={{ width: "100%", height: "100%" }} notMerge />;
@@ -602,9 +589,8 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
         }}
       >
         <span
+          className="text-body3"
           style={{
-            fontWeight: 700,
-            fontSize: 17,
             color: nameColor,
             letterSpacing: "-0.66px",
             lineHeight: 1.2,
@@ -630,9 +616,8 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
       {/* 콘텐츠 */}
       <div className="flex flex-col" style={{ padding: "12px 16px 12px", gap: "4px" }}>
         <p
+          className="text-captionm"
           style={{
-            fontWeight: 500,
-            fontSize: "clamp(7px, 0.85vw, 13px)",
             color: COLOR_NEUTRAL_10,
             letterSpacing: "-0.5px",
             lineHeight: 1.1,
@@ -645,10 +630,8 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
           {drugs.map((drug, i) => (
             <p
               key={i}
-              className="flex items-center"
+              className="flex items-center text-body5m"
               style={{
-                fontWeight: 500,
-                fontSize: "clamp(7px, 0.8vw, 11px)",
                 color: COLOR_NEUTRAL_40,
                 letterSpacing: "-0.42px",
                 lineHeight: 1.1,
@@ -664,9 +647,8 @@ function StrategyCard({ name, nameColor, target, drugs, extraDrug, lineColor, to
             <div className="flex items-center" style={{ gap: "4px", paddingLeft: "16px", height: "1.4em" }}>
               <img src={imgFrame1618873826} alt="" style={{ height: "11px", objectFit: "contain" }} />
               <p
+                className="text-body5m"
                 style={{
-                  fontWeight: 500,
-                  fontSize: "clamp(7px, 0.8vw, 11px)",
                   color: COLOR_NEUTRAL_40,
                   letterSpacing: "-0.42px",
                   margin: 0,
@@ -738,10 +720,9 @@ function PrimaryOutcomeTable({
           {row.cells.map((cell, ci) => (
             <div
               key={ci}
-              className="overflow-hidden"
+              className={`overflow-hidden ${row.isHeader ? "text-caption" : "text-body5m"}`}
               style={{
-                fontWeight: row.isHeader ? 700 : ci === 0 ? 600 : 400,
-                fontSize: row.isHeader ? "clamp(7px, 0.8vw, 13px)" : "clamp(7px, 0.8vw, 11px)",
+                fontWeight: row.isHeader ? 700 : ci === 0 ? 600 : 500,
                 color: row.isHeader ? COLOR_PRIMARY : COLOR_TABLE_BODY,
                 padding: ci === 0 ? "0 6px 0 12px" : ci === 5 ? "0 12px 0 6px" : "0 6px",
                 letterSpacing: row.isHeader ? "-0.42px" : "-0.39px",
@@ -786,7 +767,7 @@ function ResponseProbabilityTable({
         </colgroup>
         <thead>
           <tr style={{ borderBottom: `1px solid ${COLOR_NEUTRAL_60}`, height: "25%" }}>
-            <th className="overflow-hidden" style={{ padding: "8px 6px 8px 12px", textAlign: "left", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 13px)", color: COLOR_PRIMARY, letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <th className="overflow-hidden text-caption" style={{ padding: "8px 6px 8px 12px", textAlign: "left", fontWeight: 700, color: COLOR_PRIMARY, letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               Category
             </th>
             {[
@@ -800,13 +781,12 @@ function ResponseProbabilityTable({
                   padding: hi === 2 ? "8px 12px 8px 6px" : "8px 6px",
                   textAlign: "left",
                   fontWeight: 700,
-                  fontSize: "clamp(7px, 0.8vw, 13px)",
                   color,
                   letterSpacing: "-0.42px",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                 }}
-                className="overflow-hidden"
+                className="overflow-hidden text-caption"
               >
                 {label}
               </th>
@@ -819,18 +799,17 @@ function ResponseProbabilityTable({
               key={row.category}
               style={{ borderTop: idx > 0 ? "1px solid var(--neutral-80)" : "none" }}
             >
-              <td className="overflow-hidden" style={{ padding: "0 6px 0 12px", fontWeight: 700, fontSize: "clamp(7px, 0.8vw, 12px)", color: "var(--chart-text-axis-value)", letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <td className="overflow-hidden text-body5" style={{ padding: "0 6px 0 12px", fontWeight: 700, color: "var(--chart-text-axis-value)", letterSpacing: "-0.42px", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {row.category}
               </td>
               {[row.strategyA, row.strategyB, row.strategyC].map(
                 ({ text, highlight, color }, ci) => (
                 <td
                   key={ci}
-                  className="overflow-hidden"
+                  className="overflow-hidden text-body5m"
                   style={{
                     padding: ci === 2 ? "0 12px 0 6px" : "0 6px",
-                    fontWeight: highlight ? 700 : 400,
-                    fontSize: "clamp(7px, 0.8vw, 11px)",
+                    fontWeight: highlight ? 700 : 500,
                     color: highlight ? color : COLOR_TABLE_BODY,
                     letterSpacing: "-0.39px",
                     textOverflow: "ellipsis",
@@ -877,9 +856,8 @@ function NonResponderTable({
       {/* 헤더 */}
       <div style={{ padding: "8px 0 0 0" }}>
         <span
+          className="text-body3"
           style={{
-            fontWeight: 700,
-            fontSize: 17,
             color: nameColor,
             letterSpacing: "-0.6px",
             lineHeight: 1.2,
@@ -900,9 +878,9 @@ function NonResponderTable({
               {["Rank", "Feature condition", "Impact score"].map((h, hi) => (
                 <th
                   key={h}
+                  className="text-caption"
                   style={{
                     fontWeight: 700,
-                    fontSize: "clamp(9px, 0.8vw, 13px)",
                     color: COLOR_PRIMARY,
                     textAlign: "left",
                     paddingLeft: hi === 0 ? "16px" : "4px",
@@ -924,9 +902,8 @@ function NonResponderTable({
                 {[f.rank, f.condition, f.score].map((cell, ci) => (
                   <td
                     key={ci}
+                    className="text-body5m"
                     style={{
-                      fontWeight: 400,
-                      fontSize: "clamp(9px, 0.8vw, 12px)",
                       color: COLOR_NEUTRAL_30,
                       padding: "0 4px",
                       paddingLeft: ci === 0 ? "16px" : "4px",
@@ -984,9 +961,8 @@ function EfficacyContent({
           <div className="flex-1 flex items-start" style={{ paddingTop: "4px" }}>
             <div className="flex items-center" style={{ gap: "8px" }}>
               <h3
+                className="text-body2"
                 style={{
-                  fontWeight: 700,
-                  fontSize: "clamp(13px, 1.4vw, 22px)",
                   color: "#fff",
                   letterSpacing: "-0.66px",
                   lineHeight: 1.2,
@@ -1008,10 +984,9 @@ function EfficacyContent({
           {/* 하단 4/4: NNT 텍스트 + 테이블 */}
           <div className="flex flex-col min-h-0" style={{ flex: 4, gap: "6px" }}>
             <p
-              className="shrink-0 flex items-center justify-end"
+              className="shrink-0 flex items-center justify-end text-captionm"
               style={{
                 fontWeight: 400,
-                fontSize: "clamp(10px, 0.9vw, 13px)",
                 color: "rgba(255,255,255,0.75)",
                 letterSpacing: "-0.33px",
                 lineHeight: 1.2,
@@ -1046,9 +1021,8 @@ function EfficacyContent({
           {/* 상단 1/4: 헤더 영역 */}
           <div className="flex-1 flex items-start" style={{ paddingTop: "4px" }}>
             <h3
+              className="text-body2"
               style={{
-                fontWeight: 700,
-                fontSize: "clamp(13px, 1.4vw, 22px)",
                 color: COLOR_PRIMARY,
                 letterSpacing: "-0.66px",
                 lineHeight: 1.2,
@@ -1098,11 +1072,10 @@ function EfficacyContent({
       >
         {/* 시뮬레이션 궤적 차트 카드 (스파게티 플롯) / Simulated Trajectory Chart Card (Spaghetti Plot) */}
         <div
-          className="flex-1 flex flex-col min-w-0 overflow-hidden"
+          className="flex-1 flex flex-col min-w-0 overflow-hidden p-4"
           style={{
             background: "#fff",
             borderRadius: "10px",
-            padding: "16px",
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
@@ -1112,7 +1085,7 @@ function EfficacyContent({
             </h4>
           </div>
           {/* 하단 4/4: 차트 영역 */}
-          <div className="min-h-0" style={{ flex: 4 }}>
+          <div className="min-h-0 mb-[-12px]" style={{ flex: 4 }}>
             {resultViewModel.trajectoryChart.series.length > 0 ? (
               <SpaghettiPlotChart chart={resultViewModel.trajectoryChart} />
             ) : (
@@ -1123,19 +1096,17 @@ function EfficacyContent({
 
         {/* 반사실 비교 차트 카드 (히스토그램) / Counterfactual Comparison Chart Card (Histogram) */}
         <div
-          className="flex-1 flex flex-col min-w-0 overflow-hidden"
+          className="flex-1 flex flex-col min-w-0 overflow-hidden p-4"
           style={{
             background: "#fff",
             borderRadius: "10px",
-            padding: "16px",
           }}
         >
           {/* 상단 1/4: 헤더 영역 */}
           <div className="flex-1 flex flex-col justify-start">
             <h4
+              className="text-body3"
               style={{
-                fontWeight: 700,
-                fontSize: "clamp(12px, 1.2vw, 20px)",
                 color: COLOR_PRIMARY,
                 letterSpacing: "-0.6px",
                 margin: 0,
@@ -1148,7 +1119,7 @@ function EfficacyContent({
             </p>
           </div>
           {/* 하단 4/4: 차트 영역 */}
-          <div className="min-h-0" style={{ flex: 4 }}>
+          <div className="min-h-0 mb-[-12px]" style={{ flex: 4 }}>
             {resultViewModel.counterfactualChart.series.length > 0 ? (
               <HistogramChart chart={resultViewModel.counterfactualChart} />
             ) : (
@@ -1224,7 +1195,7 @@ function AERiskContent({
   safetyTradeoffChart: DrdSafetyTradeoffChartViewModel;
 }) {
   const [selectedAE, setSelectedAE] = useState("");
-
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const aeOptions = aeRiskChart.aeOptions;
   const selectedAESeries =
     selectedAE && aeRiskChart.seriesByAe[selectedAE]
@@ -1263,10 +1234,8 @@ function AERiskContent({
           }}
         >
           <h3
-            className="flex-1 min-h-0"
+            className="flex-1 min-h-0 text-body2"
             style={{
-              fontWeight: 700,
-              fontSize: "clamp(13px, 1.4vw, 22px)",
               color: "#fff",
               letterSpacing: "-0.66px",
               lineHeight: 1.2,
@@ -1295,20 +1264,18 @@ function AERiskContent({
 
         {/* AE Risk 카드 (계단 꺾은선 차트 + 유형 드롭다운) / AE Risk Card (Step Line Chart + AE Type Dropdown) */}
         <div
-          className="flex flex-col min-w-0"
+          className="flex flex-col min-w-0 p-3"
           style={{
             flex: "1 1 48%",
             background: COLOR_PRIMARY,
             borderRadius: "22px",
-            padding: "8px 12px 12px",
             gap: "16px",
           }}
         >
           <div className="flex-1 min-h-0 flex items-start justify-between" style={{ padding: "4px" }}>
             <h3
+              className="text-body2"
               style={{
-                fontWeight: 700,
-                fontSize: "clamp(13px, 1.4vw, 22px)",
                 color: "#fff",
                 letterSpacing: "-0.66px",
                 lineHeight: 1.2,
@@ -1318,13 +1285,69 @@ function AERiskContent({
               AE Risk
             </h3>
             {/* Dropdown */}
-            <DropdownCell
-              value={selectedAE || "Unavailable"}
-              options={aeOptions}
-              onChange={(v) => setSelectedAE(v)}
-              size="s"
-              width={120}
-            />
+            <div className="relative">
+              <div
+                onClick={() => {
+                  if (aeOptions.length > 0) {
+                    setDropdownOpen((value) => !value);
+                  }
+                }}
+                className="flex items-center cursor-pointer select-none"
+                style={{
+                  background: "var(--neutral-95)",
+                  borderRadius: "8px",
+                  padding: "4px 6px 4px 8px",
+                  gap: "2px",
+                  minWidth: "120px",
+                  height: "28px",
+                }}
+              >
+                <span className="flex-1 text-body5m" style={{ color: "var(--neutral-30)" }}>
+                  {selectedAE || "Unavailable"}
+                </span>
+                <img
+                  src={dropdownOpen ? "/icons/disclosure/open-18.svg" : "/icons/disclosure/close-18.svg"}
+                  alt="toggle"
+                  width={18}
+                  height={18}
+                  className="shrink-0"
+                />
+              </div>
+              {dropdownOpen && aeOptions.length > 0 && (
+                <div
+                  className="absolute overflow-hidden"
+                  style={{
+                    top: "calc(100% + 4px)",
+                    right: 0,
+                    background: "#fff",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                    zIndex: 100,
+                    minWidth: "120px",
+                  }}
+                >
+                  {aeOptions.map((opt, idx) => (
+                    <div
+                      key={opt}
+                      onClick={() => { setSelectedAE(opt); setDropdownOpen(false); }}
+                      className="cursor-pointer text-caption"
+                      style={{
+                        padding: "8px 12px",
+                        fontWeight: opt === selectedAE ? 700 : 500,
+                        color: opt === selectedAE ? COLOR_NEUTRAL_30 : COLOR_NEUTRAL_40,
+                        background: "#fff",
+                        whiteSpace: "nowrap",
+                        borderBottom: idx < aeOptions.length - 1 ? "1px solid var(--neutral-80)" : "none",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#f7f7fa"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "#fff"; }}
+                    >
+                      {opt}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div
             className="min-h-0 overflow-hidden"
@@ -1349,20 +1372,18 @@ function AERiskContent({
 
       {/* 하단 행: Non responder Identification (전략별 비반응자 특성 피처 테이블) / Bottom Row: Non-responder Identification Feature Tables per Strategy */}
       <div
-        className="flex flex-col min-h-0"
+        className="flex flex-col min-h-0 p-4"
         style={{
           background: "rgba(255,255,255,0.6)",
           borderRadius: "22px",
-          padding: "8px 12px 12px",
           gap: "24px",
           flex: 2.25,
         }}
       >
         <div>
           <h3
+            className="text-body2"
             style={{
-              fontWeight: 700,
-              fontSize: "clamp(13px, 1.5vw, 24px)",
               color: COLOR_PRIMARY,
               letterSpacing: "-0.72px",
               lineHeight: 1,
@@ -1373,9 +1394,8 @@ function AERiskContent({
           </h3>
           {nonResponderSection.description ? (
             <p
+              className="text-body5m"
               style={{
-                fontWeight: 500,
-                fontSize: "clamp(7px, 0.85vw, 11px)",
                 color: "#313032",
                 letterSpacing: "-0.39px",
                 margin: 0,
@@ -1495,11 +1515,9 @@ function SimulationResultSkeleton({
             }}
           >
             <span
-              className="relative"
+              className="relative text-body1"
               style={{
                 zIndex: 1,
-                fontWeight: 700,
-                fontSize: 24,
                 color: "#262255",
                 letterSpacing: "-1px",
                 lineHeight: 1,
@@ -1549,9 +1567,8 @@ function SimulationResultSkeleton({
         >
           <div className="shrink-0 flex flex-col gap-02" style={{ padding: 6 }}>
             <h2
+              className="text-body1"
               style={{
-                fontWeight: 700,
-                fontSize: 24,
                 color: COLOR_PRIMARY,
                 letterSpacing: "-0.9px",
                 lineHeight: 1,
@@ -1583,13 +1600,12 @@ function SimulationResultSkeleton({
                     key={tab}
                     type="button"
                     onClick={() => onTabChange(tab)}
-                    className="relative border-none cursor-pointer overflow-hidden"
+                    className="relative border-none cursor-pointer overflow-hidden text-body4"
                     style={{
                       height: "36px",
                       padding: "0 clamp(14px, 1.6vw, 24px)",
                       borderRadius: "36px",
                       fontWeight: isActive ? 700 : 500,
-                      fontSize: "clamp(11px, 1vw, 16px)",
                       color: isActive ? "#fff" : COLOR_NEUTRAL_30,
                       letterSpacing: isActive ? "-0.48px" : "-0.36px",
                       background: "transparent",
@@ -1627,7 +1643,7 @@ function SimulationResultSkeleton({
                         padding: "8px 16px 16px",
                       }}
                     >
-                      <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.4vw, 22px)", color: "#fff", letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 0 0" }}>
+                      <h3 className="text-body1" style={{ color: "#fff", letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 0 0" }}>
                         Primary Outcome
                       </h3>
                       <SkeletonBlock height="100%" borderRadius={10} className="flex-1" style={{ marginTop: 8 }} />
@@ -1640,7 +1656,7 @@ function SimulationResultSkeleton({
                         padding: "8px 16px 16px",
                       }}
                     >
-                      <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.4vw, 22px)", color: COLOR_PRIMARY, letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 0 0" }}>
+                      <h3 className="text-body1" style={{ color: COLOR_PRIMARY, letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 0 0" }}>
                         Response Probability
                       </h3>
                       <SkeletonBlock height="100%" borderRadius={10} className="flex-1" style={{ marginTop: 8, background: "#ffffff" }} />
@@ -1667,7 +1683,7 @@ function SimulationResultSkeleton({
                         padding: "16px",
                       }}
                     >
-                      <h4 style={{ fontWeight: 700, fontSize: "clamp(12px, 1.2vw, 20px)", color: COLOR_PRIMARY, letterSpacing: "-0.6px", margin: 0 }}>
+                      <h4 className="text-body2" style={{ color: COLOR_PRIMARY, letterSpacing: "-0.6px", margin: 0 }}>
                         {title}
                       </h4>
                       <SkeletonBlock height="100%" borderRadius={8} className="flex-1" style={{ marginTop: 10, background: "rgba(38,34,85,0.04)" }} />
@@ -1692,7 +1708,7 @@ function SimulationResultSkeleton({
                         padding: "8px 12px 12px",
                       }}
                     >
-                      <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.4vw, 22px)", color: "#fff", letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 4px 0" }}>
+                      <h3 className="text-body1" style={{ color: "#fff", letterSpacing: "-0.66px", lineHeight: 1.2, margin: "4px 4px 0" }}>
                         {title}
                       </h3>
                       <SkeletonBlock height="100%" borderRadius={10} className="flex-1" style={{ marginTop: 16 }} />
@@ -1711,7 +1727,7 @@ function SimulationResultSkeleton({
                   }}
                 >
                   <div>
-                    <h3 style={{ fontWeight: 700, fontSize: "clamp(13px, 1.5vw, 24px)", color: COLOR_PRIMARY, letterSpacing: "-0.72px", lineHeight: 1, margin: 0 }}>
+                    <h3 className="text-body1" style={{ color: COLOR_PRIMARY, letterSpacing: "-0.72px", lineHeight: 1, margin: 0 }}>
                       Non-responder Identification
                     </h3>
                   </div>
@@ -1912,7 +1928,7 @@ function SimulationResultPageContent() {
                     padding: "8px 16px 12px",
                   }}
                 >
-                  <p className="text-caption" style={{ color: COLOR_NEUTRAL_30, margin: "0 0 8px" }}>
+                  <p className="text-caption pt-1 pb-2" style={{ color: COLOR_NEUTRAL_30 }}>
                     Primary Outcome
                   </p>
                   <div style={{ height: "1px", background: "#e5e4e8", marginBottom: "0px" }} />
@@ -2029,13 +2045,12 @@ function SimulationResultPageContent() {
                         key={tab}
                         type="button"
                         onClick={() => setActiveTab(tab)}
-                        className="relative border-none cursor-pointer overflow-hidden"
+                        className="relative border-none cursor-pointer overflow-hidden text-body4"
                         style={{
                           height: "36px",
                           padding: "0 clamp(14px, 1.6vw, 24px)",
                           borderRadius: "36px",
                           fontWeight: isActive ? 700 : 500,
-                          fontSize: "clamp(11px, 1vw, 16px)",
                           color: isActive ? "#fff" : COLOR_NEUTRAL_30,
                           letterSpacing: isActive ? "-0.48px" : "-0.36px",
                           background: "transparent",
@@ -2082,12 +2097,11 @@ function SimulationResultPageContent() {
 
       {/* 시뮬레이션 저장 버튼 영역 / Save Simulation Button Area */}
       {hasDisplayData ? (
-        <div className="shrink-0 flex justify-end" style={{ paddingBottom: "24px" }}>
+        <div className="shrink-0 flex justify-end pr-1" >
           <button
             type="button"
             onClick={() => setShowSaveModal(true)}
             className="btn-tsi btn-tsi-primary"
-            style={{ marginRight: "8px" }}
           >
             Save Simulation
           </button>
@@ -2126,7 +2140,7 @@ function SimulationResultPageContent() {
             {/* 모달 콘텐츠 영역 / Modal Content Area */}
             <div className="relative flex flex-col" style={{ zIndex: 1, gap: "20px" }}>
               {/* 모달 제목 / Modal Title */}
-              <p style={{ fontWeight: 600, fontSize: "18px", color: "#484646", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>
+              <p className="text-body3" style={{ color: "#484646", letterSpacing: "-0.54px", lineHeight: 1.2, margin: 0 }}>
                 Save Simulation
               </p>
 

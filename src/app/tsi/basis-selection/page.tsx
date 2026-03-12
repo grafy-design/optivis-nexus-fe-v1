@@ -135,7 +135,7 @@ function TSIBasisSelectionPageContent() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
       <div
         className="flex flex-col w-full h-full gap-6"
         style={{

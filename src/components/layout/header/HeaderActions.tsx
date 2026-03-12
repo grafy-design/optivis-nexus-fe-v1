@@ -41,53 +41,58 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
       {type === "ats" && (
         <div className="flex items-center gap-4">
           {pathname.includes("/report") ? (
-            <button
+            <GlassBtn
+              width={180}
+              iconSrc="/assets/header/download.svg"
               onClick={() => window.dispatchEvent(new Event("save-report-pdf"))}
-              className="h-12 px-5 bg-[#aaaaad] text-white rounded-[100px] text-body3 hover:opacity-90 transition-opacity flex items-center gap-2"
             >
-              <Image
-                src="/assets/header/download.svg"
-                alt=""
-                width={22}
-                height={22}
-                className="brightness-0 invert"
-              />
               Save as PDF
-            </button>
+            </GlassBtn>
           ) : (
             <button
+              type="button"
               onClick={() => isApplied && router.push(ATS_REPORT_PATH)}
               disabled={!isApplied}
-              className={`px-5 py-2.5 rounded-[100px] text-body3 flex items-center gap-2 transition-opacity ${
-                isApplied
-                  ? "bg-[#262255] text-white hover:opacity-90"
-                  : "bg-[#262255]/40 text-white cursor-not-allowed"
-              }`}
+              className="rounded-[32px] gap-[4px] inline-flex items-center justify-center border-none cursor-pointer shrink-0 transition-colors"
+              style={{
+                width: 164,
+                height: 42,
+                background: !isApplied ? "var(--primary-30)" : "var(--primary-15)",
+                cursor: !isApplied ? "default" : "pointer",
+              }}
+              onMouseEnter={(e) => { if (isApplied) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary-20)"; }}
+              onMouseLeave={(e) => { if (isApplied) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary-15)"; }}
+              onMouseDown={(e) => { if (isApplied) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary-10)"; }}
+              onMouseUp={(e) => { if (isApplied) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary-20)"; }}
             >
-              Make Report
-              <Image src="/assets/simulation/FilePdf.png" alt="PDF" width={24} height={24} />
+              <span className="flex items-center shrink-0">
+                <Image src="/assets/simulation/FilePdf.png" alt="" width={24} height={24} style={{ objectFit: "contain" }} />
+              </span>
+              <span
+                className="text-body4m"
+                style={{ color: "#fff", whiteSpace: "nowrap" }}
+              >
+                Make Report
+              </span>
             </button>
           )}
-          {/* Back/Forward Nav */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() =>
-                router.push(pathname.includes("/report") ? ATS_SIMULATION_PATH : "/")
-              }
-              className="hover:opacity-70 transition-opacity"
-            >
-              <Image src="/assets/simulation/back.png" alt="Back" width={48} height={48} />
-            </button>
-            <button
-              onClick={() => isApplied && router.push(ATS_REPORT_PATH)}
-              disabled={!isApplied}
-              className={`transition-opacity ${
-                isApplied ? "hover:opacity-70" : "opacity-40 cursor-not-allowed"
-              }`}
-            >
-              <Image src="/assets/simulation/front.png" alt="Forward" width={48} height={48} />
-            </button>
-          </div>
+          {/* 뒤로가기 버튼 */}
+          <button
+            onClick={() =>
+              router.push(pathname.includes("/report") ? ATS_SIMULATION_PATH : "/")
+            }
+            className="figma-header-btn-cir w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer hover:opacity-70 transition-opacity"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M19 12H5M5 12L12 19M5 12L12 5"
+                stroke="var(--icon-on-button)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
       )}
 

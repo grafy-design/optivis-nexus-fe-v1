@@ -46,7 +46,7 @@ const packages: Package[] = [
     id: "1",
     title: "Twin Predict",
     description:
-      "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+      "A simulation package that models patient-specific longitudinal outcomes based on baseline patient profiles using digital twin modeling.",
     icon: "/assets/icons/twin-predict.svg",
     selectedIcon: "/assets/icons/twin-predict-selected.svg",
     services: [
@@ -54,7 +54,18 @@ const packages: Package[] = [
         id: "7",
         title: "Conditional Drug Response Prediction",
         description:
-          "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+          "Generates patient-specific longitudinal outcome trajectories under alternative treatment scenarios using digital twin–based predictive simulation derived from an individual patient’s baseline clinical characteristics.",
+        icon: "/assets/icons/twin-predict.svg", // Reusing parent icon temporarily
+        variant: "glass" as const,
+        selectedIcon: "/assets/icons/twin-predict-selected.svg",
+        locked: true,
+        disabled: true,
+      },
+        {
+        id: "9",
+        title: "Twin Outcome Predictor",
+        description:
+          "Predicts patient-specific outcome trajectories using digital twin models derived from baseline clinical characteristics.",
         icon: "/assets/icons/twin-predict.svg", // Reusing parent icon temporarily
         variant: "glass" as const,
         selectedIcon: "/assets/icons/twin-predict-selected.svg",
@@ -75,7 +86,7 @@ const packages: Package[] = [
         id: "4",
         title: "Adaptive Trial Simulation",
         description:
-        "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions."
+        "Derives optimal clinical trial sample size strategies through covariate-adjusted statistical design and digital twin–based outcome simulation."
           ,
         icon: "/assets/icons/adaptive-trial.svg",
         selectedIcon: "/assets/icons/adaptive-trial-selected.svg",
@@ -85,7 +96,7 @@ const packages: Package[] = [
         id: "5",
         title: "Target Subgroup Identification",
         description:
-         "Identifies patient subgroups with high treatment responsiveness in advance to support optimal patient selection for clinical trials.",
+         "Identify patient subgroups associated with a target endpoint using digital twin–based predictive simulation and determine the most influential features explaining outcome heterogeneity through statistical analysis.",
         icon: "/assets/icons/target-subgroup.svg",
         variant: "glass" as const,
       },
@@ -93,7 +104,7 @@ const packages: Package[] = [
         id: "6",
         title: "Drug Response Prediction Dashboard",
         description:
-          "Compares prognosis scenarios by treatment status and presents predicted treatment effects through dashboards.",
+          "Simulates treatment response across alternative scenarios, quantifies sensitivity to key clinical variables, and identifies optimal treatment strategies.",
         icon: "/assets/icons/drug-response.svg",
         selectedIcon: "/assets/icons/drug-response-selected.svg",
         variant: "glass" as const,
@@ -104,26 +115,15 @@ const packages: Package[] = [
     id: "3",
     title: "Virtual Control",
     description:
-      "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
+      "Generates virtual and synthetic control cohorts from digital twin–based prediction model.",
     icon: "/assets/icons/virtual-control.svg",
     selectedIcon: "/assets/icons/virtual-control-selected.svg",
     services: [
       {
         id: "8",
-        title: "External Control Arm Generation",
+        title: "Synthetic Control Arm",
         description:
-          "Generates a synthetic control group based on historical data to compare with the experimental arm, reducing the need for placebo patients.",
-        icon: "/assets/icons/virtual-control.svg", // Reusing parent icon temporarily
-        variant: "glass" as const,
-        selectedIcon: "/assets/icons/virtual-control-selected.svg",
-        locked: true,
-        disabled: true,
-      },
-      {
-        id: "9",
-        title: "Prospective Shadowing & Validation",
-        description:
-          "Analyzes historical clinical trial data to inform current study design and predict potential outcomes.",
+          "Generate synthetic longitudinal data for an individual patient using digital twin–based predictive simulation to model potential clinical trajectories under different treatment scenarios.",
         icon: "/assets/icons/virtual-control.svg", // Reusing parent icon temporarily
         variant: "glass" as const,
         selectedIcon: "/assets/icons/virtual-control-selected.svg",
@@ -192,7 +192,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
     description:
       "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
     imageUrl: "", // Not used for package video
-    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V2/TP(4-3).mp4",
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V3/1.%20TP(high).mp4",
     videoStartOffsetSeconds: 0,
     videoPlaybackRate: 0.8,
     videoScale: 1.02,
@@ -202,7 +202,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
     description:
       "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
     imageUrl: "",
-    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V2/TO(4-3).mp4",
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V3/2.%20TO(high).mp4",
     videoStartOffsetSeconds: 0,
     videoPlaybackRate: 0.8,
     videoScale: 1.02,
@@ -213,7 +213,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
     description:
       "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
     imageUrl: "",
-    videoUrl: "https://pub-797907feee5143c4a0f4f34c25916ee8.r2.dev/oprimed_movie/3-vc.mp4",
+    videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V3/3.%20VC(high).mp4",
   },
 };
 
@@ -252,7 +252,7 @@ export default function HomePage() {
   };
 
   return (
-    <AppLayout scaleMode="none">
+    <AppLayout>
       <div className="flex w-full flex-1 items-stretch min-h-0 gap-1">
         {/* ── 왼쪽: Package (Figma 470/2391 = 19.66%) ── */}
         <div style={{

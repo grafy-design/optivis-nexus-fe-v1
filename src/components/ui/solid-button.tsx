@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import Image from "next/image";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // 버튼의 종류와 스타일 타입 정의
 export type ButtonVariant = 
@@ -57,8 +57,20 @@ export default function SolidButton({
   className,
   ...props
 }: ButtonProps) {
+  // 1470px 이하 반응형 감지
+  const [isSmall, setIsSmall] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1470px)");
+    setIsSmall(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsSmall(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
   // 실제 렌더링에 사용할 픽스된 사이즈 값들
-  const normalizedSize = (size === "lg" ? "L" : size === "md" ? "m" : size === "sm" ? "s" : size) as "L" | "m" | "s";
+  const baseSize = (size === "lg" ? "L" : size === "md" ? "m" : size === "sm" ? "s" : size) as "L" | "m" | "s";
+  // 1470px 이하: 한 단계 축소 (L→m, m→s, s→s)
+  const normalizedSize = isSmall ? (baseSize === "L" ? "m" : "s") : baseSize;
 
   const isIconOnly = !children && !!icon;
   const hasBoth = !!children && !!icon;
@@ -79,7 +91,7 @@ export default function SolidButton({
   const sizeBaseClasses = {
     L: isIconOnly ? "w-10 h-10" : "h-10 text-body3",
     m: isIconOnly ? "w-9 h-9" : "h-9 text-body4",
-    s: isIconOnly ? "w-6 h-6" : "h-6 text-body5", // typo map might differ
+    s: isIconOnly ? "w-7 h-7" : "h-7 text-body5",
   };
 
   // 패딩 로직: 텍스트+아이콘 여부에 따라 달라짐

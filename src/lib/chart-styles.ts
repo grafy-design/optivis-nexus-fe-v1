@@ -235,6 +235,19 @@ export const tooltipBase = {
   },
 } as const;
 
+/** axisPointer 라벨 공통 스타일 (배경 없음, neutral-50 텍스트) */
+const axisPointerLabelBase = {
+  show: true,
+  backgroundColor: "transparent",
+  color: CHART_COLORS.NEUTRAL_50,
+  fontFamily: CHART_FONT.familyShort,
+  fontSize: 10,
+  fontWeight: 500,
+  borderWidth: 0,
+  shadowBlur: 0,
+  padding: [4, 6],
+} as const;
+
 /** axis trigger + shadow axisPointer (바 차트용) */
 export const tooltipAxisShadow = {
   ...tooltipBase,
@@ -243,6 +256,7 @@ export const tooltipAxisShadow = {
     type: "shadow" as const,
     triggerEmphasis: false,
     z: -1,
+    label: axisPointerLabelBase,
   },
 };
 
@@ -254,6 +268,7 @@ export const tooltipAxisShadowLight = {
     type: "shadow" as const,
     z: -1,
     shadowStyle: { color: "rgba(150,150,150,0.08)" },
+    label: axisPointerLabelBase,
   },
   confine: true,
 };
@@ -266,6 +281,7 @@ export const tooltipAxisCross = {
     type: "cross" as const,
     lineStyle: { color: CHART_COLORS.AXIS_LINE, type: "dashed" as const },
     crossStyle: { color: CHART_COLORS.AXIS_LINE, type: "dashed" as const },
+    label: axisPointerLabelBase,
   },
 };
 

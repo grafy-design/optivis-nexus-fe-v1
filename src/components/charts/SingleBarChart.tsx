@@ -9,6 +9,7 @@ interface SingleBarChartProps {
   color: string;
   height?: string;
   formatter?: (value: number) => string;
+  size?: "s" | "m";
 }
 
 export function SingleBarChart({
@@ -17,7 +18,11 @@ export function SingleBarChart({
   color,
   height = "100%",
   formatter = (val) => String(val),
+  size = "s",
 }: SingleBarChartProps) {
+  const fontSize = size === "m" ? 20 : 10;
+  const fontWeight = size === "m" ? 600 : 500;
+  const labelOffset: [number, number] = size === "m" ? [0, 6] : [0, 4];
   const commonOption = {
     grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
     xAxis: { show: false, type: 'category' as const, data: [''] },
@@ -39,11 +44,12 @@ export function SingleBarChart({
             label: {
               show: true,
               position: 'insideTop' as const,
+              offset: labelOffset,
               formatter: formatter(value),
-              color: COMPARISON_COLORS.label,
-              fontSize: 19.5,
-              fontWeight: 590,
-              letterSpacing: -0.585,
+              fontFamily: 'Inter, sans-serif',
+              color: '#FFFFFF',
+              fontSize,
+              fontWeight,
             },
           },
         ],

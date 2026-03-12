@@ -7,11 +7,14 @@ import { createPortal } from "react-dom";
 const SIZE_CONFIG = {
   s: {
     triggerHeight: 28,
+    smallTriggerHeight: 24,
     triggerPaddingLeft: 8,
     triggerPaddingRight: 6,
     fontSize: 13,
+    smallFontSize: 11,
     letterSpacing: "-0.52px",
     iconSize: 16,
+    smallIconSize: 14,
     menuPadding: 6,
     menuMaxHeight: 180,
     optionHeight: 28,
@@ -20,11 +23,14 @@ const SIZE_CONFIG = {
   },
   sm: {
     triggerHeight: 28,
+    smallTriggerHeight: 24,
     triggerPaddingLeft: 8,
     triggerPaddingRight: 6,
     fontSize: 13,
+    smallFontSize: 11,
     letterSpacing: "-0.52px",
     iconSize: 16,
+    smallIconSize: 14,
     menuPadding: 6,
     menuMaxHeight: 180,
     optionHeight: 28,
@@ -33,11 +39,14 @@ const SIZE_CONFIG = {
   },
   md: {
     triggerHeight: 36,
+    smallTriggerHeight: 30,
     triggerPaddingLeft: 12,
     triggerPaddingRight: 8,
     fontSize: 15,
+    smallFontSize: 13,
     letterSpacing: "-0.6px",
     iconSize: 18,
+    smallIconSize: 16,
     menuPadding: 8,
     menuMaxHeight: 220,
     optionHeight: 36,
@@ -46,11 +55,14 @@ const SIZE_CONFIG = {
   },
   l: {
     triggerHeight: 36,
+    smallTriggerHeight: 30,
     triggerPaddingLeft: 12,
     triggerPaddingRight: 8,
     fontSize: 15,
+    smallFontSize: 13,
     letterSpacing: "-0.6px",
     iconSize: 18,
+    smallIconSize: 16,
     menuPadding: 8,
     menuMaxHeight: 220,
     optionHeight: 36,
@@ -59,11 +71,14 @@ const SIZE_CONFIG = {
   },
   lg: {
     triggerHeight: 44,
+    smallTriggerHeight: 36,
     triggerPaddingLeft: 16,
     triggerPaddingRight: 12,
     fontSize: 17,
+    smallFontSize: 15,
     letterSpacing: "-0.68px",
     iconSize: 20,
+    smallIconSize: 18,
     menuPadding: 10,
     menuMaxHeight: 280,
     optionHeight: 44,
@@ -83,6 +98,10 @@ interface DropdownCellProps {
   onChange?: (v: string) => void;
   size?: DropdownCellSize;
   className?: string;
+  /** 트리거 우측 커스텀 아이콘 (기본 disclosure 아이콘 대신 표시) */
+  iconPath?: string;
+  iconWidth?: number;
+  iconHeight?: number;
 }
 
 /**
@@ -99,9 +118,27 @@ export default function DropdownCell({
   onChange,
   size = "md",
   className,
+  iconPath,
+  iconWidth,
+  iconHeight,
 }: DropdownCellProps) {
-  const s = SIZE_CONFIG[size];
+  const sizeConfig = SIZE_CONFIG[size];
+  const [isSmall, setIsSmall] = useState(false);
   const [open, setOpen] = useState(false);
+
+  // 1470px 이하 반응형 감지
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 1470px)");
+    setIsSmall(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsSmall(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  const triggerHeight = isSmall ? sizeConfig.smallTriggerHeight : sizeConfig.triggerHeight;
+  const fontSize = isSmall ? sizeConfig.smallFontSize : sizeConfig.fontSize;
+  const iconSize = isSmall ? sizeConfig.smallIconSize : sizeConfig.iconSize;
+  const s = sizeConfig;
   const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number }>({
     top: 0,
     left: 0,
@@ -148,7 +185,7 @@ export default function DropdownCell({
         className="rounded-[8px] gap-1"
         style={{
           width: "100%",
-          height: s.triggerHeight,
+          height: triggerHeight,
           background: "var(--neutral-95)",
           display: "flex",
           alignItems: "center",
@@ -162,10 +199,10 @@ export default function DropdownCell({
           style={{
             flex: 1,
             fontWeight: 500,
-            fontSize: s.fontSize,
+            fontSize,
             color: placeholder ? "var(--text-disabled)" : "var(--text-primary)",
             letterSpacing: s.letterSpacing,
-            lineHeight: `${s.triggerHeight}px`,
+            lineHeight: `${triggerHeight}px`,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -177,13 +214,15 @@ export default function DropdownCell({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={
-            open
-              ? "/icons/disclosure/open-18.svg"
-              : "/icons/disclosure/close-18.svg"
+            iconPath
+              ? iconPath
+              : open
+                ? "/icons/disclosure/open-18.svg"
+                : "/icons/disclosure/close-18.svg"
           }
           alt=""
-          width={s.iconSize}
-          height={s.iconSize}
+          width={iconWidth ?? iconSize}
+          height={iconHeight ?? iconSize}
           style={{ flexShrink: 0, display: "block" }}
         />
       </div>
