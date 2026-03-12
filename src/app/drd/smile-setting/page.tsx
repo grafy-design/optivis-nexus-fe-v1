@@ -753,7 +753,7 @@ export default function SmileSettingPage() {
 
 
   return (
-    <AppLayout headerType="drd" drdStep={2} scaleMode="none">
+    <AppLayout headerType="drd" drdStep={2}>
       
       <div className="flex flex-col h-full gap-6">
         {/* 페이지 타이틀 */}
@@ -1085,7 +1085,7 @@ export default function SmileSettingPage() {
             </div>
 
             {/* 하단 버튼 */}
-            <div className="shrink-0 flex flex-row justify-end gap-3 items-center">
+            <div className="shrink-0 flex flex-row justify-end gap-3 items-center pr-0.5">
               <button
                 onClick={() => router.push("/drd/simulation-setting")}
                 className="btn-tsi btn-tsi-secondary"

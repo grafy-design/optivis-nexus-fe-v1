@@ -438,7 +438,7 @@ export default function SimulationSettingPage() {
   ], [simSmilesCompleted, simCondCompleted]);
 
   return (
-    <AppLayout headerType="drd" drdStep={2} scaleMode="none">
+    <AppLayout headerType="drd" drdStep={2}>
       <div className="flex flex-col h-full w-full overflow-hidden gap-6">
 
         {/* ── TOP: Title ───────────────────────────── */}
@@ -504,7 +504,7 @@ export default function SimulationSettingPage() {
             </div>
 
             {/* Bottom buttons */}
-            <div className="shrink-0 flex justify-end items-center gap-3">
+            <div className="shrink-0 flex justify-end items-center gap-3 pr-0.5">
               <button
                 disabled={!simCondCompleted}
                 className="btn-tsi btn-tsi-secondary"

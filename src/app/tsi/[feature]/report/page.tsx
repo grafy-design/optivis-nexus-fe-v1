@@ -684,7 +684,7 @@ function TSIReportPageContent() {
 
   if (!hasRequiredParams) {
     return (
-      <AppLayout headerType="tsi" scaleMode="fit">
+      <AppLayout headerType="tsi">
         <div className="flex flex-col w-full gap-3">
           {/* ── 필수 파라미터 누락 에러 / Missing required params error ── */}
           <div className="rounded-[20px] border border-red-200 bg-red-50 p-6 text-red-700">
@@ -697,7 +697,7 @@ function TSIReportPageContent() {
 
   if (isLoading) {
     return (
-      <AppLayout headerType="tsi" scaleMode="fit">
+      <AppLayout headerType="tsi">
         <Loading isLoading />
         <div className="flex flex-col w-full gap-3">
           {/* ── 로딩 중 메시지 / Loading message ── */}
@@ -711,7 +711,7 @@ function TSIReportPageContent() {
 
   if (fetchError) {
     return (
-      <AppLayout headerType="tsi" scaleMode="fit">
+      <AppLayout headerType="tsi">
         <div className="flex flex-col w-full gap-3">
           {/* ── API 조회 에러 메시지 / API fetch error message ── */}
           <div className="rounded-[20px] border border-red-200 bg-red-50 p-6 text-red-700">
@@ -723,7 +723,7 @@ function TSIReportPageContent() {
   }
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
       <div
         className="flex flex-col w-full overflow-y-auto gap-6"
       >
@@ -1043,7 +1043,7 @@ function TSIReportPageContent() {
         {/* ── 2 닫기 / End report glass card ── */}
 
         {/* ── 3. 하단 CTA 버튼 / Bottom CTA buttons ── */}
-        <div className="flex items-center justify-end flex-shrink-0 pr-[12px] pb-[24px]">
+        <div className="flex items-center justify-end flex-shrink-0 pr-0.5 pb-[24px]">
           <div className="flex gap-4">
             <button
               type="button"

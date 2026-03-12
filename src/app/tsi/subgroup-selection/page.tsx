@@ -1154,7 +1154,7 @@ function TSISubgroupSelectionPageContent() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
       <Loading isLoading={isLoading} />
       <div
         className="flex flex-col w-full h-full gap-6"
@@ -1933,7 +1933,7 @@ function TSISubgroupSelectionPageContent() {
             </div>
           </div>
           {/* ── 2-B. 하단 버튼 영역 / Bottom button area ── */}
-          <div className="flex flex-shrink-0 items-center justify-end pr-1 gap-3 ">
+          <div className="flex flex-shrink-0 items-center justify-end pr-0.5 gap-3 ">
             <button
               type="button"
               className="btn-tsi btn-tsi-secondary"

@@ -205,7 +205,7 @@ export default function MedicalHistoryPage() {
   const isConfirmEnabled = isBaselineSelected && isControlSelected;
 
   return (
-    <AppLayout headerType="drd" drdStep={1} scaleMode="none">
+    <AppLayout headerType="drd" drdStep={1}>
       <div className="flex flex-col h-full gap-6">
         {/* {타이틀 영역/Title Area} */}
         {/* ── TOP: Title ───────────────────────────── */}
@@ -344,7 +344,7 @@ export default function MedicalHistoryPage() {
 
             {/* {하단 버튼/Bottom Buttons} */}
             {/* 하단 버튼 */}
-             <div className="shrink-0 flex justify-end gap-[12px]">
+             <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
               <button
                 onClick={() => router.push("/drd/default-setting")}
                 className="btn-tsi btn-tsi-secondary"

@@ -91,7 +91,7 @@ export default function TSIPatientsSummaryPage() {
   const displayConversionPercent = patientSummaryData?.conversion_percent || 0;
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
 
       {/* ── 외부 래퍼: 좌우 마진, 하단 패딩 / Outer wrapper with horizontal margins */}
       <div
@@ -158,8 +158,7 @@ export default function TSIPatientsSummaryPage() {
 
             {/* ── 2-2. 하단 버튼 영역 / Bottom action buttons ──────────────── */}
             <div
-              className="flex flex-shrink-0 items-center justify-end gap-3"
-              style={{ paddingRight: 8 }}
+              className="flex flex-shrink-0 items-center justify-end gap-3 pr-0.5"
             >
               {/* Save Simulation 버튼 → 모달 열기 / Opens save modal */}
               <button

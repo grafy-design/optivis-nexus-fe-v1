@@ -408,7 +408,7 @@ export default function TSIFilterPage() {
   );
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
 
       {/* ── 외부 래퍼 / Outer wrapper ──────────────────────────────────── */}
       <div
@@ -1010,7 +1010,7 @@ export default function TSIFilterPage() {
           {/* ── 좌우 분할 레이아웃 닫기 / End two-column layout ── */}
 
           {/* ── 2-C. 하단 버튼 영역 / Bottom action buttons ─────────── */}
-          <div className="shrink-0 flex justify-end gap-[12px]">
+          <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
             {/* Cancel 버튼 → 이전 페이지 / Cancel: go back */}
             <button
               onClick={() => router.back()}

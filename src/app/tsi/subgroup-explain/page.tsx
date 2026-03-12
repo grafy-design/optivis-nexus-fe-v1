@@ -278,7 +278,7 @@ function TSISubgroupExplainPageContent() {
   const featureList = expectedTherapeuticGainData.map(({ feature_name }) => feature_name);
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
       <Loading isLoading={isLoading} />
 
       {/* ── 외부 래퍼 / Outer wrapper ──────────────────────────────────── */}
@@ -571,7 +571,7 @@ function TSISubgroupExplainPageContent() {
 
           {/* ── 2-B. 하단 버튼 영역 / Bottom action buttons ─────────────── */}
           <div
-            className="flex flex-shrink-0 items-center justify-end gap-3 pr-1"
+            className="flex flex-shrink-0 items-center justify-end gap-3 pr-0.5"
           >
             <SolidButton type="button" variant="secondary" size="L">
               Save Progress

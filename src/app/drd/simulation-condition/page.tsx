@@ -686,7 +686,7 @@ export default function SimulationConditionPage() {
     drugList.some(d => d.checks.some(checked => checked));
 
   return (
-    <AppLayout headerType="drd" drdStep={2} scaleMode="none">
+    <AppLayout headerType="drd" drdStep={2}>
       {/* Unit 드롭다운 — fixed 포지션 (클리핑 방지) */}
       {openUnitIdx !== null && unitDropdownPos && (
         <>
@@ -1165,7 +1165,7 @@ export default function SimulationConditionPage() {
             </div>
 
             {/* 하단 버튼 */}
-            <div className="shrink-0 flex justify-end gap-[12px]">
+            <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
               <button
                 onClick={() => router.push("/drd/simulation-setting")}
                 className="btn-tsi btn-tsi-secondary"

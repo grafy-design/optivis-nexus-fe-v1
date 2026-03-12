@@ -649,7 +649,7 @@ export default function DefaultSettingPage() {
   };
 
   return (
-    <AppLayout headerType="drd" drdStep={1} scaleMode="none">
+    <AppLayout headerType="drd" drdStep={1}>
       <Loading isLoading={isLoading} />
       <div className="flex flex-col h-full gap-6">
         {/* {타이틀 영역/Title Area} */}
@@ -700,7 +700,7 @@ export default function DefaultSettingPage() {
 
           {/* {하단 버튼/Bottom Buttons} */}
           {/* 하단 버튼 */}
-          <div className="shrink-0 flex justify-end gap-3 items-center">
+          <div className="shrink-0 flex justify-end gap-3 items-center pr-0.5">
             <button disabled={!anyCompleted} onClick={() => anyCompleted && setShowSaveModal(true)} className="btn-tsi btn-tsi-secondary" style={{ paddingLeft: 28, paddingRight: 28 }}>
               Save Progress
             </button>

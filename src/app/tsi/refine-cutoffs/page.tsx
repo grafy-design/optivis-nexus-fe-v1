@@ -1085,7 +1085,7 @@ function TSIRefineCutoffsPageContent() {
   };
 
   return (
-    <AppLayout headerType="tsi" scaleMode="fit">
+    <AppLayout headerType="tsi">
       <Loading isLoading={isLoading} />
 
       {/* 숫자 입력 스피너 숨김 CSS / Hide number input spinners */}
@@ -1469,7 +1469,7 @@ function TSIRefineCutoffsPageContent() {
               {/* ── 스크롤 컨테이너 닫기 / End scroll container ── */}
 
               {/* ── 하단 버튼 영역 / Bottom action buttons ──────────────── */}
-              <div className="flex flex-shrink-0 justify-end gap-2">
+              <div className="flex flex-shrink-0 justify-end gap-2 pr-0.5">
                 {/* Save 버튼 / Save button */}
                 <button
                   onClick={handleOnSaveRefineCutoff}

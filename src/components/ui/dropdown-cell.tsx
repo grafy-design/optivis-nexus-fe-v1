@@ -213,48 +213,55 @@ export default function DropdownCell({
               boxShadow: "0px 4px 16px rgba(0,0,0,0.10)",
             }}
           >
-            {options.map((opt, idx) => (
-              <React.Fragment key={opt}>
-                {idx > 0 && (
-                  <div style={{ height: 1, background: "var(--text-disabled)", flexShrink: 0 }} />
-                )}
-                <button
-                  onMouseDown={() => {
-                    onChange?.(opt);
-                    setOpen(false);
-                  }}
-                  className="rounded-[4px]"
-                  style={{
-                    height: s.optionHeight,
-                    display: "flex",
-                    alignItems: "center",
-                    paddingLeft: s.optionPaddingX,
-                    paddingRight: s.optionPaddingX,
-                    paddingTop: s.optionPaddingY,
-                    paddingBottom: s.optionPaddingY,
-                    fontWeight: 500,
-                    fontSize: s.fontSize,
-                    color: "var(--text-secondary)",
-                    letterSpacing: s.letterSpacing,
-                    lineHeight: 1.18,
-                    cursor: "pointer",
-                    background: "transparent",
-                    border: "none",
-                    width: "100%",
-                    textAlign: "left",
-                    flexShrink: 0,
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.05)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-                  }}
-                >
-                  {opt}
-                </button>
-              </React.Fragment>
-            ))}
+            {options.map((opt, idx) => {
+              const isActive = opt === value;
+              return (
+                <React.Fragment key={opt}>
+                  {idx > 0 && (
+                    <div style={{ height: 1, background: "var(--text-disabled)", flexShrink: 0 }} />
+                  )}
+                  <button
+                    onMouseDown={() => {
+                      onChange?.(opt);
+                      setOpen(false);
+                    }}
+                    className="rounded-[4px]"
+                    style={{
+                      height: s.optionHeight,
+                      display: "flex",
+                      alignItems: "center",
+                      paddingLeft: s.optionPaddingX,
+                      paddingRight: s.optionPaddingX,
+                      paddingTop: s.optionPaddingY,
+                      paddingBottom: s.optionPaddingY,
+                      fontWeight: 500,
+                      fontSize: s.fontSize,
+                      color: isActive ? "var(--primary-30)" : "var(--text-secondary)",
+                      letterSpacing: s.letterSpacing,
+                      lineHeight: 1.18,
+                      cursor: "pointer",
+                      background: isActive ? "var(--primary-90)" : "transparent",
+                      border: "none",
+                      width: "100%",
+                      textAlign: "left",
+                      flexShrink: 0,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) {
+                        (e.currentTarget as HTMLButtonElement).style.background = "var(--primary-90)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) {
+                        (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                      }
+                    }}
+                  >
+                    {opt}
+                  </button>
+                </React.Fragment>
+              );
+            })}
           </div>,
           document.body
         )}
