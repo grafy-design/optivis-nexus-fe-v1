@@ -45,54 +45,6 @@
   font-weight: 500 !important; /* Inter Medium */
 }
 
-/* ── TSI 공통 버튼 ──────────────────────────────────────────── */
-.btn-tsi {
-  height: 40px;
-  padding-left: 24px;
-  padding-right: 24px;
-  border-radius: 36px;
-  border: none;
-  cursor: pointer;
-  font-family: "Inter", sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-inverted);
-  letter-spacing: -0.45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s ease;
-  user-select: none;
-}
-@media (max-width: 1470px) {
-  .btn-tsi {
-    height: 36px;
-  }
-}
-
-/* Primary: #F06600 → hover -2단계 → active -4단계 */
-.btn-tsi-primary            { background-color: #F06600; }
-.btn-tsi-primary:hover      { background-color: #D45A00; }
-.btn-tsi-primary:active     { background-color: #B84E00; }
-
-/* Secondary (gray): #787776 → hover → active */
-.btn-tsi-secondary          { background-color: #787776; }
-.btn-tsi-secondary:hover    { background-color: #636161; }
-.btn-tsi-secondary:active   { background-color: #4F4E4E; }
-
-/* Purple: #3A11D8 → hover → active */
-.btn-tsi-purple             { background-color: #3A11D8; }
-.btn-tsi-purple:hover       { background-color: #2E0DAD; }
-.btn-tsi-purple:active      { background-color: #230A82; }
-
-/* Purple Light: #8F8AC4 → hover → active */
-.btn-tsi-purple-light       { background-color: #8F8AC4; }
-.btn-tsi-purple-light:hover { background-color: #7B76B0; }
-.btn-tsi-purple-light:active{ background-color: #68639D; }
-
-/* Disabled (공통) */
-.btn-tsi:disabled           { background-color: #C6C5C9; cursor: not-allowed; }
-
 /* ────────────────────────────────────────────────────────────── */
 
 /* ── 글래스 원형 아이콘 버튼 오버레이 ────────────────────────── */
@@ -864,7 +816,7 @@
   .figma-home-panel-left,
   .figma-home-panel-middle,
   .figma-home-panel-right {
-    padding: 0.8rem 1rem 1.35rem;
+    padding: 0.75rem 0.8rem 1.05rem;
   }
 }
 
@@ -943,39 +895,39 @@
   .nexus-page .p-2\.5 { padding: 7px; }
   .nexus-page .p-2   { padding: 5px; }
 
-  /* ── px ── */
-  .nexus-page .px-16 { padding-left: 43px; padding-right: 43px; }
-  .nexus-page .px-14 { padding-left: 37px; padding-right: 37px; }
-  .nexus-page .px-12 { padding-left: 32px; padding-right: 32px; }
-  .nexus-page .px-11 { padding-left: 29px; padding-right: 29px; }
-  .nexus-page .px-10 { padding-left: 27px; padding-right: 27px; }
-  .nexus-page .px-9  { padding-left: 24px; padding-right: 24px; }
-  .nexus-page .px-8  { padding-left: 21px; padding-right: 21px; }
-  .nexus-page .px-7  { padding-left: 19px; padding-right: 19px; }
-  .nexus-page .px-6  { padding-left: 16px; padding-right: 16px; }
-  .nexus-page .px-5  { padding-left: 13px; padding-right: 13px; }
-  .nexus-page .px-4  { padding-left: 11px; padding-right: 11px; }
-  .nexus-page .px-3\.5 { padding-left: 9px; padding-right: 9px; }
-  .nexus-page .px-3  { padding-left: 8px; padding-right: 8px; }
-  .nexus-page .px-2\.5 { padding-left: 7px; padding-right: 7px; }
-  .nexus-page .px-2  { padding-left: 5px; padding-right: 5px; }
+  /* ── px (Tailwind v4: padding-inline) ── */
+  .nexus-page .px-16 { padding-inline: 43px; }
+  .nexus-page .px-14 { padding-inline: 37px; }
+  .nexus-page .px-12 { padding-inline: 32px; }
+  .nexus-page .px-11 { padding-inline: 29px; }
+  .nexus-page .px-10 { padding-inline: 27px; }
+  .nexus-page .px-9  { padding-inline: 24px; }
+  .nexus-page .px-8  { padding-inline: 21px; }
+  .nexus-page .px-7  { padding-inline: 19px; }
+  .nexus-page .px-6  { padding-inline: 16px; }
+  .nexus-page .px-5  { padding-inline: 13px; }
+  .nexus-page .px-4  { padding-inline: 11px; }
+  .nexus-page .px-3\.5 { padding-inline: 9px; }
+  .nexus-page .px-3  { padding-inline: 8px; }
+  .nexus-page .px-2\.5 { padding-inline: 7px; }
+  .nexus-page .px-2  { padding-inline: 5px; }
 
-  /* ── py ── */
-  .nexus-page .py-16 { padding-top: 43px; padding-bottom: 43px; }
-  .nexus-page .py-14 { padding-top: 37px; padding-bottom: 37px; }
-  .nexus-page .py-12 { padding-top: 32px; padding-bottom: 32px; }
-  .nexus-page .py-11 { padding-top: 29px; padding-bottom: 29px; }
-  .nexus-page .py-10 { padding-top: 27px; padding-bottom: 27px; }
-  .nexus-page .py-9  { padding-top: 24px; padding-bottom: 24px; }
-  .nexus-page .py-8  { padding-top: 21px; padding-bottom: 21px; }
-  .nexus-page .py-7  { padding-top: 19px; padding-bottom: 19px; }
-  .nexus-page .py-6  { padding-top: 16px; padding-bottom: 16px; }
-  .nexus-page .py-5  { padding-top: 13px; padding-bottom: 13px; }
-  .nexus-page .py-4  { padding-top: 11px; padding-bottom: 11px; }
-  .nexus-page .py-3\.5 { padding-top: 9px; padding-bottom: 9px; }
-  .nexus-page .py-3  { padding-top: 8px; padding-bottom: 8px; }
-  .nexus-page .py-2\.5 { padding-top: 7px; padding-bottom: 7px; }
-  .nexus-page .py-2  { padding-top: 5px; padding-bottom: 5px; }
+  /* ── py (Tailwind v4: padding-block) ── */
+  .nexus-page .py-16 { padding-block: 43px; }
+  .nexus-page .py-14 { padding-block: 37px; }
+  .nexus-page .py-12 { padding-block: 32px; }
+  .nexus-page .py-11 { padding-block: 29px; }
+  .nexus-page .py-10 { padding-block: 27px; }
+  .nexus-page .py-9  { padding-block: 24px; }
+  .nexus-page .py-8  { padding-block: 21px; }
+  .nexus-page .py-7  { padding-block: 19px; }
+  .nexus-page .py-6  { padding-block: 16px; }
+  .nexus-page .py-5  { padding-block: 13px; }
+  .nexus-page .py-4  { padding-block: 11px; }
+  .nexus-page .py-3\.5 { padding-block: 9px; }
+  .nexus-page .py-3  { padding-block: 8px; }
+  .nexus-page .py-2\.5 { padding-block: 7px; }
+  .nexus-page .py-2  { padding-block: 5px; }
 
   /* ── pt ── */
   .nexus-page .pt-16 { padding-top: 43px; }
@@ -1096,6 +1048,35 @@
   margin-left: -4px;
   margin-right: -4px;
   margin-bottom: -6px;
+}
+
+/* 글래스 버튼 공통 hover/active 상태 */
+.figma-header-btn-pil:hover::before,
+.figma-header-btn-cir:hover {
+  filter: brightness(0.92);
+}
+.figma-header-btn-pil:active::before,
+.figma-header-btn-cir:active {
+  filter: brightness(0.85);
+}
+.figma-header-btn-pil:hover,
+.figma-header-btn-cir:hover {
+  opacity: 1 !important;
+}
+.figma-header-btn-pil:active,
+.figma-header-btn-cir:active {
+  opacity: 1 !important;
+  transform: scale(0.97);
+}
+
+/* GlassBtn 반응형 width */
+.glass-btn-responsive {
+  width: var(--glass-btn-w, auto);
+}
+@media (max-width: 1470px) {
+  .glass-btn-responsive {
+    width: var(--glass-btn-w-sm, auto);
+  }
 }
 
 @layer utilities {

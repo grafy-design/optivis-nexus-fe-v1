@@ -27,7 +27,7 @@ const SIZE_CONFIG = {
   m: {
     // 헤더 (patients-summary 테이블 기준)
     headerRadius: "rounded-[12px]",
-    headerPadding: "pt-[8px] pb-1.5 px-[12px]",
+    headerPadding: "pt-[8px] pb-1.5 px-6",
     headerBg: "bg-table-header-background",
     headerText: "text-body3m",
     headerSubText: "text-small1",

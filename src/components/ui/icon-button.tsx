@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Button, { ButtonSize } from "./button";
+import Button, { ButtonSize } from "./solid-button";
 
 /**
  * IconButton은 이제 통합된 Button 컴포넌트를 기반으로 동작합니다.

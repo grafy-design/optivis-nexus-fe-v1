@@ -71,6 +71,7 @@ import {
   tooltipAxisShadow,
   tooltipItem,
 } from "@/lib/chart-styles";
+import SolidButton from "@/components/ui/solid-button";
 
 // ── 차트 컴포넌트 (인라인) ────────────────────────────────────────────────────
 
@@ -1549,14 +1550,13 @@ function SimulationResultSkeleton({
             </div>
 
             <div className="shrink-0 flex justify-end">
-              <button
-                type="button"
+              <SolidButton
               onClick={onEditCondition}
-              className="btn-tsi btn-tsi-primary"
-              style={{ width: "200px" }}
+              variant="primary" size="L"
+              className="w-[200px]"
             >
               Edit Condition
-            </button>
+            </SolidButton>
           </div>
         </div>
 
@@ -1985,16 +1985,15 @@ function SimulationResultPageContent() {
 
               {/* 조건 편집 이동 버튼 / Edit Condition Navigation Button */}
               <div className="shrink-0 flex justify-end">
-                <button
-                  type="button"
+                <SolidButton
                   onClick={() =>
                     router.push(buildDrdPathWithContext("/drd/default-setting"))
                   }
-                  className="btn-tsi btn-tsi-primary"
-                  style={{ width: "200px" }}
+                  variant="primary" size="L"
+                  className="w-[200px]"
                 >
                   Edit Condition
-                </button>
+                </SolidButton>
               </div>
             </div>
 
@@ -2098,13 +2097,12 @@ function SimulationResultPageContent() {
       {/* 시뮬레이션 저장 버튼 영역 / Save Simulation Button Area */}
       {hasDisplayData ? (
         <div className="shrink-0 flex justify-end pr-1" >
-          <button
-            type="button"
+          <SolidButton
             onClick={() => setShowSaveModal(true)}
-            className="btn-tsi btn-tsi-primary"
+            variant="primary" size="L"
           >
             Save Simulation
-          </button>
+          </SolidButton>
         </div>
       ) : null}
 

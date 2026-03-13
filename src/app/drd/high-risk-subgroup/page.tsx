@@ -32,6 +32,7 @@ import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import RadioButton from "@/components/ui/radio-button";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
+import SolidButton from "@/components/ui/solid-button";
 
 /**
  * 아코디언 행 헤더 오른쪽에 표시되는 화살표 아이콘.
@@ -169,9 +170,9 @@ export default function HighRiskSubgroupPage() {
               <h2 className="text-body1 text-[var(--text-header)] m-0">
                 Load Subgroup
               </h2>
-              <button onClick={() => setShowSubgroupModal(true)} className="btn-tsi btn-tsi-primary" style={{ height: 42 }}>
+              <SolidButton onClick={() => setShowSubgroupModal(true)} variant="primary" size="L">
                 Go to Create Subgroup
-              </button>
+              </SolidButton>
             </div>
 
             {/* {테이블 영역/Table Area} */}
@@ -555,18 +556,18 @@ export default function HighRiskSubgroupPage() {
              {/* {하단 버튼/Bottom Buttons} */}
              {/* 하단 버튼 */}
             <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
-              <button
+              <SolidButton
                 onClick={() => router.push("/drd/default-setting")}
-                className="btn-tsi btn-tsi-secondary"
+                variant="secondary" size="L"
               >
                 Cancel
-              </button>
-              <button
+              </SolidButton>
+              <SolidButton
                 onClick={() => { const d = subRowDataMap[selectedSubRow]; if (d) setHighRiskSubgroupData({ selectedSubRow, ...d }); setCompleted("high-risk-subgroup", true); router.push("/drd/default-setting"); }}
-                className="btn-tsi btn-tsi-primary"
+                variant="primary" size="L"
               >
                 Confirm
-              </button>
+              </SolidButton>
             </div>
 
           </div>

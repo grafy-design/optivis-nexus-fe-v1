@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import ReactECharts from "@/components/charts/DynamicECharts";
-import ArrowIcon from "@/components/ui/arrow-icon";
+
 interface FullscreenBarChartModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -65,8 +65,8 @@ export default function FullscreenBarChartModal({
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/80 z-[110]" />
-        <Dialog.Content className="opacity-94 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] w-full max-w-[1664px] h-full max-h-[830px] p-0 border-0 bg-transparent">
+        <Dialog.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110]" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] w-full max-w-[1664px] h-full max-h-[830px] p-0 border-0 bg-transparent">
           <VisuallyHidden.Root>
             <Dialog.Title>{title} Fullscreen Chart</Dialog.Title>
             <Dialog.Description>
@@ -80,28 +80,64 @@ export default function FullscreenBarChartModal({
               src="/assets/simulation/fullscreen-bg.png"
               alt="Fullscreen Background"
               fill
-              className="object-cover"
               priority
+              className="opacity-75"
             />
 
+            {/* Backdrop blur overlay */}
+            <div className="rounded-[36px] absolute inset-0 backdrop-blur-md z-[1]" />
+
             {/* Header Section */}
-            <div className="absolute top-6 left-6 right-6 z-10 flex items-start justify-between">
-              <div className="flex flex-col gap-2">
-                <h2 className="text-neutral-98 text-body1" style={{ letterSpacing: "-0.64px" }}>
+            <div className="absolute top-6 left-6 right-6 z-10 flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-0.5">
+                <h2 className="text-neutral-98 text-body2" style={{ letterSpacing: "-0.64px" }}>
                   {title}
                 </h2>
-                <p className="text-neutral-98 text-body4" style={{ letterSpacing: "-0.6px" }}>
+                <p className="text-neutral-98 text-body5" style={{ letterSpacing: "-0.6px" }}>
                   {subtitle}
                 </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <ArrowIcon
-                    direction={isNegative ? "up" : "down"}
-                    color="#fafafa"
-                    className="w-11 h-11"
-                  />
+                <div className="flex items-center gap-0 mt-1">
+                  {/* 화살표 SVG */}
+                  <svg
+                    width="44"
+                    height="44"
+                    viewBox="0 0 44 44"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="flex-shrink-0"
+                    style={{
+                      transform: isNegative ? "rotate(180deg)" : "none",
+                      transition: "transform 0.2s",
+                    }}
+                  >
+                    <g clipPath="url(#clip0_fullscreen_bar_arrow)">
+                      <path
+                        d="M21.9902 -3.00195L21.9902 40.5039"
+                        stroke="white"
+                        strokeWidth="5"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M39.793 22.7061L21.9951 40.5039L4.19727 22.7061"
+                        stroke="white"
+                        strokeWidth="5"
+                        strokeLinejoin="round"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_fullscreen_bar_arrow">
+                        <rect
+                          width="44"
+                          height="44"
+                          fill="white"
+                          transform="matrix(0 1 1 4.37114e-08 0 0)"
+                        />
+                      </clipPath>
+                    </defs>
+                  </svg>
                   <p
                     className="text-neutral-98"
-                    style={{ fontSize: "60px", fontWeight: 510, letterSpacing: "-1.8px", lineHeight: "60px" }}
+                    style={{ fontSize: "54px", fontWeight: 500, letterSpacing: "-1.8px", lineHeight: "60px" }}
                   >
                     {percentage}
                   </p>
@@ -123,8 +159,8 @@ export default function FullscreenBarChartModal({
             </div>
 
             {/* Chart Section */}
-            <div className="absolute bottom-6 left-6 right-6 top-[180px] z-10">
-              <div className="w-full h-full bg-neutral-95 rounded-[24px] border border-white p-6 flex flex-col">
+            <div className="absolute bottom-6 left-6 right-6 top-[180px] z-10 ">
+              <div className="w-full h-full bg-neutral-100 rounded-[24px] border border-white p-6 flex flex-col gap-6">
                 {/* Legend */}
                 <div className="flex items-center gap-8 mb-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
@@ -148,9 +184,9 @@ export default function FullscreenBarChartModal({
                     option={{
                       grid: {
                         left: 80,
-                        right: 40,
-                        top: 40,
-                        bottom: 80,
+                        right: 8,
+                        top: 8,
+                        bottom: 30,
                         containLabel: false,
                       },
                       xAxis: {
@@ -167,10 +203,10 @@ export default function FullscreenBarChartModal({
                         },
                         axisLabel: {
                           show: true,
-                          fontSize: 19.5,
+                          fontSize: 15,
                           fontWeight: 590,
                           color: "#484646",
-                          fontFamily: "Inter",
+                          fontFamily: "Inter, sans-serif",
                           letterSpacing: -0.78,
                         },
                       },
@@ -180,11 +216,11 @@ export default function FullscreenBarChartModal({
                         nameLocation: "middle",
                         nameGap: 60,
                         nameTextStyle: {
-                          fontSize: 19.5,
+                          fontSize: 15,
                           fontWeight: 590,
                           letterSpacing: -0.78,
-                          color: "#1c1b1c",
-                          fontFamily: "Inter",
+                          color: "#484646",
+                          fontFamily: "Inter, sans-serif",
                         },
                         axisLine: {
                           show: true,
@@ -200,8 +236,9 @@ export default function FullscreenBarChartModal({
                           fontSize: 10,
                           fontWeight: 510,
                           color: "#484646",
-                          fontFamily: "Inter",
+                          fontFamily: "Inter, sans-serif",
                           letterSpacing: -0.2,
+                          margin: "8",
                         },
                         splitLine: {
                           show: true,
@@ -222,7 +259,7 @@ export default function FullscreenBarChartModal({
                                 ? "#f06600"
                                 : "#231f52";
                             },
-                            borderRadius: [9, 9, 9, 9],
+                            borderRadius: [8, 8, 8, 8],
                           },
                           barWidth: "60%",
                           label: {
@@ -235,11 +272,11 @@ export default function FullscreenBarChartModal({
                                 : String(value);
                             },
                             color: "#ffffff",
-                            fontSize: 36,
+                            fontSize: 24,
                             fontWeight: 590,
                             lineHeight: 36,
                             letterSpacing: -0.72,
-                            fontFamily: "Inter",
+                            fontFamily: "Inter, sans-serif",
                           },
                         },
                         // 감소량 표시용 커스텀 shape (클릭 시에만 표시, Optivis에만)

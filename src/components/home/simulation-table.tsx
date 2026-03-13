@@ -230,7 +230,7 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
             {filteredRows.map((row, index) => (
               <div
                 key={row.id}
-                className="flex items-center rounded-[12px] gap-4 min-h-[52px] px-3.5 py-2 cursor-grab border border-[rgba(225,225,225,0.4)]"
+                className="flex items-center rounded-[12px] gap-4 px-3.5 py-2 cursor-grab border border-[rgba(225,225,225,0.4)]"
                 draggable
                 onDragStart={(event) => handleDragStart(row.id, event)}
                 onDragOver={(event) => handleDragOver(row.id, event)}
@@ -251,8 +251,8 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
               >
                 {isATSorTSI ? (
                   <>
-                    <span className="min-w-0 text-caption text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
-                    <span className="min-w-0 overflow-hidden text-caption text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
+                    <span className="min-w-0 text-caption text-[var(--table-text-body)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
+                    <span className="min-w-0 overflow-hidden text-caption text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
                     <span className="min-w-0 overflow-hidden text-captionm text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "165 1 0px" }}>{row.disease}</span>
                     <span className="min-w-0 overflow-hidden text-caption text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
                     <span className="min-w-0 overflow-hidden text-body5m text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "283 1 0px" }}>{row.description}</span>
@@ -260,8 +260,8 @@ export default function SimulationTable({ serviceId, searchQuery, extraRows }: S
                   </>
                 ) : (
                   <>
-                    <span className="min-w-0 text-caption text-[var(--table-text-index-primary)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
-                    <span className="min-w-0 overflow-hidden text-caption text-[var(--table-text-index-primary)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
+                    <span className="min-w-0 text-caption text-[var(--table-text-body)]" style={{ flex: "24 1 0px" }}>{index + 1}</span>
+                    <span className="min-w-0 overflow-hidden text-caption text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "145 1 0px" }}>{row.simulationName}</span>
                     <span className="min-w-0 overflow-hidden text-captionm text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.population ?? "-"}</span>
                     <span className="min-w-0 overflow-hidden text-caption text-[var(--text-header)] whitespace-nowrap text-ellipsis" style={{ flex: "140 1 0px" }}>{row.outcome}</span>
                     <span className="min-w-0 overflow-hidden text-body5m text-[var(--table-text-body)] whitespace-nowrap text-ellipsis" style={{ flex: "250 1 0px" }}>{row.description}</span>

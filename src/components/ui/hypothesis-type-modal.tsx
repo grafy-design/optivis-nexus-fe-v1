@@ -16,7 +16,7 @@ export default function HypothesisTypeModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/80 z-[110]" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110]" />
         <Dialog.Content className="opacity-94 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] w-[880px] h-[522px] p-0 border-0 bg-transparent">
           <VisuallyHidden.Root>
             <Dialog.Title>Hypothesis Type Overview</Dialog.Title>

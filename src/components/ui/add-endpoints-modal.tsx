@@ -297,7 +297,7 @@ export default function AddEndpointsModal({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/80 z-[110]" />
+        <Dialog.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[110]" />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[120] w-[1032px] h-auto min-h-[482px] max-h-[700px] overflow-auto p-0 border-0 bg-transparent">
           <VisuallyHidden.Root>
             <Dialog.Title>Add Endpoints</Dialog.Title>

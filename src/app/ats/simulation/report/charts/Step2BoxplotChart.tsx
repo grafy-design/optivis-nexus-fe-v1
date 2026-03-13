@@ -2,8 +2,6 @@
 
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
-  chartTitle,
-  chartGraphicDivider,
   CHART_AXIS_LABEL,
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
@@ -26,12 +24,10 @@ export function Step2BoxplotChart({ apiData }: Step2BoxplotChartProps) {
 
   const option = {
     tooltip: { ...tooltipItem },
-    title: chartTitle("Estimated treatment effect"),
-    graphic: chartGraphicDivider(320),
     grid: {
       left: "7%",
       right: "3%",
-      top: "60px",
+      top: "8%",
       bottom: "8%",
       containLabel: true,
     },
@@ -169,13 +165,19 @@ export function Step2BoxplotChart({ apiData }: Step2BoxplotChartProps) {
   };
 
   return (
-    <div className="flex-1 h-full bg-white rounded-[4px] overflow-hidden">
-      <ReactECharts
-        notMerge={true}
-        lazyUpdate={true}
-        option={option}
-        style={{ height: "100%", width: "100%" }}
-      />
+    <div className="flex-1 h-full flex flex-col overflow-hidden">
+      <div className="px-4 pt-2 pb-1 flex-shrink-0">
+        <p className="text-small1 text-neutral-30">Estimated treatment effect</p>
+        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+      </div>
+      <div className="flex-1 min-h-0 bg-white rounded-[4px] overflow-hidden">
+        <ReactECharts
+          notMerge={true}
+          lazyUpdate={true}
+          option={option}
+          style={{ height: "100%", width: "100%" }}
+        />
+      </div>
     </div>
   );
 }

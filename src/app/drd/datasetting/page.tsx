@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
-import Button from "@/components/ui/button";
+import Button from "@/components/ui/solid-button";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import SimulationSearch from "@/components/home/simulation-search";

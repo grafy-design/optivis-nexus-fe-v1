@@ -113,6 +113,7 @@ export default function SimulationPage() {
     const optivisPoint = optivisToSearch[optivisIndex];
     if (!optivisPoint) return null;
 
+
     // Traditional 데이터가 없으면 OPTIVIS만 반환
     const traditionalToSearch =
       filteredData.traditional.length > 0
@@ -709,7 +710,7 @@ export default function SimulationPage() {
           </div>
 
           <div className="ats-simulation-layout flex gap-2 w-full flex-1 min-h-0">
-            <div className="ats-left-panel flex-[22] min-w-[280px] min-h-0">
+            <div className="ats-left-panel flex-[18] min-w-[280px] min-h-0">
               <LeftPanel
                 sampleSizeControl={sampleSizeControl}
                 setSampleSizeControl={setSampleSizeControl}
@@ -740,7 +741,7 @@ export default function SimulationPage() {
                 onSaveEndpoints={handleSaveEndpoints}
               />
             </div>
-            <div className="ats-right-panel flex-[78] min-w-0 min-h-0">
+            <div className="ats-right-panel flex-[82] min-w-0 min-h-0">
               <RightPanel
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}

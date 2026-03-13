@@ -28,10 +28,10 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
       {/* ── Default (홈) ── */}
       {type === "default" && (
         <>
-          <GlassBtn width={170} iconSrc="/assets/figma/home/header-download-icon.png">
+          <GlassBtn iconSrc="/icons/basics/download-20.svg">
             Data template
           </GlassBtn>
-          <GlassBtn width={170} iconSrc="/assets/figma/home/header-setting-icon.png">
+          <GlassBtn iconSrc="/icons/basics/setting-20.svg">
             Data setting
           </GlassBtn>
         </>
@@ -53,10 +53,8 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
               type="button"
               onClick={() => isApplied && router.push(ATS_REPORT_PATH)}
               disabled={!isApplied}
-              className="rounded-[32px] gap-[4px] inline-flex items-center justify-center border-none cursor-pointer shrink-0 transition-colors"
+              className="rounded-[32px] h-10 px-6 gap-2 [@media(max-width:1470px)]:h-[30px] [@media(max-width:1470px)]:px-4 [@media(max-width:1470px)]:gap-1.5 [@media(max-width:1470px)]:rounded-[24px] inline-flex items-center justify-center border-none cursor-pointer shrink-0 transition-colors"
               style={{
-                width: 164,
-                height: 42,
                 background: !isApplied ? "var(--primary-30)" : "var(--primary-15)",
                 cursor: !isApplied ? "default" : "pointer",
               }}
@@ -66,7 +64,7 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
               onMouseUp={(e) => { if (isApplied) (e.currentTarget as HTMLButtonElement).style.background = "var(--primary-20)"; }}
             >
               <span className="flex items-center shrink-0">
-                <Image src="/assets/simulation/FilePdf.png" alt="" width={24} height={24} style={{ objectFit: "contain" }} />
+                <Image src="/assets/simulation/FilePdf.png" alt="" width={16} height={16} className="[@media(max-width:1470px)]:w-3 [@media(max-width:1470px)]:h-3" style={{ objectFit: "contain" }} />
               </span>
               <span
                 className="text-body4m"
@@ -81,9 +79,9 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
             onClick={() =>
               router.push(pathname.includes("/report") ? ATS_SIMULATION_PATH : "/")
             }
-            className="figma-header-btn-cir w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer hover:opacity-70 transition-opacity"
+            className="figma-header-btn-cir w-[55px] h-[55px] [@media(max-width:1470px)]:w-[41px] [@media(max-width:1470px)]:h-[41px] flex items-center justify-center border-none cursor-pointer transition-all"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="[@media(max-width:1470px)]:w-[18px] [@media(max-width:1470px)]:h-[18px] [@media(max-width:1470px)]:relative [@media(max-width:1470px)]:-top-px">
               <path
                 d="M19 12H5M5 12L12 19M5 12L12 5"
                 stroke="var(--icon-on-button)"
@@ -103,13 +101,13 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
             const activeIndex = getActiveStepIndex("tsi", pathname, 0);
             router.push(getTSIPrevPath(activeIndex));
           }}
-          className="relative w-[55px] h-[55px] flex items-center justify-center hover:opacity-70 transition-opacity"
+          className="relative w-[55px] h-[55px] [@media(max-width:1470px)]:w-[41px] [@media(max-width:1470px)]:h-[41px] flex items-center justify-center hover:opacity-70 transition-opacity"
           style={{
             backgroundImage: "url('/assets/sidebar-folder-button.png')",
             backgroundSize: "cover",
           }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="[@media(max-width:1470px)]:w-[18px] [@media(max-width:1470px)]:h-[18px] [@media(max-width:1470px)]:relative [@media(max-width:1470px)]:-top-px">
             <path
               d="M19 12H5M5 12L12 19M5 12L12 5"
               stroke="var(--icon-on-button)"
@@ -125,9 +123,9 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
       {type === "drd" && drdStep !== 3 && (
         <button
           onClick={() => router.push(drdStep === 1 ? "/" : "/drd/default-setting")}
-          className="figma-header-btn-cir w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer"
+          className="figma-header-btn-cir w-[55px] h-[55px] [@media(max-width:1470px)]:w-[41px] [@media(max-width:1470px)]:h-[41px] flex items-center justify-center border-none cursor-pointer"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="[@media(max-width:1470px)]:w-[18px] [@media(max-width:1470px)]:h-[18px] [@media(max-width:1470px)]:relative [@media(max-width:1470px)]:-top-px">
             <path
               d="M19 12H5M5 12L12 19M5 12L12 5"
               stroke="var(--icon-on-button)"
@@ -142,10 +140,10 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
       {/* ── 공통 Help 버튼 ── */}
       <button
         type="button"
-        className="figma-header-btn-cir w-[55px] h-[55px] flex items-center justify-center border-none cursor-pointer hover:opacity-70 transition-opacity shrink-0"
+        className="figma-header-btn-cir w-[55px] h-[55px] [@media(max-width:1470px)]:w-[41px] [@media(max-width:1470px)]:h-[41px] flex items-center justify-center border-none cursor-pointer transition-all shrink-0"
       >
         <span
-          className="text-icon-on-button font-semibold"
+          className="text-icon-on-button font-semibold [@media(max-width:1470px)]:!text-[15px]"
           style={{ fontSize: "20px" }}
         >
           ?

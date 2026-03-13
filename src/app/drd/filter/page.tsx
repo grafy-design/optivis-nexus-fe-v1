@@ -27,17 +27,18 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useDefaultSettingStore } from "@/store/defaultSettingStore";
 import { useSimulationStore } from "@/store/simulationStore";
 import { useProcessedStudyData } from "@/hooks/useProcessedStudyData";
-import { RightPanel } from "@/components/drd/RightPanel";
 import CustomCheckbox from "@/components/ui/custom-checkbox";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
 import { GlassButton, GlassTestButton } from "@/components/ui/glass-button";
 import DropdownCell from "@/components/ui/dropdown-cell";
+import SolidButton from "@/components/ui/solid-button";
 
 
 /** 행 추가 버튼(+)에 사용되는 플러스 아이콘 SVG */
@@ -837,9 +838,9 @@ export default function FilterPage() {
           {/* {오른쪽 패널/Right Panel} */}
           {/* ── 오른쪽 패널 (Light Glass) ────────────────── */}
           {/* 오른쪽 상위 배경 카드: selection-bg.png → 안에 흰색 테이블 카드 */}
-             <div className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
+             <div className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden flex-[78] min-w-0 min-h-0 gap-3">
 
-            <div className="shrink-0 px-[8px] flex items-center justify-between h-[40px] pt-0 pb-0 pr-0">
+            <div className="shrink-0 px-[8px] flex items-center justify-between min-h-[40px] pt-0 pb-0 pr-0">
               <h2 className="text-body1 text-[var(--text-header)] m-0">
                 Filter
               </h2>
@@ -851,7 +852,7 @@ export default function FilterPage() {
             
               {/* {피처 리스트/Feature List} */}
               {/* Feature List (왼쪽 컬럼) */}
-              <div className="w-[272px] shrink-0 flex flex-col gap-[6px]">
+              <div className=" flex-[2] shrink-0 flex flex-col gap-[6px]">
                 <div className="px-[4px]">
                   <span className="text-body3 text-neutral-30">Feature List</span>
                 </div>
@@ -1015,25 +1016,27 @@ export default function FilterPage() {
 
               {/* {메인 설정 영역/Main Setting Area} */}
               {/* 메인 설정 영역 (오른쪽 컬럼) */}
-              <div className="flex-1 rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
+              <div className="flex-1 flex-[8] rounded-[20px] bg-[rgba(255,255,255,0.6)] p-[12px] overflow-hidden min-h-0">
               <div className="flex flex-col gap-[12px] overflow-y-auto h-full">
 
                 {/* 상단 탭 + 액션 버튼 */}
                 <div className="flex justify-between items-center shrink-0">
                   {/* Inclusion / Exclusion 탭 */}
-                  <div className="bg-white p-[4px] rounded-[18px] flex">
-                    <button
-                      onClick={() => { setActiveTab("Inclusion"); setCheckedRows({}); }}
-                      className={`h-[36px] px-[18px] rounded-[36px] border-none text-body4 cursor-pointer transition-all ${activeTab === "Inclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
-                    >
-                      Inclusion
-                    </button>
-                    <button
-                      onClick={() => { setActiveTab("Exclusion"); setCheckedRows({}); }}
-                      className={`h-[36px] px-[18px] rounded-[36px] border-none text-body4 cursor-pointer transition-all ${activeTab === "Exclusion" ? "bg-primary-15 text-white" : "bg-transparent text-neutral-30"}`}
-                    >
-                      Exclusion
-                    </button>
+                  <div className="bg-white rounded-full p-1">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => { setActiveTab("Inclusion"); setCheckedRows({}); }}
+                        className={`px-4 py-2.5 rounded-full transition-all cursor-pointer ${activeTab === "Inclusion" ? "bg-primary-20 text-white text-body5m" : "text-neutral-30 text-body5"}`}
+                      >
+                        Inclusion
+                      </button>
+                      <button
+                        onClick={() => { setActiveTab("Exclusion"); setCheckedRows({}); }}
+                        className={`px-4 py-2.5 rounded-full transition-all cursor-pointer ${activeTab === "Exclusion" ? "bg-primary-20 text-white text-body5m" : "text-neutral-30 text-body5"}`}
+                      >
+                        Exclusion
+                      </button>
+                    </div>
                   </div>
 
                   {/* 유리 스타일 버튼들 */}
@@ -1068,7 +1071,7 @@ export default function FilterPage() {
                     <div key={section.id} className="bg-white rounded-[8px] flex flex-col">
                       {/* 섹션 헤더 */}
                       <div
-                        className={`h-[46px] flex items-center px-[21px] gap-[10px] cursor-pointer select-none hover:bg-[#fdfdfd] rounded-[8px] transition-colors ${isSectionOpen ? "rounded-b-none" : ""}`}
+                        className={`h-[46px] flex items-center px-[21px] gap-[10px] cursor-pointer select-none hover:bg-[var(--neutral-98)] transition-colors ${isSectionOpen ? "rounded-b-none" : ""}`}
                         style={isSectionOpen ? { borderBottom: "1.5px solid var(--neutral-80)" } : {}}
                         onClick={() => toggleSection(section.id)}
                       >
@@ -1229,13 +1232,13 @@ export default function FilterPage() {
                 {/* {하단 버튼/Bottom Buttons} */}
                 {/* 하단 버튼 */}
                 <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
-                  <button
+                  <SolidButton
                     onClick={() => router.push("/drd/default-setting")}
-                    className="btn-tsi btn-tsi-secondary"
+                    variant="secondary" size="L"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </SolidButton>
+                  <SolidButton
                     disabled={!isConfirmEnabled}
                     onClick={() => {
                       if (!isConfirmEnabled) return;
@@ -1243,10 +1246,10 @@ export default function FilterPage() {
                       setCompleted("filter", true);
                       router.push("/drd/default-setting");
                     }}
-                    className="btn-tsi btn-tsi-primary"
+                    variant="primary" size="L"
                   >
                     Confirm
-                  </button>
+                  </SolidButton>
                 </div>
               </div>
             </div>

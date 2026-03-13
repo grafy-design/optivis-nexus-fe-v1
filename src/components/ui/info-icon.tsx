@@ -8,12 +8,10 @@ interface InfoIconProps {
 export default function InfoIcon({ className, color = "var(--icon-primary)" }: InfoIconProps) {
   return (
     <svg
-      width="10"
-      height="10"
       viewBox="0 0 10 10"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={`w-[10px] h-[10px] [@media(max-width:1470px)]:w-[8px] [@media(max-width:1470px)]:h-[8px]${className ? ` ${className}` : ""}`}
     >
       <g clipPath="url(#clip0_46_5844)">
         <rect width="10" height="10" fill="white" />

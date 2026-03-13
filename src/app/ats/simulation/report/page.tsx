@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSimulationStore } from "@/store/simulationStore";
 import { AppLayout } from "@/components/layout/AppLayout";
 import ArrowIcon from "@/components/ui/arrow-icon";
-import { SingleBarChart } from "@/components/charts/SingleBarChart";
+import { ComparisonBarChart } from "@/components/charts/ComparisonBarChart";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import SolidButton from "@/components/ui/solid-button";
@@ -45,7 +45,7 @@ function StepCard({
           </SolidButton>
         </div>
         {/* 타이틀 + Description 영역 */}
-        <div className="flex flex-col w-full flex-1">
+        <div className="flex flex-col w-full flex-1 ">
           {/* 타이틀 */}
           <h3 className="text-body2 text-text-primary mb-3">{title}</h3>
           {/* Description */}
@@ -53,7 +53,7 @@ function StepCard({
         </div>
       </div>
       {/* 차트 영역 */}
-      <div className="w-full h-[264px] flex-shrink-0 overflow-hidden">
+      <div className="w-full flex-shrink-0 overflow-hidden bg-neutral-100 rounded-[12px]">
         {chartContent}
       </div>
     </div>
@@ -461,7 +461,7 @@ export default function ReportPage() {
 
   return (
     <>
-      <AppLayout headerType="ats" scaleMode="none">
+      <AppLayout headerType="ats" >
         <div id="report-page-root" className="flex flex-col w-full h-full overflow-hidden gap-6">
           
           <div className="shrink-0 px-1">
@@ -484,11 +484,11 @@ export default function ReportPage() {
               <div
                 className="figma-nine-slice figma-home-panel-middle relative flex-1 flex flex-col overflow-hidden"
               >
-                <div id="results-overview" className="flex flex-col flex-1 overflow-y-auto min-h-0">
+                <div id="results-overview" className="flex flex-col flex-1 overflow-hidden min-h-0">
                   <h2 className="text-h4 text-primary-15 mb-3 pl-1 pt-1">
                     Results Overview
                   </h2>
-                  <div className="flex flex-col gap-6 flex-1">
+                  <div className="flex flex-col gap-6 flex-1 min-h-0">
                     {/* Insight Summary */}
                     <div className="flex-1 flex flex-col">
                       <div
@@ -501,7 +501,7 @@ export default function ReportPage() {
                           className="space-y-4 w-full"
                           style={{ marginTop: "12px" }}
                         >
-                          <div className="flex items-center gap-8">
+                          <div className="flex items-center gap-6">
                             <Image
                               src="/assets/simulation/insight-summary-sample.svg"
                               alt="Sample Size"
@@ -517,7 +517,7 @@ export default function ReportPage() {
                             </span>
                           </div>
                           <div className="h-[1px] bg-neutral-70" />
-                          <div className="flex items-center gap-8">
+                          <div className="flex items-center gap-6">
                             <Image
                               src="/assets/simulation/insight-summary-enrollment.svg"
                               alt="Enrollment"
@@ -533,7 +533,7 @@ export default function ReportPage() {
                             </span>
                           </div>
                           <div className="h-[1px] bg-neutral-70" />
-                          <div className="flex items-center gap-8">
+                          <div className="flex items-center gap-6">
                             <Image
                               src="/assets/simulation/insight-summary-cost.svg"
                               alt="Cost"
@@ -549,7 +549,7 @@ export default function ReportPage() {
                             </span>
                           </div>
                           <div className="h-[1px] bg-neutral-70" />
-                          <div className="flex items-center gap-8">
+                          <div className="flex items-center gap-6">
                             <Image
                               src="/assets/simulation/insight-summary-loss.svg"
                               alt="Power Loss"
@@ -577,7 +577,7 @@ export default function ReportPage() {
                     </div>
 
                     {/* 2x2 그리드 (4개의 흰색 카드) */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-3">
                       {reportData.reductionView.charts.map(
                         (chart, index) => {
                           const formatter =
@@ -592,7 +592,7 @@ export default function ReportPage() {
                           return (
                             <div
                               key={index}
-                              className="flex flex-col items-center bg-white rounded-[12px] p-3 gap-2"
+                              className="flex flex-col items-center bg-white rounded-[12px] p-3 gap-2 h-full overflow-hidden"
                             >
                               <div className="flex items-start justify-between w-full">
                                 <div className="flex flex-col gap-0">
@@ -612,47 +612,13 @@ export default function ReportPage() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="grid grid-cols-2 gap-2 w-full">
-                                {/* OPTIVIS */}
-                                <div className="flex flex-col gap-1">
-                                  <div
-                                    style={{
-                                      height: "150px",
-                                      width: "100%",
-                                    }}
-                                  >
-                                    <SingleBarChart
-                                      value={chart.optivis}
-                                      maxValue={Math.max(
-                                        chart.optivis,
-                                        chart.traditional,
-                                      )}
-                                      color="#f06600"
-                                      height="100%"
-                                      formatter={formatter}
-                                    />
-                                  </div>
-                                </div>
-                                {/* Traditional */}
-                                <div className="flex flex-col gap-1">
-                                  <div
-                                    style={{
-                                      height: "150px",
-                                      width: "100%",
-                                    }}
-                                  >
-                                    <SingleBarChart
-                                      value={chart.traditional}
-                                      maxValue={Math.max(
-                                        chart.optivis,
-                                        chart.traditional,
-                                      )}
-                                      color="#231f52"
-                                      height="100%"
-                                      formatter={formatter}
-                                    />
-                                  </div>
-                                </div>
+                              <div className="flex-1 min-h-0 w-full">
+                                <ComparisonBarChart
+                                  optivisValue={chart.optivis}
+                                  traditionalValue={chart.traditional}
+                                  height="100%"
+                                  label={chart.label}
+                                />
                               </div>
                             </div>
                           );
@@ -667,17 +633,17 @@ export default function ReportPage() {
             {/* RIGHT: Main content (liquid glass frame) - 독립 스크롤 */}
             <div className="flex-1 min-w-0 h-full flex flex-col">
               <div
-                className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden relative flex-1"
+                className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden relative flex-1"
               >
                 <div className="w-full overflow-y-auto flex-1 min-h-0">
                   {/* Trial Design Conditions Summary */}
                   <div id="trial-design-summary" className="mb-10">
-                    <h2 className="text-h4 text-primary-15 mb-3 ml-[4px] pl-1 pt-1">
+                    <h2 className="text-h4 text-primary-15 mb-3 ml-[4px] pt-1">
                       Trial Design Conditions Summary
                     </h2>
                     <div className="flex gap-4">
                       {/* Endpoints Design Card */}
-                      <div className="flex-1 bg-white rounded-[12px] p-4 gap-2">
+                      <div className="flex-1 bg-white rounded-[12px] p-4 gap-2 min-h-[180px] h-fit">
                         <div className="mb-2">
                           <div className="flex justify-left mb-2">
                             <div
@@ -689,7 +655,7 @@ export default function ReportPage() {
                             </div>
                           </div>
                           {/* 테이블 형태: 보더라인 없음, 기본 높이 200px, 콘텐츠에 따라 확장 */}
-                          <div className="min-h-[200px]">
+                          <div className="h-fit">
                             <table className="w-full">
                               <thead>
                                 <tr>
@@ -920,7 +886,7 @@ export default function ReportPage() {
                       </div>
 
                       {/* Trial Design Card */}
-                      <div className="w-[556px] bg-white rounded-[12px] p-4">
+                      <div className="w-[556px] bg-white rounded-[12px] p-4 min-h-[180px]">
                         <div className="mb-3 ">
                           <div className="bg-neutral-90 flex rounded-full px-3 py-1 w-fit mb-3">
                             <span className="text-body5 text-primary-15">
@@ -975,26 +941,61 @@ export default function ReportPage() {
                     {(apiData as any)?.graph_acc_model &&
                       (apiData as any).graph_acc_model.length > 0 && (
                         <div className="flex gap-3 mb-3">
-                          {(apiData as any).graph_acc_model
-                            .slice(0, 3)
-                            .map((graphItem: any) => {
+                          {(() => {
+                            const models = (apiData as any).graph_acc_model.slice(0, 3);
+                            const precData = (apiData as any)?.result_prec_model?.data as any[] | undefined;
+
+                            // r_square 기반 정확도 레벨 결정
+                            const getAccuracyLevel = (rSquare: number) => {
+                              if (rSquare >= 0.85) return "Highest";
+                              if (rSquare >= 0.7) return "High";
+                              if (rSquare >= 0.5) return "Moderate";
+                              if (rSquare >= 0.2) return "Low";
+                              return "Very Low";
+                            };
+
+                            // 모델별 r_square 매칭
+                            const modelRSquares = models.map((graphItem: any) => {
+                              const matched = precData?.find((d: any) => d.model === graphItem.model);
+                              return { graphItem, rSquare: matched?.r_square ?? 0 };
+                            });
+
+                            // r_square 순으로 상대 레벨 매핑
+                            const sorted = [...modelRSquares].sort((a: any, b: any) => b.rSquare - a.rSquare);
+                            const relativeLabels = ["Highest", "Moderate", "Very Low"];
+                            const levelMap = new Map<number, string>();
+                            sorted.forEach((item: any, idx: number) => {
+                              levelMap.set(item.graphItem.id, relativeLabels[Math.min(idx, relativeLabels.length - 1)]);
+                            });
+
+                            return modelRSquares.map(({ graphItem, rSquare }: any) => {
+                              const accuracyLevel = precData
+                                ? (levelMap.get(graphItem.id) ?? getAccuracyLevel(rSquare))
+                                : "";
+
                               return (
                                 <div
                                   key={graphItem.id}
-                                  className="flex-1 bg-white rounded-[12px] p-1"
-                                  style={{ height: "378px" }}
+                                  className="flex-1 bg-white rounded-[12px] flex flex-col overflow-hidden p-4 gap-8"
                                 >
-                                  <div className="h-full flex items-center justify-center overflow-hidden">
-                                    {/* SVG 그래프만 표시 */}
+                                  {/* 모델명 + 정확도 라벨 */}
+                                  <div className="shrink-0 flex0.5">
+                                    <p className="text-body5m text-neutral-50">{graphItem.model}</p>
+                                    <p className="text-body3 text-text-accent">{accuracyLevel}</p>
+                                  </div>
+                                  {/* SVG 그래프 (상단 헤더 영역 CSS 클리핑) */}
+                                  <div className="flex-1 min-h-0 overflow-hidden">
                                     <img
                                       src={graphItem.model_svg}
                                       alt={`${graphItem.model} graph`}
-                                      className="max-w-full max-h-full object-contain"
+                                      className="w-full h-auto object-contain object-bottom"
+                                      style={{ marginTop: "-48px" }}
                                     />
                                   </div>
                                 </div>
                               );
-                            })}
+                            });
+                          })()}
                         </div>
                       )}
 
@@ -1043,7 +1044,7 @@ export default function ReportPage() {
                                           className="text-left py-3 px-3 text-primary-15 text-body4 relative"
                                         >
                                           {hasDescription && (
-                                            <span className="absolute top-3 left-1 text-small1 text-primary-15 leading-none">
+                                            <span className="absolute top-3 left-1 text-small1 text-primary-15 leading-none [@media(max-width:1470px)]:top-1.5 [@media(max-width:1470px)]:left-[-1px] [@media(max-width:1470px)]:text-small2">
                                               {descriptionIndex + 1})
                                             </span>
                                           )}
@@ -1098,7 +1099,7 @@ export default function ReportPage() {
                                           return (
                                             <td
                                               key={key}
-                                              className={`py-2 px-3 text-body5m text-neutral-30 ${
+                                              className={`py-2 px-3 text-body5m text-neutral-30 [@media(max-width:1470px)]:py-4 ${
                                                 showBorder ? "relative" : ""
                                               }`}
                                             >
@@ -1149,7 +1150,7 @@ export default function ReportPage() {
                             <div className="flex gap-6">
                               {descriptions.map((description, index) => (
                                 <div key={index} className="flex-1">
-                                  <p className="text-body5m text-neutral-50" style={{lineHeight: "115%"}}>
+                                  <p className="text-body5m text-neutral-50" style={{lineHeight: "115%", letterSpacing: "-0.01em"}}>
                                     <span className="text-body5m text-neutral-50">
                                       {index + 1})
                                     </span>{" "}
@@ -1242,7 +1243,7 @@ export default function ReportPage() {
                     </div>
                   )}
                   {/* Footer - 오른쪽 패널 하단 */}
-                  <div className="flex items-center justify-end py-5 flex-shrink-0">
+                  <div className="flex items-center justify-end pt-5 flex-shrink-0">
                     <div className="flex gap-4">
                       <SolidButton
                         variant="secondary"

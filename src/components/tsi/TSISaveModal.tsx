@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import SolidButton from "@/components/ui/solid-button";
 
 interface TSISaveModalProps {
   open: boolean;
@@ -113,23 +114,23 @@ export function TSISaveModal({ open, onClose, onSave }: TSISaveModalProps) {
         {/* 모달 버튼 영역 / Modal action buttons */}
         <div className="gap-3 relative flex justify-center" style={{ zIndex: 1 }}>
           {/* Close 버튼 / Close button */}
-          <button
-            type="button"
-            className="btn-tsi btn-tsi-secondary"
+          <SolidButton
+            variant="secondary"
+            size="L"
+            className="w-[180px]"
             onClick={onClose}
-            style={{ width: "180px" }}
           >
             Close
-          </button>
+          </SolidButton>
           {/* Save 버튼 / Save button */}
-          <button
-            type="button"
-            className="btn-tsi btn-tsi-primary"
+          <SolidButton
+            variant="primary"
+            size="L"
+            className="w-[180px]"
             onClick={() => onSave(simName, simDesc)}
-            style={{ width: "180px" }}
           >
             Save
-          </button>
+          </SolidButton>
         </div>
 
       </div>

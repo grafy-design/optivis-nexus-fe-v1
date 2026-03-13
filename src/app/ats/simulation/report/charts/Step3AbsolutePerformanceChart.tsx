@@ -2,8 +2,6 @@
 
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
-  chartTitle,
-  chartGraphicDivider,
   CHART_AXIS_LABEL,
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
@@ -212,13 +210,11 @@ export function Step3AbsolutePerformanceChart({
 
   const option = {
     tooltip: { ...tooltipItem },
-    title: chartTitle("A. Absolute Performance Comparison (Dodged)"),
-    graphic: chartGraphicDivider(320),
     legend: { show: false },
     grid: {
       left: "7%",
       right: "3%",
-      top: "60px",
+      top: "8%",
       bottom: "10%",
       containLabel: true,
     },
@@ -280,8 +276,14 @@ export function Step3AbsolutePerformanceChart({
   };
 
   return (
-    <div className="flex-1 h-full bg-white rounded-[4px] overflow-hidden relative">
-      <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
+    <div className="flex-1 h-full flex flex-col overflow-hidden relative">
+      <div className="px-4 pt-2 pb-1 flex-shrink-0">
+        <p className="text-small1 text-neutral-30">A. Absolute Performance Comparison (Dodged)</p>
+        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+      </div>
+      <div className="flex-1 min-h-0 bg-white rounded-[4px] overflow-hidden">
+        <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
+      </div>
       {hasData && (
         <div
           className="absolute text-small1 text-[var(--chart-text-category-title)] gap-[1px]"

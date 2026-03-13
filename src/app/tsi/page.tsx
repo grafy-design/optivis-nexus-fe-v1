@@ -8,6 +8,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import SolidButton from "@/components/ui/solid-button";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import SimulationSearch from "@/components/home/simulation-search";
@@ -161,7 +162,7 @@ export default function TSIPage() {
           </div>
 
           {/* ── 2. 내부 컨텐츠 컨테이너 / Inner content container ─ */}
-          <div className="flex flex-1 min-h-0 flex-col gap-0 h-full">
+          <div className="flex flex-1 min-h-0 flex-col gap-1 h-full">
 
             {/* ── 2-1. 글래스 카드 배경 / Glass card background ─── */}
             <div
@@ -239,12 +240,13 @@ export default function TSIPage() {
                         </p>
                       </div>
                       {/* 다운로드 버튼 / Download button */}
-                      <button
-                        className="btn-tsi btn-tsi-primary"
-                        style={{ width: "100%" }}
+                      <SolidButton
+                        variant="primary"
+                        size="L"
+                        className="w-full"
                       >
                         Download
-                      </button>
+                      </SolidButton>
                     </div>
 
                     {/* 파일 업로드 카드 / File upload card (white, drag & drop) */}
@@ -294,16 +296,16 @@ export default function TSIPage() {
                         onDrop={handleDrop}
                         className="cursor-pointer flex justify-center"
                       >
-                        <button
-                          type="button"
+                        <SolidButton
+                          variant="purple"
+                          size="m"
+                          className="w-[222px]"
                           onClick={() =>
                             document.getElementById("file-upload")?.click()
                           }
-                          className="btn-tsi btn-tsi-purple"
-                          style={{ width: 222, height: 36 }}
                         >
                           File Select
-                        </button>
+                        </SolidButton>
                       </label>
                     </div>
                   </div>
@@ -418,29 +420,31 @@ export default function TSIPage() {
             {/* ── 2-1 닫기 / End glass card ── */}
 
             {/* ── 2-2. 하단 버튼 영역 / Bottom action button ────── */}
-            <div className="flex flex-shrink-0 justify-end" style={{ paddingRight: 8 }}>
+            <div className="flex flex-shrink-0 justify-end pr-1">
               {/* "Use Data" 버튼: 선택 항목이 없으면 비활성화 / Disabled when nothing selected */}
-              <button
+              <SolidButton
+                variant="primary"
+                size="L"
                 onClick={handleUseData}
                 disabled={selectedData.size === 0}
-                className="btn-tsi btn-tsi-primary gap-2"
+                iconPosition="right"
+                icon={
+                  <svg
+                    width="11"
+                    height="13"
+                    viewBox="0 0 11 13"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M0 11.2324V1.06641C0 0.700195 0.090332 0.431641 0.270996 0.260742C0.45166 0.0849609 0.666504 -0.00292969 0.915527 -0.00292969C1.13525 -0.00292969 1.35986 0.0605469 1.58936 0.1875L10.1221 5.17529C10.4248 5.35107 10.6348 5.50977 10.752 5.65137C10.874 5.78809 10.9351 5.9541 10.9351 6.14941C10.9351 6.33984 10.874 6.50586 10.752 6.64746C10.6348 6.78906 10.4248 6.94775 10.1221 7.12354L1.58936 12.1113C1.35986 12.2383 1.13525 12.3018 0.915527 12.3018C0.666504 12.3018 0.45166 12.2139 0.270996 12.0381C0.090332 11.8623 0 11.5938 0 11.2324Z"
+                      fill="white"
+                    />
+                  </svg>
+                }
               >
                 Use Data
-                {/* 재생 아이콘 SVG / Play icon SVG */}
-                <svg
-                  width="11"
-                  height="13"
-                  viewBox="0 0 11 13"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ flexShrink: 0 }}
-                >
-                  <path
-                    d="M0 11.2324V1.06641C0 0.700195 0.090332 0.431641 0.270996 0.260742C0.45166 0.0849609 0.666504 -0.00292969 0.915527 -0.00292969C1.13525 -0.00292969 1.35986 0.0605469 1.58936 0.1875L10.1221 5.17529C10.4248 5.35107 10.6348 5.50977 10.752 5.65137C10.874 5.78809 10.9351 5.9541 10.9351 6.14941C10.9351 6.33984 10.874 6.50586 10.752 6.64746C10.6348 6.78906 10.4248 6.94775 10.1221 7.12354L1.58936 12.1113C1.35986 12.2383 1.13525 12.3018 0.915527 12.3018C0.666504 12.3018 0.45166 12.2139 0.270996 12.0381C0.090332 11.8623 0 11.5938 0 11.2324Z"
-                    fill="white"
-                  />
-                </svg>
-              </button>
+              </SolidButton>
             </div>
             {/* ── 2-2 닫기 / End button container ── */}
 

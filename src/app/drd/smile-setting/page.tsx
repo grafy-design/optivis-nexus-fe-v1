@@ -32,6 +32,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useSimulationStore } from "@/store/simulationStore";
 import { GlassTestButton } from "@/components/ui/glass-button";
 import DropdownCell from "@/components/ui/dropdown-cell";
+import SolidButton from "@/components/ui/solid-button";
 
 // ─── 아이콘 ──────────────────────────────────────────────────────────────────
 
@@ -1086,14 +1087,13 @@ export default function SmileSettingPage() {
 
             {/* 하단 버튼 */}
             <div className="shrink-0 flex flex-row justify-end gap-3 items-center pr-0.5">
-              <button
+              <SolidButton
                 onClick={() => router.push("/drd/simulation-setting")}
-                className="btn-tsi btn-tsi-secondary"
-                style={{ height: 42 }}
+                variant="secondary" size="L"
               >
                 Cancel
-              </button>
-              <button
+              </SolidButton>
+              <SolidButton
                 disabled={savedDrugList.length === 0}
                 onClick={() => {
                   if (savedDrugList.length === 0) return;
@@ -1101,11 +1101,10 @@ export default function SmileSettingPage() {
                   setSimSmilesCompleted(true);
                   router.push("/drd/simulation-setting");
                 }}
-                className="btn-tsi btn-tsi-primary"
-                style={{ height: 42 }}
+                variant="primary" size="L"
               >
                 Confirm
-              </button>
+              </SolidButton>
             </div>
           </div>
         </div>

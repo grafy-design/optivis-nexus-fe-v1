@@ -198,7 +198,7 @@ export default function FeatureCard({
       {/* 텍스트 영역: gap 8px */}
       <div className="flex flex-col gap-1">
         {/* 타이틀: Inter 600 19.5px */}
-        <p className="text-body4 text-text-primary transition-colors duration-200 ease-in-out"
+        <p className="text-body4 text-text-accent transition-colors duration-200 ease-in-out"
           style={{
             color: titleColor,
           }}
@@ -208,7 +208,7 @@ export default function FeatureCard({
 
         {/* 설명: Inter 400 15px */}
         <p
-          className="text-small1 transition-colors duration-200 ease-in-out"
+          className="text-small1 transition-colors duration-200 ease-in-out feature-card-desc"
           style={{
             lineHeight: "110%",
             color: descColor,
@@ -219,26 +219,11 @@ export default function FeatureCard({
       </div>
 
       <style jsx>{`
-        /* [TEMP_SCALE_MODE_DISABLE] 차후 반응형 작업 시 복구
-        @media (max-width: 1800px) {
-          .home-feature-card-icon {
-            width: 51px !important;
-            height: 51px !important;
-          }
-
-          .home-feature-card-icon-img {
-            transform: translate(-50%, -50%) scale(0.86) !important;
-          }
-
-          .home-feature-card-title {
-            font-size: 16.5px !important;
-          }
-
-          .home-feature-card-desc {
-            font-size: 12px !important;
+        @media (max-width: 1470px) {
+          .feature-card-desc {
+            font-size: 8px !important;
           }
         }
-        */
       `}</style>
     </div>
   );

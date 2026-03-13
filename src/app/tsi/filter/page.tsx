@@ -441,28 +441,30 @@ export default function TSIFilterPage() {
             </h2>
             <div className="flex items-center gap-[12px]">
               {/* Go to Simulation 버튼 → Patients Summary 페이지 이동 */}
-              <button
+              <SolidButton
+                variant="primary"
+                size="L"
                 onClick={() => router.push("/tsi/patients-summary")}
-                className="btn-tsi btn-tsi-primary gap-2"
-                style={{ paddingRight: 18 }}
+                iconPosition="right"
+                icon={
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M3 8L13 8M10 4L14 8L10 12"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                }
               >
                 Go to Simulation
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  style={{ flexShrink: 0 }}
-                >
-                  <path
-                    d="M3 8L13 8M10 4L14 8L10 12"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+              </SolidButton>
             </div>
           </div>
 
@@ -1012,25 +1014,27 @@ export default function TSIFilterPage() {
           {/* ── 2-C. 하단 버튼 영역 / Bottom action buttons ─────────── */}
           <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
             {/* Cancel 버튼 → 이전 페이지 / Cancel: go back */}
-            <button
+            <SolidButton
+              variant="secondary"
+              size="L"
               onClick={() => router.back()}
-              className="btn-tsi btn-tsi-secondary"
             >
               Cancel
-            </button>
+            </SolidButton>
 
             {/* Confirm 버튼 → Patients Summary 이동 (유효 조건 있을 때만 활성)
                 Confirm: navigate to Patients Summary (enabled only with valid conditions) */}
-            <button
+            <SolidButton
+              variant="primary"
+              size="L"
               disabled={!isConfirmEnabled}
               onClick={() => {
                 if (!isConfirmEnabled) return;
                 router.push("/tsi/patients-summary");
               }}
-              className="btn-tsi btn-tsi-primary"
             >
               Confirm
-            </button>
+            </SolidButton>
           </div>
 
         </div>

@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
+import SolidButton from "@/components/ui/solid-button";
 import Select from "@/components/ui/select";
 import {
   MultiLineWithErrorBar,
@@ -1130,7 +1131,7 @@ function TSIRefineCutoffsPageContent() {
           {/* ── 2-A. 왼쪽 카드: 슬라이더 + 컷오프 에디터
                      Left card: slider + cutoff editor ──────────────── */}
           <div
-            className="figma-nine-slice figma-home-panel-left flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden rounded-[36px] p-0"
+            className="figma-nine-slice figma-home-panel-left flex min-h-0 flex-none min-w-0 flex-col gap-3 overflow-hidden p-0"
             style={{ width: `${leftPanelWidth}px` }}
           >
             <div className="flex min-h-0 w-full flex-1 flex-col gap-3 overflow-y-auto">
@@ -1293,20 +1294,20 @@ function TSIRefineCutoffsPageContent() {
                 </div>
 
                 {/* Apply Criteria 버튼 (월 변경 시 활성) / Apply Criteria button (active when month changed) */}
-                <button
+                <SolidButton
+                  variant="primary"
+                  size="L"
                   onClick={handleClickApplyCriteria}
                   disabled={!hasEverMovedMonth && !hasAppliedCriteria}
-                  className="btn-tsi btn-tsi-primary whitespace-nowrap mt-2 max-[1470px]: mt-0 "
-                  style={{
-                    marginLeft: "auto",
-                  }}
+                  className="whitespace-nowrap mt-2 max-[1470px]:mt-0"
+                  style={{ marginLeft: "auto" }}
                 >
                   Apply Criteria
-                </button>
+                </SolidButton>
               </div>
 
               {/* ── 2-A-2. CDF 컷오프 에디터 / CDF cutoff editor ────── */}
-              <div className="flex-1 min-h-0 rounded-[20px] overflow-hidden bg-white p-2">
+              <div className="flex-1 min-h-0 rounded-[20px] overflow-hidden bg-white p-3">
                 <div className="h-full overflow-y-auto flex flex-col gap-4 justify-between">
                   <div style={{ aspectRatio: windowWidth < 1470 ? "5 / 4" : "1 / 1", paddingTop: 4 }}>
                     <RefineCutoffChartEditor
@@ -1320,15 +1321,18 @@ function TSIRefineCutoffsPageContent() {
                       selectedMonth={effectiveAppliedStratificationMonth}
                     />
                   </div>
-                  <button
+                  <SolidButton
+                    variant="primary"
+                    size="L"
                     onClick={handleClickGenerateSubGroup}
                     disabled={!isCutoffDirty && !hasAppliedCriteria}
-                    className="btn-tsi btn-tsi-primary flex-shrink-0 gap-2"
-                    style={{ marginLeft: "auto", paddingRight: "16px" }}
+                    className="flex-shrink-0"
+                    style={{ marginLeft: "auto" }}
+                    iconPosition="right"
+                    icon={<Play size={16} fill="white" stroke="white" />}
                   >
                     Generate Subgroups
-                    <Play size={16} fill="white" stroke="white" style={{ flexShrink: 0 }} />
-                  </button>
+                  </SolidButton>
                 </div>
               </div>
 
@@ -1339,7 +1343,7 @@ function TSIRefineCutoffsPageContent() {
           {/* ── 2-B. 오른쪽 카드: 차트 + 테이블
                      Right card: charts + table ────────────────────── */}
           <div
-            className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-1 flex-shrink-0 min-h-0"
+            className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden flex-1 flex-shrink-0 min-h-0"
           >
             <div className="flex h-full w-full flex-col gap-3 max-[1470px]:gap-2">
 
@@ -1369,7 +1373,7 @@ function TSIRefineCutoffsPageContent() {
                         Disease Progression by Group
                       </h4>
                       <div
-                        className="flex w-full rounded-[12px] bg-white p-2"
+                        className="flex w-full rounded-[12px] bg-white p-3"
                         style={{ aspectRatio: "2 / 1" }}
                       >
                         <MultiLineWithErrorBar
@@ -1404,7 +1408,7 @@ function TSIRefineCutoffsPageContent() {
                       <h4 className="text-body2m flex-shrink-0 text-white pt-1.5 pl-2">
                         Slope distribution
                       </h4>
-                      <div className="flex w-full rounded-[12px] bg-white p-2" style={{ aspectRatio: "2 / 1" }}>
+                      <div className="flex w-full rounded-[12px] bg-white p-3" style={{ aspectRatio: "2 / 1" }}>
                         <DensityChart
                           segmented={densitySegmentedData ?? undefined}
                           height="100%"
@@ -1471,21 +1475,23 @@ function TSIRefineCutoffsPageContent() {
               {/* ── 하단 버튼 영역 / Bottom action buttons ──────────────── */}
               <div className="flex flex-shrink-0 justify-end gap-2 pr-0.5">
                 {/* Save 버튼 / Save button */}
-                <button
+                <SolidButton
+                  variant="primary"
+                  size="L"
                   onClick={handleOnSaveRefineCutoff}
                   disabled={!hasGeneratedSubgroups}
-                  className="btn-tsi btn-tsi-primary"
                 >
                   Save
-                </button>
+                </SolidButton>
                 {/* Save As 버튼 / Save As button */}
-                <button
+                <SolidButton
+                  variant="primary"
+                  size="L"
                   onClick={() => router.push("/tsi/subgroup-selection")}
                   disabled={!hasGeneratedSubgroups}
-                  className="btn-tsi btn-tsi-primary"
                 >
                   Save As
-                </button>
+                </SolidButton>
               </div>
 
             </div>

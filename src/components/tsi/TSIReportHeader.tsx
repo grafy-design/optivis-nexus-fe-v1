@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import SolidButton from "@/components/ui/solid-button";
 
 interface TSIReportHeaderProps {
   onSaveAsPDF?: () => void;
@@ -41,23 +42,26 @@ export function TSIReportHeader({ onSaveAsPDF }: TSIReportHeaderProps) {
           {currentDate}
         </p>
       </div>
-      <button
-        type="button"
-        className="btn-tsi btn-tsi-secondary"
+      <SolidButton
+        variant="secondary"
+        size="L"
         onClick={onSaveAsPDF}
+        icon={
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="shrink-0"
+          >
+            <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        }
+        iconPosition="right"
       >
         Save as PDF
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="shrink-0"
-        >
-          <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
+      </SolidButton>
     </div>
   );
 }

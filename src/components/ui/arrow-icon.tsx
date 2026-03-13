@@ -2,25 +2,31 @@
 
 import React from "react";
 
+const SIZES = { s: 12, m: 20, l: 28, xl: 32 } as const;
+
 interface ArrowIconProps {
   className?: string;
   direction?: "up" | "down";
   color?: string;
+  size?: "s" | "m" | "l" | "xl";
 }
 
-export default function ArrowIcon({ 
-  className = "", 
+export default function ArrowIcon({
+  className = "",
   direction = "down",
-  color = "var(--icon-on-button)"
+  color = "var(--icon-on-button)",
+  size = "m",
 }: ArrowIconProps) {
   const uniqueId = React.useId().replace(/:/g, '_');
   const clipPathId = `clip0_arrow_${uniqueId}`;
+  const px = SIZES[size];
 
   if (direction === "up") {
     return (
-      <svg 
-        width="16"
-        height="116"
+      <svg
+        width={px}
+        height={px}
+        style={{ width: px, height: px }}
         viewBox="0 0 20 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -50,9 +56,10 @@ export default function ArrowIcon({
   }
 
   return (
-    <svg 
-      width="16"
-      height="16"
+    <svg
+      width={px}
+      height={px}
+      style={{ width: px, height: px }}
       viewBox="0 0 20 20"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -80,9 +87,3 @@ export default function ArrowIcon({
     </svg>
   );
 }
-
-
-
-
-
-

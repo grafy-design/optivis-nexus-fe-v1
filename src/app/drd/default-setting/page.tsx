@@ -16,6 +16,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import SolidButton from "@/components/ui/solid-button";
 import { useDefaultSettingStore, type DefaultSettingId } from "@/store/defaultSettingStore";
 import { useSimulationStore, type EndpointItem } from "@/store/simulationStore";
 import { Loading } from "@/components/common/Loading";
@@ -118,13 +119,9 @@ function InitialCard({ item, onClick }: { item: any; onClick: () => void }) {
       <p className="text-captionm" style={{ color: "rgb(145,144,146)", margin: "16px 0 0", flex: 1 }}>
         {item.description}
       </p>
-      <button onClick={onClick} className="btn-tsi btn-tsi-purple-light w-full gap-[6px] mt-4 shrink-0 pt-[2px]" style={{ height: 36 }}>
-        <span className="text-body3">Setting</span>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2.33594 8.33594H14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M8.33594 2.33594V14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
+      <SolidButton onClick={onClick} variant="light-purple" size="m" className="w-full mt-4 shrink-0" icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.33594 8.33594H14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M8.33594 2.33594V14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} iconPosition="right">
+        Setting
+      </SolidButton>
     </div>
   );
 }
@@ -202,18 +199,12 @@ function CompletedCard({ item, onReset, onEdit }: { item: any; onReset: () => vo
 
       {/* 버튼 — 하단 고정 */}
       <div className="flex justify-end gap-[10px] shrink-0">
-        <button onClick={onReset} className="btn-tsi btn-tsi-purple-light gap-1.5 text-body4" style={{ height: 36, paddingLeft: 20, paddingRight: 10 }}>
+        <SolidButton onClick={onReset} variant="light-purple" size="m" icon={<img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} style={{ display: "block", filter: "brightness(0) invert(1)" }} />} iconPosition="right">
           Reset
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} style={{ display: "block", filter: "brightness(0) invert(1)" }} />
-        </button>
-        <button onClick={onEdit} className="btn-tsi btn-tsi-purple-light gap-1.5 text-body4" style={{ height: 36, paddingLeft: 20, paddingRight: 14 }}>
+        </SolidButton>
+        <SolidButton onClick={onEdit} variant="light-purple" size="m" icon={<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3.375V14.625" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M3.375 9H14.625" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>} iconPosition="right">
           Edit
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 3.375V14.625" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M3.375 9H14.625" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+        </SolidButton>
       </div>
     </div>
   );
@@ -701,12 +692,12 @@ export default function DefaultSettingPage() {
           {/* {하단 버튼/Bottom Buttons} */}
           {/* 하단 버튼 */}
           <div className="shrink-0 flex justify-end gap-3 items-center pr-0.5">
-            <button disabled={!anyCompleted} onClick={() => anyCompleted && setShowSaveModal(true)} className="btn-tsi btn-tsi-secondary" style={{ paddingLeft: 28, paddingRight: 28 }}>
+            <SolidButton disabled={!anyCompleted} onClick={() => anyCompleted && setShowSaveModal(true)} variant="secondary" size="L">
               Save Progress
-            </button>
-            <button disabled={!anyCompleted} onClick={() => router.push("/drd/simulation-setting")} className="btn-tsi btn-tsi-primary">
+            </SolidButton>
+            <SolidButton disabled={!anyCompleted} onClick={() => router.push("/drd/simulation-setting")} variant="primary" size="L">
               Apply to Analysis
-            </button>
+            </SolidButton>
           </div>
         </div>
 

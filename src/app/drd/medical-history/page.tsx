@@ -35,6 +35,7 @@ import CustomCheckbox from "@/components/ui/custom-checkbox";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
 import { GlassTestButton } from "@/components/ui/glass-button";
+import SolidButton from "@/components/ui/solid-button";
 
 // ── 아이콘 SVG 컴포넌트 ──────────────────────────────────────────────────
 
@@ -254,15 +255,15 @@ export default function MedicalHistoryPage() {
                   "cvd": true, "ascvd": true, "hf": true, "stroke": true,
                 }))} />
                 {/* Reset 버튼 */}
-                <button
+                <SolidButton
                   onClick={handleReset}
                   disabled={!isDirty}
-                  className="btn-tsi btn-tsi-secondary gap-2"
-                  style={{ paddingRight: 16 }}
+                  variant="secondary" size="L"
+                  icon={<IconReset size={24} color="white" />}
+                  iconPosition="right"
                 >
                   Reset
-                  <IconReset size={24} color="white" />
-                </button>
+                </SolidButton>
               </div>
             </div>
 
@@ -345,23 +346,23 @@ export default function MedicalHistoryPage() {
             {/* {하단 버튼/Bottom Buttons} */}
             {/* 하단 버튼 */}
              <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
-              <button
+              <SolidButton
                 onClick={() => router.push("/drd/default-setting")}
-                className="btn-tsi btn-tsi-secondary"
+                variant="secondary" size="L"
               >
                 Cancel
-              </button>
-              <button
+              </SolidButton>
+              <SolidButton
                 disabled={!isConfirmEnabled}
                 onClick={() => {
                   setMedicalHistoryData(checked);
                   setCompleted("medical-history", true);
                   router.push("/drd/default-setting");
                 }}
-                className="btn-tsi btn-tsi-primary"
+                variant="primary" size="L"
               >
                 Confirm
-              </button>
+              </SolidButton>
             </div>
           </div>
 

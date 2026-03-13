@@ -7,7 +7,7 @@ interface GlassBtnProps {
   children: React.ReactNode;
   iconSrc?: string;
   onClick?: () => void;
-  width: number;
+  width?: number;
   disabled?: boolean;
 }
 
@@ -23,24 +23,22 @@ export const GlassBtn: React.FC<GlassBtnProps> = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className="figma-header-btn-pil rounded-[32px] gap-[4px] px-6 inline-flex items-center justify-center border-none cursor-pointer shrink-0"
+    className="figma-header-btn-pil rounded-[32px] gap-1.5 pl-6 pr-6 py-5 [@media(max-width:1470px)]:pl-3 [@media(max-width:1470px)]:pr-3 [@media(max-width:1470px)]:py-3 [@media(max-width:1470px)]:rounded-[24px] inline-flex items-center justify-center border-none cursor-pointer shrink-0 transition-all glass-btn-responsive"
     style={{
-      width: `${width}px`,
-      height: "60px",
+      ...(width ? { "--glass-btn-w": `${width}px`, "--glass-btn-w-sm": `${Math.round(width * 0.75)}px` } as React.CSSProperties : {}),
       background: "transparent",
-      transition: "opacity 0.15s ease",
       opacity: disabled ? 0.45 : 1,
       cursor: disabled ? "default" : "pointer",
     }}
   >
     {iconSrc && (
-      <span className="flex items-center shrink-0 relative" style={{ top: "-2px" }}>
-        <Image src={iconSrc} alt="" width={24} height={24} style={{ objectFit: "contain" }} />
+      <span className="flex items-center shrink-0 relative" style={{ top: "-1px" }}>
+        <Image src={iconSrc} alt="" width={16} height={16} className="[@media(max-width:1470px)]:w-3 [@media(max-width:1470px)]:h-3" style={{ objectFit: "contain"}} />
       </span>
     )}
     <span
-      className="text-body3m"
-      style={{ color: "#0D063C", whiteSpace: "nowrap", position: "relative", top: "-2px" }}
+      className="text-body4"
+      style={{ color: "#0D063C", whiteSpace: "nowrap", top: "-1px" }}
     >
       {children}
     </span>

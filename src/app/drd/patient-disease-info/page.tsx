@@ -35,6 +35,7 @@ import RadioButton from "@/components/ui/radio-button";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import { makeDefaultSettingSteps } from "@/components/drd/drd-step-data";
 import { GlassTestButton } from "@/components/ui/glass-button";
+import SolidButton from "@/components/ui/solid-button";
 
 function IconChevronDown({ size = 18 }: { size?: number }) {
   return (
@@ -138,17 +139,15 @@ export default function PatientDiseaseInfoPage() {
                     setControlMode("value");
                     setTrendSelection("Increase");
                   }} />
-                  <button
+                  <SolidButton
                     onClick={handleReset}
                     disabled={!isDirty}
-                    className="btn-tsi btn-tsi-secondary gap-2"
-                    style={{ paddingRight: 16 }}
+                    variant="secondary" size="L"
+                    icon={<svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}><path d="M22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2V4C10.0845 4.00022 8.23272 4.6877 6.78115 5.93749C5.32958 7.18727 4.37462 8.9164 4.08983 10.8106C3.80504 12.7048 4.20934 14.6382 5.22923 16.2596C6.24912 17.881 7.81691 19.0826 9.64763 19.646C11.4783 20.2095 13.4505 20.0974 15.2055 19.3301C16.9606 18.5628 18.3821 17.1913 19.2117 15.4648C20.0413 13.7382 20.2239 11.7714 19.7262 9.9217C19.2286 8.07199 18.0839 6.46223 16.5 5.385V8H14.5V2H20.5V4H18C19.2425 4.93093 20.251 6.13866 20.9453 7.52734C21.6397 8.91601 22.0008 10.4474 22 12Z" fill="white" stroke="white" strokeWidth="0.5"/></svg>}
+                    iconPosition="right"
                   >
                     Reset
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-                      <path d="M22 12C22 17.523 17.523 22 12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2V4C10.0845 4.00022 8.23272 4.6877 6.78115 5.93749C5.32958 7.18727 4.37462 8.9164 4.08983 10.8106C3.80504 12.7048 4.20934 14.6382 5.22923 16.2596C6.24912 17.881 7.81691 19.0826 9.64763 19.646C11.4783 20.2095 13.4505 20.0974 15.2055 19.3301C16.9606 18.5628 18.3821 17.1913 19.2117 15.4648C20.0413 13.7382 20.2239 11.7714 19.7262 9.9217C19.2286 8.07199 18.0839 6.46223 16.5 5.385V8H14.5V2H20.5V4H18C19.2425 4.93093 20.251 6.13866 20.9453 7.52734C21.6397 8.91601 22.0008 10.4474 22 12Z" fill="white" stroke="white" strokeWidth="0.5"/>
-                    </svg>
-                  </button>
+                  </SolidButton>
                 </div>
               </div>
 
@@ -268,18 +267,18 @@ export default function PatientDiseaseInfoPage() {
               {/* {하단 버튼/Bottom Buttons} */}
               {/* 하단 버튼 */}
             <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
-              <button
+              <SolidButton
                 onClick={() => router.push("/drd/default-setting")}
-                className="btn-tsi btn-tsi-secondary"
+                variant="secondary" size="L"
               >
                 Cancel
-              </button>
-              <button
+              </SolidButton>
+              <SolidButton
                 onClick={() => { setPatientDiseaseInfoData({ baselineDemo, baselineMeasure, controlMode, trendSelection }); setCompleted("patient-disease-info", true); router.push("/drd/default-setting"); }}
-                className="btn-tsi btn-tsi-primary"
+                variant="primary" size="L"
               >
                 Confirm
-              </button>
+              </SolidButton>
             </div>
           </div>
         </div>

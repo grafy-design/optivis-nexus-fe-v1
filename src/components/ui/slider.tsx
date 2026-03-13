@@ -42,12 +42,12 @@ export default function Slider({
 
   const percentage = ((value - min) / (max - min)) * 100;
 
-  // 핸들 상태별 스타일 (DRD ResizablePill 참고)
+  // 핸들 상태별 스타일 (TSI CDF 핸들 기준 통일)
   const knobState = disabled ? "disabled" : isDragging ? "pressed" : isHovered ? "hover" : "default";
   const knobStyles = {
-    default:  { bg: "var(--neutral-95)", border: "var(--text-disabled)", fill: "#231f52", track: "var(--neutral-90)" },
-    hover:    { bg: "#d4d3dc", border: "#8f8ac4", fill: "#231f52", track: "var(--neutral-90)" },
-    pressed:  { bg: "#c5c0fe", border: "#5c588e", fill: "#3a11d8", track: "var(--neutral-90)" },
+    default:  { bg: "#fcf8f8", border: "#e2e1e5", fill: "#231f52", track: "var(--neutral-90)" },
+    hover:    { bg: "#f9f8fc", border: "#e2e1e5", fill: "#231f52", track: "var(--neutral-90)" },
+    pressed:  { bg: "#efeff4", border: "#e2e1e5", fill: "#3a11d8", track: "var(--neutral-90)" },
     disabled: { bg: "#f5f5f7", border: "var(--neutral-90)", fill: "var(--text-disabled)", track: "var(--neutral-90)" },
   }[knobState];
 
@@ -203,11 +203,12 @@ export default function Slider({
                 borderRadius: 9999,
                 backgroundColor: knobStyles.bg,
                 border: `1px solid ${knobStyles.border}`,
+                boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
                 left: `calc(${percentage}% - ${knobW / 2}px)`,
                 transform: "translateY(-50%)",
                 top: "50%",
                 cursor: disabled ? "not-allowed" : isDragging ? "grabbing" : "grab",
-                transition: "background-color 0.12s, border-color 0.12s",
+                transition: "background-color 0.15s, border-color 0.15s",
               }}
             />
           </div>

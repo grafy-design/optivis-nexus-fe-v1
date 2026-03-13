@@ -1,7 +1,13 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import ReactECharts from "@/components/charts/DynamicECharts";
+import {
+  tooltipBase,
+  CHART_COLORS,
+  tooltipDotRow,
+  tooltipWrap,
+} from "@/lib/chart-styles";
 
 interface LineChartWithHighlightProps {
   optivisData: number[][];
@@ -20,6 +26,7 @@ interface LineChartWithHighlightProps {
   xAxisConfig?: {
     nameGap?: number;
     nameTextStyle?: {
+      fontFamily?: string;
       fontSize?: number;
       fontWeight?: number;
       letterSpacing?: number;
@@ -27,6 +34,7 @@ interface LineChartWithHighlightProps {
     };
     scale?: boolean;
     axisLabel?: {
+      fontFamily?: string;
       fontSize?: number;
       fontWeight?: number;
       color?: string;
@@ -36,6 +44,7 @@ interface LineChartWithHighlightProps {
   yAxisConfig?: {
     nameGap?: number;
     nameTextStyle?: {
+      fontFamily?: string;
       fontSize?: number;
       fontWeight?: number;
       letterSpacing?: number;
@@ -43,6 +52,7 @@ interface LineChartWithHighlightProps {
     };
     scale?: boolean;
     axisLabel?: {
+      fontFamily?: string;
       fontSize?: number;
       fontWeight?: number;
       color?: string;
@@ -62,43 +72,69 @@ interface LineChartWithHighlightProps {
   showAreaStyle?: boolean;
   optivisAreaColor?: string;
   traditionalAreaColor?: string;
+  compactTooltip?: boolean;
   onChartClick?: (params: any) => void;
 }
 
-// y축 값에 가장 가까운 포인트 인덱스를 찾는 함수
-const findClosestIndexByY = (data: number[][], yValue: number) => {
-  if (data.length === 0) return -1;
-
-  let closestIndex = 0;
-  let minDiff = Math.abs(data[0][1] - yValue);
-
-  for (let i = 1; i < data.length; i++) {
-    const diff = Math.abs(data[i][1] - yValue);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closestIndex = i;
+/**
+ * Y 값으로 곡선 위의 X를 선형 보간하여 구하는 함수
+ * data는 Y 기준으로 정렬되어 있지 않을 수 있으므로, 인접 두 점 사이를 보간
+ */
+const interpolateXAtY = (data: number[][], targetY: number): number | null => {
+  if (data.length === 0) return null;
+  // Y 기준 정렬된 복사본
+  const sorted = [...data].sort((a, b) => a[1] - b[1]);
+  // targetY가 범위 밖이면 가장 가까운 점 반환
+  if (targetY <= sorted[0][1]) return sorted[0][0];
+  if (targetY >= sorted[sorted.length - 1][1]) return sorted[sorted.length - 1][0];
+  // 인접 두 점 사이에서 보간
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const [x1, y1] = sorted[i];
+    const [x2, y2] = sorted[i + 1];
+    if (targetY >= y1 && targetY <= y2) {
+      const t = (targetY - y1) / (y2 - y1);
+      return x1 + t * (x2 - x1);
     }
   }
-
-  return closestIndex;
+  return sorted[0][0];
 };
 
-// x축 값에 가장 가까운 포인트 인덱스를 찾는 함수
-const findClosestIndexByX = (data: number[][], xValue: number) => {
-  if (data.length === 0) return -1;
+/**
+ * 두 곡선에서 X값 차이가 가장 큰 Y지점을 찾는 함수
+ * 공통 Y 범위에서 샘플링하여 최대 차이 지점을 반환
+ */
+const findMaxXDiffY = (
+  dataA: number[][],
+  dataB: number[][],
+  samples = 200,
+): { y: number; xA: number; xB: number } | null => {
+  if (dataA.length < 2 || dataB.length < 2) return null;
+  const allYA = dataA.map((d) => d[1]);
+  const allYB = dataB.map((d) => d[1]);
+  const yMin = Math.max(Math.min(...allYA), Math.min(...allYB));
+  const yMax = Math.min(Math.max(...allYA), Math.max(...allYB));
+  if (yMin >= yMax) return null;
 
-  let closestIndex = 0;
-  let minDiff = Math.abs(data[0][0] - xValue);
+  let bestY = yMin;
+  let bestDiff = 0;
+  let bestXA = 0;
+  let bestXB = 0;
 
-  for (let i = 1; i < data.length; i++) {
-    const diff = Math.abs(data[i][0] - xValue);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closestIndex = i;
+  for (let i = 0; i <= samples; i++) {
+    const y = yMin + ((yMax - yMin) * i) / samples;
+    const xA = interpolateXAtY(dataA, y);
+    const xB = interpolateXAtY(dataB, y);
+    if (xA === null || xB === null) continue;
+    const diff = Math.abs(xA - xB);
+    if (diff > bestDiff) {
+      bestDiff = diff;
+      bestY = y;
+      bestXA = xA;
+      bestXB = xB;
     }
   }
 
-  return closestIndex;
+  return { y: bestY, xA: bestXA, xB: bestXB };
 };
 
 export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
@@ -106,8 +142,8 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
   traditionalData,
   xAxisName,
   yAxisName,
-  highlightIndex,
-  highlightXValue,
+  highlightIndex: _highlightIndex,
+  highlightXValue: _highlightXValue,
   grid = { left: 60, right: 20, top: 20, bottom: 50 },
   xAxisConfig = {},
   yAxisConfig = {},
@@ -124,45 +160,35 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
   showAreaStyle = false,
   optivisAreaColor = "rgba(240, 102, 0, 0.25)",
   traditionalAreaColor = "rgba(35, 31, 82, 0.25)",
+  compactTooltip = false,
   onChartClick,
 }) => {
-  const [tooltipVisible, setTooltipVisible] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  // 두 곡선의 X값 차이가 가장 큰 Y지점 계산
+  const maxDiffResult = useMemo(() => {
+    if (optivisData.length < 2 || traditionalData.length < 2) return null;
+    return findMaxXDiffY(optivisData, traditionalData);
+  }, [optivisData, traditionalData]);
 
-  // 하이라이트 포인트 계산 메모이제이션
-  const { optivisPoint, traditionalPoint } = useMemo(() => {
-    let optivisHighlightIndex: number;
-    if (highlightXValue !== undefined) {
-      optivisHighlightIndex = findClosestIndexByX(optivisData, highlightXValue);
-    } else if (highlightIndex !== undefined) {
-      optivisHighlightIndex = Math.min(
-        Math.max(0, highlightIndex),
-        optivisData.length - 1,
-      );
-    } else {
-      optivisHighlightIndex = -1;
-    }
+  const optivisPoint: number[] | null = maxDiffResult
+    ? [maxDiffResult.xA, maxDiffResult.y]
+    : null;
+  const traditionalPoint: number[] | null = maxDiffResult
+    ? [maxDiffResult.xB, maxDiffResult.y]
+    : null;
 
-    const optivisY =
-      optivisHighlightIndex >= 0 && optivisHighlightIndex < optivisData.length
-        ? optivisData[optivisHighlightIndex][1]
-        : null;
+  // x축 데이터 범위 계산 (전체 너비를 채우도록)
+  const xRange = useMemo(() => {
+    const allX = [...optivisData.map(d => d[0]), ...traditionalData.map(d => d[0])];
+    if (allX.length === 0) return { min: undefined, max: undefined };
+    return { min: Math.min(...allX), max: Math.max(...allX) };
+  }, [optivisData, traditionalData]);
 
-    const traditionalHighlightIndex =
-      optivisY !== null ? findClosestIndexByY(traditionalData, optivisY) : -1;
-
-    const oPoint =
-      optivisHighlightIndex >= 0 && optivisHighlightIndex < optivisData.length
-        ? optivisData[optivisHighlightIndex]
-        : null;
-    const tPoint =
-      traditionalHighlightIndex >= 0 &&
-      traditionalHighlightIndex < traditionalData.length
-        ? traditionalData[traditionalHighlightIndex]
-        : null;
-
-    return { optivisPoint: oPoint, traditionalPoint: tPoint };
-  }, [optivisData, traditionalData, highlightIndex, highlightXValue]);
+  // y축 데이터 범위 계산 (markLine 60% 길이 계산용)
+  const yRange = useMemo(() => {
+    const allY = [...optivisData.map(d => d[1]), ...traditionalData.map(d => d[1])];
+    if (allY.length === 0) return { min: 0, max: 1 };
+    return { min: Math.min(...allY), max: Math.max(...allY) };
+  }, [optivisData, traditionalData]);
 
   // ECharts option 객체 메모이제이션
   const chartOption = useMemo(() => {
@@ -177,6 +203,10 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         itemStyle: { color: optivisColor },
         smooth: true,
         z: 3,
+        emphasis: {
+          lineStyle: { width: optivisLineWidth + 1, color: "#ff7a1a" },
+          itemStyle: { color: "#ff7a1a", borderColor: "#ff7a1a" },
+        },
         markPoint: optivisPoint
           ? {
               data: [
@@ -200,22 +230,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         markLine: optivisPoint
           ? {
               symbol: "none",
-              lineStyle: {
-                type: "dashed",
-                width: 1,
-                opacity: 1,
-              },
               data: [
-                {
-                  xAxis: optivisPoint[0],
-                  label: { show: false },
-                  lineStyle: {
-                    color: optivisColor,
-                    type: "solid",
-                    width: 2,
-                    opacity: 1,
-                  },
-                },
                 {
                   yAxis: optivisPoint[1],
                   label: { show: false },
@@ -224,6 +239,16 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
                     type: [4, 3] as any,
                     width: 1.5,
                     opacity: 0.8,
+                  },
+                },
+                {
+                  xAxis: optivisPoint[0],
+                  label: { show: false },
+                  lineStyle: {
+                    color: optivisColor,
+                    type: "solid",
+                    width: 2,
+                    opacity: 0.6,
                   },
                 },
               ],
@@ -244,7 +269,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
                 { offset: 1, color: optivisAreaColor.replace("0.25", "0.03") },
               ],
             },
-            origin: "start",
+            origin: 0,
           },
         }),
       },
@@ -258,6 +283,10 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         itemStyle: { color: traditionalColor },
         smooth: true,
         z: 2,
+        emphasis: {
+          lineStyle: { width: traditionalLineWidth + 1, color: "#3a2d7a" },
+          itemStyle: { color: "#3a2d7a", borderColor: "#3a2d7a" },
+        },
         markPoint: traditionalPoint
           ? {
               data: [
@@ -281,11 +310,6 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         markLine: traditionalPoint
           ? {
               symbol: "none",
-              lineStyle: {
-                type: "dashed",
-                width: 1,
-                opacity: 1,
-              },
               data: [
                 {
                   xAxis: traditionalPoint[0],
@@ -294,7 +318,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
                     color: traditionalColor,
                     type: "solid",
                     width: 2,
-                    opacity: 1,
+                    opacity: 0.6,
                   },
                 },
               ],
@@ -321,7 +345,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
                 },
               ],
             },
-            origin: "start",
+            origin: 0,
           },
         }),
       },
@@ -338,6 +362,8 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
           fontSize: 12,
           color: "#666",
         },
+        min: xRange.min,
+        max: xRange.max,
         axisLine: {
           show: showAxes,
           ...(showAxes && { lineStyle: { color: "#787776", width: 1 } }),
@@ -356,9 +382,13 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         },
         splitLine: {
           show: showGrid,
-          lineStyle: { color: "#e0e0e0", type: "dashed" },
+          lineStyle: { color: "#c7c5c9", type: "dashed" },
         },
         scale: xAxisConfig.scale ?? false,
+        axisPointer: {
+          lineStyle: { color: "transparent", width: 0 },
+          label: { show: false },
+        },
       },
       yAxis: {
         type: "value",
@@ -379,8 +409,8 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         },
         axisLabel: {
           show: showAxes,
+          showMaxLabel: false,
           verticalAlignMinLabel: "top" as any,
-          verticalAlignMaxLabel: "bottom" as any,
           ...(yAxisConfig.axisLabel && {
             fontSize: yAxisConfig.axisLabel.fontSize,
             fontWeight: yAxisConfig.axisLabel.fontWeight,
@@ -390,45 +420,66 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         },
         splitLine: {
           show: showGrid,
-          lineStyle: { color: "#e0e0e0", type: "dashed" },
+          lineStyle: { color: "#c7c5c9", type: "dashed" },
         },
         scale: yAxisConfig.scale ?? false,
+        axisPointer: {
+          lineStyle: { color: CHART_COLORS.AXIS_LINE, type: "dashed" as const },
+          label: {
+            show: true,
+            formatter: (p: any) => typeof p.value === "number" ? p.value.toFixed(2) : p.value,
+            backgroundColor: "transparent",
+            color: CHART_COLORS.NEUTRAL_50,
+            fontFamily: "Inter",
+            fontSize: 10,
+            fontWeight: 500,
+            borderWidth: 0,
+            shadowBlur: 0,
+            padding: [4, 6],
+          },
+        },
       },
       series,
-      tooltip: { show: false },
+      tooltip: {
+        ...tooltipBase,
+        trigger: "axis" as const,
+        axisPointer: {
+          type: "cross" as const,
+          snap: false,
+        },
+        formatter: (params: any) => {
+          const items = Array.isArray(params) ? params : [params];
+          const item = items[0];
+          if (!item) return "";
+          const y = item.data?.[1] as number;
+          // 양쪽 곡선 모두 Y값 기준으로 X를 보간
+          const optX = interpolateXAtY(optivisData, y);
+          const tradX = interpolateXAtY(traditionalData, y);
+          if (optX === null || tradX === null) return "";
+          const diff = Math.abs(optX - tradX);
+          // 차이값 (강조)
+          let html = `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-family:Inter;color:#484646${compactTooltip ? "" : ";margin-bottom:6px"}"><span style="font-size:9px;font-weight:500">Diff</span><span style="font-size:15px;font-weight:700">${Math.round(diff)}</span></div>`;
+          if (!compactTooltip) {
+            // 각 그룹의 X값 (dot 없이, 그룹명에 색상 적용)
+            html += `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:1px 0"><span style="color:${optivisColor};font-size:9px">OPTIVIS</span><span style="color:#787776;font-size:13px;font-weight:600">${Math.round(optX)}</span></div>`;
+            html += `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:1px 0"><span style="color:${traditionalColor};font-size:9px">Traditional</span><span style="color:#787776;font-size:13px;font-weight:600">${Math.round(tradX)}</span></div>`;
+          }
+          return tooltipWrap(html);
+        },
+      },
     };
   }, [
     optivisData, traditionalData, optivisPoint, traditionalPoint,
-    grid, xAxisName, yAxisName, xAxisConfig, yAxisConfig,
+    grid, xAxisName, yAxisName, xAxisConfig, yAxisConfig, xRange, yRange,
     showGrid, showAxes, showTicks, showAreaStyle,
     optivisColor, traditionalColor,
     optivisSymbolSize, traditionalSymbolSize,
     optivisLineWidth, traditionalLineWidth,
-    optivisAreaColor, traditionalAreaColor,
+    optivisAreaColor, traditionalAreaColor, compactTooltip,
   ]);
 
-  const handleChartClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!showTooltip || (!optivisPoint && !traditionalPoint)) return;
-
-    // 클릭 위치 가져오기
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    // 아무 곳이나 클릭하면 토글
-    if (tooltipVisible) {
-      setTooltipVisible(false);
-    } else {
-      setTooltipPosition({ x, y });
-      setTooltipVisible(true);
-    }
-  };
-
   return (
-    <div
-      className="relative h-full w-full"
-      onClick={handleChartClick}
-    >
+    <div className="relative h-full w-full">
       <ReactECharts
         option={chartOption}
         notMerge={true}
@@ -442,79 +493,6 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
             : undefined
         }
       />
-      {/* 클릭 위치에 표시되는 툴팁 */}
-      {showTooltip && tooltipVisible && (optivisPoint || traditionalPoint) && (
-        <div
-          className="absolute"
-          style={{
-            left: `${tooltipPosition.x}px`,
-            top: `${tooltipPosition.y}px`,
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            borderRadius: "5.67px",
-            padding: "8px 12px",
-            minWidth: "87px",
-            zIndex: 10,
-            transform: "translate(-50%, -100%)",
-            marginTop: "-8px",
-          }}
-        >
-          {/* OPTIVIS 섹션 */}
-          {optivisPoint && (
-            <div style={{ marginBottom: "8px" }}>
-              <div
-                className="flex items-center"
-                style={{
-                  marginBottom: "4px",
-                }}
-              >
-                <div
-                  className="rounded-full shrink-0"
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    backgroundColor: optivisColor,
-                    marginRight: "8px",
-                  }}
-                />
-                <span className="text-body4 text-white">OPTIVIS</span>
-              </div>
-              <div className="flex justify-end">
-                <span className="text-body4 text-neutral-98">
-                  {Math.round(optivisPoint[0])} , {optivisPoint[1].toFixed(2)}
-                </span>
-              </div>
-            </div>
-          )}
-          {/* Traditional 섹션 */}
-          {traditionalPoint && (
-            <div>
-              <div
-                className="flex items-center"
-                style={{
-                  marginBottom: "4px",
-                }}
-              >
-                <div
-                  className="rounded-full shrink-0"
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    backgroundColor: traditionalColor,
-                    marginRight: "8px",
-                  }}
-                />
-                <span className="text-body4 text-white">Traditional</span>
-              </div>
-              <div className="flex justify-end">
-                <span className="text-body4 text-neutral-98">
-                  {Math.round(traditionalPoint[0])} ,{" "}
-                  {traditionalPoint[1].toFixed(2)}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };

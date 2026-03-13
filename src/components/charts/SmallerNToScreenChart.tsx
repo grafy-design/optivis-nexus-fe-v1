@@ -26,26 +26,28 @@ export const SmallerNToScreenChart: React.FC<SmallerNToScreenChartProps> = ({
       yAxisName="Power"
       highlightIndex={highlightIndex}
       highlightXValue={highlightXValue}
-      grid={compactMode ? { left: 12, right: 4, top: 12, bottom: 8, containLabel: true } : { left: 16, right: 4, top: 12, bottom: 16, containLabel: true }}
+      grid={compactMode ? { left: 12, right: 8, top: 15, bottom: 12, containLabel: true } : { left: 16, right: 12, top: 15, bottom: 16, containLabel: true }}
       xAxisConfig={{
-        nameGap: compactMode ? 1 : 18,
+        nameGap: compactMode ? 16 : 18,
         nameTextStyle: {
           fontSize: compactMode ? 8 : 10,
           fontWeight: 500,
+          fontFamily: "Inter",
           color: "#787776",
         },
         scale: true,
-        axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, color: "#787776", margin: 4 },
+        axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       }}
       yAxisConfig={{
-        nameGap: compactMode ? 4 : 24,
+        nameGap: compactMode ? 20 : 24,
         nameTextStyle: {
           fontSize: compactMode ? 8 : 10,
           fontWeight: 500,
+          fontFamily: "Inter",
           color: "#787776",
         },
         scale: true,
-        axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, color: "#787776", margin: 4 },
+        axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       }}
       showGrid={true}
       showAxes={true}
@@ -60,6 +62,7 @@ export const SmallerNToScreenChart: React.FC<SmallerNToScreenChartProps> = ({
       showAreaStyle={true}
       optivisAreaColor="rgba(240, 102, 0, 0.25)"
       traditionalAreaColor="rgba(35, 31, 82, 0.25)"
+      compactTooltip={compactMode}
     />
   );
 };

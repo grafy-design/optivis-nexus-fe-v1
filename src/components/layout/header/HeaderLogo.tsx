@@ -5,10 +5,9 @@ import React from "react";
 /** 홈 페이지 로고 — "OPTIVIS Nexus" */
 export const HeaderLogo: React.FC = () => (
   <h1
-    className="shrink-0"
+    className="shrink-0  text-[36px] [@media(max-width:1470px)]:text-[24px]"
     style={{
       fontFamily: "'Helvetica Now Display', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-      fontSize: "36px",
       fontWeight: 700,
       lineHeight: "1",
       letterSpacing: "-0.1px",

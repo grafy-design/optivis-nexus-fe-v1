@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
+import SolidButton from "@/components/ui/solid-button";
 import { TSISaveModal } from "@/components/tsi/TSISaveModal";
 import { getPatientSummary, type PatientSummaryData } from "@/services/subgroup-service";
 import { BaselineCharacteristicsTable, AnimatedNumber } from "@/components/tsi/BaselineCharacteristicsTable";
@@ -119,7 +120,7 @@ export default function TSIPatientsSummaryPage() {
           </div>
 
           {/* ── 2. 글래스 카드 + 버튼 컨테이너 / Glass card + button container ── */}
-          <div className="flex flex-1 min-h-0 flex-col gap-0">
+          <div className="flex flex-1 min-h-0 flex-col gap-1">
 
             {/* ── 2-1. 글래스 배경 카드 / Glass background card ───────────── */}
             <div
@@ -161,33 +162,34 @@ export default function TSIPatientsSummaryPage() {
               className="flex flex-shrink-0 items-center justify-end gap-3 pr-0.5"
             >
               {/* Save Simulation 버튼 → 모달 열기 / Opens save modal */}
-              <button
-                type="button"
-                className="btn-tsi btn-tsi-secondary"
+              <SolidButton
+                variant="secondary"
+                size="L"
                 onClick={() => setShowSaveModal(true)}
               >
                 Save Simulation
-              </button>
+              </SolidButton>
 
               {/* Identify Subgroup 버튼 → Basis Selection 이동 / Navigate to Basis Selection */}
-              <button
-                type="button"
+              <SolidButton
+                variant="primary"
+                size="L"
                 onClick={handleGoToBasisSelection}
-                className="btn-tsi btn-tsi-primary gap-2"
-                style={{ paddingRight: 18 }}
+                iconPosition="right"
+                icon={
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M4 3L13 8L4 13V3Z" fill="white" />
+                  </svg>
+                }
               >
                 Identify Subgroup
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ flexShrink: 0 }}
-                >
-                  <path d="M4 3L13 8L4 13V3Z" fill="white" />
-                </svg>
-              </button>
+              </SolidButton>
             </div>
 
           </div>

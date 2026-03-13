@@ -30,6 +30,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { DrdLeftPanel } from "@/components/drd/DrdLeftPanel";
 import type { DrdStepItem } from "@/components/drd/drd-step-data";
 import { useSimulationStore, type SimulationState, type SimCondData } from "@/store/simulationStore";
+import SolidButton from "@/components/ui/solid-button";
 
 /* ─────────────────────────────────────────────
    ICONS
@@ -159,21 +160,16 @@ function InitialCard({ step, title, required, description, flex, onClick }: {
         }}>
           {description}
         </p>
-        <button
+        <SolidButton
           onClick={onClick}
-          className="btn-tsi btn-tsi-purple-light w-full gap-2"
-          style={{
-            height: 36,
-            marginTop: 20,
-          }}>
-          <span className="text-body3">
-            Setting
-          </span>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2.33594 8.33594H14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M8.33594 2.33594V14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+          variant="light-purple" size="m"
+          className="w-full"
+          style={{ marginTop: 20 }}
+          icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.33594 8.33594H14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M8.33594 2.33594V14.3359" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+          iconPosition="right"
+        >
+          Setting
+        </SolidButton>
       </div>
     </div>
   );
@@ -191,29 +187,23 @@ function ResetEditButtons({ onReset, onEdit }: { onReset?: () => void; onEdit?: 
   return (
     <div className="flex items-center justify-end shrink-0 gap-2.5">
       {/* Reset */}
-      <button
+      <SolidButton
         onClick={onReset}
-        className="btn-tsi btn-tsi-purple-light gap-1.5"
-        style={{
-          height: 36, paddingLeft: 20, paddingRight: 10,
-        }}
+        variant="light-purple" size="m"
+        icon={<img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} className="shrink-0" style={{ filter: "brightness(0) invert(1)" }} />}
+        iconPosition="right"
       >
-        <span className="text-body4" style={{ whiteSpace: "nowrap" }}>Reset</span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/basics/reset-16.svg" alt="" width={18} height={18} className="shrink-0" style={{ filter: "brightness(0) invert(1)" }} />
-      </button>
+        Reset
+      </SolidButton>
       {/* Edit */}
-      <button
+      <SolidButton
         onClick={onEdit}
-        className="btn-tsi btn-tsi-purple-light gap-1.5"
-        style={{
-          height: 36, paddingLeft: 20, paddingRight: 14,
-        }}
+        variant="light-purple" size="m"
+        icon={<img src="/icons/basics/add-16.svg" alt="" width={18} height={18} className="shrink-0" style={{ filter: "brightness(0) invert(1)" }} />}
+        iconPosition="right"
       >
-        <span className="text-body4" style={{ whiteSpace: "nowrap" }}>Edit</span>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/icons/basics/add-16.svg" alt="" width={18} height={18} className="shrink-0" style={{ filter: "brightness(0) invert(1)" }} />
-      </button>
+        Edit
+      </SolidButton>
     </div>
   );
 }
@@ -505,20 +495,19 @@ export default function SimulationSettingPage() {
 
             {/* Bottom buttons */}
             <div className="shrink-0 flex justify-end items-center gap-3 pr-0.5">
-              <button
+              <SolidButton
                 disabled={!simCondCompleted}
-                className="btn-tsi btn-tsi-secondary"
-                style={{ paddingLeft: 28, paddingRight: 28 }}
+                variant="secondary" size="L"
               >
                 Save Progress
-              </button>
-              <button
+              </SolidButton>
+              <SolidButton
                 disabled={!simCondCompleted}
                 onClick={() => simCondCompleted && router.push("/drd/simulation-result")}
-                className="btn-tsi btn-tsi-primary"
+                variant="primary" size="L"
               >
                 Apply to Analysis
-              </button>
+              </SolidButton>
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Loading } from "@/components/common/Loading";
+import SolidButton from "@/components/ui/solid-button";
 import type { ErrorBarGroup, ErrorBarPoint } from "@/components/charts/MultiLineWithErrorBar";
 import {
   TSIDiseaseProgressionPanel,
@@ -747,16 +748,19 @@ function TSIReportPageContent() {
               })()}
             </p>
           </div>
-          <button
-            type="button"
-            className="btn-tsi btn-tsi-secondary"
+          <SolidButton
+            variant="secondary"
+            size="L"
             onClick={() => console.log("[TSI][Report] Save as PDF clicked")}
+            iconPosition="right"
+            icon={
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            }
           >
             Save as PDF
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-              <path d="M3 13H13M8 3V11M5 8L8 11L11 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+          </SolidButton>
         </div>
 
         {/* ── 2. 리포트 배경 카드 (glass) / Report glass background card ── */}
@@ -1045,34 +1049,36 @@ function TSIReportPageContent() {
         {/* ── 3. 하단 CTA 버튼 / Bottom CTA buttons ── */}
         <div className="flex items-center justify-end flex-shrink-0 pr-0.5 pb-[24px]">
           <div className="flex gap-4">
-            <button
-              type="button"
-              className="btn-tsi btn-tsi-secondary"
+            <SolidButton
+              variant="secondary"
+              size="L"
               onClick={() => setShowSaveModal(true)}
             >
               Save Progress
-            </button>
-            <button
-              type="button"
-              className="btn-tsi btn-tsi-primary gap-2"
+            </SolidButton>
+            <SolidButton
+              variant="primary"
+              size="L"
               onClick={() => {
                 const query = new URLSearchParams({ taskId });
                 router.push(`/tsi/basis-selection?${query.toString()}`);
               }}
+              iconPosition="right"
+              icon={
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M2.33594 8.33594H14.3359" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8.33594 2.33594V14.3359" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              }
             >
               Add Basis
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ flexShrink: 0 }}
-              >
-                <path d="M2.33594 8.33594H14.3359" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M8.33594 2.33594V14.3359" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            </SolidButton>
           </div>
         </div>
 

@@ -5,6 +5,22 @@ import { createPortal } from "react-dom";
 
 // 사이즈별 스타일 상수 / Size-specific style constants
 const SIZE_CONFIG = {
+  xs: {
+    triggerHeight: 28,
+    smallTriggerHeight: 24,
+    triggerPaddingLeft: 8,
+    triggerPaddingRight: 6,
+    fontSize: 12,
+    smallFontSize: 10,
+    letterSpacing: "-0.36px",
+    iconSize: 16,
+    smallIconSize: 14,
+    menuPadding: 6,
+    menuMaxHeight: 180,
+    optionHeight: 28,
+    optionPaddingX: 4,
+    optionPaddingY: 2,
+  },
   s: {
     triggerHeight: 28,
     smallTriggerHeight: 24,

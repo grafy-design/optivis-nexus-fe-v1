@@ -23,7 +23,8 @@
       "Bash(git log:*)",
       "Bash(npm show:*)",
       "Bash(npm install:*)",
-      "Bash(py:*)"
+      "Bash(py:*)",
+      "Bash(git remote rename:*)"
     ],
     "additionalDirectories": [
       "c:\\Users\\GRAFY_BOSS_DESKTOP\\Desktop\\nexus-fe-grafy\\src\\components\\tsi"

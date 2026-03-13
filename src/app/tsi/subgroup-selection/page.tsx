@@ -1173,7 +1173,7 @@ function TSISubgroupSelectionPageContent() {
         </div>
 
         {/* ── 2. 메인+버튼 묶음 컨테이너 / Main cards + button wrapper ── */}
-        <div className="flex flex-col flex-1 min-h-0 gap-0">
+        <div className="flex flex-col flex-1 min-h-0 gap-1">
           {/* ── 2-A. 상위 배경 카드 2개 나란히 / Two side-by-side background cards ── */}
           <div
             className="flex flex-row flex-nowrap items-stretch gap-1 flex-1 px-0.5 min-h-0"
@@ -1503,7 +1503,7 @@ function TSISubgroupSelectionPageContent() {
             </div>
             {/* ── 2-A-R. 오른쪽 상위 배경 카드 (glass, 70%) / Right glass card ── */}
             <div
-              className="figma-nine-slice figma-home-panel-right flex flex-col rounded-[36px] overflow-hidden flex-[70] min-h-0 min-w-0"
+              className="figma-nine-slice figma-home-panel-right flex flex-col overflow-hidden flex-[70] min-h-0 min-w-0"
             >
               <div className="relative flex min-h-0 flex-1 flex-col p-0">
                 {/* ── 2-A-R-1. 흰색 테이블 카드 / White table card ── */}
@@ -1692,7 +1692,7 @@ function TSISubgroupSelectionPageContent() {
                                               e.stopPropagation();
                                               toggleRowExpansion(rowNo);
                                             }}
-                                            className="px-3"
+                                            className="px-3 hover:!bg-transparent active:!bg-transparent"
                                             title={
                                               isExpanded ? "접기" : "펼치기"
                                             }
@@ -1859,7 +1859,7 @@ function TSISubgroupSelectionPageContent() {
                                             type="button"
                                             size="s"
                                             variant="ghost"
-                                            className="!w-7 !h-7"
+                                            className="group/refine !w-7 !h-7 !rounded-[8px]"
                                             title="Refine Cutoffs"
                                             onClick={(e) => {
                                               e.stopPropagation();
@@ -1884,7 +1884,7 @@ function TSISubgroupSelectionPageContent() {
                                                 viewBox="0 0 24 24"
                                                 fill="none"
                                                 xmlns="http://www.w3.org/2000/svg"
-                                                className="w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-50"
+                                                className="w-6 h-6 [@media(max-width:1470px)]:w-5 [@media(max-width:1470px)]:h-5 text-neutral-50 group-hover/refine:text-primary-30 group-active/refine:text-primary-15 transition-colors"
                                               >
                                                 <g
                                                   style={{
@@ -1934,20 +1934,13 @@ function TSISubgroupSelectionPageContent() {
           </div>
           {/* ── 2-B. 하단 버튼 영역 / Bottom button area ── */}
           <div className="flex flex-shrink-0 items-center justify-end pr-0.5 gap-3 ">
-            <button
-              type="button"
-              className="btn-tsi btn-tsi-secondary"
-              style={{
-                cursor: "pointer",
-                color: "var(--text-inverted)",
-                letterSpacing: "-0.45px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <SolidButton
+              variant="secondary"
+              size="L"
+              style={{ letterSpacing: "-0.45px" }}
             >
               Save Progress
-            </button>
+            </SolidButton>
             <SolidButton
               variant="primary"
               size="L"

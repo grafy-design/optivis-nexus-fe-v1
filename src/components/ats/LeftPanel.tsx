@@ -94,13 +94,13 @@ export function LeftPanel({
         <div className="flex flex-col w-full h-full p-0 min-h-0 gap-3">
           {/* Sample Size Control */}
           <div
-            className="rounded-[14px] p-4 flex-shrink-0 flex flex-col gap-10"
+            className="rounded-[14px] p-4 flex-shrink-0 flex flex-col gap-12"
             style={{ background: "var(--primary-15)" }}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-body3 text-white">Sample Size Control</h3>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1  pb-1">
             <div className="flex items-center justify-between">
               <span className="text-small1 text-neutral-98">Size -</span>
               <span className="text-small1 text-neutral-98">Power +</span>
@@ -129,7 +129,7 @@ export function LeftPanel({
                       }}
                     />
                     <div
-                      className="absolute top-1/2 -translate-y-1/2 w-[38px] h-[24px] rounded-full bg-white cursor-grab active:cursor-grabbing hover:bg-neutral-90 hover:border hover:border-primary-60 active:bg-primary-80 active:border active:border-primary-40 transition-colors duration-100"
+                      className="absolute top-1/2 -translate-y-1/2 w-[38px] h-[24px] rounded-full bg-[#fcf8f8] border border-[#e2e1e5] cursor-grab active:cursor-grabbing hover:bg-[#f9f8fc] active:bg-[#efeff4] transition-colors duration-150 shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)]"
                       style={{
                         left: `calc(${Math.max(0, Math.min(100, sliderPercentage))}% - 19px)`,
                       }}
@@ -217,10 +217,10 @@ export function LeftPanel({
                 );
               })()}
             </div>
-            <div className="flex items-center justify-between">
+            {/*<div className="flex items-center justify-between">
               <span className="text-small1 text-neutral-80">Min</span>
               <span className="text-small1 text-neutral-80">Max</span>
-            </div>
+            </div>*/}
             </div>
           </div>
 
@@ -255,7 +255,7 @@ export function LeftPanel({
                               "Ovarian",
                             ]}
                             onChange={setDisease}
-                            size="s"
+                            size="xs"
                             width="100%"
                           />
                         </div>
@@ -296,7 +296,7 @@ export function LeftPanel({
                                       ),
                                     );
                                   }}
-                                  size="sm"
+                                  size="xs"
                                   width="100%"
                                 />
                               </div>
@@ -358,7 +358,7 @@ export function LeftPanel({
                                           ),
                                         );
                                       }}
-                                      size="sm"
+                                      size="xs"
                                       width="100%"
                                     />
                                   </div>
@@ -448,7 +448,7 @@ export function LeftPanel({
                               "24 months",
                             ]}
                             onChange={setTreatmentDuration}
-                            size="s"
+                            size="xs"
                             width="100%"
                           />
                         </div>
@@ -486,7 +486,7 @@ export function LeftPanel({
                                 "Equivalence",
                               ]}
                               onChange={setHypothesisType}
-                              size="sm"
+                              size="xs"
                               width="100%"
                             />
                           </div>
@@ -523,7 +523,7 @@ export function LeftPanel({
                                   }
                                 }
                               }}
-                              size="sm"
+                              size="xs"
                               width="100%"
                             />
                           </div>
@@ -549,7 +549,7 @@ export function LeftPanel({
                                     : []
                               }
                               onChange={setRandomizationRatio}
-                              size="sm"
+                              size="xs"
                               width="100%"
                             />
                           </div>
@@ -564,7 +564,7 @@ export function LeftPanel({
                               placeholder={!subpopulation}
                               options={["ALL", "Mild AD", "Moderate AD"]}
                               onChange={setSubpopulation}
-                              size="sm"
+                              size="xs"
                               width="100%"
                             />
                           </div>
@@ -592,7 +592,7 @@ export function LeftPanel({
                           "Synthetic data",
                         ]}
                         onChange={setActiveData}
-                        size="s"
+                        size="xs"
                         width="100%"
                         iconPath="/assets/icons/active-data-edit.svg"
                         iconWidth={18}

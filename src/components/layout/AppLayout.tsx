@@ -79,7 +79,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         </div>
         {/* 컨텐츠 */}
         <div
-          className={`flex-1 overflow-hidden min-w-0 min-h-0 flex flex-col${pageClass} w-full pb-5`}
+          className={`flex-1 overflow-hidden min-w-0 min-h-0 flex flex-col${pageClass} w-full pb-4`}
         >
           <MainContainer extraPaddingBottom={headerType === "drd" ? 6 : 0}>{children}</MainContainer>
         </div>

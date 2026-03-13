@@ -26,28 +26,28 @@ export const SmallerSampleChart: React.FC<SmallerSampleChartProps> = ({
       yAxisName="CI Width"
       highlightIndex={highlightIndex}
       highlightXValue={highlightXValue}
-      grid={compactMode ? { left: 12, right: -8, top: 18, bottom: 0, containLabel: true } : { left: 16, right: 4, top: 12, bottom: 16, containLabel: true }}
+      grid={compactMode ? { left: 12, right: 8, top: 15, bottom: 12, containLabel: true } : { left: 16, right: 12, top: 15, bottom: 16, containLabel: true }}
       xAxisConfig={compactMode ? {
-        nameGap: 3,
-        nameTextStyle: { fontSize: 10, fontWeight: 500, color: "#787776" },
+        nameGap: 16,
+        nameTextStyle: { fontSize: 8, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
         scale: true,
-        axisLabel: { fontSize: 10, fontWeight: 500, color: "#787776" },
+        axisLabel: { fontSize: 8, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       } : {
         nameGap: 18,
-        nameTextStyle: { fontSize: 10, fontWeight: 500, color: "#787776" },
+        nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
         scale: true,
-        axisLabel: { fontSize: 10, fontWeight: 500, color: "#787776", margin: 4 },
+        axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       }}
       yAxisConfig={compactMode ? {
-        nameGap: 24,
-        nameTextStyle: { fontSize: 10, fontWeight: 500, color: "#787776" },
+        nameGap: 20,
+        nameTextStyle: { fontSize: 8, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
         scale: true,
-        axisLabel: { fontSize: 10, fontWeight: 500, color: "#787776", margin: 4 },
+        axisLabel: { fontSize: 8, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       } : {
         nameGap: 26,
-        nameTextStyle: { fontSize: 10, fontWeight: 500, color: "#787776" },
+        nameTextStyle: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776" },
         scale: true,
-        axisLabel: { fontSize: 10, fontWeight: 500, color: "#787776", margin: 4 },
+        axisLabel: { fontSize: 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       }}
       showGrid={true}
       showAxes={true}
@@ -62,6 +62,7 @@ export const SmallerSampleChart: React.FC<SmallerSampleChartProps> = ({
       showAreaStyle={true}
       optivisAreaColor="rgba(240, 102, 0, 0.25)"
       traditionalAreaColor="rgba(35, 31, 82, 0.25)"
+      compactTooltip={compactMode}
     />
   );
 };

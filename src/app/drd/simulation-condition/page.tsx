@@ -37,6 +37,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useSimulationStore, type SimulationState } from "@/store/simulationStore";
+import SolidButton from "@/components/ui/solid-button";
 
 // ── SVG 아이콘 ──────────────────────────────────────────────────────────────
 
@@ -447,27 +448,21 @@ function SaveProgressModal({ onClose, onSave }: { onClose: () => void; onSave: (
 
           {/* 버튼 */}
           <div className="gap-2.5 flex justify-end">
-            <button
+            <SolidButton
               onClick={onClose}
-              className="btn-tsi cursor-pointer text-body4"
-              style={{
-                paddingLeft: 20, paddingRight: 20, border: "1.5px solid var(--neutral-80)",
-                background: "transparent", color: "var(--text-primary)",
-              }}
+              variant="outline" size="L"
+              className="text-body4"
             >
               Cancel
-            </button>
-            <button
+            </SolidButton>
+            <SolidButton
               onClick={handleSave}
               disabled={!name.trim()}
-              className="btn-tsi btn-tsi-purple text-body4"
-              style={{
-                paddingLeft: 20, paddingRight: 20,
-                transition: "background 0.15s",
-              }}
+              variant="purple" size="L"
+              className="text-body4"
             >
               Save
-            </button>
+            </SolidButton>
           </div>
         </div>
       </div>
@@ -1166,22 +1161,21 @@ export default function SimulationConditionPage() {
 
             {/* 하단 버튼 */}
             <div className="shrink-0 flex justify-end gap-[12px] pr-0.5">
-              <button
+              <SolidButton
                 onClick={() => router.push("/drd/simulation-setting")}
-                className="btn-tsi btn-tsi-secondary"
-                style={{ height: 42 }}
+                variant="secondary" size="L"
               >
                 Cancel
-              </button>
+              </SolidButton>
               {/* Save Progress 버튼 */}
-              <button
+              <SolidButton
                 onClick={handleSaveProgress}
-                className="btn-tsi btn-tsi-secondary"
-                style={{ height: 42, backgroundColor: "var(--neutral-30)" }}
+                variant="secondary" size="L"
+                style={{ backgroundColor: "var(--neutral-30)" }}
               >
                 Save Progress
-              </button>
-              <button
+              </SolidButton>
+              <SolidButton
                 disabled={!canConfirm}
                 onClick={() => {
                   if (!canConfirm) return;
@@ -1189,11 +1183,10 @@ export default function SimulationConditionPage() {
                   setSimCondCompleted(true);
                   router.push("/drd/simulation-setting");
                 }}
-                className="btn-tsi btn-tsi-primary"
-                style={{ height: 42 }}
+                variant="primary" size="L"
               >
                 Confirm
-              </button>
+              </SolidButton>
             </div>
           </div>
         </div>

@@ -137,11 +137,7 @@ function TSIBasisSelectionPageContent() {
   return (
     <AppLayout headerType="tsi">
       <div
-        className="flex flex-col w-full h-full gap-6"
-        style={{
-          paddingBottom: 12,
-        }}
-      >
+        className="flex flex-col w-full h-full gap-6">
         {/* ── 1. 페이지 타이틀 / Page title ──────────────────────── */}
         <div className="shrink-0 px-1">
           <h1
@@ -159,7 +155,7 @@ function TSIBasisSelectionPageContent() {
         <div
           className="figma-nine-slice figma-home-panel-middle flex flex-1 min-h-0"
         >
-          <div className="flex w-full h-full gap-2">
+          <div className="flex w-full h-full gap-4">
 
             {/* ── 2-A. 왼쪽 카드: 기준 선택 목록 / Left card: basis option list ── */}
             <div

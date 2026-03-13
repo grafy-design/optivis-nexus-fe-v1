@@ -2,8 +2,6 @@
 
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
-  chartTitle,
-  chartGraphicDivider,
   CHART_AXIS_LABEL,
   CHART_AXIS_NAME,
   CHART_Y_AXIS_SPLIT_LINE,
@@ -24,13 +22,11 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
 
   const option = {
     tooltip: { ...tooltipAxisShadow },
-    title: chartTitle("P-value distribution under H0"),
-    graphic: chartGraphicDivider(720),
     legend: { show: false },
     grid: {
       left: "4%",
       right: "3%",
-      top: "60px",
+      top: "8%",
       bottom: "8%",
       containLabel: true,
     },
@@ -63,8 +59,9 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
       axisLine: { show: false },
-      axisTick: { show: false },
+      axisTick: { show: true },
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
+      
     },
     series: [
       {
@@ -122,8 +119,12 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
   };
 
   return (
-    <div className="w-full h-full relative">
-      <div className="h-full w-full bg-white rounded-[4px] overflow-hidden">
+    <div className="w-full h-full relative flex flex-col">
+      <div className="px-4 pt-2 pb-1 flex-shrink-0">
+        <p className="text-small1 text-neutral-30">P-value distribution under H0</p>
+        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+      </div>
+      <div className="flex-1 min-h-0 w-full bg-white rounded-[4px] overflow-hidden">
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}
