@@ -2,6 +2,7 @@
 
 import { CHART_COLORS, CHART_FONT, ATS_REPORT_COLORS } from "@/lib/chart-styles";
 
+/** 차트 타이틀 스타일 — 패널 좌상단 고정 배치 */
 export const CHART_TITLE = {
   left: 16,
   top: 8,
@@ -14,6 +15,11 @@ export const CHART_TITLE = {
   },
 };
 
+/**
+ * 기본 그리드 설정.
+ * right·top을 0%로 통일, containLabel:true로 라벨을 그리드 안에 포함.
+ * (수정: right "3%"→"0%", top "60px"→"0%" — 여백 통일)
+ */
 export const CHART_GRID_DEFAULT = {
   left: "7%",
   right: "0%",
@@ -22,6 +28,11 @@ export const CHART_GRID_DEFAULT = {
   containLabel: true,
 };
 
+/**
+ * 축 라벨 스타일.
+ * margin: 2로 축소하여 라벨과 축 사이 여백 최소화.
+ * (수정: margin 4→2)
+ */
 export const CHART_AXIS_LABEL = {
   fontSize: 9,
   fontFamily: CHART_FONT.familyShort,
@@ -30,6 +41,7 @@ export const CHART_AXIS_LABEL = {
   margin: 2,
 };
 
+/** 축 이름 텍스트 스타일 — 축 중앙 배치용 nameTextStyle */
 export const CHART_AXIS_NAME = {
   nameTextStyle: {
     fontSize: 9,
@@ -39,15 +51,18 @@ export const CHART_AXIS_NAME = {
   },
 };
 
+/** 축 선 스타일 — show: true, NEUTRAL_30 색상으로 표시 */
 export const CHART_AXIS_LINE = {
   show: true,
   lineStyle: { color: CHART_COLORS.NEUTRAL_30, width: 1 },
 };
 
+/** 축 틱 스타일 — show: false (눈금 숨김) */
 export const CHART_AXIS_TICK = {
   show: false,
 };
 
+/** Y축 분할선 스타일 — 점선, ATS_REPORT_COLORS.splitLine 색상 */
 export const CHART_Y_AXIS_SPLIT_LINE = {
   show: true,
   lineStyle: {
@@ -56,10 +71,12 @@ export const CHART_Y_AXIS_SPLIT_LINE = {
   },
 };
 
+/** chartTitle 헬퍼 — CHART_TITLE에 텍스트 주입 */
 export function chartTitle(text: string) {
   return { ...CHART_TITLE, text };
 }
 
+/** chartGraphicDivider 헬퍼 — 타이틀 아래 구분선 그래픽 생성 */
 export function chartGraphicDivider(width = 320) {
   return [
     {

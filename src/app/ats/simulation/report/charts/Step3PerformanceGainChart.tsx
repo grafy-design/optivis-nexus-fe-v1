@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * Step3PerformanceGainChart
+ * ATS 리포트 Step 3 — Robustness Proof: Performance Gain over Unadjusted 차트.
+ * 데이터 손상 시나리오별로 Proposed 방법론이 Unadjusted 대비 얼마나
+ * 우수한지(Difference in Estimate Δ)를 diamond 라인 + error bar로 시각화하며,
+ * ±0.05 Non-significant Zone을 markArea로 강조한다.
+ */
+
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,

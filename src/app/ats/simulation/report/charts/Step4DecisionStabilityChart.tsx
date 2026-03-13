@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * Step4DecisionStabilityChart
+ * ATS 리포트 Step 4 — Decision Stability 검증 차트.
+ * 각 시나리오별 "Go" 결정 확률을 Proposed/Standard 두 그룹 막대로 비교하며,
+ * 안정성 임계값(80%) markLine과 그라디언트 markArea를 오버레이로 표시한다.
+ */
+
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,
@@ -17,6 +24,7 @@ export interface Step4DecisionStabilityChartProps {
   } | null;
 }
 
+/** 안정성 기준선 — 80% 이상이면 "Stable" */
 const STABILITY_THRESHOLD = 0.8;
 
 export function Step4DecisionStabilityChart({
@@ -24,6 +32,8 @@ export function Step4DecisionStabilityChart({
 }: Step4DecisionStabilityChartProps) {
   const decisionStabilityData = apiData?.result_decisionstability || [];
   const xAxisData = decisionStabilityData.map((item) => item.scenario);
+
+  // probability_of_go_decision 배열의 [0]: Proposed, [1]: Standard
   const series1Data = decisionStabilityData.map((item) => {
     try {
       const probArray = JSON.parse(item.probability_of_go_decision);
@@ -45,6 +55,7 @@ export function Step4DecisionStabilityChart({
     tooltip: { ...tooltipAxisShadow },
     legend: { show: false },
     grid: {
+      // 수정: "5%"/"3%"/"8%"/"3%" → 0/4/0/0 (픽셀 단위로 정규화, containLabel:true 유지)
       left: 0,
       right: 4,
       top: 0,
@@ -59,6 +70,7 @@ export function Step4DecisionStabilityChart({
       ...CHART_AXIS_NAME,
       data: xAxisData,
       axisLabel: CHART_AXIS_LABEL,
+      // 수정: axisLine/axisTick을 인라인 객체 대신 chartStyles 상수로 통일
       axisLine: CHART_AXIS_LINE,
       axisTick: CHART_AXIS_TICK,
     },
@@ -69,6 +81,7 @@ export function Step4DecisionStabilityChart({
       nameGap: 28,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
+      // 수정: axisLine/axisTick을 인라인 객체 대신 chartStyles 상수로 통일
       axisLine: CHART_AXIS_LINE,
       axisTick: CHART_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
@@ -84,6 +97,7 @@ export function Step4DecisionStabilityChart({
         },
         barWidth: "25%",
         barGap: "20%",
+        // 안정성 임계값(80%) 점선 기준선
         markLine: {
           silent: true,
           symbol: "none",
@@ -95,6 +109,7 @@ export function Step4DecisionStabilityChart({
           },
           data: [{ yAxis: STABILITY_THRESHOLD }],
         },
+        // 임계값 이하 영역 그라디언트 강조
         markArea: {
           silent: true,
           itemStyle: {
@@ -128,15 +143,20 @@ export function Step4DecisionStabilityChart({
 
   return (
     <div className="w-full h-full relative flex flex-col p-3">
+      {/* 패널 헤더: 차트 제목 + 구분선 */}
       <div className=" flex-shrink-0">
         <p className="text-body5 text-neutral-30">Decision Stability across Perturbations</p>
         <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
       </div>
+
+      {/* 차트 영역 */}
       <div className="flex-1 min-h-0 w-full bg-white rounded-[4px] overflow-hidden">
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}
         />
+
+        {/* 인라인 범례 — 임계선·Proposed·Standard 항목 */}
         <div
           className="absolute text-small1 text-[var(--chart-text-category-title)] gap-1.5"
           style={{
@@ -172,6 +192,8 @@ export function Step4DecisionStabilityChart({
             <span>Standard Design</span>
           </div>
         </div>
+
+        {/* 안정성 상태 메시지 라벨 — 차트 중앙 하단 */}
         <div
           className="absolute text-small2 text-[var(--chart-text-category-title)] gap-0.5"
           style={{

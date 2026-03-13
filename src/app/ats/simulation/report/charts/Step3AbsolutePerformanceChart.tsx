@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * Step3AbsolutePerformanceChart
+ * ATS 리포트 Step 3 — Absolute Performance Comparison (Dodged) 차트.
+ * 데이터 손상 시나리오(Ideal/Mild/Moderate/Severe) × 3가지 방법론
+ * (Proposed/Standard ANCOVA/Unadjusted)의 치료 효과 추정값(95% CI)을
+ * custom error bar + line 시리즈로 그룹화하여 시각화한다.
+ */
+
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,

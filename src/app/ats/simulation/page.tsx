@@ -1,5 +1,20 @@
 "use client";
 
+/**
+ * SimulationPage — ATS 시뮬레이션 메인 페이지
+ *
+ * 역할:
+ *   Trial Design Optimization(Sample Size Optimization) 페이지입니다.
+ *   - 왼쪽 패널(LeftPanel): 질환·엔드포인트·파워·기간 등 파라미터 입력 + Apply 버튼
+ *   - 오른쪽 패널(RightPanel): Reduction View / Compare View 탭 전환 차트
+ *
+ * 주요 흐름:
+ *   1. handleApplySettings → callMLStudyDesign API 호출
+ *   2. 응답 데이터를 simulationStore에 저장 (setApiData, setIsApplied)
+ *   3. sampleSizeControl(슬라이더) 변경 → findHighlightedData → dynamicSimulationData 실시간 계산
+ *   4. Report 버튼 클릭 시 /ats/simulation/report 로 이동
+ */
+
 import { useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import {

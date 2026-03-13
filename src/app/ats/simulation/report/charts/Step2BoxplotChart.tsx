@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * Step2BoxplotChart
+ * ATS 리포트 Step 2 — Estimated Treatment Effect 박스플롯 차트.
+ * 모델 성능(R²) 구간별 치료 효과 분포를 박스플롯으로 시각화하며,
+ * fence 밖 이상치는 scatter로, 전체 데이터 mean은 markLine 점선으로 표시한다.
+ */
+
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,

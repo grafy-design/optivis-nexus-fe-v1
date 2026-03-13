@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * Step2VarianceDeclineChart
+ * ATS 리포트 Step 2 — Variance Decline 라인 차트.
+ * 모델 성능(R²)이 높아질수록 variance(분산)가 얼마나 감소하는지를
+ * 라인 + 그라디언트 면적으로 시각화한다.
+ * 첫 번째 데이터 포인트의 y값을 markLine 기준선으로 사용한다.
+ */
+
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,

@@ -1,4 +1,20 @@
-"use client"; 
+"use client";
+
+/**
+ * ReportPage — ATS 시뮬레이션 리포트 페이지
+ *
+ * 역할:
+ *   시뮬레이션 Apply 후 이동하는 최종 분석 리포트 페이지입니다.
+ *   - 왼쪽 패널: Results Overview (Insight Summary + 4개 Reduction 카드)
+ *   - 오른쪽 패널: Trial Design Conditions Summary, Prediction Accuracy by Model,
+ *                  Demonstration of Robustness (Step 1~4 차트 2×2 그리드), Appendix
+ *
+ * 주요 기능:
+ *   - isApplied/apiData 미충족 시 시뮬레이션 페이지로 리다이렉트
+ *   - "save-report-pdf" 이벤트 수신 → handleDownloadPDF (jsPDF + html-to-image)
+ *   - reportData (useMemo): result_resultsoverview에서 퍼센트·감소율 계산
+ *   - StepCard: 재사용 가능한 step 번호·타이틀·설명·차트 컨테이너 컴포넌트
+ */
 
 import { useRouter, usePathname } from "next/navigation";
 import { useSimulationStore } from "@/store/simulationStore";
