@@ -23,19 +23,29 @@ export const CHART_GRID_DEFAULT = {
 };
 
 export const CHART_AXIS_LABEL = {
-  fontSize: 10.5,
+  fontSize: 9,
   fontFamily: CHART_FONT.familyShort,
-  fontWeight: "normal",
-  color: CHART_COLORS.NEUTRAL_30,
+  fontWeight: 600,
+  color: CHART_COLORS.NEUTRAL_50,
+  margin: 4,
 };
 
 export const CHART_AXIS_NAME = {
   nameTextStyle: {
-    fontSize: 10.5,
+    fontSize: 9,
     fontFamily: CHART_FONT.familyShort,
-    fontWeight: "normal",
-    color: CHART_COLORS.NEUTRAL_30,
+    fontWeight: 600,
+    color: CHART_COLORS.NEUTRAL_50,
   },
+};
+
+export const CHART_AXIS_LINE = {
+  show: true,
+  lineStyle: { color: CHART_COLORS.NEUTRAL_30, width: 1 },
+};
+
+export const CHART_AXIS_TICK = {
+  show: false,
 };
 
 export const CHART_Y_AXIS_SPLIT_LINE = {

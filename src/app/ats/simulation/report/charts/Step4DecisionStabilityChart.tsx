@@ -43,7 +43,7 @@ export function Step4DecisionStabilityChart({
     tooltip: { ...tooltipAxisShadow },
     legend: { show: false },
     grid: {
-      left: "3%",
+      left: "5%",
       right: "3%",
       top: "8%",
       bottom: "3%",
@@ -125,9 +125,9 @@ export function Step4DecisionStabilityChart({
   };
 
   return (
-    <div className="w-full h-full relative flex flex-col">
-      <div className="px-4 pt-2 pb-1 flex-shrink-0">
-        <p className="text-small1 text-neutral-30">Decision Stability across Perturbations</p>
+    <div className="w-full h-full relative flex flex-col p-3">
+      <div className=" flex-shrink-0">
+        <p className="text-body5 text-neutral-30">Decision Stability across Perturbations</p>
         <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
       </div>
       <div className="flex-1 min-h-0 w-full bg-white rounded-[4px] overflow-hidden">

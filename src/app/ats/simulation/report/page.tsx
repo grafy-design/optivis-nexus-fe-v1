@@ -40,9 +40,9 @@ function StepCard({
       <div className="w-full flex flex-col flex-shrink-0 mb-4">
         {/* Step 버튼 */}
         <div className="mb-3">
-          <SolidButton variant="primary" size="s" className="rounded-[4px] px-3 font-medium">
+          <div className="rounded-[8px] px-4 py-1 text-body5m text-text-inverted bg-secondary-60 w-fit">
             Step {stepNumber}
-          </SolidButton>
+          </div>
         </div>
         {/* 타이틀 + Description 영역 */}
         <div className="flex flex-col w-full flex-1 ">
@@ -604,9 +604,10 @@ export default function ReportPage() {
                                       direction={
                                         chart.isNegative ? "up" : "down"
                                       }
-                                      color="var(--primary-15)"
+                                      color="var(--text-accent)"
+                                      size="s"
                                     />
-                                    <span className="text-body2 text-neutral-15">
+                                    <span className="text-body2 text-text-accent">
                                       {chart.change}
                                     </span>
                                   </div>

@@ -4,6 +4,8 @@ import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,
   CHART_AXIS_NAME,
+  CHART_AXIS_LINE,
+  CHART_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
 import { tooltipItem } from "@/lib/chart-styles";
@@ -58,10 +60,10 @@ export function Step2VarianceDeclineChart({
     tooltip: { ...tooltipItem },
     animation: false,
     grid: {
-      left: "6%",
-      right: "3%",
-      top: "8%",
-      bottom: "8%",
+      left: 0,
+      right: 4,
+      top: 0,
+      bottom: 0,
       containLabel: true,
     },
     xAxis: {
@@ -74,22 +76,18 @@ export function Step2VarianceDeclineChart({
       interval: 0.1,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
-      axisLine: { show: false },
-      axisTick: { show: false },
+      axisLine: CHART_AXIS_LINE,
+      axisTick: CHART_AXIS_TICK,
     },
     yAxis: {
       ...CHART_AXIS_NAME,
       type: "value" as const,
-
       name: "Variance",
       nameLocation: "middle",
       nameGap: 36,
-
-      axisLabel: {
-        ...CHART_AXIS_LABEL,
-      },
-      axisLine: { show: false },
-      axisTick: { show: false },
+      axisLabel: CHART_AXIS_LABEL,
+      axisLine: CHART_AXIS_LINE,
+      axisTick: CHART_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
     },
     series: [
@@ -140,9 +138,9 @@ export function Step2VarianceDeclineChart({
   console.log("yAxis.type", option.yAxis.type);
 
   return (
-    <div className="flex-1 h-full flex flex-col overflow-hidden">
-      <div className="px-4 pt-2 pb-1 flex-shrink-0">
-        <p className="text-small1 text-neutral-30">Variance Decline</p>
+    <div className="p-3 flex-1 h-full flex flex-col overflow-hidden">
+      <div className=" flex-shrink-0">
+        <p className="text-body5 text-neutral-30">Variance Decline</p>
         <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
       </div>
       <div className="flex-1 min-h-0 bg-white rounded-[4px] overflow-hidden">

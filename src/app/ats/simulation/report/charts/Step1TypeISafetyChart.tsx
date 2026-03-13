@@ -4,6 +4,8 @@ import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,
   CHART_AXIS_NAME,
+  CHART_AXIS_LINE,
+  CHART_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
 import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow } from "@/lib/chart-styles";
@@ -24,10 +26,10 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
     tooltip: { ...tooltipAxisShadow },
     legend: { show: false },
     grid: {
-      left: "4%",
-      right: "3%",
-      top: "8%",
-      bottom: "8%",
+      left: 0,
+      right: 4,
+      top: 0,
+      bottom: 0,
       containLabel: true,
     },
     xAxis: {
@@ -48,8 +50,8 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
           return "";
         },
       },
-      axisLine: { show: false },
-      axisTick: { show: false },
+      axisLine: CHART_AXIS_LINE,
+      axisTick: CHART_AXIS_TICK,
     },
     yAxis: {
       type: "value" as const,
@@ -58,8 +60,8 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
       nameGap: 26,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
-      axisLine: { show: false },
-      axisTick: { show: true },
+      axisLine: CHART_AXIS_LINE,
+      axisTick: CHART_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
       
     },
@@ -119,9 +121,9 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
   };
 
   return (
-    <div className="w-full h-full relative flex flex-col">
-      <div className="px-4 pt-2 pb-1 flex-shrink-0">
-        <p className="text-small1 text-neutral-30">P-value distribution under H0</p>
+    <div className="w-full h-full relative flex flex-col p-3">
+      <div className="flex-shrink-0">
+        <p className="text-body5 text-neutral-30">P-value distribution under H0</p>
         <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
       </div>
       <div className="flex-1 min-h-0 w-full bg-white rounded-[4px] overflow-hidden">
@@ -130,7 +132,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
           style={{ height: "100%", width: "100%" }}
         />
         <div
-          className="absolute text-small1 text-[var(--chart-text-category-title)] gap-1"
+          className="absolute text-small2 text-[var(--chart-text-category-title)] gap-1"
           style={{
             left: "55px",
             bottom: "15%",
