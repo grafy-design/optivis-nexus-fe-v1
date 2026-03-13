@@ -16,8 +16,8 @@ export const CHART_TITLE = {
 
 export const CHART_GRID_DEFAULT = {
   left: "7%",
-  right: "3%",
-  top: "60px",
+  right: "0%",
+  top: "0%",
   bottom: "8%",
   containLabel: true,
 };
@@ -27,7 +27,7 @@ export const CHART_AXIS_LABEL = {
   fontFamily: CHART_FONT.familyShort,
   fontWeight: 600,
   color: CHART_COLORS.NEUTRAL_50,
-  margin: 4,
+  margin: 2,
 };
 
 export const CHART_AXIS_NAME = {

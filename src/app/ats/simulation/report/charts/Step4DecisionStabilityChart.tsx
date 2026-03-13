@@ -4,6 +4,8 @@ import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   CHART_AXIS_LABEL,
   CHART_AXIS_NAME,
+  CHART_AXIS_LINE,
+  CHART_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
 import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow } from "@/lib/chart-styles";
@@ -43,10 +45,10 @@ export function Step4DecisionStabilityChart({
     tooltip: { ...tooltipAxisShadow },
     legend: { show: false },
     grid: {
-      left: "5%",
-      right: "3%",
-      top: "8%",
-      bottom: "3%",
+      left: 0,
+      right: 4,
+      top: 0,
+      bottom: 0,
       containLabel: true,
     },
     xAxis: {
@@ -57,8 +59,8 @@ export function Step4DecisionStabilityChart({
       ...CHART_AXIS_NAME,
       data: xAxisData,
       axisLabel: CHART_AXIS_LABEL,
-      axisLine: { show: false },
-      axisTick: { show: false },
+      axisLine: CHART_AXIS_LINE,
+      axisTick: CHART_AXIS_TICK,
     },
     yAxis: {
       type: "value" as const,
@@ -67,8 +69,8 @@ export function Step4DecisionStabilityChart({
       nameGap: 28,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
-      axisLine: { show: false },
-      axisTick: { show: false },
+      axisLine: CHART_AXIS_LINE,
+      axisTick: CHART_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
     },
     series: [

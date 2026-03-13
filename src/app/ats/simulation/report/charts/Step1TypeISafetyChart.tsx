@@ -26,7 +26,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
     tooltip: { ...tooltipAxisShadow },
     legend: { show: false },
     grid: {
-      left: 0,
+      left: 12,
       right: 4,
       top: 0,
       bottom: 0,
@@ -57,7 +57,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
       type: "value" as const,
       name: "Count",
       nameLocation: "middle",
-      nameGap: 26,
+      nameGap: 18,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
       axisLine: CHART_AXIS_LINE,
@@ -134,7 +134,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
         <div
           className="absolute text-small2 text-[var(--chart-text-category-title)] gap-1"
           style={{
-            left: "55px",
+            left: "3px",
             bottom: "15%",
             display: "inline-flex",
             padding: "4px 8px",
