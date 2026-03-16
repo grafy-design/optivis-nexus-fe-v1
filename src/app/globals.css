@@ -1077,6 +1077,11 @@
   transform: scale(0.97);
 }
 
+/* 글래스 버튼 배경만 어둡게 (텍스트·아이콘 제외) */
+.glass-btn-dark::before {
+  filter: brightness(0.6);
+}
+
 /* GlassBtn 반응형 width */
 .glass-btn-responsive {
   width: var(--glass-btn-w, auto);
@@ -1084,6 +1089,9 @@
 @media (max-width: 1470px) {
   .glass-btn-responsive {
     width: var(--glass-btn-w-sm, auto);
+  }
+  .figma-header-btn-pil::before {
+    border-image-width: 0 22px 0 22px;
   }
 }
 

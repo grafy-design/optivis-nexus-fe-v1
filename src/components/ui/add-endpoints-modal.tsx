@@ -1,6 +1,12 @@
 "use client";
 
-/** AddEndpointsModal — Primary/Secondary 엔드포인트를 추가·편집하는 전체화면 모달 다이얼로그 */
+/**
+ * AddEndpointsModal — Primary/Secondary 엔드포인트를 추가·편집하는 전체화면 모달 다이얼로그
+ *
+ * 주요 수정사항:
+ * - 글래스 버튼: GlassBtn + glass-btn-dark 클래스 + color="#ffffff" 적용 (배경만 brightness 0.6, 텍스트·아이콘은 흰색)
+ * - 모달 배경: opacity-94로 반투명, 어두운 배경(#696969) + rounded-36
+ */
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -321,7 +327,7 @@ export default function AddEndpointsModal({
             
             <div className="relative z-10 p-6 flex flex-col gap-16 justify-between">
               <div className="flex items-start justify-between">
-                <h2 className="text-h3 font-semibold leading-[36px] tracking-[-0.72px] text-white">
+                <h2 className="text-h4 font-semibold leading-[36px] tracking-[-0.72px] text-white">
                   Add Endpoints
                 </h2>
                 <div className="flex gap-3 items-center">
@@ -360,6 +366,8 @@ export default function AddEndpointsModal({
                     disabled={!hasChanges}
                     iconSrc="/icons/basics/complete-16.svg"
                     width={115}
+                    className="glass-btn-dark"
+                    color="#ffffff"
                   >
                     Save
                   </GlassBtn>
@@ -368,6 +376,8 @@ export default function AddEndpointsModal({
                       onClick={() => onOpenChange(false)}
                       iconSrc="/icons/basics/close-16.svg"
                       width={120}
+                      className="glass-btn-dark"
+                      color="#ffffff"
                     >
                       Close
                     </GlassBtn>
@@ -393,7 +403,7 @@ export default function AddEndpointsModal({
                     variant="purple"
                     size="m"
                     icon="plus"
-                    className="rounded-[16px]"
+                    className="rounded-[24px]"
                   >
                     Add Primary
                   </SolidButton>
@@ -403,7 +413,7 @@ export default function AddEndpointsModal({
                     variant="primary"
                     size="m"
                     icon="plus"
-                    className="rounded-[16px]"
+                    className="rounded-[24px]"
                   >
                     Add Secondary
                   </SolidButton>

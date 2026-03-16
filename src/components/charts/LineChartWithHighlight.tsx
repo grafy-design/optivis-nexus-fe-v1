@@ -401,6 +401,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         },
         axisTick: {
           show: showTicks,
+          length: 3,
           ...(showTicks && { lineStyle: { color: "#787776" } }),
         },
         axisLabel: {

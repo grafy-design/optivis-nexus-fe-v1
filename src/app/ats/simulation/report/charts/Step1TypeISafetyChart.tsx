@@ -5,6 +5,11 @@
  * ATS 리포트 Step 1 — Type I Safety 검증 차트.
  * P-value 분포를 막대 그래프로 시각화하고,
  * 균등 분포 기대값(markLine)과 기대 영역(markArea)을 오버레이로 표시한다.
+ *
+ * 주요 수정사항:
+ * - 툴팁: tooltipAxisShadow 기반 axis 트리거 + tooltipDotRow/tooltipTitle/tooltipWrap 헬퍼로 TSI 리포트와 통일
+ * - markLine 라벨: "Expected (Uniform)" 텍스트를 차트 위에 직접 표시 (Inter, neutral-30 색상)
+ * - 그리드/축 스타일: chartStyles.ts 공통 상수(CHART_AXIS_LABEL, CHART_AXIS_LINE 등) 적용
  */
 
 import ReactECharts from "@/components/charts/DynamicECharts";
@@ -13,9 +18,10 @@ import {
   CHART_AXIS_NAME,
   CHART_AXIS_LINE,
   CHART_AXIS_TICK,
+  CHART_Y_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow, tooltipDotRow, tooltipTitle, tooltipWrap } from "@/lib/chart-styles";
 import type { TypeSafetyResult } from "@/services/studyService";
 
 export interface Step1TypeISafetyChartProps {
@@ -30,13 +36,35 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
     typeSafetyData.length > 0 ? typeSafetyData[0].expected_under_uniform : 0.5;
 
   const option = {
-    tooltip: { ...tooltipAxisShadow },
+    tooltip: {
+      ...tooltipAxisShadow,
+      appendToBody: true,
+      axisPointer: {
+        ...tooltipAxisShadow.axisPointer,
+        label: {
+          ...tooltipAxisShadow.axisPointer.label,
+          margin: 4,
+          padding: [0, 0],
+        },
+      },
+      formatter: (params: any) => {
+        const items = Array.isArray(params) ? params : [params];
+        const pValue = items[0]?.axisValueLabel ?? "";
+        const rows = items
+          .filter((item: any) => item.seriesType === "bar")
+          .map((item: any) =>
+            tooltipDotRow(item.color, "Count", String(item.value ?? 0))
+          )
+          .join("");
+        return tooltipWrap(tooltipTitle(`P-value: ${pValue}`) + rows);
+      },
+    },
     legend: { show: false },
     grid: {
-      left: 12,   // 수정: 0→12 — 라벨이 잘리지 않도록 좌측 여백 확보
-      right: 4,
-      top: 0,
-      bottom: 0,
+      left: 16,
+      right: 0,
+      top: 4,
+      bottom: 12,
       containLabel: true,
     },
     xAxis: {
@@ -59,17 +87,17 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
         },
       },
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: { show: false },
     },
     yAxis: {
       type: "value" as const,
       name: "Count",
       nameLocation: "middle",
-      nameGap: 18,  // 수정: 26→18 — y축 이름 간격 축소
+      nameGap: 22,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: CHART_Y_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
 
     },
@@ -85,17 +113,41 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
         barGap: "10%",
         // 균등 분포 기대값 점선 — Expected (Uniform) 기준선
         markLine: {
-          silent: true,
+          silent: false,
           symbol: "none",
-          label: { show: false },
+          label: {
+            show: true,
+            position: "insideEndTop",
+            formatter: "Expected (Uniform)",
+            fontSize: 9,
+            fontFamily: "Inter",
+            color: "#484646",
+            padding: [1, 0, 0, 0],
+          },
+          emphasis: {
+            label: {
+              color: "#262255",
+            },
+            lineStyle: {
+              color: ATS_REPORT_COLORS.markLine,
+              type: [4, 4],
+              width: 2,
+            },
+          },
           lineStyle: {
             color: ATS_REPORT_COLORS.markLine,
-            type: "dashed",
+            type: [4, 4],
             width: 1.5,
           },
           data: [{ yAxis: expectedValue }],
         },
-        // 기대값 이하 영역 그라디언트 강조
+      },
+      // 기대값 이하 영역 그라디언트 — 별도 시리즈로 축/막대 뒤에 배치
+      {
+        type: "bar",
+        data: allXAxisData.map(() => null),
+        z: -1,
+        zlevel: -1,
         markArea: {
           silent: true,
           itemStyle: {
@@ -118,7 +170,7 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
       {
         name: "Expected (Uniform)",
         type: "line",
-        data: [],
+        data: allXAxisData.map(() => null),
         lineStyle: {
           color: ATS_REPORT_COLORS.markLine,
           type: "dashed",
@@ -133,40 +185,12 @@ export function Step1TypeISafetyChart({ apiData }: Step1TypeISafetyChartProps) {
 
   return (
     <div className="w-full h-full relative flex flex-col p-3">
-      {/* 패널 헤더: 차트 제목 + 구분선 */}
-      <div className="flex-shrink-0">
-        <p className="text-body5 text-neutral-30">P-value distribution under H0</p>
-        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
-      </div>
-
       {/* 차트 영역 */}
       <div className="flex-1 min-h-0 w-full bg-white rounded-[4px] overflow-hidden">
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}
         />
-        {/*
-         * 인라인 범례 라벨 — absolute 위치
-         * 수정: left "55px"→"3px" — 그리드 좌측 여백 변경에 맞춰 조정
-         */}
-        <div
-          className="absolute text-small2 text-[var(--chart-text-category-title)] gap-1"
-          style={{
-            left: "3px",
-            bottom: "15%",
-            display: "inline-flex",
-            padding: "4px 8px",
-            alignItems: "center",
-            border: "1px solid var(--chart-legend-border)",
-            background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
-          }}
-        >
-          <span
-            className="inline-block shrink-0 border-t border-dashed border-[var(--chart-ats-markline)]"
-            style={{ width: 20, borderWidth: 1 }}
-          />
-          <span>Expected (Uniform)</span>
-        </div>
       </div>
     </div>
   );

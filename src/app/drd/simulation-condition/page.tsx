@@ -1171,7 +1171,6 @@ export default function SimulationConditionPage() {
               <SolidButton
                 onClick={handleSaveProgress}
                 variant="secondary" size="L"
-                style={{ backgroundColor: "var(--neutral-30)" }}
               >
                 Save Progress
               </SolidButton>

@@ -306,7 +306,7 @@ export function LeftPanel({
                           icon="plus"
                           size="s"
                           variant="secondary"
-                          className="w-6 h-6 p-0 shrink-0 rounded-[12px] bg-primary-15 hover:bg-primary-20 active:bg-primary-10"
+                          className="w-6 h-6 p-0 shrink-0 rounded-[8px] bg-primary-15 hover:bg-primary-20 active:bg-primary-10"
                         />
                       </div>
                       <div className="bg-white rounded-[8px] p-3 py-2 flex flex-col gap-2">

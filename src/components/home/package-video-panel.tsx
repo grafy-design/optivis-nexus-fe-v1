@@ -155,7 +155,7 @@ export default function PackageVideoPanel({
         <h2
           className="text-page-title m-0 max-w-[80%]"
           style={{
-            fontSize: "24px",
+            fontSize: "48px",
             fontWeight: "500",
             color: "var(--text-inverted)",
             textShadow: "0px 2px 4px rgba(0,0,0,0.3)",
@@ -165,10 +165,11 @@ export default function PackageVideoPanel({
           {title}
         </h2>
         <p
-          className="home-package-video-desc text-body4m text-text-inverted m-0 max-w-[600px]"
+          className="home-package-video-desc text-body2m text-text-inverted m-0 max-w-[700px]"
           style={{
             textShadow: "0px 1px 2px rgba(0,0,0,0.3)",
-            letterSpacing: "-0.1px"
+            letterSpacing: "-0.1px",
+            lineHeight: "120%",
           }}
         >
           {description}

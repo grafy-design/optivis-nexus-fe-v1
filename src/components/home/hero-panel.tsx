@@ -158,7 +158,7 @@ export default function HeroPanel({
           <h2
             className="text-page-title"
             style={{
-              fontSize: "32px",
+              fontSize: "48px",
               fontWeight: "600",
               letterSpacing: "-0.8px",
             }}
@@ -167,7 +167,7 @@ export default function HeroPanel({
           </h2>
           {/* 설명: Inter 400 20px #484646 */}
           <p
-            className="home-hero-desc text-body4m text-text-secondary m-0"
+            className="home-hero-desc text-body2m text-text-secondary m-0"
             style={{
               lineHeight: "120%",
               letterSpacing: "-0.3px",

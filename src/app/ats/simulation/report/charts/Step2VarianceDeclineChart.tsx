@@ -6,6 +6,11 @@
  * 모델 성능(R²)이 높아질수록 variance(분산)가 얼마나 감소하는지를
  * 라인 + 그라디언트 면적으로 시각화한다.
  * 첫 번째 데이터 포인트의 y값을 markLine 기준선으로 사용한다.
+ *
+ * 주요 수정사항:
+ * - 툴팁: tooltipItem + tooltipDotRow/tooltipTitle/tooltipWrap 헬퍼로 TSI 리포트와 통일
+ * - animationDurationUpdate: 0 — 호버 시 재렌더 애니메이션 방지
+ * - 그리드/축 스타일: chartStyles.ts 공통 상수 적용
  */
 
 import ReactECharts from "@/components/charts/DynamicECharts";
@@ -14,9 +19,10 @@ import {
   CHART_AXIS_NAME,
   CHART_AXIS_LINE,
   CHART_AXIS_TICK,
+  CHART_Y_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { tooltipItem } from "@/lib/chart-styles";
+import { tooltipItem, tooltipDotRow, tooltipTitle, tooltipWrap } from "@/lib/chart-styles";
 import type { VarianceDeclineResult } from "@/services/studyService";
 
 export interface Step2VarianceDeclineChartProps {
@@ -61,17 +67,30 @@ export function Step2VarianceDeclineChart({
 
   /** 점선 y값 = 데이터 첫 번째 인덱스의 y값 */
   const MARK_LINE_Y = lineData.length > 0 ? lineData[0] : null;
-  const xMin = 0;
-  const xMax = 1;
+  /** markLine 범위: 실제 데이터 x 범위에 맞춤 */
+  const xMin = xValues.length > 0 ? xValues[0] : 0;
+  const xMax = xValues.length > 0 ? xValues[xValues.length - 1] : 1;
 
   const option = {
-    tooltip: { ...tooltipItem },
+    animationDurationUpdate: 0,
+    tooltip: {
+      ...tooltipItem,
+      appendToBody: true,
+      formatter: (params: any) => {
+        const p = Array.isArray(params) ? params[0] : params;
+        const [x, y] = p.value ?? [0, 0];
+        return tooltipWrap(
+          tooltipTitle(`R² = ${x}`) +
+          tooltipDotRow(p.color, "Variance", Number(y).toFixed(6))
+        );
+      },
+    },
     animation: false,
     grid: {
-      left: 0,
+      left: 12,
       right: 4,
-      top: 0,
-      bottom: 0,
+      top: 4,
+      bottom: 16,
       containLabel: true,
     },
     xAxis: {
@@ -79,13 +98,13 @@ export function Step2VarianceDeclineChart({
       name: "R²",
       nameLocation: "middle",
       nameGap: 20,
-      min: 0,
-      max: 1,
+      min: "dataMin",
+      max: "dataMax",
       interval: 0.1,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: { show: false },
     },
     yAxis: {
       ...CHART_AXIS_NAME,
@@ -95,7 +114,7 @@ export function Step2VarianceDeclineChart({
       nameGap: 36,
       axisLabel: CHART_AXIS_LABEL,
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: CHART_Y_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
     },
     series: [
@@ -107,6 +126,11 @@ export function Step2VarianceDeclineChart({
         symbol: "circle",
         symbolSize: 8,
         lineStyle: { width: 2 },
+        emphasis: {
+          scale: 1.4,
+          itemStyle: { color: "#3a3580" },
+          lineStyle: { width: 2.5 },
+        },
         areaStyle: {
           color: {
             type: "linear",
@@ -147,10 +171,6 @@ export function Step2VarianceDeclineChart({
 
   return (
     <div className="p-3 flex-1 h-full flex flex-col overflow-hidden">
-      <div className=" flex-shrink-0">
-        <p className="text-body5 text-neutral-30">Variance Decline</p>
-        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
-      </div>
       <div className="flex-1 min-h-0 bg-white rounded-[4px] overflow-hidden">
         <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
       </div>

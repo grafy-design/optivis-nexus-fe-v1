@@ -51,9 +51,9 @@ function StepCard({
   chartContent,
 }: StepCardProps) {
   return (
-    <div className="rounded-[12px] p-4 flex flex-col items-start flex-1 h-fit" style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}>
+    <div className="rounded-[12px] p-4 flex flex-col items-start flex-1 gap-6" style={{ backgroundColor: "rgba(255, 255, 255, 0.6)" }}>
       {/* Step 버튼 + 타이틀 + Description 영역 */}
-      <div className="w-full flex flex-col flex-shrink-0 mb-4">
+      <div className="w-full flex flex-col flex-shrink-0">
         {/* Step 버튼 */}
         <div className="mb-3">
           <div className="rounded-[8px] px-4 py-1 text-body5m text-text-inverted bg-secondary-60 w-fit">
@@ -63,13 +63,13 @@ function StepCard({
         {/* 타이틀 + Description 영역 */}
         <div className="flex flex-col w-full flex-1 ">
           {/* 타이틀 */}
-          <h3 className="text-body2 text-text-primary mb-3">{title}</h3>
+          <h3 className="text-body2 text-text-primary mb-1.5">{title}</h3>
           {/* Description */}
-          <p className="text-body5m text-neutral-50 max-w-[500px] min-h-[28px]">{description}</p>
+          <p className="text-body5m text-text-secondary max-w-[500px] min-h-[28px]">{description}</p>
         </div>
       </div>
       {/* 차트 영역 */}
-      <div className="w-full flex-shrink-0 overflow-hidden bg-neutral-100 rounded-[12px]">
+      <div className="w-full flex-1 min-h-0 overflow-hidden bg-neutral-100 rounded-[12px] relative">
         {chartContent}
       </div>
     </div>
@@ -608,14 +608,14 @@ export default function ReportPage() {
                           return (
                             <div
                               key={index}
-                              className="flex flex-col items-center bg-white rounded-[12px] p-3 gap-2 h-full overflow-hidden"
+                              className="flex flex-col items-start bg-white rounded-[12px] p-3 gap-2 h-full overflow-hidden"
                             >
                               <div className="flex items-start justify-between w-full">
                                 <div className="flex flex-col gap-0">
-                                  <h4 className="text-body5 text-[var(--text-header)]">
+                                  <h4 className="text-body5m text-text-secondary">
                                     {chart.label}
                                   </h4>
-                                  <div className="flex items-center gap-1 mt-1">
+                                  <div className="flex items-center gap-0.5 mt-0">
                                     <ArrowIcon
                                       direction={
                                         chart.isNegative ? "up" : "down"
@@ -658,9 +658,9 @@ export default function ReportPage() {
                     <h2 className="text-h4 text-primary-15 mb-3 ml-[4px] pt-1">
                       Trial Design Conditions Summary
                     </h2>
-                    <div className="flex gap-4">
+                    <div className="flex gap-3">
                       {/* Endpoints Design Card */}
-                      <div className="flex-1 bg-white rounded-[12px] p-4 gap-2 min-h-[180px] h-fit">
+                      <div className="flex-[2] min-w-0 bg-white rounded-[12px] p-4 gap-2 min-h-[180px] h-fit">
                         <div className="mb-2">
                           <div className="flex justify-left mb-2">
                             <div
@@ -903,7 +903,7 @@ export default function ReportPage() {
                       </div>
 
                       {/* Trial Design Card */}
-                      <div className="w-[556px] bg-white rounded-[12px] p-4 min-h-[180px]">
+                      <div className="flex-[1] min-w-0 bg-white rounded-[12px] p-4 min-h-[180px]">
                         <div className="mb-3 ">
                           <div className="bg-neutral-90 flex rounded-full px-3 py-1 w-fit mb-3">
                             <span className="text-body5 text-primary-15">
@@ -929,16 +929,16 @@ export default function ReportPage() {
                               </div>
                               {/* 오른쪽 컬럼: 값들 */}
                               <div className="space-y-2">
-                                <p className="text-body5m text-primary-15">
+                                <p className="text-body5 text-primary-15">
                                   {treatmentDuration}
                                 </p>
-                                <p className="text-body5m text-primary-15">
+                                <p className="text-body5 text-primary-15">
                                   {hypothesisType}
                                 </p>
-                                <p className="text-body5m text-primary-15">
+                                <p className="text-body5 text-primary-15">
                                   {treatmentArms}-arm
                                 </p>
-                                <p className="text-body5m text-primary-15">
+                                <p className="text-body5 text-primary-15">
                                   {randomizationRatio}
                                 </p>
                               </div>
@@ -997,7 +997,7 @@ export default function ReportPage() {
                                 >
                                   {/* 모델명 + 정확도 라벨 */}
                                   <div className="shrink-0 flex0.5">
-                                    <p className="text-body5m text-neutral-50">{graphItem.model}</p>
+                                    <p className="text-body5m text-text-secondary">{graphItem.model}</p>
                                     <p className="text-body3 text-text-accent">{accuracyLevel}</p>
                                   </div>
                                   {/* SVG 그래프 (상단 헤더 영역 CSS 클리핑) */}
@@ -1006,7 +1006,7 @@ export default function ReportPage() {
                                       src={graphItem.model_svg}
                                       alt={`${graphItem.model} graph`}
                                       className="w-full h-auto object-contain object-bottom"
-                                      style={{ marginTop: "-48px" }}
+                                      style={{ marginTop: "-60px" }}
                                     />
                                   </div>
                                 </div>
@@ -1061,7 +1061,7 @@ export default function ReportPage() {
                                           className="text-left py-3 px-3 text-primary-15 text-body4 relative"
                                         >
                                           {hasDescription && (
-                                            <span className="absolute top-3 left-1 text-small1 text-primary-15 leading-none [@media(max-width:1470px)]:top-1.5 [@media(max-width:1470px)]:left-[-1px] [@media(max-width:1470px)]:text-small2">
+                                            <span className="absolute text-right top-2.5 left-0.5 text-small1 text-primary-15 leading-none [@media(max-width:1470px)]:top-1.5 [@media(max-width:1470px)]:left-[-1px] [@media(max-width:1470px)]:text-small2">
                                               {descriptionIndex + 1})
                                             </span>
                                           )}
@@ -1187,15 +1187,21 @@ export default function ReportPage() {
                     <h2 className="text-h4 text-primary-15 mb-4">
                       Demonstration of Robustness
                     </h2>
-                    {/* 카드 2x2 그리드 (4개) */}
-                    <div className="grid grid-cols-2 gap-3 ">
+                    {/* 카드 그리드: 1470px 이상 2×2, 미만 1열 */}
+                    <div className="grid grid-cols-1 min-[1470px]:grid-cols-2 gap-3">
                       {/* Step 1: Type I safety */}
                       <StepCard
                         stepNumber={1}
                         title="Type I safety"
                         description="Demonstrate adppropriate control of the Type I error under the null treatment effect."
                         chartContent={
-                          <Step1TypeISafetyChart apiData={apiData} />
+                          <div className="w-full aspect-[4/1] flex flex-col">
+                            <div className="flex-shrink-0 px-3 pt-3">
+                              <p className="text-body5 text-neutral-30">P-value distribution under H0</p>
+                              <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+                            </div>
+                            <Step1TypeISafetyChart apiData={apiData} />
+                          </div>
                         }
                       />
 
@@ -1205,9 +1211,21 @@ export default function ReportPage() {
                         title="Sample size reduction"
                         description="Demonstrate that efficiency gains from prognostic adjustment scale smoothly with model performance and remain stable under degradation of predictive accuracy."
                         chartContent={
-                          <div className="w-full h-full flex gap-4">
-                            <Step2VarianceDeclineChart apiData={apiData} />
-                            <Step2BoxplotChart apiData={apiData} />
+                          <div className="aspect-[4/1] min-[1470px]:aspect-auto min-[1470px]:absolute min-[1470px]:inset-0 flex gap-0">
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              <div className="flex-shrink-0 px-3 pt-3">
+                                <p className="text-body5 text-neutral-30">Variance Decline</p>
+                                <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+                              </div>
+                              <Step2VarianceDeclineChart apiData={apiData} />
+                            </div>
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              <div className="flex-shrink-0 px-3 pt-3">
+                                <p className="text-body5 text-neutral-30">Estimated treatment effect</p>
+                                <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+                              </div>
+                              <Step2BoxplotChart apiData={apiData} />
+                            </div>
                           </div>
                         }
                       />
@@ -1218,9 +1236,21 @@ export default function ReportPage() {
                         title="Data robustness"
                         description="Demonstrate the robustness of statistical conclusions under realistic data complexities, including missingness and outcome non linearity."
                         chartContent={
-                          <div className="w-full h-full flex gap-4">
-                            <Step3AbsolutePerformanceChart apiData={apiData} />
-                            <Step3PerformanceGainChart apiData={apiData} />
+                          <div className="aspect-[4/1] min-[1470px]:aspect-auto min-[1470px]:absolute min-[1470px]:inset-0 flex gap-0">
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              <div className="flex-shrink-0 px-3 pt-3">
+                                <p className="text-body5 text-neutral-30">A. Absolute Performance Comparison (Dodged)</p>
+                                <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+                              </div>
+                              <Step3AbsolutePerformanceChart apiData={apiData} />
+                            </div>
+                            <div className="flex-1 min-w-0 flex flex-col">
+                              <div className="flex-shrink-0 px-3 pt-3">
+                                <p className="text-body5 text-neutral-30">B. Robustness Proof: Performance Gain over Unadjusted</p>
+                                <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+                              </div>
+                              <Step3PerformanceGainChart apiData={apiData} />
+                            </div>
                           </div>
                         }
                       />
@@ -1231,7 +1261,13 @@ export default function ReportPage() {
                         title="Decision stability size reduction"
                         description="Demonstrate the stability of key trial decisions (e.g., go/no go conclusions) across plausible perturbations in design assumptions and data generating processes."
                         chartContent={
-                          <Step4DecisionStabilityChart apiData={apiData} />
+                          <div className="w-full aspect-[4/1] flex flex-col">
+                            <div className="flex-shrink-0 px-3 pt-3">
+                              <p className="text-body5 text-neutral-30">Decision Stability across Perturbations</p>
+                              <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
+                            </div>
+                            <Step4DecisionStabilityChart apiData={apiData} />
+                          </div>
                         }
                       />
                     </div>

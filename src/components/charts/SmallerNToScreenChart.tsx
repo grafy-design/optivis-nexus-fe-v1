@@ -41,7 +41,7 @@ export const SmallerNToScreenChart: React.FC<SmallerNToScreenChartProps> = ({
         axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       }}
       yAxisConfig={{
-        nameGap: compactMode ? 18 : 26,
+        nameGap: compactMode ? 20 : 26,
         nameTextStyle: {
           fontSize: compactMode ? 8 : 10,
           fontWeight: 500,

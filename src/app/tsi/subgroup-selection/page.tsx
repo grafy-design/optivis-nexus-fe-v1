@@ -704,7 +704,7 @@ function buildWithinGroupVarianceChartOption(
     },
     {
       type: "line" as const,
-      data: [],
+      data: sortedVariance.map(() => null),
       z: 1,
       tooltip: { show: false },
       markLine: { silent: true, symbol: "none", animation: false, label: { show: true, position: "insideEndTop", formatter: `Total var=${totalVarValue.toFixed(2)}`, fontSize: 10.5, fontWeight: 600, fontFamily: "Inter", lineHeight: 11.025, color: "#787776", offset: [0, 2] }, lineStyle: { type: "dashed", color: "#D2D2DA", width: 1 }, data: [{ yAxis: totalVarValue }] },

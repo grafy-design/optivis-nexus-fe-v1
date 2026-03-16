@@ -5,6 +5,14 @@
  * ATS 리포트 Step 4 — Decision Stability 검증 차트.
  * 각 시나리오별 "Go" 결정 확률을 Proposed/Standard 두 그룹 막대로 비교하며,
  * 안정성 임계값(80%) markLine과 그라디언트 markArea를 오버레이로 표시한다.
+ *
+ * 주요 수정사항:
+ * - 툴팁: tooltipAxisShadow(axis 트리거) + tooltipDotRow/tooltipTitle/tooltipWrap 헬퍼로 TSI 리포트와 통일
+ * - markLine 라벨: "Target Stability Threshold (80%)" 텍스트를 차트 위에 직접 표시
+ * - 레전드: 절대 배치 → 하단 flex 컨테이너로 이동 (bar 아이콘, text-small2, -mb-1)
+ * - 안정성 메시지: absolute 오버레이로 "Proposed design remains STABLE" 표시
+ * - y축 이름: 괄호 앞 줄바꿈 ('Probability of "Go" Decision\n(Power)')
+ * - 그리드: left 24, nameGap 22
  */
 
 import ReactECharts from "@/components/charts/DynamicECharts";
@@ -13,9 +21,10 @@ import {
   CHART_AXIS_NAME,
   CHART_AXIS_LINE,
   CHART_AXIS_TICK,
+  CHART_Y_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, BAR_RADIUS, tooltipAxisShadow, tooltipDotRow, tooltipTitle, tooltipWrap } from "@/lib/chart-styles";
 import type { DecisionStabilityResult } from "@/services/studyService";
 
 export interface Step4DecisionStabilityChartProps {
@@ -52,14 +61,30 @@ export function Step4DecisionStabilityChart({
   });
 
   const option = {
-    tooltip: { ...tooltipAxisShadow },
+    tooltip: {
+      ...tooltipAxisShadow,
+      appendToBody: true,
+      axisPointer: {
+        ...tooltipAxisShadow.axisPointer,
+        label: { show: false },
+      },
+      formatter: (params: any) => {
+        const items = Array.isArray(params) ? params : [params];
+        const scenario = items[0]?.axisValueLabel ?? "";
+        const rows = items
+          .map((item: any) =>
+            tooltipDotRow(item.color, item.seriesName, Number(item.value ?? 0).toFixed(4))
+          )
+          .join("");
+        return tooltipWrap(tooltipTitle(scenario) + rows);
+      },
+    },
     legend: { show: false },
     grid: {
-      // 수정: "5%"/"3%"/"8%"/"3%" → 0/4/0/0 (픽셀 단위로 정규화, containLabel:true 유지)
-      left: 0,
-      right: 4,
-      top: 0,
-      bottom: 0,
+      left: 24,
+      right: 0,
+      top: 4,
+      bottom: 16,
       containLabel: true,
     },
     xAxis: {
@@ -72,18 +97,17 @@ export function Step4DecisionStabilityChart({
       axisLabel: CHART_AXIS_LABEL,
       // 수정: axisLine/axisTick을 인라인 객체 대신 chartStyles 상수로 통일
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: { show: false },
     },
     yAxis: {
       type: "value" as const,
-      name: 'Probability of "Go" Decision (Power)',
+      name: 'Probability of "Go" Decision\n(Power)',
       nameLocation: "middle",
-      nameGap: 28,
+      nameGap: 22,
       ...CHART_AXIS_NAME,
       axisLabel: CHART_AXIS_LABEL,
-      // 수정: axisLine/axisTick을 인라인 객체 대신 chartStyles 상수로 통일
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: CHART_Y_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
     },
     series: [
@@ -99,17 +123,41 @@ export function Step4DecisionStabilityChart({
         barGap: "20%",
         // 안정성 임계값(80%) 점선 기준선
         markLine: {
-          silent: true,
+          silent: false,
           symbol: "none",
-          label: { show: false },
+          label: {
+            show: true,
+            position: "insideEndTop",
+            formatter: "Target Stability Threshold (80%)",
+            fontSize: 9,
+            fontFamily: "Inter",
+            color: "#484646",
+            padding: [1, 0, 0, 0],
+          },
+          emphasis: {
+            label: {
+              color: "#262255",
+            },
+            lineStyle: {
+              color: ATS_REPORT_COLORS.markLine,
+              type: [4, 4],
+              width: 2,
+            },
+          },
           lineStyle: {
             color: ATS_REPORT_COLORS.markLine,
-            type: "dashed",
+            type: [4, 4],
             width: 1.5,
           },
           data: [{ yAxis: STABILITY_THRESHOLD }],
         },
-        // 임계값 이하 영역 그라디언트 강조
+      },
+      // 임계값 이하 영역 그라디언트 — 별도 시리즈로 축/막대 뒤에 배치
+      {
+        type: "bar",
+        data: xAxisData.map(() => null),
+        z: -1,
+        zlevel: -1,
         markArea: {
           silent: true,
           itemStyle: {
@@ -143,59 +191,15 @@ export function Step4DecisionStabilityChart({
 
   return (
     <div className="w-full h-full relative flex flex-col p-3">
-      {/* 패널 헤더: 차트 제목 + 구분선 */}
-      <div className=" flex-shrink-0">
-        <p className="text-body5 text-neutral-30">Decision Stability across Perturbations</p>
-        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
-      </div>
-
       {/* 차트 영역 */}
       <div className="flex-1 min-h-0 w-full bg-white rounded-[4px] overflow-hidden">
         <ReactECharts
           option={option}
           style={{ height: "100%", width: "100%" }}
         />
-
-        {/* 인라인 범례 — 임계선·Proposed·Standard 항목 */}
+        {/* 안정성 상태 메시지 라벨 */}
         <div
-          className="absolute text-small1 text-[var(--chart-text-category-title)] gap-1.5"
-          style={{
-            left: "50px",
-            bottom: "10%",
-            display: "inline-flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            padding: "4px 8px",
-            border: "1px solid var(--chart-legend-border)",
-            background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
-          }}
-        >
-          <div className="flex items-center gap-1">
-            <span
-              className="shrink-0 border-t border-dashed border-[var(--chart-ats-markline)]"
-              style={{ width: 20, borderWidth: 1.5 }}
-            />
-            <span>Target Stability Threshold (80%)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span
-              className="shrink-0 w-5 h-3 rounded-sm"
-              style={{ backgroundColor: ATS_REPORT_COLORS.proposed }}
-            />
-            <span>Proposed Design</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span
-              className="shrink-0 w-5 h-3 rounded-sm"
-              style={{ backgroundColor: ATS_REPORT_COLORS.standardBar }}
-            />
-            <span>Standard Design</span>
-          </div>
-        </div>
-
-        {/* 안정성 상태 메시지 라벨 — 차트 중앙 하단 */}
-        <div
-          className="absolute text-small2 text-[var(--chart-text-category-title)] gap-0.5"
+          className="absolute text-small2 text-[var(--chart-text-category-title)] gap-0.5 rounded-[4px]"
           style={{
             left: "50%",
             transform: "translateX(-50%)",
@@ -204,12 +208,31 @@ export function Step4DecisionStabilityChart({
             flexDirection: "column",
             padding: "4px 8px",
             alignItems: "center",
-            border: "1px solid var(--chart-legend-border)",
             background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
           }}
         >
           <span className="text-[var(--text-header)]">Proposed design remains STABLE</span>
           <span className="text-[var(--text-header)]">(above 80% threshold)</span>
+        </div>
+      </div>
+
+      {/* 하단 레전드 컨테이너 */}
+      <div
+        className="shrink-0 flex items-center gap-x-2.5 text-small2 font-[Inter] text-text-secondary pl-6 pr-1 pt-0.5 -mb-1"
+      >
+        <div className="flex items-center gap-1">
+          <span
+            className="shrink-0 w-5 h-3 rounded-sm"
+            style={{ backgroundColor: ATS_REPORT_COLORS.proposed }}
+          />
+          <span>Proposed Design</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span
+            className="shrink-0 w-5 h-3 rounded-sm"
+            style={{ backgroundColor: ATS_REPORT_COLORS.standardBar }}
+          />
+          <span>Standard Design</span>
         </div>
       </div>
     </div>

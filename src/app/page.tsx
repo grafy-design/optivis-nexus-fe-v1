@@ -138,7 +138,7 @@ const serviceContentMap: Record<string, RightPanelContent> = {
   "4": {
     title: "Adaptive Trial\nSimulation",
     description:
-      "Generates optimal clinical trial design strategies through repeated simulations across diverse trial design conditions.",
+      "Derives optimal clinical trial sample size strategies through covariate-adjusted statistical design and digital twin–based outcome simulation.",
     imageUrl: "/assets/main/adaptive-trial.png",
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/oprimed/2-1%20ATS.webm",
     videoPlaybackRate: 0.8,
@@ -148,7 +148,7 @@ const serviceContentMap: Record<string, RightPanelContent> = {
   "5": {
     title: "Target Subgroup\nIdentification",
     description:
-      "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+      "Identify patient subgroups associated with a target endpoint using digital twin–based predictive simulation and determine the most influential features explaining outcome heterogeneity through statistical analysis.",
     imageUrl: "/assets/main/target-subgroup-identification.png",
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/oprimed/2-2%20TSI.webm",
     videoPlaybackRate: 0.8,
@@ -158,7 +158,7 @@ const serviceContentMap: Record<string, RightPanelContent> = {
   "6": {
     title: "Conditional Drug\nResponse Prediction",
     description:
-      "Drug level simulation based on patient baseline information and Simulation Settings, with support for multiple conditions per scenario",
+      "Simulates treatment response across alternative scenarios, quantifies sensitivity to key clinical variables, and identifies optimal treatment strategies.",
     imageUrl: "/assets/main/conditional-drug.png",
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/oprimed/2-3%20DRD.webm",
     videoPlaybackRate: 0.8,
@@ -166,15 +166,15 @@ const serviceContentMap: Record<string, RightPanelContent> = {
     videoReverseLoop: true,
   },
   "7": {
-    title: "Patient Outcome\nPrediction",
+    title: "Conditional Drug Response \nPrediction",
     description:
-      "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+      "Predicts patient-specific outcome trajectories using digital twin models derived from baseline clinical characteristics.",
     imageUrl: "/assets/main/adaptive-trial.png",
   },
   "8": {
     title: "Synthetic Control\nArm",
     description:
-      "Generates a synthetic control group based on historical data to compare with the experimental arm, reducing the need for placebo patients.",
+      "Generate synthetic longitudinal data for an individual patient using digital twin–based predictive simulation to model potential clinical trajectories under different treatment scenarios.",
     imageUrl: "/assets/main/target-subgroup-identification.png",
   },
   "9": {
@@ -190,7 +190,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
   "1": {
     title: "Twin Predict",
     description:
-      "Simulates individual patient outcomes under various treatment conditions. Offers tailored response probabilities and treatment recommendations for clinical decision-making.",
+      "A simulation package that models patient-specific longitudinal outcomes based on baseline patient profiles using digital twin modeling.",
     imageUrl: "", // Not used for package video
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V3/1.%20TP(high).mp4",
     videoStartOffsetSeconds: 0,
@@ -211,7 +211,7 @@ const packageContentMap: Record<string, RightPanelContent> = {
   "3": {
     title: "Virtual Control",
     description:
-      "Supports early trial design by identifying target subgroups and simulating different scenarios. Helps sponsors reduce sample size, optimize power, and refine study strategies.",
+      "Generates virtual and synthetic control cohorts\nfrom digital twin–based prediction model.",
     imageUrl: "",
     videoUrl: "https://pub-3377f1e9ee784694b74b0068ec6e1fa3.r2.dev/Nexus%20package%20V3/3.%20VC(high).mp4",
   },

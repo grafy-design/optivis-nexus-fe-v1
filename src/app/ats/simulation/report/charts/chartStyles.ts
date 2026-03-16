@@ -34,32 +34,38 @@ export const CHART_GRID_DEFAULT = {
  * (수정: margin 4→2)
  */
 export const CHART_AXIS_LABEL = {
-  fontSize: 9,
+  fontSize: 10,
   fontFamily: CHART_FONT.familyShort,
-  fontWeight: 600,
+  fontWeight: 500,
   color: CHART_COLORS.NEUTRAL_50,
-  margin: 2,
+  margin: 4,
 };
 
 /** 축 이름 텍스트 스타일 — 축 중앙 배치용 nameTextStyle */
 export const CHART_AXIS_NAME = {
   nameTextStyle: {
-    fontSize: 9,
+    fontSize: 10,
     fontFamily: CHART_FONT.familyShort,
-    fontWeight: 600,
+    fontWeight: 500,
     color: CHART_COLORS.NEUTRAL_50,
   },
 };
 
-/** 축 선 스타일 — show: true, NEUTRAL_30 색상으로 표시 */
+/** 축 선 스타일 — show: true, NEUTRAL_50 색상 */
 export const CHART_AXIS_LINE = {
   show: true,
-  lineStyle: { color: CHART_COLORS.NEUTRAL_30, width: 1 },
+  lineStyle: { color: CHART_COLORS.NEUTRAL_50, width: 1 },
 };
 
-/** 축 틱 스타일 — show: false (눈금 숨김) */
+/** 축 틱 스타일 — 길이 2px */
 export const CHART_AXIS_TICK = {
-  show: false,
+  show: true,
+  length: 2,
+};
+
+/** Y축 틱 스타일 — show: true */
+export const CHART_Y_AXIS_TICK = {
+  show: true,
 };
 
 /** Y축 분할선 스타일 — 점선, ATS_REPORT_COLORS.splitLine 색상 */

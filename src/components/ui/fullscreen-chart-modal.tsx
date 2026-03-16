@@ -5,11 +5,15 @@
  * ATS 시뮬레이션 리포트 차트 전체화면 모달.
  * Radix Dialog로 구성되며, 배경 이미지 + 블러 오버레이 위에
  * 헤더(타이틀·퍼센트·닫기 버튼)와 라인 차트를 렌더링한다.
+ *
+ * 주요 수정사항:
+ * - 닫기 버튼: GlassBtn + glass-btn-dark 클래스 + color="#ffffff" 적용 (흰색 텍스트·아이콘)
  */
 
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
+import { GlassBtn } from "@/components/layout/header/GlassBtn";
 import { LineChartWithHighlight } from "@/components/charts/LineChartWithHighlight";
 
 interface FullscreenChartModalProps {
@@ -136,15 +140,14 @@ export default function FullscreenChartModal({
 
               {/* 우측: 닫기 버튼 */}
               <Dialog.Close asChild>
-                <button className="w-[120px] h-12 flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer z-10">
-                  <Image
-                    src="/assets/simulation/close-button.png"
-                    alt="Close"
-                    width={120}
-                    height={48}
-                    className="flex-shrink-0 w-full h-full object-contain"
-                  />
-                </button>
+                <GlassBtn
+                  iconSrc="/icons/basics/close-16.svg"
+                  width={120}
+                  className="glass-btn-dark"
+                  color="#ffffff"
+                >
+                  Close
+                </GlassBtn>
               </Dialog.Close>
             </div>
 

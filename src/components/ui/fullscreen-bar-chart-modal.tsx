@@ -1,12 +1,18 @@
 "use client";
 
-/** FullscreenBarChartModal — Optivis vs Traditional 바 차트를 전체화면 모달로 표시 (클릭 시 감소량 시각화) */
+/**
+ * FullscreenBarChartModal — Optivis vs Traditional 바 차트를 전체화면 모달로 표시 (클릭 시 감소량 시각화)
+ *
+ * 주요 수정사항:
+ * - 닫기 버튼: GlassBtn + glass-btn-dark 클래스 + color="#ffffff" 적용 (흰색 텍스트·아이콘)
+ */
 
 import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import ReactECharts from "@/components/charts/DynamicECharts";
+import { GlassBtn } from "@/components/layout/header/GlassBtn";
 
 interface FullscreenBarChartModalProps {
   open: boolean;
@@ -148,15 +154,14 @@ export default function FullscreenBarChartModal({
 
               {/* Close Button */}
               <Dialog.Close asChild>
-                <button className="w-[120px] h-12 flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer z-10">
-                  <Image
-                    src="/assets/simulation/close-button.png"
-                    alt="Close"
-                    width={120}
-                    height={48}
-                    className="flex-shrink-0 w-full h-full object-contain"
-                  />
-                </button>
+                <GlassBtn
+                  iconSrc="/icons/basics/close-16.svg"
+                  width={120}
+                  className="glass-btn-dark"
+                  color="#ffffff"
+                >
+                  Close
+                </GlassBtn>
               </Dialog.Close>
             </div>
 

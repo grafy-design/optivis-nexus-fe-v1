@@ -28,9 +28,11 @@ export function ComparisonBarChart({
 }: ComparisonBarChartProps) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const fontSize = size === "m" ? 20 : 10;
-  const fontWeight = size === "m" ? 700 : 600;
-  const labelOffset: [number, number] = size === "m" ? [0, 6] : [0, 4];
+  const isCompact = size === "s";
+  const fontSize = isCompact ? 10 : 20;
+  const fontWeight = isCompact ? 600 : 700;
+  const labelOffset: [number, number] = isCompact ? [0, 4] : [0, 6];
+  const gridPad = isCompact ? 4 : 16;
   const maxValue = Math.max(optivisValue, traditionalValue);
   const reduction = Math.abs(traditionalValue - optivisValue);
 
@@ -55,6 +57,8 @@ export function ComparisonBarChart({
               const barW = barUnit * 0.45;
               const gapW = barW * 0.1;
               const optivisCenterX = gridX + barW / 2;
+              const barsLeft = gridX;
+              const barsWidth = 2 * barW + gapW;
 
               // 그라디언트 영역 높이 (같은 값일 때도 최소 높이 확보)
               const bottomY = api.coord([0, 0])[1];
@@ -67,9 +71,9 @@ export function ComparisonBarChart({
                   {
                     type: "rect",
                     shape: {
-                      x: gridX,
+                      x: barsLeft,
                       y: higherY,
-                      width: gridWidth,
+                      width: barsWidth,
                       height: gradientHeight,
                     },
                     style: {
@@ -91,9 +95,9 @@ export function ComparisonBarChart({
                   {
                     type: "line",
                     shape: {
-                      x1: gridX,
+                      x1: barsLeft,
                       y1: higherY,
-                      x2: gridX + gridWidth,
+                      x2: barsLeft + barsWidth,
                       y2: higherY,
                     },
                     style: {
@@ -103,20 +107,20 @@ export function ComparisonBarChart({
                     },
                     silent: true,
                   },
-                  // 차이값 텍스트 (OPTIVIS 바 위, 점선과 OPTIVIS 바 사이)
+                  // 차이값 텍스트 (OPTIVIS 바 상단)
                   ...(reduction > 0 ? [{
                     type: "text",
                     position: [
-                      optivisCenterX + 12,
-                      (higherY + optivisY) / 2,
+                      optivisCenterX + (isCompact ? 4 : 6),
+                      higherY + (isCompact ? 4 : 8),
                     ],
                     style: {
                       text: reduction.toFixed(2),
                       fill: "#262255",
-                      fontSize: size === "m" ? 14 : 9,
+                      fontSize: isCompact ? 9 : 14,
                       fontWeight: 600,
                       textAlign: "center",
-                      textVerticalAlign: "middle",
+                      textVerticalAlign: "top",
                       fontFamily: "Inter",
                     },
                     silent: true,
@@ -125,7 +129,7 @@ export function ComparisonBarChart({
               };
             },
             data: [0],
-            z: -1,
+            z: 10,
           },
         ]
       : [];
@@ -139,7 +143,7 @@ export function ComparisonBarChart({
     >
       <ReactECharts
         option={{
-          grid: { left: 0, right: 0, top: 0, bottom: 0, containLabel: false },
+          grid: { left: gridPad, right: gridPad, top: 0, bottom: 0, containLabel: false },
           xAxis: { show: false, type: 'category' as const, data: [''] },
           yAxis: { show: false, type: 'value' as const, min: 0, max: maxValue * 1.2, boundaryGap: false },
           tooltip: { show: false },

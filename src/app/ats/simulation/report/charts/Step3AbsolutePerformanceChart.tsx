@@ -6,6 +6,14 @@
  * 데이터 손상 시나리오(Ideal/Mild/Moderate/Severe) × 3가지 방법론
  * (Proposed/Standard ANCOVA/Unadjusted)의 치료 효과 추정값(95% CI)을
  * custom error bar + line 시리즈로 그룹화하여 시각화한다.
+ *
+ * 주요 수정사항:
+ * - 툴팁: axis 트리거로 전환 — 같은 그룹(시나리오) 호버 시 3개 시리즈 동시 표시
+ * - markLine 라벨: "Assumed effect (for simulation)" 텍스트를 차트 위에 직접 표시, 범례에서 제거
+ * - 레전드: 절대 배치 오버레이 → 하단 flex 컨테이너로 이동 (text-small2, -mb-1)
+ * - 그룹 간격: GAP_SLOTS_BETWEEN_GROUPS=1로 그룹 사이 빈 칸 1개
+ * - y축 이름: 괄호 앞 줄바꿈 ("Estimated Treatment Effect\n(95% CI)")
+ * - 그리드: left 24, nameGap 22
  */
 
 import ReactECharts from "@/components/charts/DynamicECharts";
@@ -14,9 +22,10 @@ import {
   CHART_AXIS_NAME,
   CHART_AXIS_LINE,
   CHART_AXIS_TICK,
+  CHART_Y_AXIS_TICK,
   CHART_Y_AXIS_SPLIT_LINE,
 } from "./chartStyles";
-import { ATS_REPORT_COLORS, tooltipItem } from "@/lib/chart-styles";
+import { ATS_REPORT_COLORS, tooltipItem, tooltipDotRow, tooltipTitle, tooltipWrap } from "@/lib/chart-styles";
 import type { AbsolutePerformanceItem } from "@/services/studyService";
 
 export interface Step3AbsolutePerformanceChartProps {
@@ -57,7 +66,7 @@ const CATEGORIES = [
 /** 그룹 내 갭: 한 그룹 안에서 시리즈(Proposed, ANCOVA, Unadjusted)가 차지하는 칸 수. 3이면 3칸 연속, 5면 5칸 중 0,2,4 사용해 더 벌어짐 */
 const SLOTS_PER_GROUP = 3;
 /** 그룹 간 갭: 그룹과 그룹 사이에 넣는 빈 칸 수. 0이면 붙어 있고, 1 이상이면 그만큼 빈 칸 추가 */
-const GAP_SLOTS_BETWEEN_GROUPS = 3;
+const GAP_SLOTS_BETWEEN_GROUPS = 1;
 /** 그룹 내에서 시리즈가 놓일 슬롯 인덱스 (0~SLOTS_PER_GROUP-1). [0,1,2]면 3칸 꽉 채움, [0,2,4]면 5칸 중 0,2,4 사용 */
 const SLOT_INDICES_IN_GROUP: [number, number, number] = [0, 1, 2];
 
@@ -219,13 +228,39 @@ export function Step3AbsolutePerformanceChart({
     : [];
 
   const option = {
-    tooltip: { ...tooltipItem },
+    tooltip: {
+      ...tooltipItem,
+      trigger: "axis" as const,
+      appendToBody: true,
+      axisPointer: {
+        type: "shadow" as const,
+        shadowStyle: { color: "rgba(150,150,150,0.08)" },
+      },
+      formatter: (params: any) => {
+        const items = Array.isArray(params) ? params : [params];
+        if (items.length === 0) return "";
+        const dataIndex = items[0]?.dataIndex;
+        if (dataIndex === undefined) return "";
+        const slotsPerUnit = SLOTS_PER_GROUP + GAP_SLOTS_BETWEEN_GROUPS;
+        const groupIdx = Math.floor(dataIndex / slotsPerUnit);
+        const posInGroup = dataIndex % slotsPerUnit;
+        if (posInGroup >= SLOTS_PER_GROUP || groupIdx >= ORDER.length) return "";
+        const groupName = ORDER[groupIdx];
+        let rows = "";
+        CATEGORIES.forEach((cat) => {
+          const d = byCategory[cat][groupIdx];
+          const { color, name } = CATEGORY_MAP[cat];
+          rows += tooltipDotRow(color, name, d.effect.toFixed(4));
+        });
+        return tooltipWrap(tooltipTitle(groupName) + rows);
+      },
+    },
     legend: { show: false },
     grid: {
-      left: 0,
+      left: 24,
       right: 4,
-      top: 0,
-      bottom: 0,
+      top: 4,
+      bottom: 16,
       containLabel: true,
     },
     xAxis: {
@@ -240,21 +275,22 @@ export function Step3AbsolutePerformanceChart({
         interval: 0,
       },
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: { show: false },
       splitLine: { show: false },
     },
     yAxis: {
       type: "value" as const,
-      name: "Estimated Treatment Effect (95% CI)",
+      name: "Estimated Treatment Effect\n(95% CI)",
       nameLocation: "middle",
-      nameGap: 28,
+      nameGap: 22,
       min: yRange.min,
       max: yRange.max,
       interval: yRange.interval,
       ...CHART_AXIS_NAME,
+      nameTextStyle: CHART_AXIS_NAME.nameTextStyle,
       axisLabel: CHART_AXIS_LABEL,
       axisLine: CHART_AXIS_LINE,
-      axisTick: CHART_AXIS_TICK,
+      axisTick: CHART_Y_AXIS_TICK,
       splitLine: CHART_Y_AXIS_SPLIT_LINE,
     },
     series: [
@@ -265,16 +301,34 @@ export function Step3AbsolutePerformanceChart({
             {
               name: "Assumed effect (for simulation)",
               type: "line",
-              data: [],
+              data: X_AXIS_DATA.map(() => null),
               symbol: "none",
               showSymbol: false,
               markLine: {
-                silent: true,
+                silent: false,
                 symbol: "none",
-                label: { show: false },
+                label: {
+                  show: true,
+                  position: "insideEndTop",
+                  formatter: "Assumed effect (for simulation)",
+                  fontSize: 9,
+                  fontFamily: "Inter",
+                  color: "#484646",
+                  padding: [1, 0, 0, 0],
+                },
+                emphasis: {
+                  label: {
+                    color: "#262255",
+                  },
+                  lineStyle: {
+                    color: ATS_REPORT_COLORS.markLine,
+                    type: [4, 4],
+                    width: 2,
+                  },
+                },
                 lineStyle: {
                   color: ATS_REPORT_COLORS.markLine,
-                  type: "dashed",
+                  type: [4, 4],
                   width: 1.5,
                 },
                 data: [{ yAxis: ASSUMED_EFFECT }],
@@ -286,27 +340,13 @@ export function Step3AbsolutePerformanceChart({
   };
 
   return (
-    <div className="p-3 flex-1 h-full flex flex-col overflow-hidden relative">
-      <div className="flex-shrink-0">
-        <p className="text-body5 text-neutral-30">A. Absolute Performance Comparison (Dodged)</p>
-        <div className="h-[1px] bg-[#E5E5E5] mt-1.5" />
-      </div>
+    <div className="p-3 flex-1 h-full flex flex-col overflow-hidden">
       <div className="flex-1 min-h-0 bg-white rounded-[4px] overflow-hidden">
         <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />
       </div>
       {hasData && (
         <div
-          className="absolute text-small1 text-[var(--chart-text-category-title)] gap-[1px]"
-          style={{
-            left: "50px",
-            bottom: "15%",
-            display: "inline-flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            padding: "3px 6px",
-            border: "1px solid var(--chart-legend-border)",
-            background: "var(--surface-60, rgba(255, 255, 255, 0.60))",
-          }}
+          className="shrink-0 flex items-center gap-x-2.5 text-small2 font-[Inter] text-text-secondary pl-6 pr-1 pt-0.5 -mb-1"
         >
           <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
             <span
@@ -347,18 +387,6 @@ export function Step3AbsolutePerformanceChart({
               ▲
             </span>
             <span>Unadjusted</span>
-          </div>
-          <div className="flex items-center gap-[5px]" style={{ minHeight: 14 }}>
-            <span
-              className="shrink-0 flex items-center justify-center"
-              style={{ width: 16, height: 16 }}
-            >
-              <span
-                className="border-t border-dashed border-[var(--chart-ats-markline)]"
-                style={{ width: 16, borderWidth: 1.5 }}
-              />
-            </span>
-            <span>Assumed effect (for simulation)</span>
           </div>
         </div>
       )}
