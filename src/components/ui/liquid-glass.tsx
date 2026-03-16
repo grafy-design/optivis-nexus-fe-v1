@@ -1,5 +1,7 @@
 "use client";
 
+/** LiquidGlass — blur/fill 레이어를 겹쳐 유리 질감을 표현하는 원형 컨테이너 */
+
 import { cn } from "@/lib/cn";
 import React from "react";
 

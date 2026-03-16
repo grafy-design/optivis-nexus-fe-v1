@@ -23,7 +23,7 @@ export const GlassBtn: React.FC<GlassBtnProps> = ({
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className="figma-header-btn-pil rounded-[32px] gap-1.5 pl-6 pr-6 py-5 [@media(max-width:1470px)]:pl-4 [@media(max-width:1470px)]:pr-4 [@media(max-width:1470px)]:py-3 [@media(max-width:1470px)]:rounded-[24px] inline-flex items-center justify-center border-none cursor-pointer shrink-0 transition-all glass-btn-responsive"
+    className="figma-header-btn-pil rounded-[32px] gap-1.5 px-6 py-5 [@media(max-width:1470px)]:px-4 [@media(max-width:1470px)]:py-3 [@media(max-width:1470px)]:rounded-[24px] inline-flex items-center justify-center border-none cursor-pointer shrink-0 transition-all glass-btn-responsive"
     style={{
       ...(width ? { "--glass-btn-w": `${width}px`, "--glass-btn-w-sm": `${Math.round(width * 0.75)}px` } as React.CSSProperties : {}),
       background: "transparent",

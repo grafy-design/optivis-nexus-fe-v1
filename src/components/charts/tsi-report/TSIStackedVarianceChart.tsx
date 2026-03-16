@@ -1,5 +1,7 @@
 "use client";
 
+/** TSIStackedVarianceChart — Within/Explained 분산을 스택형 막대로 시각화하는 차트 */
+
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceStackChartData } from "./types";

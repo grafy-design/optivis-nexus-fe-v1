@@ -1,5 +1,7 @@
 "use client";
 
+/** TSIForestAxisRow — 포레스트 플롯 하단의 공유 X축 눈금과 지표명을 표시하는 행 */
+
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import { useState, useEffect } from "react";

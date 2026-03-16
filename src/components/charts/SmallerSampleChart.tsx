@@ -1,5 +1,7 @@
 "use client";
 
+/** SmallerSampleChart — 샘플 크기 대비 신뢰구간 폭 비교 꺾은선 차트 (OPTIVIS vs Traditional) */
+
 import React from "react";
 import { LineChartWithHighlight } from "./LineChartWithHighlight";
 
@@ -26,7 +28,7 @@ export const SmallerSampleChart: React.FC<SmallerSampleChartProps> = ({
       yAxisName="CI Width"
       highlightIndex={highlightIndex}
       highlightXValue={highlightXValue}
-      grid={compactMode ? { left: 12, right: 8, top: 15, bottom: 12, containLabel: true } : { left: 16, right: 12, top: 15, bottom: 16, containLabel: true }}
+      grid={compactMode ? { left: 12, right: 8, top: 15, bottom: 12, containLabel: true } : { left: 20, right: 12, top: 15, bottom: 16, containLabel: true }}
       xAxisConfig={compactMode ? {
         nameGap: 16,
         nameTextStyle: { fontSize: 8, fontWeight: 500, fontFamily: "Inter", color: "#787776" },

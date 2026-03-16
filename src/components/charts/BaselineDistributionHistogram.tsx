@@ -1,11 +1,13 @@
 "use client";
 
+/** BaselineDistributionHistogram — 기저값 분포를 그룹별 겹침 히스토그램으로 시각화 */
+
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import {
   getNiceInterval,
-  HISTOGRAM_PALETTE,
+  getHistogramPalette,
   tooltipAxisShadow,
   tooltipRow,
   tooltipWrap,
@@ -143,7 +145,7 @@ export const BaselineDistributionHistogram = ({
           splitLine: splitLineHidden,
         },
         normalizedGroups,
-        palette: HISTOGRAM_PALETTE,
+        palette: getHistogramPalette(normalizedGroups.length),
         bucketCount,
       },
       groupCount: normalizedGroups.length,

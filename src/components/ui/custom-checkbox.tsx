@@ -1,5 +1,7 @@
 "use client";
 
+/** CustomCheckbox — SVG 기반 커스텀 체크박스 (체크/미체크/비활성 상태 지원) */
+
 interface CustomCheckboxProps {
   checked: boolean;
   onChange: () => void;

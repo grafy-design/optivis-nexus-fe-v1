@@ -1,5 +1,7 @@
 "use client";
 
+/** BaselineCharacteristicsTable — TSI 리포트의 Baseline Characteristics 비교 테이블 (Full Cohort vs Filtered Cohort) */
+
 import { useState, useEffect } from "react";
 
 // ── 타입 정의 ──────────────────────────────────────────────────────────────

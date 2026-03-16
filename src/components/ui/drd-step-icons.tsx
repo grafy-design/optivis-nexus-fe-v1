@@ -1,3 +1,5 @@
+/** DRD Step Icons — DRD 단계별 아이콘 모음 (바이러스/깔때기/별/시계, 회색/오렌지/활성 상태) */
+
 export function IconVirusGray({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 25 24" fill="none">

@@ -1,5 +1,7 @@
 "use client";
 
+/** LiquidGlassButton — 그라데이션과 유리 질감 오버레이를 적용한 pill 형태 버튼 */
+
 import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/cn";

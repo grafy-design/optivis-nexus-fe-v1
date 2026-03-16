@@ -46,7 +46,7 @@ export const HeaderActions: React.FC<HeaderActionsProps> = ({ type, drdStep = 1 
               iconSrc="/assets/header/download.svg"
               onClick={() => window.dispatchEvent(new Event("save-report-pdf"))}
             >
-              Save as PDF
+              <div className="pr-1">Save as PDF</div>
             </GlassBtn>
           ) : (
             <button

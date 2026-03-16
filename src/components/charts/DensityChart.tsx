@@ -1,3 +1,5 @@
+/** DensityChart — KDE 기반 밀도 분포 곡선 차트로 피크 간격 강조 및 세그먼트 분할 지원 */
+
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";

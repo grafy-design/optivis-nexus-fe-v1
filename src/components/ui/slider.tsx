@@ -1,5 +1,7 @@
 "use client";
 
+/** Slider — 드래그 가능한 커스텀 슬라이더 (Min/Max 라벨, 값 표시 박스, 반응형 크기 지원) */
+
 import { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/cn";
 
@@ -183,8 +185,8 @@ export default function Slider({
             />
 
             {/* Ticks */}
-            <div className="absolute w-full flex justify-between px-0" style={{ top: tickTop }}>
-              {[0, 1, 2, 3, 4].map((tick) => (
+            <div className="absolute w-full flex justify-between" style={{ top: tickTop, paddingLeft: knobW / 2, paddingRight: knobW / 2 }}>
+              {[0, 1, 2].map((tick) => (
                 <div
                   key={tick}
                   className={cn("rounded-full bg-neutral-90", tickSize)}
@@ -204,7 +206,7 @@ export default function Slider({
                 backgroundColor: knobStyles.bg,
                 border: `1px solid ${knobStyles.border}`,
                 boxShadow: "0px 0.5px 4px 0px rgba(0,0,0,0.12), 0px 6px 13px 0px rgba(0,0,0,0.12)",
-                left: `calc(${percentage}% - ${knobW / 2}px)`,
+                left: `calc(${percentage}% - ${(percentage / 100) * knobW}px)`,
                 transform: "translateY(-50%)",
                 top: "50%",
                 cursor: disabled ? "not-allowed" : isDragging ? "grabbing" : "grab",

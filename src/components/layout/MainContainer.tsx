@@ -1,4 +1,5 @@
 "use client";
+/** MainContainer — 헤더 아래 메인 콘텐츠 영역을 감싸는 스크롤 가능한 래퍼 */
 
 import React from "react";
 

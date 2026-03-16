@@ -1,5 +1,7 @@
 "use client";
 
+/** PrimaryTable — 사이즈 기반 Compound 패턴 테이블 (Header/Body/Card/Row 서브 컴포넌트 포함) */
+
 import React from "react";
 import { cn } from "@/lib/cn";
 

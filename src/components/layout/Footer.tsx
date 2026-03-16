@@ -1,4 +1,5 @@
 "use client";
+/** Footer — 페이지 하단 공통 푸터 영역 */
 
 import React from "react";
 

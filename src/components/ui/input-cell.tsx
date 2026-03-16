@@ -1,5 +1,7 @@
 "use client";
 
+/** InputCell — 테이블/폼 행 안에서 사용하는 인라인 텍스트 입력 셀 컴포넌트 */
+
 import React from "react";
 import { cn } from "@/lib/cn";
 
@@ -9,19 +11,19 @@ const SIZE_CONFIG = {
     height: 28,
     paddingX: 10,
     text: "text-body5m",
-    radius: "rounded-[4px]",
+    radius: "rounded-[8px]",
   },
   m: {
     height: 32,
     paddingX: 12,
     text: "text-body5m",
-    radius: "rounded-[4px]",
+    radius: "rounded-[8px]",
   },
   l: {
     height: 36,
     paddingX: 12,
     text: "text-body4m",
-    radius: "rounded-[4px]",
+    radius: "rounded-[8px]",
   },
 } as const;
 

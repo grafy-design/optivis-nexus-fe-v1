@@ -1,5 +1,7 @@
 "use client";
 
+/** DropdownCell — 테이블/폼 셀 안에서 사용하는 포탈 기반 드롭다운 선택 컴포넌트 */
+
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 
@@ -118,6 +120,10 @@ interface DropdownCellProps {
   iconPath?: string;
   iconWidth?: number;
   iconHeight?: number;
+  /** 메뉴 최대 높이 오버라이드 (기본값: SIZE_CONFIG 참조) */
+  menuMaxHeight?: number;
+  /** 트리거 높이 오버라이드 (반응형 축소 무시) */
+  height?: number;
 }
 
 /**
@@ -137,6 +143,8 @@ export default function DropdownCell({
   iconPath,
   iconWidth,
   iconHeight,
+  menuMaxHeight: menuMaxHeightProp,
+  height: heightOverride,
 }: DropdownCellProps) {
   const sizeConfig = SIZE_CONFIG[size];
   const [isSmall, setIsSmall] = useState(false);
@@ -151,10 +159,14 @@ export default function DropdownCell({
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  const triggerHeight = isSmall ? sizeConfig.smallTriggerHeight : sizeConfig.triggerHeight;
+  const triggerHeight = heightOverride ?? (isSmall ? sizeConfig.smallTriggerHeight : sizeConfig.triggerHeight);
   const fontSize = isSmall ? sizeConfig.smallFontSize : sizeConfig.fontSize;
   const iconSize = isSmall ? sizeConfig.smallIconSize : sizeConfig.iconSize;
   const s = sizeConfig;
+  const optionHeight = isSmall ? Math.round(s.optionHeight * 2 / 3) : s.optionHeight;
+  const resolvedMenuMaxHeight = isSmall
+    ? Math.round((menuMaxHeightProp ?? s.menuMaxHeight) * 2 / 3)
+    : (menuMaxHeightProp ?? s.menuMaxHeight);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number; width: number }>({
     top: 0,
     left: 0,
@@ -263,8 +275,8 @@ export default function DropdownCell({
               display: "flex",
               flexDirection: "column",
               zIndex: 9999,
-              maxHeight: s.menuMaxHeight,
-              overflowY: "auto",
+              maxHeight: resolvedMenuMaxHeight,
+              overflowY: "overlay" as React.CSSProperties["overflowY"],
               boxShadow: "0px 4px 16px rgba(0,0,0,0.10)",
             }}
           >
@@ -282,7 +294,7 @@ export default function DropdownCell({
                     }}
                     className="rounded-[4px]"
                     style={{
-                      height: s.optionHeight,
+                      height: optionHeight,
                       display: "flex",
                       alignItems: "center",
                       paddingLeft: s.optionPaddingX,
@@ -290,7 +302,7 @@ export default function DropdownCell({
                       paddingTop: s.optionPaddingY,
                       paddingBottom: s.optionPaddingY,
                       fontWeight: 500,
-                      fontSize: s.fontSize,
+                      fontSize: fontSize,
                       color: isActive ? "var(--primary-30)" : "var(--text-secondary)",
                       letterSpacing: s.letterSpacing,
                       lineHeight: 1.18,

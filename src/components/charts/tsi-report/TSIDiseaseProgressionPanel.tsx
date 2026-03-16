@@ -1,5 +1,7 @@
 "use client";
 
+/** TSIDiseaseProgressionPanel — 하위군별 질병 진행 추이를 오차 막대 꺾은선 차트와 범례로 표시하는 패널 */
+
 import {
   MultiLineWithErrorBar,
   type ErrorBarGroup,

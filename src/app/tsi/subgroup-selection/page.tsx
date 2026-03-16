@@ -1021,7 +1021,7 @@ function ExpandedRowContent({ row }: { row: ResultTableItem }) {
                               {displayName}
                             </div>
                             <div className="text-h4 [@media(max-width:1470px)]:text-body1 text-secondary-60">
-                              {v.variance.toFixed(2)}
+                              {(v.variance ?? 0).toFixed(2)}
                             </div>
                           </div>
                         );

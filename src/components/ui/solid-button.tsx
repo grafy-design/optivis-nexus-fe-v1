@@ -1,11 +1,13 @@
 "use client";
 
+/** SolidButton — 반응형 크기 축소를 지원하는 솔리드 스타일 범용 버튼 */
+
 import { cn } from "@/lib/cn";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
 // 버튼의 종류와 스타일 타입 정의
-export type ButtonVariant = 
+export type ButtonVariant =
   | "primary"        // Orange (#F06600)
   | "secondary"      // Gray (#787776)
   | "purple"         // Purple (#3A11D8)

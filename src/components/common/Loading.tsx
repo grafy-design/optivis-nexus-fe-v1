@@ -1,4 +1,5 @@
 "use client";
+/** Loading — 전체 화면 오버레이 Lottie 로딩 스피너 */
 
 import React from "react";
 import Lottie from "lottie-react";

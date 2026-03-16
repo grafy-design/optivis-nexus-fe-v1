@@ -1,5 +1,7 @@
 "use client";
 
+/** InfoIcon — 원형 정보(i) 표시 SVG 아이콘 (반응형 크기 지원) */
+
 interface InfoIconProps {
   className?: string;
   color?: string;

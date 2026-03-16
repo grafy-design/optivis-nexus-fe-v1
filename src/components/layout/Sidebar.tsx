@@ -1,4 +1,6 @@
 "use client";
+/** Sidebar — 좌측 고정 96px 사이드바 (로고, 폴더/검색/추가 버튼, 설정/아바타) */
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";

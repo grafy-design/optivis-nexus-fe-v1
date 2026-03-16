@@ -1,5 +1,7 @@
 "use client";
 
+/** FullscreenBarChartModal — Optivis vs Traditional 바 차트를 전체화면 모달로 표시 (클릭 시 감소량 시각화) */
+
 import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";

@@ -1,5 +1,7 @@
 "use client";
 
+/** TSISaveModal — TSI 시뮬레이션 결과 저장 모달 (제목·설명 입력 후 저장) */
+
 import { useState, useEffect } from "react";
 import SolidButton from "@/components/ui/solid-button";
 

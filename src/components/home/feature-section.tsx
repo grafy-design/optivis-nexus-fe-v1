@@ -1,4 +1,5 @@
 "use client";
+/** FeatureSection — Package/Service 카드 목록을 표시하는 홈 화면 섹션 패널 */
 
 import FeatureCard from "./feature-card";
 import { cn } from "@/lib/cn";

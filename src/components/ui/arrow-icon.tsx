@@ -1,5 +1,7 @@
 "use client";
 
+/** ArrowIcon — 상/하 방향 전환이 가능한 SVG 화살표 아이콘 (s/m/l/xl 크기 지원) */
+
 import React from "react";
 
 const SIZES = { s: 12, m: 20, l: 28, xl: 32 } as const;

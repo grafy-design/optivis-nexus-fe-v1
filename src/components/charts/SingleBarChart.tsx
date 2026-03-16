@@ -1,5 +1,7 @@
 "use client";
 
+/** SingleBarChart — 단일 값을 표시하는 막대 차트로 툴팁 및 호버 강조 지원 */
+
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
   BAR_RADIUS,

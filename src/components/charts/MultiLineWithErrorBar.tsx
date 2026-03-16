@@ -1,5 +1,7 @@
 "use client";
 
+/** MultiLineWithErrorBar — 다중 그룹 꺾은선 + 오차 막대 차트로 거리 기반 호버 강조 지원 */
+
 import React, { useState, useRef, useEffect } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
@@ -204,15 +206,7 @@ export const MultiLineWithErrorBar = ({
         symbolSize,
         itemStyle: filledSymbol ? { color, borderColor: color, borderWidth: 1 } : { color },
         lineStyle: { width: lineWidth, color: buildLineGradient(color, hoveredX, xAxisMin, xAxisMax, isActive) },
-        emphasis: {
-          focus: "series",
-          itemStyle: { opacity: 1, borderWidth: 2, borderColor: color, color },
-          lineStyle: { width: lineWidth * 1.5 },
-        },
-        blur: {
-          itemStyle: { opacity: 0.12 },
-          lineStyle: { opacity: 0.12 },
-        },
+        emphasis: { disabled: true },
       },
       {
         name: `${groupName} Error`,

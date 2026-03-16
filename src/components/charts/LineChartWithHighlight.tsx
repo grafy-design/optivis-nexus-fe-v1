@@ -1,5 +1,7 @@
 "use client";
 
+/** LineChartWithHighlight — 두 곡선의 최대 차이 지점을 자동 감지하여 강조하는 비교 꺾은선 차트 */
+
 import React, { useMemo } from "react";
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
@@ -203,10 +205,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         itemStyle: { color: optivisColor },
         smooth: true,
         z: 3,
-        emphasis: {
-          lineStyle: { width: optivisLineWidth + 1, color: "#ff7a1a" },
-          itemStyle: { color: "#ff7a1a", borderColor: "#ff7a1a" },
-        },
+        emphasis: { disabled: true },
         markPoint: optivisPoint
           ? {
               data: [
@@ -283,10 +282,7 @@ export const LineChartWithHighlight: React.FC<LineChartWithHighlightProps> = ({
         itemStyle: { color: traditionalColor },
         smooth: true,
         z: 2,
-        emphasis: {
-          lineStyle: { width: traditionalLineWidth + 1, color: "#3a2d7a" },
-          itemStyle: { color: "#3a2d7a", borderColor: "#3a2d7a" },
-        },
+        emphasis: { disabled: true },
         markPoint: traditionalPoint
           ? {
               data: [

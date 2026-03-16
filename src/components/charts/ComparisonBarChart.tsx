@@ -1,5 +1,7 @@
 "use client";
 
+/** ComparisonBarChart — OPTIVIS와 Traditional 두 값을 나란히 비교하는 막대 차트 */
+
 import { useState } from "react";
 import ReactECharts from "@/components/charts/DynamicECharts";
 import {
@@ -28,7 +30,7 @@ export function ComparisonBarChart({
 
   const fontSize = size === "m" ? 20 : 10;
   const fontWeight = size === "m" ? 700 : 600;
-  const labelOffset: [number, number] = size === "m" ? [4, 6] : [2, 4];
+  const labelOffset: [number, number] = size === "m" ? [0, 6] : [0, 4];
   const maxValue = Math.max(optivisValue, traditionalValue);
   const reduction = Math.abs(traditionalValue - optivisValue);
 
@@ -54,8 +56,9 @@ export function ComparisonBarChart({
               const gapW = barW * 0.1;
               const optivisCenterX = gridX + barW / 2;
 
-              // 그라디언트 영역 높이
-              const gradientHeight = optivisY - higherY;
+              // 그라디언트 영역 높이 (같은 값일 때도 최소 높이 확보)
+              const bottomY = api.coord([0, 0])[1];
+              const gradientHeight = Math.max(optivisY - higherY, (bottomY - higherY) * 0.4);
 
               return {
                 type: "group",
@@ -77,8 +80,8 @@ export function ComparisonBarChart({
                         x2: 0,
                         y2: 1,
                         colorStops: [
-                          { offset: 0, color: "rgba(35, 31, 82, 0.125)" },
-                          { offset: 1, color: "rgba(35, 31, 82, 0)" },
+                          { offset: 0, color: "rgba(68, 64, 117, 0.125)" },
+                          { offset: 1, color: "rgba(68, 64, 117, 0)" },
                         ],
                       },
                     },
@@ -94,7 +97,7 @@ export function ComparisonBarChart({
                       y2: higherY,
                     },
                     style: {
-                      stroke: "#787776",
+                      stroke: "#262255",
                       lineWidth: 1,
                       lineDash: [3, 2],
                     },
@@ -109,7 +112,7 @@ export function ComparisonBarChart({
                     ],
                     style: {
                       text: reduction.toFixed(2),
-                      fill: "#787776",
+                      fill: "#262255",
                       fontSize: size === "m" ? 14 : 9,
                       fontWeight: 600,
                       textAlign: "center",

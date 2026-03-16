@@ -16,44 +16,79 @@ import ActiveDataIcon from "@/assets/icons/active-data.svg";
 
 const ENDPOINT_OPTIONS = ["ADAS Cog 11", "MMSE", "CDR"];
 
+/**
+ * ATS(Adaptive Trial Simulation) 워크플로우의 왼쪽 패널 컴포넌트입니다.
+ * 시뮬레이션 설정(샘플 사이즈, 질환, 평가지표, 임상 디자인 등) 폼을 제공하고 상태를 상위 컴포넌트로 전달합니다.
+ */
 interface LeftPanelProps {
+  /** 샘플 사이즈 조절 값 (Power 기반 계산용) */
   sampleSizeControl: number;
+  /** 샘플 사이즈 조절 값 변경 핸들러 */
   setSampleSizeControl: (value: number) => void;
+  /** 대상 질환명 */
   disease: string;
+  /** 질환명 변경 핸들러 */
   setDisease: (value: string) => void;
+  /** 1차 평가지표 (Primary Endpoints) 목록 */
   primaryEndpoints: EndpointItemSave[];
+  /** 1차 평가지표 목록 변경 핸들러 */
   setPrimaryEndpoints: (
     arg:
       | EndpointItemSave[]
       | ((prev: EndpointItemSave[]) => EndpointItemSave[]),
   ) => void;
+  /** 2차 평가지표 (Secondary Endpoints) 목록 */
   secondaryEndpoints: EndpointItemSave[];
+  /** 2차 평가지표 목록 변경 핸들러 */
   setSecondaryEndpoints: (
     arg:
       | EndpointItemSave[]
       | ((prev: EndpointItemSave[]) => EndpointItemSave[]),
   ) => void;
+  /** 명목 검정력 (Power) 설정값 */
   nominalPower: number;
+  /** 명목 검정력 변경 핸들러 */
   setNominalPower: (value: number) => void;
+  /** 유의수준 (Alpha) 설정값 */
   alpha: number;
+  /** 다중성 제어 (Multiplicity) 방식 */
   multiplicity: string;
+  /** 치료 기간 (ex: "12 months") */
   treatmentDuration: string;
+  /** 치료 기간 변경 핸들러 */
   setTreatmentDuration: (value: string) => void;
+  /** 가설 유형 (ex: "Superiority") */
   hypothesisType: string;
+  /** 가설 유형 변경 핸들러 */
   setHypothesisType: (value: string) => void;
+  /** 투약 그룹(군) 수 */
   treatmentArms: string;
+  /** 투약 그룹(군) 수 변경 핸들러 */
   setTreatmentArms: (value: string) => void;
+  /** 무작위 배정 비율 (ex: "1:1") */
   randomizationRatio: string;
+  /** 무작위 배정 비율 변경 핸들러 */
   setRandomizationRatio: (value: string) => void;
+  /** 타겟 하위집단 (Subpopulation) */
   subpopulation: string;
+  /** 하위집단 변경 핸들러 */
   setSubpopulation: (value: string) => void;
+  /** 활성(기준) 데이터 소스 (ex: "Oprimed data") */
   activeData: string;
+  /** 데이터 소스 변경 핸들러 */
   setActiveData: (value: string) => void;
+  /** 시뮬레이션 적용(실행) 버튼 핸들러 */
   onApply: () => void;
+  /** 시뮬레이션 실행/로딩 상태 */
   isLoading: boolean;
+  /** 평가지표(Endpoints) 저장 완료 시 핸들러 (모달 콜백) */
   onSaveEndpoints?: (data: AddEndpointsSaveData) => void;
 }
 
+/**
+ * ATS 시뮬레이션 파라미터를 입력받는 사이드바 컴포넌트 (`LeftPanel`).
+ * 샘플 사이즈 조정 슬라이더 및 기타 Trial Design 정보 폼을 렌더링합니다.
+ */
 export function LeftPanel({
   sampleSizeControl,
   setSampleSizeControl,
@@ -131,7 +166,7 @@ export function LeftPanel({
                     <div
                       className="absolute top-1/2 -translate-y-1/2 w-[38px] h-[24px] rounded-full bg-[#fcf8f8] border border-[#e2e1e5] cursor-grab active:cursor-grabbing hover:bg-[#f9f8fc] active:bg-[#efeff4] transition-colors duration-150 shadow-[0px_0.5px_4px_0px_rgba(0,0,0,0.12),0px_6px_13px_0px_rgba(0,0,0,0.12)]"
                       style={{
-                        left: `calc(${Math.max(0, Math.min(100, sliderPercentage))}% - 19px)`,
+                        left: `calc(${Math.max(0, Math.min(100, sliderPercentage))}% - ${(Math.max(0, Math.min(100, sliderPercentage)) / 100) * 38}px)`,
                       }}
                       onMouseDown={(e) => {
                         e.preventDefault();
@@ -271,7 +306,7 @@ export function LeftPanel({
                           icon="plus"
                           size="s"
                           variant="secondary"
-                          className="w-6 h-6 p-0 shrink-0 rounded-[8px] bg-primary-15 hover:bg-primary-20 active:bg-primary-10"
+                          className="w-6 h-6 p-0 shrink-0 rounded-[12px] bg-primary-15 hover:bg-primary-20 active:bg-primary-10"
                         />
                       </div>
                       <div className="bg-white rounded-[8px] p-3 py-2 flex flex-col gap-2">
@@ -597,6 +632,7 @@ export function LeftPanel({
                         iconPath="/assets/icons/active-data-edit.svg"
                         iconWidth={18}
                         iconHeight={18}
+                        menuMaxHeight={72}
                       />
                     </div>
                   </div>

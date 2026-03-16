@@ -1,5 +1,7 @@
 "use client";
 
+/** FullscreenIcon — 전체화면 전환용 대각선 화살표 SVG 아이콘 (m/s 크기 지원) */
+
 import React from "react";
 
 const SIZES = {

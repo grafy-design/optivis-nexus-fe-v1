@@ -1,5 +1,7 @@
 "use client";
 
+/** TSIVarianceByGroupBarChart — 그룹별 분산을 개별 막대로 비교하고 총분산 기준선을 표시하는 차트 */
+
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
 import type { VarianceBarsChartData } from "./types";

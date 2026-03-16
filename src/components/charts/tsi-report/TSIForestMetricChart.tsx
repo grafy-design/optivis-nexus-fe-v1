@@ -1,5 +1,7 @@
 "use client";
 
+/** TSIForestMetricChart — 신뢰구간 포레스트 플롯으로 그룹별 위험 지표를 시각화 */
+
 import ReactECharts from "echarts-for-react";
 import type { CustomSeriesRenderItem, EChartsOption } from "echarts";
 import type { RiskMetricKey, RiskResponseRow } from "./types";

@@ -767,6 +767,13 @@
     height: 0 !important;
   }
 
+  /* Overlay Scrollbar — 스크롤바가 콘텐츠 위에 오버레이 (컨테이너 안쪽) */
+  @supports (overflow: overlay) {
+    .overflow-auto { overflow: overlay !important; }
+    .overflow-y-auto { overflow-y: overlay !important; }
+    .overflow-x-auto { overflow-x: overlay !important; }
+  }
+
   /* Select dropdown scrollbar - 배경을 셀렉트바와 맞춤 (neutral-90) */
   .select-dropdown-options {
     scrollbar-width: thin;
@@ -1031,10 +1038,11 @@
   pointer-events: none;
   border-style: solid;
   border-color: transparent;
-  border-width: 0 30px 0 30px;
+  border-width: 0 30px;
   border-image-source: url("/assets/glass-button-pil.png");
-  border-image-slice: 0 25% 0 25% fill;
-  border-image-width: 0 50px 0 30%;
+  border-image-slice: 0 59 0 59 fill;
+  border-image-width: 0 30px 0 30px;
+  border-image-repeat: stretch;
 }
 
 .figma-header-btn-pil > * {

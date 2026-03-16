@@ -1,4 +1,5 @@
 "use client";
+/** AppLayout — Sidebar + Header + MainContainer를 조합하는 전체 페이지 레이아웃 셸 */
 
 import React, { useEffect, useState } from "react";
 import { Sidebar } from "./Sidebar";

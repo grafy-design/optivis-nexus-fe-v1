@@ -1,5 +1,7 @@
 "use client";
 
+/** HypothesisTypeModal — 가설 유형 개요 이미지를 전체화면 모달로 표시하는 다이얼로그 */
+
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Image from "next/image";

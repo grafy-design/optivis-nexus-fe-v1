@@ -1,5 +1,7 @@
 "use client";
 
+/** GlassButton / GlassTestButton — 유리 질감 배경과 hover/press 인터랙션을 제공하는 버튼 모음 */
+
 import React from "react";
 
 // ─── 제네릭 GlassButton ───────────────────────────────────────────────────────

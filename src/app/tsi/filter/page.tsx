@@ -557,7 +557,7 @@ export default function TSIFilterPage() {
                           background: "white",
                           zIndex: 9999,
                           maxHeight: 268,
-                          overflowY: "auto",
+                          overflowY: "overlay" as React.CSSProperties["overflowY"],
                           boxShadow: "0px 4px 16px rgba(0,0,0,0.125)",
                         }}
                       >

@@ -1,5 +1,7 @@
 "use client";
 
+/** ScatterSlopeChart — 그룹별 산점도와 회귀 직선을 함께 표시하는 차트 */
+
 import React from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";

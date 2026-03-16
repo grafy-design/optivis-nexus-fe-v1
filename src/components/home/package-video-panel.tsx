@@ -1,4 +1,5 @@
 "use client";
+/** PackageVideoPanel — 패키지 선택 시 배경 비디오 위에 제목/설명을 오버레이하는 패널 */
 
 import { useEffect, useRef } from "react";
 

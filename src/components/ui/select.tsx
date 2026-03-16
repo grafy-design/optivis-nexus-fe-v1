@@ -1,5 +1,7 @@
 "use client";
 
+/** Select — 포탈 기반 커스텀 셀렉트 드롭다운 (옵션 목록 및 아이콘 커스텀 지원) */
+
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";

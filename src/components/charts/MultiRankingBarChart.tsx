@@ -1,5 +1,7 @@
 "use client";
 
+/** MultiRankingBarChart — 순위별 막대 차트로 상위 항목을 색상으로 강조 표시 */
+
 import React, { useCallback, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 

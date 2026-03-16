@@ -1,5 +1,7 @@
 "use client";
 
+/** Input — 좌/우 아이콘을 지원하는 둥근 모서리 텍스트 입력 필드 */
+
 import { cn } from "@/lib/cn";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {

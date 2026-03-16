@@ -1,5 +1,7 @@
 "use client";
 
+/** DynamicECharts — ECharts 트리쉐이킹 및 동적 로딩을 위한 SSR 비활성화 래퍼 컴포넌트 */
+
 import dynamic from "next/dynamic";
 
 // ECharts 트리쉐이킹 + 동적 로딩: 필요한 모듈만 로드

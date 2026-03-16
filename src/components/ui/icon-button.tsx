@@ -1,5 +1,7 @@
 "use client";
 
+/** IconButton — SolidButton을 기반으로 아이콘 전용 버튼을 제공하는 래퍼 컴포넌트 */
+
 import React from "react";
 import Button, { ButtonSize } from "./solid-button";
 

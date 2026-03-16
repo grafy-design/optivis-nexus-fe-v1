@@ -1,5 +1,7 @@
 "use client";
 
+/** Gauge — 반원형 게이지 차트 (SVG 기반, 채움/빈영역 해치 패턴 및 인디케이터 지원) */
+
 import React, { useId } from "react";
 
 interface GaugeProps {

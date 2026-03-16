@@ -1,12 +1,16 @@
 "use client";
 
+/** AddEndpointsModal — Primary/Secondary 엔드포인트를 추가·편집하는 전체화면 모달 다이얼로그 */
+
 import { useState, useEffect, useMemo, useRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 // Removed import Image from "next/image"; as the module or types can't be found.
-import Select from "@/components/ui/select";
+import DropdownCell from "@/components/ui/dropdown-cell";
+import InputCell from "@/components/ui/input-cell";
 import Image from "next/image";
 import SolidButton from "@/components/ui/solid-button";
+import { GlassBtn } from "@/components/layout/header/GlassBtn";
 
 const MULTIPLICITY_OPTIONS = ["Bonferroni", "Holm", "Hochberg"] as const;
 const OUTCOME_OPTIONS = ["ADAS Cog 11", "MMSE", "CDR"];
@@ -305,22 +309,23 @@ export default function AddEndpointsModal({
               Add primary and secondary endpoints for your trial design
             </Dialog.Description>
           </VisuallyHidden.Root>
-          <div className="relative w-full min-h-[482px] rounded-[36px] overflow-hidden opacity-94">
+          <div className="relative w-full min-h-[420px] rounded-[36px] h-fit overflow-hidden opacity-94">
             <Image
               src="/assets/simulation/endpoint-bg.png"
               alt="Add Endpoints Modal"
-              width={1032}
-              height={482}
+              width={1020}
+              height={472}
               className="absolute inset-0 w-full h-full object-cover"
               priority
             />
-            <div className="relative z-10 p-6 flex flex-col">
-              <div className="flex items-center justify-between mb-14">
-                <h2 className="text-[36px] font-semibold leading-[36px] tracking-[-0.72px] text-white">
+            
+            <div className="relative z-10 p-6 flex flex-col gap-16 justify-between">
+              <div className="flex items-start justify-between">
+                <h2 className="text-h3 font-semibold leading-[36px] tracking-[-0.72px] text-white">
                   Add Endpoints
                 </h2>
                 <div className="flex gap-3 items-center">
-                  <button
+                  <GlassBtn
                     onClick={() => {
                       if (!hasChanges) return;
                       const firstPrimary = primaryRows[0];
@@ -353,45 +358,32 @@ export default function AddEndpointsModal({
                       onOpenChange(false);
                     }}
                     disabled={!hasChanges}
-                    className={`flex items-center justify-center transition-opacity z-10 ${
-                      !hasChanges
-                        ? " cursor-not-allowed"
-                        : "hover:opacity-70 cursor-pointer"
-                    }`}
+                    iconSrc="/icons/basics/complete-16.svg"
+                    width={115}
                   >
-                    <Image
-                      src={
-                        !hasChanges
-                          ? "/assets/simulation/savebtn-disabled.png"
-                          : "/assets/simulation/savebtn.png"
-                      }
-                      alt="Save"
-                      width={115}
-                      height={48}
-                      className="flex-shrink-0 w-full h-full object-contain"
-                    />
-                  </button>
+                    Save
+                  </GlassBtn>
                   <Dialog.Close asChild>
-                    <button className="w-[120px] h-12 flex items-center justify-center hover:opacity-70 transition-opacity cursor-pointer z-10">
-                      <Image
-                        src="/assets/simulation/close-button.png"
-                        alt="Close"
-                        width={120}
-                        height={48}
-                        className="flex-shrink-0 w-full h-full object-contain"
-                      />
-                    </button>
+                    <GlassBtn
+                      onClick={() => onOpenChange(false)}
+                      iconSrc="/icons/basics/close-16.svg"
+                      width={120}
+                    >
+                      Close
+                    </GlassBtn>
                   </Dialog.Close>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-[158px] min-h-[36px] flex items-center">
-                  <Select
+              <div className="flex flex-col gap-2 ">
+              <div className="flex items-center justify-between">
+                <div className="w-[158px] min-h-[24px] flex items-center">
+                  <DropdownCell
                     value={multiplicity}
                     options={[...MULTIPLICITY_OPTIONS]}
                     onChange={handleMultiplicityChange}
-                    className="w-[158px]"
+                    size="xs"
+                    width="100%"
+                    height={28}
                   />
                 </div>
                 <div className="flex gap-4">
@@ -474,85 +466,79 @@ export default function AddEndpointsModal({
                             </td>
                           )}
                           <td className="p-1 align-middle">
-                            <div className="rounded-[8px] bg-neutral-90 min-w-[48px] h-[26px] flex items-center justify-start px-3 text-body5 text-neutral-50">
+                            <div className="rounded-[8px] bg-neutral-95 min-w-[48px] h-[28px] flex items-center justify-start px-3 text-body5 text-neutral-50">
                               #{index + 1}
                             </div>
                           </td>
                           <td className="p-1 align-middle">
-                            <Select
+                            <DropdownCell
                               value={row.outcome}
                               options={OUTCOME_OPTIONS}
                               onChange={(v) =>
                                 updatePrimary(row.id, "outcome", v)
                               }
-                              className="w-full min-w-0"
+                              size="xs"
+                              width="100%"
+                              height={28}
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <Select
+                            <DropdownCell
                               value={row.type}
                               options={TYPE_OPTIONS}
                               onChange={(v) => updatePrimary(row.id, "type", v)}
-                              className="w-full min-w-0"
+                              size="xs"
+                              width="100%"
+                              height={28}
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <input
-                              type="text"
+                            <InputCell
                               value={row.effectSize}
-                              onChange={(e) =>
-                                updatePrimary(
-                                  row.id,
-                                  "effectSize",
-                                  e.target.value,
-                                )
+                              onChange={(v) =>
+                                updatePrimary(row.id, "effectSize", v)
                               }
-                              className="w-full h-[26px] px-3 rounded-[8px] bg-neutral-90 text-body5 text-neutral-50 border-0 outline-none"
+                              size="s"
+                              className="w-full"
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <input
-                              type="text"
+                            <InputCell
                               value={row.threshold}
-                              onChange={(e) =>
-                                updatePrimary(
-                                  row.id,
-                                  "threshold",
-                                  e.target.value,
-                                )
+                              onChange={(v) =>
+                                updatePrimary(row.id, "threshold", v)
                               }
+                              size="s"
+                              className="w-full"
                               disabled={row.type === "Continuous"}
                               placeholder={
                                 row.type === "Continuous"
                                   ? "Disabled"
                                   : undefined
                               }
-                              className={`w-full h-[26px] px-3 rounded-[8px] bg-neutral-90 text-body5 text-neutral-50 border-0 outline-none ${
-                                row.type === "Continuous"
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
-                              }`}
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <input
-                              type="text"
+                            <InputCell
                               value={row.alpha}
-                              onChange={(e) =>
-                                updatePrimary(row.id, "alpha", e.target.value)
+                              onChange={(v) =>
+                                updatePrimary(row.id, "alpha", v)
                               }
-                              className="w-full h-[26px] px-3 rounded-[8px] bg-neutral-90 text-body5 text-neutral-50 border-0 outline-none"
+                              size="s"
+                              className="w-full"
                             />
                           </td>
                           <td className="p-1 align-middle">
                             {index === 0 ? (
-                              <Select
+                              <DropdownCell
                                 value={sharedTargetPower}
                                 options={targetPowerOptions}
                                 onChange={(v) =>
                                   updatePrimary(row.id, "targetPower", v)
                                 }
-                                className="w-full min-w-0"
+                                size="xs"
+                                width="100%"
+                                height={28}
                               />
                             ) : (
                               <span className="text-neutral-40"></span>
@@ -595,66 +581,58 @@ export default function AddEndpointsModal({
                             </td>
                           )}
                           <td className="p-1 align-middle">
-                            <div className="rounded-[8px] bg-neutral-90 min-w-[48px] h-[26px] flex items-center justify-start px-3 text-body5 text-neutral-50">
+                            <div className="rounded-[8px] bg-neutral-95 min-w-[48px] h-[28px] flex items-center justify-start px-3 text-body5 text-neutral-50">
                               #{index + 1}
                             </div>
                           </td>
                           <td className="p-1 align-middle">
-                            <Select
+                            <DropdownCell
                               value={row.outcome}
                               options={OUTCOME_OPTIONS}
                               onChange={(v) =>
                                 updateSecondaryRow(row.id, "outcome", v)
                               }
-                              className="w-full min-w-0"
+                              size="xs"
+                              width="100%"
+                              height={28}
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <Select
+                            <DropdownCell
                               value={row.type}
                               options={TYPE_OPTIONS}
                               onChange={(v) =>
                                 updateSecondaryRow(row.id, "type", v)
                               }
-                              className="w-full min-w-0"
+                              height={28}
+                              size="xs"
+                              width="100%"
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <input
-                              type="text"
+                            <InputCell
                               value={row.effectSize}
-                              onChange={(e) =>
-                                updateSecondaryRow(
-                                  row.id,
-                                  "effectSize",
-                                  e.target.value,
-                                )
+                              onChange={(v) =>
+                                updateSecondaryRow(row.id, "effectSize", v)
                               }
-                              className="w-full h-[26px] px-3 rounded-[8px] bg-neutral-90 text-body5 text-neutral-50 border-0 outline-none"
+                              size="s"
+                              className="w-full"
                             />
                           </td>
                           <td className="p-1 align-middle">
-                            <input
-                              type="text"
+                            <InputCell
                               value={row.threshold}
-                              onChange={(e) =>
-                                updateSecondaryRow(
-                                  row.id,
-                                  "threshold",
-                                  e.target.value,
-                                )
+                              onChange={(v) =>
+                                updateSecondaryRow(row.id, "threshold", v)
                               }
+                              size="s"
+                              className="w-full"
                               disabled={row.type === "Continuous"}
                               placeholder={
                                 row.type === "Continuous"
                                   ? "Disabled"
                                   : undefined
                               }
-                              className={`w-full h-[26px] px-3 rounded-[8px] bg-neutral-90 text-body5 text-neutral-50 border-0 outline-none ${
-                                row.type === "Continuous"
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : ""
-                              }`}
                             />
                           </td>
 
@@ -684,14 +662,14 @@ export default function AddEndpointsModal({
 
                 {/* FWER 행: FWER은 화면 중앙, 0.05=8열(Alpha), 80%=9열(Target Power), 텍스트 왼쪽 정렬 */}
                 <div
-                  className="relative grid items-center bg-[#e2e1e5] px-4 py-2 rounded-b-[18px] gap-0 pl-4 pr-5"
+                  className="relative grid items-center bg-neutral-95 px-4 py-2 rounded-b-[18px] gap-0 pl-4 pr-5"
                   style={{
                     gridTemplateColumns:
                       "12fr 6fr 18fr 14fr 14fr 12fr 12fr 18fr 3fr",
                   }}
                 >
                   <span
-                    className="absolute left-1/2 -translate-x-1/2 text-body3 text-neutral-5 font-semibold pointer-events-none"
+                    className="absolute left-1/2 -translate-x-1/2 text-body4 text-text-primary font-semibold pointer-events-none"
                     aria-hidden
                   >
                     FWER
@@ -702,14 +680,15 @@ export default function AddEndpointsModal({
                   <span />
                   <span />
                   <span />
-                  <span className="text-body3 text-neutral-5 font-semibold text-left pl-1 leading-none">
+                  <span className="text-body4 text-text-primary font-semibold text-left pl-1 leading-none">
                     {alphaSumDisplay}
                   </span>
-                  <span className="text-body3 text-neutral-5 font-semibold text-left pl-1 leading-none whitespace-nowrap">
+                  <span className="text-body4 text-text-primary font-semibold text-left pl-1 leading-none whitespace-nowrap">
                     {primaryRows[0]
                       ? `${sharedTargetPower}(Primary)`
                       : "80%(Primary)"}
                   </span>
+                  </div>
                 </div>
               </div>
             </div>

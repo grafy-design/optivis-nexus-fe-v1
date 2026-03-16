@@ -1,5 +1,7 @@
 "use client";
 
+/** RightPanel — ATS 시뮬레이션 결과(차트·비교 테이블·리포트)를 표시하는 오른쪽 패널 */
+
 import { useState, useMemo } from "react";
 import { SmallerSampleChart } from "@/components/charts/SmallerSampleChart";
 import { SmallerNToScreenChart } from "@/components/charts/SmallerNToScreenChart";

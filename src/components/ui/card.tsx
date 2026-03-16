@@ -1,5 +1,7 @@
 "use client";
 
+/** Card — glass/solid/purple 배리언트를 지원하는 범용 카드 컨테이너 */
+
 import { cn } from "@/lib/cn";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {

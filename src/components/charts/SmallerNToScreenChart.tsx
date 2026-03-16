@@ -1,5 +1,7 @@
 "use client";
 
+/** SmallerNToScreenChart — 등록 기간 대비 검정력 비교 꺾은선 차트 (OPTIVIS vs Traditional) */
+
 import React from "react";
 import { LineChartWithHighlight } from "./LineChartWithHighlight";
 
@@ -26,7 +28,7 @@ export const SmallerNToScreenChart: React.FC<SmallerNToScreenChartProps> = ({
       yAxisName="Power"
       highlightIndex={highlightIndex}
       highlightXValue={highlightXValue}
-      grid={compactMode ? { left: 12, right: 8, top: 15, bottom: 12, containLabel: true } : { left: 16, right: 12, top: 15, bottom: 16, containLabel: true }}
+      grid={compactMode ? { left: 14, right: 8, top: 15, bottom: 12, containLabel: true } : { left: 20, right: 12, top: 15, bottom: 16, containLabel: true }}
       xAxisConfig={{
         nameGap: compactMode ? 16 : 18,
         nameTextStyle: {
@@ -39,7 +41,7 @@ export const SmallerNToScreenChart: React.FC<SmallerNToScreenChartProps> = ({
         axisLabel: { fontSize: compactMode ? 8 : 10, fontWeight: 500, fontFamily: "Inter", color: "#787776", margin: 4 },
       }}
       yAxisConfig={{
-        nameGap: compactMode ? 20 : 24,
+        nameGap: compactMode ? 18 : 26,
         nameTextStyle: {
           fontSize: compactMode ? 8 : 10,
           fontWeight: 500,

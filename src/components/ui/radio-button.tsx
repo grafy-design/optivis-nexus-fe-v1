@@ -1,5 +1,7 @@
 "use client";
 
+/** RadioButton — 원형 라디오 버튼 (선택/미선택 상태 및 라벨 텍스트 지원) */
+
 interface RadioButtonProps {
   checked: boolean;
   onChange?: () => void;

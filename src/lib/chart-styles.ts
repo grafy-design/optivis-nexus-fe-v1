@@ -47,15 +47,22 @@ export const GROUP_COLORS = [
   "#F1B316", // 옐로우
 ] as const;
 
-/** 히스토그램 보라 그라데이션 팔레트 (밝은순) */
-export const HISTOGRAM_PALETTE = [
-  "rgba(203,198,232,0.9)",
-  "rgba(176,170,220,0.9)",
-  "rgba(150,143,200,0.9)",
-  "rgba(124,116,180,0.9)",
-  "rgba(58,52,110,0.95)",
-  "rgba(40,37,86,0.95)",
-] as const;
+/** 히스토그램 primary 토큰 그라데이션 — 그룹 수별 팔레트 (밝은순) */
+const HISTOGRAM_PALETTES: Record<number, readonly string[]> = {
+  2: ["#aaa5e1", "#2d2a5d"],                                           // primary-70, 20
+  3: ["#c5c0fe", "#7571a9", "#262255"],                                // primary-80, 50, 15
+  4: ["#c5c0fe", "#8f8ac4", "#504c82", "#181347"],                     // primary-80, 60, 35, 10
+  5: ["#e3dfff", "#aaa5e1", "#7571a9", "#444075", "#181347"],          // primary-90, 70, 50, 30, 10
+  6: ["#e3dfff", "#c5c0fe", "#8f8ac4", "#5c588e", "#393569", "#181347"], // primary-90, 80, 60, 40, 25, 10
+};
+
+/** 그룹 수에 맞는 히스토그램 팔레트 반환 (기본 6단계) */
+export function getHistogramPalette(groupCount: number): readonly string[] {
+  return HISTOGRAM_PALETTES[groupCount] ?? HISTOGRAM_PALETTES[6];
+}
+
+/** @deprecated getHistogramPalette(groupCount) 사용 권장 */
+export const HISTOGRAM_PALETTE = HISTOGRAM_PALETTES[6];
 
 /** SubgroupProportion 팔레트 */
 export const SUBGROUP_PALETTE = {

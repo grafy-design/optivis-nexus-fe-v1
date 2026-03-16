@@ -1,5 +1,7 @@
 "use client";
 
+/** TSIReportHeader — TSI 리포트 페이지 상단 헤더 (제목, 날짜, PDF 저장 버튼) */
+
 import { useState, useEffect } from "react";
 import SolidButton from "@/components/ui/solid-button";
 

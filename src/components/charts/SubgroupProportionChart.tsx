@@ -1,5 +1,7 @@
 "use client";
 
+/** SubgroupProportionChart — 하위군별 비율을 스택형 막대 차트로 시각화 */
+
 import React, { useCallback, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";

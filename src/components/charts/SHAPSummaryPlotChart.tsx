@@ -1,5 +1,7 @@
 "use client";
 
+/** SHAPSummaryPlotChart — SHAP 값 기반 피처 중요도 요약 산점도 (색상으로 피처값 표현) */
+
 import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
